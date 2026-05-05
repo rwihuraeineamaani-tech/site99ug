@@ -5,7 +5,7 @@ export const Footer = () => (
   <footer className="border-t border-border bg-background text-foreground">
     <div className="px-6 md:px-10 py-12 md:py-16 grid grid-cols-2 md:grid-cols-4 gap-8 label">
       <div className="col-span-2 md:col-span-1">
-        <img src={logo} alt="Site 99" className="h-14 md:h-16 w-auto" />
+        <img src={logo} alt="Site 99" className="h-14 md:h-16 w-auto object-fill" />
         <p className="mt-4 normal-case tracking-normal text-muted-foreground font-sans text-sm">
           A creative residency. Narrative control as a service.
         </p>

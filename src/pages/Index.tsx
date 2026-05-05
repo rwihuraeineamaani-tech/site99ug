@@ -17,7 +17,7 @@ const residents = [
 const stats = [
   { k: "Residents In Trust", v: 6, suffix: "" },
   { k: "Years Building", v: 6, suffix: "" },
-  { k: "Markets Reached", v: 12, suffix: "" },
+  { k: "People Reached", v: 7.2, suffix: "M" },
   { k: "Stories Shipped", v: 240, suffix: "+" },
 ];
 
@@ -112,7 +112,7 @@ export default function Home() {
       {/* MARQUEE — light section */}
       <section className="border-y border-border bg-background py-8 md:py-10">
         <div className="px-6 md:px-10 mb-4 flex items-center justify-between label text-[11px] text-muted-foreground">
-          <span>In Residency — Currently with Site 99</span>
+          <span>In Residency </span>
           <span className="hidden md:inline">Scroll →</span>
         </div>
         <Marquee items={residents} />
