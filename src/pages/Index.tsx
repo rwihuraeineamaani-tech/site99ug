@@ -67,7 +67,7 @@ export default function Home() {
           <span className="w-1.5 h-1.5 bg-site-red rounded-full animate-pulse" /> Residency Open
         </div>
 
-        <motion.div style={{ y: titleY }} className="absolute inset-0 flex flex-col justify-end pb-24 md:pb-32 px-6 md:px-10">
+        <motion.div style={{ y: titleY }} className="absolute inset-0 justify-end pb-24 md:pb-32 px-6 md:px-10 flex flex-col">
           <div className="overflow-hidden">
             <motion.h1
               initial={{ y: "100%" }}
@@ -95,7 +95,7 @@ export default function Home() {
             className="mt-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
           >
             <p className="max-w-md text-fluid-md text-white/85 font-medium">
-              Site 99 is a creative residency. We build entertaining content and brand systems that earn attention — and keep it.
+              Site 99 is a creative residency. We build entertaining content and brand systems that earn attention  and keep it.
             </p>
             <Link
               to="/access"
