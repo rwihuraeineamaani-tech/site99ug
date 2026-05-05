@@ -22,8 +22,8 @@ export const Nav = () => {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 md:px-10 py-5 mix-blend-difference">
-        <Link to="/" className="display text-2xl md:text-3xl text-site-white tracking-tighter">
-          SITE<span className="text-site-red">/</span>99
+        <Link to="/" className="flex items-center gap-2" data-hover>
+          <img src={new URL('../assets/site99-logo.png', import.meta.url).href} alt="Site 99" className="h-9 md:h-11 w-auto rounded-xl" />
         </Link>
         <button
           onClick={() => setOpen((o) => !o)}
