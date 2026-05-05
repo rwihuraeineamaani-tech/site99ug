@@ -43,11 +43,11 @@ export default function Philosophy() {
               </span>
             </motion.div>
           </div>
-          <div className="absolute bottom-10 left-6 md:left-10 mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground max-w-xs">
-            // The 99 rotates as you descend. Each turn is a doctrine.
+          <div className="absolute bottom-10 left-6 md:left-10 label text-[11px] text-white/60 max-w-xs">
+            The 99 turns as you scroll. Each rotation is a doctrine.
           </div>
-          <div className="absolute top-32 right-6 md:right-10 mono text-[10px] uppercase tracking-[0.3em] text-site-red">
-            ROTATION_LOCKED · SCROLL_TO_TURN
+          <div className="absolute top-32 right-6 md:right-10 label text-[11px] text-site-red">
+            Scroll to turn
           </div>
         </div>
       </section>
