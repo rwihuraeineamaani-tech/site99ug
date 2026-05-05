@@ -1,17 +1,18 @@
 import { Link } from "react-router-dom";
+import logo from "@/assets/site99-logo.png";
 
 export const Footer = () => (
-  <footer className="border-t border-border bg-site-black text-site-white">
-    <div className="px-6 md:px-10 py-12 md:py-16 grid grid-cols-2 md:grid-cols-4 gap-8 mono text-xs uppercase tracking-widest">
+  <footer className="border-t border-border bg-background text-foreground">
+    <div className="px-6 md:px-10 py-12 md:py-16 grid grid-cols-2 md:grid-cols-4 gap-8 label">
       <div className="col-span-2 md:col-span-1">
-        <div className="display text-3xl">SITE<span className="text-site-red">/</span>99</div>
-        <p className="mt-4 normal-case tracking-normal text-muted-foreground font-sans">
+        <img src={logo} alt="Site 99" className="h-14 md:h-16 w-auto" />
+        <p className="mt-4 normal-case tracking-normal text-muted-foreground font-sans text-sm">
           A creative residency. Narrative control as a service.
         </p>
       </div>
       <div>
         <div className="text-muted-foreground mb-3">Index</div>
-        <ul className="space-y-2">
+        <ul className="space-y-2 normal-case tracking-normal text-sm font-medium">
           <li><Link to="/archive" data-hover>The Archive</Link></li>
           <li><Link to="/residents" data-hover>The Residents</Link></li>
           <li><Link to="/philosophy" data-hover>The Philosophy</Link></li>
@@ -19,24 +20,22 @@ export const Footer = () => (
         </ul>
       </div>
       <div>
-        <div className="text-muted-foreground mb-3">Coordinates</div>
-        <ul className="space-y-2">
-          <li>hello@site99.co</li>
-          <li>+1 (000) 099 0099</li>
-          <li>Worldwide / 24h</li>
+        <div className="text-muted-foreground mb-3">Contacts</div>
+        <ul className="space-y-2 normal-case tracking-normal text-sm font-medium">
+          <li><a href="mailto:office@site99ug.com" data-hover>office@site99ug.com</a></li>
+          <li>Kampala, Uganda</li>
         </ul>
       </div>
       <div>
         <div className="text-muted-foreground mb-3">Status</div>
-        <ul className="space-y-2">
-          <li className="flex items-center gap-2"><span className="w-2 h-2 bg-site-red animate-pulse rounded-full" /> Accepting Residents Q3</li>
-          <li>v9.9.99</li>
+        <ul className="space-y-2 normal-case tracking-normal text-sm font-medium">
+          <li className="flex items-center gap-2"><span className="w-2 h-2 bg-site-red animate-pulse rounded-full" /> Accepting Residents</li>
         </ul>
       </div>
     </div>
-    <div className="border-t border-border px-6 md:px-10 py-5 flex flex-col md:flex-row justify-between gap-2 mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-      <span>© SITE 99 — All Territory Reserved</span>
-      <span>The Land Grab Is On.</span>
+    <div className="border-t border-border px-6 md:px-10 py-5 flex flex-col md:flex-row justify-between gap-2 label text-[11px] text-muted-foreground">
+      <span>© {new Date().getFullYear()} Site 99. All rights reserved.</span>
+      <span>site99ug.com</span>
     </div>
   </footer>
 );
