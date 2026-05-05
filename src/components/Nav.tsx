@@ -27,7 +27,7 @@ export const Nav = () => {
         </Link>
         <button
           onClick={() => setOpen((o) => !o)}
-          className="relative z-[200] flex items-center gap-3 text-site-white mono text-xs uppercase tracking-[0.25em]"
+          className="relative z-[200] flex items-center gap-3 text-site-white mono text-xs uppercase tracking-[0.25em] font-sans"
           data-hover
           aria-label="Toggle menu"
         >
