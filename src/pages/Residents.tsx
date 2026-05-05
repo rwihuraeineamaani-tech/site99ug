@@ -2,14 +2,12 @@ import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
 
 const residents = [
-  { name: "Kweli Creatives", territory: "Nairobi", since: "2022", status: "Active" },
-  { name: "The Lawns", territory: "London", since: "2023", status: "Active" },
-  { name: "Vanta House", territory: "Berlin", since: "2024", status: "Active" },
-  { name: "Atlas & Ore", territory: "New York", since: "2021", status: "Active" },
-  { name: "Northstar", territory: "Stockholm", since: "2023", status: "Expanding" },
-  { name: "Mercury Studio", territory: "Tokyo", since: "2024", status: "Active" },
-  { name: "Cipher Goods", territory: "Lisbon", since: "2024", status: "Active" },
-  { name: "Field Notes", territory: "Cape Town", since: "2025", status: "New" },
+  { name: "Kweli Creatives", territory: "Global · Art Gallery", since: "2022", status: "Active" },
+  { name: "Rolex Guy Uganda", territory: "Kampala · Fast Food", since: "2023", status: "Active" },
+  { name: "Uganda Youth Forum", territory: "Kampala · NGO", since: "2023", status: "Active" },
+  { name: "The Lawns Restaurant", territory: "Kololo · Fine Dining", since: "2023", status: "Active" },
+  { name: "Montana International School", territory: "Muyenga · Education", since: "2024", status: "Active" },
+  { name: "Nehemiah Consultants", territory: "Kampala · Advisory", since: "2024", status: "Active" },
 ];
 
 export default function Residents() {
