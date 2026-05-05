@@ -26,7 +26,7 @@ export default {
           white: "hsl(var(--site-white))",
         },
       },
-      borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
+      borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 0.25rem)", sm: "calc(var(--radius) - 0.5rem)", xl: "calc(var(--radius) + 0.5rem)", "2xl": "calc(var(--radius) + 1rem)" },
       keyframes: {
         "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },
         "accordion-up": { from: { height: "var(--radix-accordion-content-height)" }, to: { height: "0" } },
