@@ -96,7 +96,7 @@ export default function Access() {
               <button
                 type="submit"
                 data-hover
-                className="group inline-flex items-center gap-4 bg-site-red text-site-white px-10 py-6 mono text-xs uppercase tracking-[0.3em] hover:bg-site-white hover:text-site-red transition-colors"
+                className="group inline-flex items-center gap-4 bg-site-red text-site-white px-10 py-6 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors"
               >
                 Transmit
                 <span className="group-hover:translate-x-2 transition-transform">→</span>

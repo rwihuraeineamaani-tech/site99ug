@@ -78,7 +78,7 @@ export default function Archive() {
           </motion.div>
 
           <div className="border-t border-border px-6 md:px-10 py-4 mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground flex justify-between">
-            <span>// Drag/Scroll to traverse archive</span>
+            <span>Drag or scroll to traverse the archive</span>
             <span>{projects[active]?.client}</span>
           </div>
         </div>
