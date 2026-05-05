@@ -121,7 +121,7 @@ export default function Home() {
       {/* MANIFESTO — light, scroll-scrub words */}
       <section ref={manifestoRef} className="px-6 md:px-10 py-32 md:py-48 max-w-7xl mx-auto">
         <div className="label text-site-red mb-8">Doctrine</div>
-        <h2 className="display text-fluid-xl leading-[0.95] flex flex-wrap gap-x-4 gap-y-2">
+        <h2 className="display text-fluid-xl leading-[0.95] flex flex-wrap gap-x-4 gap-y-2 text-left">
           {words.map((w, i) => {
             const start = i / words.length;
             const end = start + 1 / words.length;
