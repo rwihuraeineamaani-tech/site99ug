@@ -26,7 +26,7 @@ export const Cursor = () => {
         style={{ x: sx, y: sy, translateX: "-50%", translateY: "-50%" }}
       >
         <motion.div
-          animate={{ width: hover ? 56 : 12, height: hover ? 56 : 12, backgroundColor: hover ? "hsl(var(--site-red))" : "hsl(var(--site-white))" }}
+          animate={{ width: hover ? 56 : 14, height: hover ? 56 : 14, backgroundColor: hover ? "hsl(var(--site-red))" : "hsl(0 0% 100%)" }}
           transition={{ type: "spring", damping: 20, stiffness: 250 }}
           className="rounded-full"
         />

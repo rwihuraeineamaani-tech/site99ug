@@ -2,9 +2,13 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Layout } from "@/components/Layout";
 
-const big10 = [
-  "Identity", "Narrative", "Film", "Editorial",
-  "System", "Surface", "Voice", "Frame", "Distribution", "Memory",
+const doctrines = [
+  { t: "Travel", d: "We build brands that travel without us." },
+  { t: "Attention", d: "Online attention will outvalue land. We help you earn it." },
+  { t: "Entertain", d: "Entertaining content is the shortest path to trust." },
+  { t: "Residency", d: "We stay. We don't pitch and leave." },
+  { t: "Systems", d: "Identity, voice, and distribution as one system." },
+  { t: "Craft", d: "Frame by frame. No filler." },
 ];
 
 export default function Philosophy() {
@@ -39,33 +43,34 @@ export default function Philosophy() {
               </span>
             </motion.div>
           </div>
-          <div className="absolute bottom-10 left-6 md:left-10 mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground max-w-xs">
-            // The 99 rotates as you descend. Each turn is a doctrine.
+          <div className="absolute bottom-10 left-6 md:left-10 label text-[11px] text-white/60 max-w-xs">
+            The 99 turns as you scroll. Each rotation is a doctrine.
           </div>
-          <div className="absolute top-32 right-6 md:right-10 mono text-[10px] uppercase tracking-[0.3em] text-site-red">
-            ROTATION_LOCKED · SCROLL_TO_TURN
+          <div className="absolute top-32 right-6 md:right-10 label text-[11px] text-site-red">
+            Scroll to turn
           </div>
         </div>
       </section>
 
-      {/* Big 10 */}
-      <section className="px-6 md:px-10 py-24 border-t border-border">
+      {/* Doctrines */}
+      <section className="px-6 md:px-10 py-24 border-t border-border bg-background">
         <div className="flex items-end justify-between mb-12">
-          <h2 className="display text-fluid-xl">The <span className="text-site-red">Big 10</span></h2>
-          <span className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hidden md:block">Ten levers of narrative control</span>
+          <h2 className="display text-fluid-xl">Our <span className="text-site-red">Doctrine</span></h2>
+          <span className="label text-muted-foreground hidden md:block">What we believe, in practice</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 border-t border-l border-border">
-          {big10.map((w, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 border-t border-l border-border">
+          {doctrines.map((d, i) => (
             <motion.div
-              key={w}
+              key={d.t}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="border-r border-b border-border aspect-square flex flex-col justify-between p-5 md:p-8 group hover:bg-site-red transition-colors duration-500"
+              className="border-r border-b border-border p-6 md:p-10 group hover:bg-site-red transition-colors duration-500"
             >
-              <span className="mono text-xs text-muted-foreground group-hover:text-site-white">{String(i + 1).padStart(2, "0")}</span>
-              <span className="display text-2xl md:text-4xl group-hover:translate-y-[-4px] transition-transform">{w}</span>
+              <span className="label text-muted-foreground group-hover:text-white">{String(i + 1).padStart(2, "0")}</span>
+              <h3 className="display text-3xl md:text-5xl mt-6 group-hover:text-white">{d.t}</h3>
+              <p className="mt-4 text-muted-foreground group-hover:text-white/90 text-base font-medium">{d.d}</p>
             </motion.div>
           ))}
         </div>
