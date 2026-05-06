@@ -42,7 +42,7 @@ export default function Access() {
             Request <br/><span className="text-site-red">Access.</span>
           </h1>
           <p className="mt-8 max-w-xl text-fluid-md text-muted-foreground">
-            Sign up and let our full-fledged team — not just an individual — push your narrative.
+            Sign up and let our full-fledged team of selftaught specialists push your narrative. And not just a hired individual.
           </p>
 
           {sent ? (
