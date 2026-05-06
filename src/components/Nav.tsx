@@ -21,13 +21,13 @@ export const Nav = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 md:px-10 py-5 mix-blend-difference">
-        <Link to="/" className="flex items-center gap-2" data-hover>
-          <img src={new URL('../assets/site99-logo.png', import.meta.url).href} alt="Site 99" className="h-14 md:h-20 w-auto" />
+      <header className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 md:px-10 py-5">
+        <Link to="/" className="flex items-center gap-2 isolate" data-hover style={{ mixBlendMode: "normal" }}>
+          <img src={new URL('../assets/site99-logo.png', import.meta.url).href} alt="Site 99" className="h-16 md:h-24 w-auto" style={{ mixBlendMode: "normal", opacity: 1 }} />
         </Link>
         <button
           onClick={() => setOpen((o) => !o)}
-          className="relative z-[200] flex items-center gap-3 text-site-white mono text-xs uppercase tracking-[0.25em] font-sans"
+          className="relative z-[200] flex items-center gap-3 mono text-xs uppercase tracking-[0.25em] font-sans mix-blend-difference text-site-white"
           data-hover
           aria-label="Toggle menu"
         >

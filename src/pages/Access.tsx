@@ -39,7 +39,7 @@ export default function Access() {
         <div className="relative z-10 max-w-5xl mx-auto">
           <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 05 / Access</div>
           <h1 className="display text-fluid-hero leading-[0.85]">
-            Request <br/><span className="text-site-red">Access.</span>
+            Claim your <br/><span className="text-site-red">digital attention.</span>
           </h1>
           <p className="mt-8 max-w-xl text-fluid-md text-muted-foreground">
             Sign up and let our full-fledged team of selftaught specialists push your narrative. And not just a hired individual.
@@ -98,7 +98,7 @@ export default function Access() {
                 data-hover
                 className="group inline-flex items-center gap-4 bg-site-red text-site-white px-10 py-6 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors"
               >
-                Transmit
+                Join the Residency
                 <span className="group-hover:translate-x-2 transition-transform">→</span>
               </button>
             </form>

@@ -72,7 +72,7 @@ export default function Home() {
   return (
     <Layout>
       {/* HERO — black canvas with northern-lights aurora */}
-      <section ref={heroRef} className="relative h-[110vh] overflow-hidden bg-site-black text-site-white">
+      <section ref={heroRef} className="relative min-h-[110vh] overflow-hidden bg-site-black text-site-white">
         <motion.div style={{ y: heroY, scale: heroScale }} className="absolute inset-0">
           <div className="absolute inset-0 bg-site-black" />
           <img
@@ -89,32 +89,34 @@ export default function Home() {
           <span className="w-1.5 h-1.5 bg-site-red rounded-full animate-pulse" /> Residency Open
         </div>
 
-        <motion.div style={{ y: titleY }} className="absolute inset-0 justify-end pb-24 md:pb-32 px-6 md:px-10 flex flex-col">
-          <div className="overflow-hidden">
-            <motion.h1
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-              className="display text-fluid-hero"
-            >
-              Brands that
-            </motion.h1>
-          </div>
-          <div className="overflow-hidden">
-            <motion.h1
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.35 }}
-              className="display text-fluid-hero"
-            >
-              travel <span className="text-site-red">without</span> us.
-            </motion.h1>
+        <motion.div style={{ y: titleY }} className="relative z-10 min-h-[110vh] px-6 md:px-10 pt-40 pb-24 md:pb-32 flex flex-col justify-end gap-10 md:gap-14">
+          <div className="space-y-1 md:space-y-2">
+            <div className="overflow-hidden">
+              <motion.h1
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+                className="display text-fluid-hero leading-[0.9]"
+              >
+                Brands that
+              </motion.h1>
+            </div>
+            <div className="overflow-hidden">
+              <motion.h1
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.35 }}
+                className="display text-fluid-hero leading-[0.9]"
+              >
+                travel <span className="text-site-red">without</span> us.
+              </motion.h1>
+            </div>
           </div>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.8 }}
-            className="mt-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
+            className="flex flex-col md:flex-row md:items-end md:justify-between gap-6"
           >
             <p className="max-w-md text-fluid-md text-white/85 font-medium">
               Site 99 is a creative residency. We build entertaining content and brand systems that earn attention and keep it.
@@ -122,7 +124,7 @@ export default function Home() {
             <Link
               to="/access"
               data-hover
-              className="group inline-flex items-center gap-4 bg-site-red text-site-white px-7 py-4 rounded-full label text-xs hover:bg-site-white hover:text-site-red transition-colors"
+              className="group inline-flex items-center gap-4 bg-site-red text-site-white px-7 py-4 rounded-full label text-xs hover:bg-site-white hover:text-site-red transition-colors self-start md:self-auto"
             >
               Request Residency
               <span className="group-hover:translate-x-2 transition-transform">→</span>

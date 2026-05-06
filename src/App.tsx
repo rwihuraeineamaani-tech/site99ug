@@ -10,6 +10,7 @@ import Residents from "./pages/Residents.tsx";
 import Philosophy from "./pages/Philosophy.tsx";
 import Access from "./pages/Access.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <AnimatedRoutes />
       </BrowserRouter>
     </TooltipProvider>
