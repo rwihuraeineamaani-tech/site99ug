@@ -4,6 +4,10 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Marquee } from "@/components/Marquee";
 import heroImg from "@/assets/hero-frontier.jpg";
+import p1 from "@/assets/project-1.jpg";
+import p2 from "@/assets/project-2.jpg";
+import p3 from "@/assets/project-3.jpg";
+import p4 from "@/assets/project-4.jpg";
 
 const residents = [
   "Kweli Creatives",
@@ -19,6 +23,20 @@ const stats = [
   { k: "Years Building", v: 6, suffix: "" },
   { k: "People Reached", v: 7.2, suffix: "M" },
   { k: "Stories Shipped", v: 240, suffix: "+" },
+];
+
+const glimpseProjects = [
+  { title: "Black Halo", client: "Kweli Creatives", tag: "Identity / Film", img: p1 },
+  { title: "Silhouette Theory", client: "Vanta House", tag: "Campaign", img: p2 },
+  { title: "The Rotunda", client: "Atlas & Ore", tag: "Architecture", img: p3 },
+  { title: "Fog Dispatch", client: "Mercury Studio", tag: "Editorial Film", img: p4 },
+];
+
+const doctrines = [
+  { t: "Travel", d: "We build brands that travel without us." },
+  { t: "Attention", d: "Online attention will outvalue land. We help you earn it." },
+  { t: "Entertain", d: "Entertaining content is the shortest path to trust." },
+  { t: "Residency", d: "We stay. We don't pitch and leave." },
 ];
 
 function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
@@ -53,16 +71,20 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* HERO — keeps cinematic dark, full-bleed */}
+      {/* HERO — black canvas with northern-lights aurora */}
       <section ref={heroRef} className="relative h-[110vh] overflow-hidden bg-site-black text-site-white">
         <motion.div style={{ y: heroY, scale: heroScale }} className="absolute inset-0">
-          <img src={heroImg} alt="Site 99 — narrative control" className="w-full h-full object-cover opacity-90" width={1920} height={1080} />
-          <div className="absolute inset-0 bg-gradient-to-b from-site-black/40 via-transparent to-site-black" />
+          <div className="absolute inset-0 bg-site-black" />
+          <img
+            src={heroImg}
+            alt="Site 99 — narrative control"
+            className="w-full h-full object-cover opacity-30 mix-blend-screen"
+            width={1920}
+            height={1080}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-site-black/60 via-transparent to-site-black" />
         </motion.div>
 
-        <div className="absolute top-32 left-6 md:left-10 label text-[11px] text-white/80">
-          Site 99 — Creative Residency
-        </div>
         <div className="absolute top-32 right-6 md:right-10 label text-[11px] text-white/80 text-right flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-site-red rounded-full animate-pulse" /> Residency Open
         </div>
@@ -95,7 +117,7 @@ export default function Home() {
             className="mt-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
           >
             <p className="max-w-md text-fluid-md text-white/85 font-medium">
-              Site 99 is a creative residency. We build entertaining content and brand systems that earn attention  and keep it.
+              Site 99 is a creative residency. We build entertaining content and brand systems that earn attention and keep it.
             </p>
             <Link
               to="/access"
@@ -118,7 +140,7 @@ export default function Home() {
         <Marquee items={residents} />
       </section>
 
-      {/* MANIFESTO — light, scroll-scrub words */}
+      {/* MANIFESTO */}
       <section ref={manifestoRef} className="px-6 md:px-10 py-32 md:py-48 max-w-7xl mx-auto">
         <div className="label text-site-red mb-8">Doctrine</div>
         <h2 className="display text-fluid-xl leading-[0.95] flex flex-wrap gap-x-4 gap-y-2 text-left">
@@ -135,8 +157,35 @@ export default function Home() {
         </h2>
       </section>
 
-      {/* STATS — dark inset section, animated counters */}
-      <section className="section-dark border-t border-b grid grid-cols-2 md:grid-cols-4">
+      {/* THE MATH — viral economics pull-quote */}
+      <section className="section-dark px-6 md:px-10 py-32 md:py-48 border-t">
+        <div className="max-w-6xl mx-auto">
+          <div className="label text-site-red mb-8">The Math</div>
+          <motion.h2
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="display text-fluid-xl leading-[1.0]"
+          >
+            One viral clip on TikTok can save you{" "}
+            <span className="text-site-red">10 Million UGX</span>{" "}
+            in traditional TV advertising.
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="mt-10 max-w-2xl text-fluid-md text-white/70"
+          >
+            Attention is the new media spend. We engineer the clip, the system, and the residency that keeps your brand in the feed long after the campaign ends.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section className="section-dark border-b grid grid-cols-2 md:grid-cols-4">
         {stats.map((s, i) => (
           <motion.div
             key={s.k}
@@ -154,7 +203,127 @@ export default function Home() {
         ))}
       </section>
 
-      {/* CTA SLAB — light, calm */}
+      {/* ARCHIVE GLIMPSE */}
+      <section className="px-6 md:px-10 py-32 md:py-40 bg-background">
+        <div className="flex items-end justify-between mb-12 md:mb-16">
+          <div>
+            <div className="label text-site-red mb-4">N° 02 / Archive</div>
+            <h2 className="display text-fluid-xl">Selected Work</h2>
+          </div>
+          <Link
+            to="/archive"
+            data-hover
+            className="hidden md:inline-flex items-center gap-3 label text-xs text-foreground hover:text-site-red transition-colors"
+          >
+            View all →
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          {glimpseProjects.map((p, i) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ delay: (i % 2) * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className={i % 2 === 1 ? "md:translate-y-16" : ""}
+            >
+              <Link to="/archive" data-hover className="group block">
+                <div className="overflow-hidden rounded-2xl bg-muted aspect-[4/5]">
+                  <img
+                    src={p.img}
+                    alt={p.title}
+                    loading="lazy"
+                    width={800}
+                    height={1000}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                </div>
+                <div className="mt-5 flex items-center justify-between">
+                  <div>
+                    <div className="display text-2xl md:text-3xl">{p.title}</div>
+                    <div className="mono text-xs text-muted-foreground mt-1">{p.client}</div>
+                  </div>
+                  <div className="label text-[10px] text-muted-foreground">{p.tag}</div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+        <div className="md:hidden mt-10 text-center">
+          <Link to="/archive" data-hover className="inline-flex items-center gap-3 label text-xs text-site-red">
+            View all →
+          </Link>
+        </div>
+      </section>
+
+      {/* PHILOSOPHY GLIMPSE */}
+      <section className="section-dark px-6 md:px-10 py-32 md:py-40 border-t">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-end justify-between mb-12 md:mb-16">
+            <div>
+              <div className="label text-site-red mb-4">N° 04 / Philosophy</div>
+              <h2 className="display text-fluid-xl">Narrative <span className="text-site-red">Control.</span></h2>
+            </div>
+            <Link to="/philosophy" data-hover className="hidden md:inline-flex label text-xs text-white hover:text-site-red transition-colors">
+              Read the doctrine →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/10">
+            {doctrines.map((d, i) => (
+              <motion.div
+                key={d.t}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="bg-site-black p-8 md:p-12 group hover:bg-site-red transition-colors duration-500"
+              >
+                <div className="mono text-xs text-white/50 group-hover:text-white">0{i + 1}</div>
+                <div className="display text-3xl md:text-5xl mt-4">{d.t}</div>
+                <p className="mt-6 text-white/70 group-hover:text-white text-fluid-md max-w-md">{d.d}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* RESIDENTS GLIMPSE */}
+      <section className="px-6 md:px-10 py-32 md:py-40 bg-background">
+        <div className="flex items-end justify-between mb-12">
+          <div>
+            <div className="label text-site-red mb-4">N° 03 / Residents</div>
+            <h2 className="display text-fluid-xl">In Residency</h2>
+          </div>
+          <Link to="/residents" data-hover className="hidden md:inline-flex label text-xs hover:text-site-red transition-colors">
+            See all residents →
+          </Link>
+        </div>
+        <div className="border-t border-border">
+          {residents.slice(0, 4).map((r, i) => (
+            <motion.div
+              key={r}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.05 }}
+              className="grid grid-cols-12 items-center border-b border-border py-6 md:py-8 group hover:bg-site-red transition-colors duration-300 cursor-default"
+            >
+              <div className="col-span-1 mono text-xs text-muted-foreground group-hover:text-site-white px-2">
+                {String(i + 1).padStart(2, "0")}
+              </div>
+              <div className="col-span-8 display text-2xl md:text-4xl group-hover:text-site-white group-hover:translate-x-3 transition-transform duration-500">
+                {r}
+              </div>
+              <div className="col-span-3 text-right mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-site-white pr-2">
+                Active
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA SLAB */}
       <section className="px-6 md:px-10 py-32 md:py-48 text-center bg-background">
         <motion.h3
           initial={{ opacity: 0, y: 40 }}
