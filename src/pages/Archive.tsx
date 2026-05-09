@@ -54,7 +54,7 @@ export default function Archive() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: (i % 6) * 0.05 }}
-                className="group relative aspect-[4/5] overflow-hidden bg-secondary text-left"
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-secondary text-left"
               >
                 <img
                   src={resolveCover(p.cover_url)}
