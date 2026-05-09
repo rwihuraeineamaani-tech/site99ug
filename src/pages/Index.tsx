@@ -3,13 +3,23 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Marquee } from "@/components/Marquee";
+import { useProjects } from "@/hooks/useProjects";
+import { useResidents } from "@/hooks/useResidents";
 import heroImg from "@/assets/hero-frontier.jpg";
 import p1 from "@/assets/project-1.jpg";
 import p2 from "@/assets/project-2.jpg";
 import p3 from "@/assets/project-3.jpg";
 import p4 from "@/assets/project-4.jpg";
 
-const residents = [
+const seedMap: Record<string, string> = {
+  "/seed/project-1.jpg": p1,
+  "/seed/project-2.jpg": p2,
+  "/seed/project-3.jpg": p3,
+  "/seed/project-4.jpg": p4,
+};
+const resolveCover = (url: string) => seedMap[url] || url;
+
+const residentsFallback = [
   "Kweli Creatives",
   "Rolex Guy Uganda",
   "Uganda Youth Forum",
@@ -25,7 +35,7 @@ const stats = [
   { k: "Stories Shipped", v: 240, suffix: "+" },
 ];
 
-const glimpseProjects = [
+const glimpseFallback = [
   { title: "Black Halo", client: "Kweli Creatives", tag: "Identity / Film", img: p1 },
   { title: "Silhouette Theory", client: "Vanta House", tag: "Campaign", img: p2 },
   { title: "The Rotunda", client: "Atlas & Ore", tag: "Architecture", img: p3 },
