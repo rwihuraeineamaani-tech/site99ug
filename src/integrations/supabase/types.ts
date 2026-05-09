@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_requests: {
+        Row: {
+          brand: string
+          brief: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          territory: string
+        }
+        Insert: {
+          brand: string
+          brief: string
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          territory: string
+        }
+        Update: {
+          brand?: string
+          brief?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          territory?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           client: string
@@ -56,6 +86,39 @@ export type Database = {
           title?: string
           updated_at?: string
           year?: string
+        }
+        Relationships: []
+      }
+      residents: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          name: string
+          since: string
+          status: string
+          territory: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name: string
+          since: string
+          status?: string
+          territory: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name?: string
+          since?: string
+          status?: string
+          territory?: string
+          updated_at?: string
         }
         Relationships: []
       }
