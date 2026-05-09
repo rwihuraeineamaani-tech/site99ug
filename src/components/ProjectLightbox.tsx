@@ -61,7 +61,11 @@ export const ProjectLightbox = ({ project, onClose }: { project: Project | null;
             {project.gallery_urls?.length > 0 && (
               <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {project.gallery_urls.map((url, i) => (
-                  <img key={i} src={url} alt={`${project.title} ${i + 1}`} className="w-full h-auto" loading="lazy" />
+                  /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url) ? (
+                    <video key={i} src={url} controls playsInline className="w-full h-auto bg-black" />
+                  ) : (
+                    <img key={i} src={url} alt={`${project.title} ${i + 1}`} className="w-full h-auto" loading="lazy" />
+                  )
                 ))}
               </div>
             )}

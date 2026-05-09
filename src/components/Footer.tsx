@@ -30,6 +30,7 @@ export const Footer = () => (
         <div className="text-muted-foreground mb-3">Status</div>
         <ul className="space-y-2 normal-case tracking-normal text-sm font-medium">
           <li className="flex items-center gap-2"><span className="w-2 h-2 bg-site-red animate-pulse rounded-full" /> Accepting Residents</li>
+          <li><Link to="/admin/login" data-hover className="text-muted-foreground hover:text-site-red transition-colors">Admin Login →</Link></li>
         </ul>
       </div>
     </div>
