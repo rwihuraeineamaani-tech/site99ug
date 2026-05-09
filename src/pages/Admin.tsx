@@ -60,10 +60,13 @@ export default function Admin() {
     navigate("/admin/login", { replace: true });
   };
 
-  const uploadImage = async (file: File): Promise<string> => {
+  const uploadFile = async (file: File): Promise<string> => {
     const ext = file.name.split(".").pop();
     const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("project-images").upload(path, file);
+    const { error } = await supabase.storage.from("project-images").upload(path, file, {
+      contentType: file.type,
+      upsert: false,
+    });
     if (error) throw error;
     const { data } = supabase.storage.from("project-images").getPublicUrl(path);
     return data.publicUrl;
@@ -72,7 +75,7 @@ export default function Admin() {
   const handleCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]; if (!f) return;
     setUploading(true);
-    try { setForm({ ...form, cover_url: await uploadImage(f) }); toast.success("Cover uploaded"); }
+    try { setForm({ ...form, cover_url: await uploadFile(f) }); toast.success("Cover uploaded"); }
     catch (err: any) { toast.error(err.message); }
     finally { setUploading(false); }
   };
@@ -81,12 +84,14 @@ export default function Admin() {
     const files = Array.from(e.target.files || []); if (!files.length) return;
     setUploading(true);
     try {
-      const urls = await Promise.all(files.map(uploadImage));
+      const urls = await Promise.all(files.map(uploadFile));
       setForm({ ...form, gallery_urls: [...form.gallery_urls, ...urls] });
-      toast.success(`${urls.length} image(s) uploaded`);
+      toast.success(`${urls.length} file(s) uploaded`);
     } catch (err: any) { toast.error(err.message); }
     finally { setUploading(false); }
   };
+
+  const isVideo = (url: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,13 +183,17 @@ export default function Admin() {
           </div>
 
           <div className="md:col-span-2">
-            <label className={lbl}>Gallery images</label>
-            <input type="file" accept="image/*" multiple onChange={handleGallery} className="mt-2 text-sm block" />
+            <label className={lbl}>Gallery (images & videos)</label>
+            <input type="file" accept="image/*,video/*" multiple onChange={handleGallery} className="mt-2 text-sm block" />
             {form.gallery_urls.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {form.gallery_urls.map((u, i) => (
                   <div key={i} className="relative">
-                    <img src={u} className="h-16 w-16 object-cover" alt="" />
+                    {isVideo(u) ? (
+                      <video src={u} className="h-16 w-16 object-cover bg-black" muted />
+                    ) : (
+                      <img src={u} className="h-16 w-16 object-cover" alt="" />
+                    )}
                     <button type="button" onClick={() => setForm({ ...form, gallery_urls: form.gallery_urls.filter((_, idx) => idx !== i) })}
                       className="absolute -top-2 -right-2 bg-site-red text-site-white w-5 h-5 rounded-full text-xs">×</button>
                   </div>
