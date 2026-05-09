@@ -1,16 +1,9 @@
 import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
-
-const residents = [
-  { name: "Kweli Creatives", territory: "Global · Art Gallery", since: "2022", status: "Active" },
-  { name: "Rolex Guy Uganda", territory: "Kampala · Fast Food", since: "2023", status: "Active" },
-  { name: "Uganda Youth Forum", territory: "Kampala · NGO", since: "2023", status: "Active" },
-  { name: "The Lawns Restaurant", territory: "Kololo · Fine Dining", since: "2023", status: "Active" },
-  { name: "Montana International School", territory: "Muyenga · Education", since: "2024", status: "Active" },
-  { name: "Nehemiah Consultants", territory: "Kampala · Advisory", since: "2024", status: "Active" },
-];
+import { useResidents } from "@/hooks/useResidents";
 
 export default function Residents() {
+  const { data: residents = [], isLoading } = useResidents();
   return (
     <Layout>
       <section className="px-6 md:px-10 pt-32 md:pt-40 pb-16">
