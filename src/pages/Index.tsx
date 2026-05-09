@@ -79,6 +79,13 @@ export default function Home() {
 
   const words = "We build brands that travel without us. Land will not be more valuable than online attention. We earn that attention with stories worth watching.".split(" ");
 
+  const { data: dbProjects = [] } = useProjects();
+  const { data: dbResidents = [] } = useResidents();
+  const glimpseProjects = dbProjects.length
+    ? dbProjects.slice(0, 4).map((p) => ({ title: p.title, client: p.client, tag: p.tag, img: resolveCover(p.cover_url) }))
+    : glimpseFallback;
+  const residents = dbResidents.length ? dbResidents.map((r) => r.name) : residentsFallback;
+
   return (
     <Layout>
       {/* HERO — black canvas with northern-lights aurora */}
