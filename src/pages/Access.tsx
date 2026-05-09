@@ -112,10 +112,11 @@ export default function Access() {
 
               <button
                 type="submit"
+                disabled={submitting}
                 data-hover
-                className="group inline-flex items-center gap-4 bg-site-red text-site-white px-10 py-6 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors"
+                className="group inline-flex items-center gap-4 bg-site-red text-site-white px-10 py-6 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
               >
-                Join the Residency
+                {submitting ? "Transmitting…" : "Join the Residency"}
                 <span className="group-hover:translate-x-2 transition-transform">→</span>
               </button>
             </form>
