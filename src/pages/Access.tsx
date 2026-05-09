@@ -1,20 +1,37 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function Access() {
   const [form, setForm] = useState({ name: "", brand: "", email: "", territory: "", brief: "" });
   const [pulse, setPulse] = useState(0);
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [k]: e.target.value });
     setPulse((p) => p + 1);
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setSubmitting(true);
+    try {
+      const id = crypto.randomUUID();
+      const { error } = await supabase.from("access_requests").insert({ id, ...form });
+      if (error) throw error;
+      // Fire-and-forget email notification (will succeed once email infra is live)
+      supabase.functions.invoke("send-access-notification", {
+        body: { ...form, id, idempotencyKey: `access-${id}` },
+      }).catch(() => {});
+      setSent(true);
+    } catch (err: any) {
+      toast.error(err.message || "Could not submit. Try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -95,10 +112,11 @@ export default function Access() {
 
               <button
                 type="submit"
+                disabled={submitting}
                 data-hover
-                className="group inline-flex items-center gap-4 bg-site-red text-site-white px-10 py-6 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors"
+                className="group inline-flex items-center gap-4 bg-site-red text-site-white px-10 py-6 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
               >
-                Join the Residency
+                {submitting ? "Transmitting…" : "Join the Residency"}
                 <span className="group-hover:translate-x-2 transition-transform">→</span>
               </button>
             </form>

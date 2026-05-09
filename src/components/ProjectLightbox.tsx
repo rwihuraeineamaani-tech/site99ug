@@ -39,7 +39,7 @@ export const ProjectLightbox = ({ project, onClose }: { project: Project | null;
               Close ✕
             </button>
 
-            <div className="aspect-[4/5] md:aspect-[16/10] w-full overflow-hidden bg-secondary mb-10">
+            <div className="aspect-[4/5] md:aspect-[16/10] w-full overflow-hidden rounded-2xl bg-secondary mb-10">
               <img src={project.cover_url} alt={project.title} className="w-full h-full object-cover" />
             </div>
 
@@ -62,9 +62,9 @@ export const ProjectLightbox = ({ project, onClose }: { project: Project | null;
               <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {project.gallery_urls.map((url, i) => (
                   /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url) ? (
-                    <video key={i} src={url} controls playsInline className="w-full h-auto bg-black" />
+                    <video key={i} src={url} controls playsInline className="w-full h-auto rounded-2xl bg-black" />
                   ) : (
-                    <img key={i} src={url} alt={`${project.title} ${i + 1}`} className="w-full h-auto" loading="lazy" />
+                    <img key={i} src={url} alt={`${project.title} ${i + 1}`} className="w-full h-auto rounded-2xl" loading="lazy" />
                   )
                 ))}
               </div>

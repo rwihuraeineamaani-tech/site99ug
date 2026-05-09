@@ -11,6 +11,8 @@ import Philosophy from "./pages/Philosophy.tsx";
 import Access from "./pages/Access.tsx";
 import Admin from "./pages/Admin.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
+import ResidentLogin from "./pages/ResidentLogin.tsx";
+import ResidentPortal from "./pages/ResidentPortal.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -28,6 +30,8 @@ const AnimatedRoutes = () => {
         <Route path="/access" element={<Access />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/residents/login" element={<ResidentLogin />} />
+        <Route path="/residents/portal" element={<ResidentPortal />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
