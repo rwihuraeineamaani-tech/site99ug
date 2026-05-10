@@ -44,6 +44,106 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      briefs: {
+        Row: {
+          body: string | null
+          created_at: string
+          file_url: string | null
+          id: string
+          resident_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          resident_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          resident_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "briefs_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read_at: string | null
+          resident_id: string
+          sender_role: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          resident_id: string
+          sender_role: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          resident_id?: string
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           client: string
@@ -89,36 +189,81 @@ export type Database = {
         }
         Relationships: []
       }
-      residents: {
+      resident_projects: {
         Row: {
           created_at: string
+          project_id: string
+          resident_id: string
+        }
+        Insert: {
+          created_at?: string
+          project_id: string
+          resident_id: string
+        }
+        Update: {
+          created_at?: string
+          project_id?: string
+          resident_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_projects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_projects_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      residents: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
           display_order: number
+          email: string | null
           id: string
+          invited_at: string
           name: string
           since: string
           status: string
           territory: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           display_order?: number
+          email?: string | null
           id?: string
+          invited_at?: string
           name: string
           since: string
           status?: string
           territory: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           display_order?: number
+          email?: string | null
           id?: string
+          invited_at?: string
           name?: string
           since?: string
           status?: string
           territory?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -148,6 +293,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_resident_invite: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
