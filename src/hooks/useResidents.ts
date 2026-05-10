@@ -8,6 +8,8 @@ export type Resident = {
   since: string;
   status: string;
   display_order: number;
+  email: string | null;
+  user_id: string | null;
 };
 
 export const useResidents = () =>
