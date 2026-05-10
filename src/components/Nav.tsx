@@ -69,7 +69,7 @@ export const Nav = () => {
                       data-hover
                     >
                       <span className="mono text-xs md:text-sm">{l.n}</span>
-                      <span className="display text-fluid-xl flex-1 transition-transform duration-500 group-hover:translate-x-4">
+                      <span className="display flex-1 transition-transform duration-500 group-hover:translate-x-4" style={{ fontSize: "clamp(2rem, 7vw, 7rem)", lineHeight: 0.95 }}>
                         {l.label}
                       </span>
                       <span className="mono text-xs hidden md:inline opacity-0 group-hover:opacity-100 transition">→</span>
