@@ -52,9 +52,9 @@ export const Nav = () => {
             animate={{ clipPath: "circle(150% at 100% 0%)" }}
             exit={{ clipPath: "circle(0% at 100% 0%)" }}
             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[150] bg-site-red text-site-black"
+            className="fixed inset-0 z-[150] bg-site-red text-site-black overflow-y-auto overscroll-contain"
           >
-            <div className="h-full w-full flex flex-col justify-between p-8 md:p-16 pt-28">
+            <div className="min-h-full w-full flex flex-col justify-between gap-10 p-8 md:p-16 pt-28 pb-10">
               <nav className="flex-1 flex flex-col justify-center gap-2 md:gap-4">
                 {links.map((l, i) => (
                   <motion.div
@@ -69,7 +69,7 @@ export const Nav = () => {
                       data-hover
                     >
                       <span className="mono text-xs md:text-sm">{l.n}</span>
-                      <span className="display text-fluid-xl flex-1 transition-transform duration-500 group-hover:translate-x-4">
+                      <span className="display flex-1 transition-transform duration-500 group-hover:translate-x-4" style={{ fontSize: "clamp(2rem, 7vw, 7rem)", lineHeight: 0.95 }}>
                         {l.label}
                       </span>
                       <span className="mono text-xs hidden md:inline opacity-0 group-hover:opacity-100 transition">→</span>
