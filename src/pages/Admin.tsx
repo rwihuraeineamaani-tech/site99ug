@@ -324,6 +324,12 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
         <div><label className={lbl}>Since *</label><input required className={input} value={form.since} onChange={(e) => setForm({ ...form, since: e.target.value })} /></div>
         <div><label className={lbl}>Status</label><input className={input} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} /></div>
         <div><label className={lbl}>Display order</label><input type="number" className={input} value={form.display_order} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} /></div>
+        <div className="md:col-span-2 flex items-center gap-3">
+          <label className="inline-flex items-center gap-3 mono text-xs uppercase tracking-[0.3em]">
+            <input type="checkbox" checked={form.visible} onChange={(e) => setForm({ ...form, visible: e.target.checked })} className="w-4 h-4 accent-site-red" />
+            Show on public site
+          </label>
+        </div>
         <div className="md:col-span-2 flex gap-3">
           <button type="submit" className="bg-site-red text-site-white px-8 py-4 rounded-full label text-xs">{editing ? "Save changes" : "Invite resident"}</button>
           {editing && <button type="button" onClick={() => { setForm(emptyRes); setEditing(false); }} className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Cancel</button>}
@@ -331,20 +337,25 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
       </form>
 
       <div className="grid gap-3">
-        {residents.map((r: any) => (
-          <div key={r.id} className="flex items-center gap-4 border border-border p-4 rounded-2xl">
+        {residents.map((r: any) => {
+          const shown = r.visible !== false;
+          return (
+          <div key={r.id} className={`flex items-center gap-4 border border-border p-4 rounded-2xl ${shown ? "" : "opacity-60"}`}>
             <div className="flex-1 min-w-0">
               <div className="display text-2xl truncate">{r.name}</div>
               <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
                 {r.territory} · since {r.since} · {r.status}
                 {r.email && <> · <span className="text-foreground/80">{r.email}</span></>}
                 {r.user_id ? <> · <span className="text-site-red">claimed</span></> : <> · pending signup</>}
+                {" · "}<span className={shown ? "text-site-red" : "text-muted-foreground"}>{shown ? "visible" : "hidden"}</span>
               </div>
             </div>
+            <button onClick={() => toggleVisible(r)} className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red">{shown ? "Hide" : "Show"}</button>
             <button onClick={() => edit(r)} className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red">Edit</button>
             <button onClick={() => remove(r.id)} className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Delete</button>
           </div>
-        ))}
+          );
+        })}
       </div>
     </>
   );
