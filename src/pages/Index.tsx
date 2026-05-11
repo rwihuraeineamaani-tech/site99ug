@@ -84,7 +84,8 @@ export default function Home() {
   const glimpseProjects = dbProjects.length
     ? dbProjects.slice(0, 4).map((p) => ({ title: p.title, client: p.client, tag: p.tag, img: resolveCover(p.cover_url) }))
     : glimpseFallback;
-  const residents = dbResidents.length ? dbResidents.map((r) => r.name) : residentsFallback;
+  const visibleResidents = dbResidents.filter((r) => r.visible !== false);
+  const residents = visibleResidents.length ? visibleResidents.map((r) => r.name) : residentsFallback;
 
   return (
     <Layout>
