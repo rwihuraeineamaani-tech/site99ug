@@ -281,6 +281,7 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
     const payload = {
       name: form.name, territory: form.territory, since: form.since, status: form.status,
       display_order: form.display_order, email: form.email.trim().toLowerCase() || null,
+      visible: form.visible,
     };
     const { error } = form.id
       ? await supabase.from("residents").update(payload).eq("id", form.id)
@@ -291,8 +292,14 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   };
   const edit = (r: any) => {
     setForm({ id: r.id, name: r.name, territory: r.territory, since: r.since, status: r.status,
-      display_order: r.display_order, email: r.email || "" });
+      display_order: r.display_order, email: r.email || "", visible: r.visible !== false });
     setEditing(true); window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const toggleVisible = async (r: any) => {
+    const { error } = await supabase.from("residents").update({ visible: !(r.visible !== false) }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success(r.visible !== false ? "Hidden from site" : "Showing on site");
+    qc.invalidateQueries({ queryKey: ["residents"] }); refetch();
   };
   const remove = async (id: string) => {
     if (!confirm("Delete this resident? Their portal access will be revoked.")) return;
