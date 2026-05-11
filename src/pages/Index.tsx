@@ -84,7 +84,8 @@ export default function Home() {
   const glimpseProjects = dbProjects.length
     ? dbProjects.slice(0, 4).map((p) => ({ title: p.title, client: p.client, tag: p.tag, img: resolveCover(p.cover_url) }))
     : glimpseFallback;
-  const residents = dbResidents.length ? dbResidents.map((r) => r.name) : residentsFallback;
+  const visibleResidents = dbResidents.filter((r) => r.visible !== false);
+  const residents = visibleResidents.length ? visibleResidents.map((r) => r.name) : residentsFallback;
 
   return (
     <Layout>
@@ -101,6 +102,40 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-site-black/60 via-transparent to-site-black" />
         </motion.div>
+
+        {/* Animated red northern-lights aurora */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden mix-blend-screen">
+          <motion.div
+            aria-hidden
+            className="absolute -top-1/3 -left-1/4 w-[80vw] h-[80vw] rounded-full"
+            style={{
+              background: "radial-gradient(closest-side, hsl(var(--site-red) / 0.55), transparent 70%)",
+              filter: "blur(80px)",
+            }}
+            animate={{ x: [0, 80, -40, 0], y: [0, 60, -30, 0], scale: [1, 1.15, 0.95, 1] }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            aria-hidden
+            className="absolute top-1/4 -right-1/4 w-[70vw] h-[70vw] rounded-full"
+            style={{
+              background: "radial-gradient(closest-side, hsl(var(--site-red) / 0.45), transparent 70%)",
+              filter: "blur(90px)",
+            }}
+            animate={{ x: [0, -100, 50, 0], y: [0, -40, 70, 0], scale: [1, 0.9, 1.2, 1] }}
+            transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            aria-hidden
+            className="absolute bottom-0 left-1/3 w-[60vw] h-[60vw] rounded-full"
+            style={{
+              background: "radial-gradient(closest-side, hsl(var(--site-red) / 0.35), transparent 70%)",
+              filter: "blur(100px)",
+            }}
+            animate={{ x: [0, 60, -80, 0], y: [0, -50, 30, 0], scale: [1, 1.1, 0.95, 1] }}
+            transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
 
         <div className="absolute top-32 right-6 md:right-10 label text-[11px] text-white/80 text-right flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-site-red rounded-full animate-pulse" /> Residency Open

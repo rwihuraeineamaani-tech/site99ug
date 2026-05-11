@@ -3,7 +3,8 @@ import { Layout } from "@/components/Layout";
 import { useResidents } from "@/hooks/useResidents";
 
 export default function Residents() {
-  const { data: residents = [], isLoading } = useResidents();
+  const { data: all = [], isLoading } = useResidents();
+  const residents = all.filter((r) => r.visible !== false);
   return (
     <Layout>
       <section className="px-6 md:px-10 pt-32 md:pt-40 pb-16">
