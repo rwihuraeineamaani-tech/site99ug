@@ -54,6 +54,18 @@ export const Nav = () => {
             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
             className="fixed inset-0 z-[150] bg-site-red text-site-black overflow-y-auto overscroll-contain"
           >
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close menu"
+              data-hover
+              className="fixed top-5 right-6 md:right-10 z-[160] flex items-center gap-3 mono text-xs uppercase tracking-[0.25em] text-site-black"
+            >
+              <span className="hidden md:inline">Close</span>
+              <span className="relative w-8 h-8 flex items-center justify-center">
+                <span className="absolute block w-8 h-px bg-current rotate-45" />
+                <span className="absolute block w-8 h-px bg-current -rotate-45" />
+              </span>
+            </button>
             <div className="min-h-full w-full flex flex-col justify-between gap-10 p-8 md:p-16 pt-28 pb-10">
               <nav className="flex-1 flex flex-col justify-center gap-2 md:gap-4">
                 {links.map((l, i) => (
