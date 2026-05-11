@@ -20,8 +20,8 @@ const emptyProj: ProjForm = {
   cover_url: "", gallery_urls: [], external_url: "", display_order: 0, resident_ids: [],
 };
 
-type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string };
-const emptyRes: ResForm = { name: "", territory: "", since: "", status: "Active", display_order: 0, email: "" };
+type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean };
+const emptyRes: ResForm = { name: "", territory: "", since: "", status: "Active", display_order: 0, email: "", visible: true };
 
 type Tab = "projects" | "residents" | "briefs" | "announcements" | "messages" | "requests";
 
