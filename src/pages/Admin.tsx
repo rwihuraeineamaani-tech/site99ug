@@ -350,6 +350,35 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
                 {" · "}<span className={shown ? "text-site-red" : "text-muted-foreground"}>{shown ? "visible" : "hidden"}</span>
               </div>
             </div>
+            <button
+              onClick={() => {
+                if (!r.email) return toast.error("Add an email first");
+                const portalUrl = `${window.location.origin}/residents/login`;
+                const subject = `You're invited to the Site 99 Resident Portal`;
+                const body =
+`Hi ${r.name},
+
+You've been invited to the Site 99 Resident Portal.
+
+1. Go to: ${portalUrl}
+2. Sign up using THIS exact email: ${r.email}
+3. Once you log in, your portal opens automatically — you'll see your assigned projects, briefs, announcements, and a direct line to the office.
+
+Welcome aboard.
+— Site 99
+office@site99ug.com`;
+                const message = `Subject: ${subject}\n\n${body}`;
+                navigator.clipboard.writeText(message).then(
+                  () => toast.success("Invite copied — paste into your email"),
+                  () => toast.error("Couldn't copy")
+                );
+                window.open(`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_blank");
+              }}
+              className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red"
+              title="Copy invite & open mail app"
+            >
+              Copy invite
+            </button>
             <button onClick={() => toggleVisible(r)} className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red">{shown ? "Hide" : "Show"}</button>
             <button onClick={() => edit(r)} className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red">Edit</button>
             <button onClick={() => remove(r.id)} className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Delete</button>
