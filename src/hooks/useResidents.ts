@@ -10,6 +10,7 @@ export type Resident = {
   display_order: number;
   email: string | null;
   user_id: string | null;
+  visible: boolean;
 };
 
 export const useResidents = () =>
