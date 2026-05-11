@@ -236,6 +236,7 @@ export type Database = {
           territory: string
           updated_at: string
           user_id: string | null
+          visible: boolean
         }
         Insert: {
           avatar_url?: string | null
@@ -250,6 +251,7 @@ export type Database = {
           territory: string
           updated_at?: string
           user_id?: string | null
+          visible?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -264,6 +266,7 @@ export type Database = {
           territory?: string
           updated_at?: string
           user_id?: string | null
+          visible?: boolean
         }
         Relationships: []
       }
