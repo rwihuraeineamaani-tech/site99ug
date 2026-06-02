@@ -106,13 +106,13 @@ export default function Home() {
           <img
             src={heroImg}
             alt="Site 99 — narrative control"
-            className="w-full h-full object-cover opacity-30 mix-blend-screen"
+            className="w-full h-full object-cover opacity-70"
             width={1920}
             height={1080}
             fetchPriority="high"
             decoding="async"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-site-black/60 via-transparent to-site-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-site-black/40 via-site-black/20 to-site-black" />
         </motion.div>
 
         {/* Animated red northern-lights aurora — static on mobile to avoid jank */}
