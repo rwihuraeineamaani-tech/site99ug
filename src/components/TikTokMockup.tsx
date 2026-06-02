@@ -49,6 +49,11 @@ function CountUp({ to }: { to: number }) {
 export const TikTokMockup = ({ src, alt }: { src: string; alt: string }) => {
   const [liked, setLiked] = useState(false);
   const [likeBoost, setLikeBoost] = useState(0); // extra likes from this user
+  const [saved, setSaved] = useState(false);
+  const [saveBoost, setSaveBoost] = useState(0);
+  const [shareBoost, setShareBoost] = useState(0);
+  const [commentBoost, setCommentBoost] = useState(0);
+  const [musicMuted, setMusicMuted] = useState(false);
   const [bursts, setBursts] = useState<{ id: number; x: number; y: number }[]>([]);
   const burstId = useRef(0);
 
