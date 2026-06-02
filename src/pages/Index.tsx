@@ -5,11 +5,14 @@ import { Layout } from "@/components/Layout";
 import { Marquee } from "@/components/Marquee";
 import { useProjects } from "@/hooks/useProjects";
 import { usePublicResidents } from "@/hooks/useResidents";
-import heroImg from "@/assets/hero-frontier.jpg";
+import heroAsset from "@/assets/IMG_5291.jpg.asset.json";
+import studioAsset from "@/assets/IMG_5289.jpg.asset.json";
+import ctaAsset from "@/assets/IMG_5290.jpg.asset.json";
 import p1 from "@/assets/project-1.jpg";
 import p2 from "@/assets/project-2.jpg";
 import p3 from "@/assets/project-3.jpg";
 import p4 from "@/assets/project-4.jpg";
+const heroImg = heroAsset.url;
 
 const seedMap: Record<string, string> = {
   "/seed/project-1.jpg": p1,
