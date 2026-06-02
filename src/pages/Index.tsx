@@ -118,7 +118,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-site-black/40 via-site-black/20 to-site-black" />
         </motion.div>
 
-        {/* Animated red northern-lights aurora — static on mobile to avoid jank */}
+        {/* Animated red northern-lights aurora — lighter on mobile */}
         {lite ? (
           <div
             aria-hidden
@@ -132,34 +132,39 @@ export default function Home() {
           <div className="pointer-events-none absolute inset-0 overflow-hidden mix-blend-screen">
             <motion.div
               aria-hidden
-              className="absolute -top-1/3 -left-1/4 w-[80vw] h-[80vw] rounded-full"
+              className="absolute -top-1/3 -left-1/4 w-[90vw] h-[90vw] md:w-[80vw] md:h-[80vw] rounded-full"
               style={{
                 background: "radial-gradient(closest-side, hsl(var(--site-red) / 0.55), transparent 70%)",
-                filter: "blur(80px)",
+                filter: isMobile ? "blur(40px)" : "blur(80px)",
+                willChange: "transform",
               }}
-              animate={{ x: [0, 80, -40, 0], y: [0, 60, -30, 0], scale: [1, 1.15, 0.95, 1] }}
+              animate={{ x: [0, isMobile ? 40 : 80, isMobile ? -20 : -40, 0], y: [0, isMobile ? 30 : 60, isMobile ? -15 : -30, 0], scale: [1, 1.1, 0.95, 1] }}
               transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
             />
             <motion.div
               aria-hidden
-              className="absolute top-1/4 -right-1/4 w-[70vw] h-[70vw] rounded-full"
+              className="absolute top-1/4 -right-1/4 w-[80vw] h-[80vw] md:w-[70vw] md:h-[70vw] rounded-full"
               style={{
                 background: "radial-gradient(closest-side, hsl(var(--site-red) / 0.45), transparent 70%)",
-                filter: "blur(90px)",
+                filter: isMobile ? "blur(45px)" : "blur(90px)",
+                willChange: "transform",
               }}
-              animate={{ x: [0, -100, 50, 0], y: [0, -40, 70, 0], scale: [1, 0.9, 1.2, 1] }}
+              animate={{ x: [0, isMobile ? -50 : -100, isMobile ? 25 : 50, 0], y: [0, isMobile ? -20 : -40, isMobile ? 35 : 70, 0], scale: [1, 0.92, 1.15, 1] }}
               transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
             />
-            <motion.div
-              aria-hidden
-              className="absolute bottom-0 left-1/3 w-[60vw] h-[60vw] rounded-full"
-              style={{
-                background: "radial-gradient(closest-side, hsl(var(--site-red) / 0.35), transparent 70%)",
-                filter: "blur(100px)",
-              }}
-              animate={{ x: [0, 60, -80, 0], y: [0, -50, 30, 0], scale: [1, 1.1, 0.95, 1] }}
-              transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
-            />
+            {!isMobile && (
+              <motion.div
+                aria-hidden
+                className="absolute bottom-0 left-1/3 w-[60vw] h-[60vw] rounded-full"
+                style={{
+                  background: "radial-gradient(closest-side, hsl(var(--site-red) / 0.35), transparent 70%)",
+                  filter: "blur(100px)",
+                  willChange: "transform",
+                }}
+                animate={{ x: [0, 60, -80, 0], y: [0, -50, 30, 0], scale: [1, 1.1, 0.95, 1] }}
+                transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+              />
+            )}
           </div>
         )}
 
