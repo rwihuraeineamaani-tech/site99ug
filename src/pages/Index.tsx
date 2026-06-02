@@ -244,7 +244,7 @@ export default function Home() {
           {words.map((w, i) => {
             const start = i / words.length;
             const end = start + 1 / words.length;
-            const opacity = useTransform(mp, [start * 0.7, end * 0.7], [0.15, 1]);
+            const opacity = useTransform(smoothMp, [start * 0.7, end * 0.7], [0.15, 1]);
             return (
               <motion.span key={i} style={{ opacity }} className={w.includes("attention.") || w.includes("us.") ? "text-site-red" : ""}>
                 {w}
