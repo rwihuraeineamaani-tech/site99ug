@@ -9,6 +9,7 @@ import { usePublicResidents } from "@/hooks/useResidents";
 import heroAsset from "@/assets/IMG_5291.jpg.asset.json";
 import studioAsset from "@/assets/IMG_5289.jpg.asset.json";
 import ctaAsset from "@/assets/IMG_5290.jpg.asset.json";
+import mathAsset from "@/assets/IMG_5292.jpg.asset.json";
 import p1 from "@/assets/project-1.jpg";
 import p2 from "@/assets/project-2.jpg";
 import p3 from "@/assets/project-3.jpg";
@@ -106,13 +107,13 @@ export default function Home() {
           <img
             src={heroImg}
             alt="Site 99 — narrative control"
-            className="w-full h-full object-cover opacity-30 mix-blend-screen"
+            className="w-full h-full object-cover opacity-70"
             width={1920}
             height={1080}
             fetchPriority="high"
             decoding="async"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-site-black/60 via-transparent to-site-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-site-black/40 via-site-black/20 to-site-black" />
         </motion.div>
 
         {/* Animated red northern-lights aurora — static on mobile to avoid jank */}
@@ -225,25 +226,24 @@ export default function Home() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="md:col-span-7 relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted"
+            className="md:col-span-8 relative aspect-[5/4] md:aspect-[3/2] overflow-hidden rounded-2xl bg-muted"
           >
             <img
               src={studioAsset.url}
               alt="The Site 99 studio team"
               loading="lazy"
               decoding="async"
-              width={1200}
-              height={900}
-              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 hover:scale-100"
+              width={1600}
+              height={1067}
+              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-site-black/40 via-transparent to-transparent pointer-events-none" />
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.15 }}
-            className="md:col-span-5"
+            className="md:col-span-4"
           >
             <div className="label text-site-red mb-4">The Studio</div>
             <h2 className="display text-fluid-xl leading-[0.95]">
@@ -275,28 +275,50 @@ export default function Home() {
 
       {/* THE MATH — viral economics pull-quote */}
       <section className="section-dark px-6 md:px-10 py-32 md:py-48 border-t">
-        <div className="max-w-6xl mx-auto">
-          <div className="label text-site-red mb-8">The Math</div>
-          <motion.h2
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="display text-fluid-xl leading-[1.0]"
-          >
-            One viral clip on TikTok can save you{" "}
-            <span className="text-site-red">10 Million UGX</span>{" "}
-            in traditional TV advertising.
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
+          <div className="md:col-span-7">
+            <div className="label text-site-red mb-8">The Math</div>
+            <motion.h2
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+              className="display text-fluid-xl leading-[1.0]"
+            >
+              One viral clip on TikTok can save you{" "}
+              <span className="text-site-red">10 Million UGX</span>{" "}
+              in traditional TV advertising.
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="mt-10 max-w-2xl text-fluid-md text-white/70"
+            >
+              Attention is the new media spend. We engineer the clip, the system, and the residency that keeps your brand in the feed long after the campaign ends.
+            </motion.p>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 1.05 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="mt-10 max-w-2xl text-fluid-md text-white/70"
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            className="md:col-span-5 relative aspect-[4/5] overflow-hidden rounded-2xl bg-site-black"
           >
-            Attention is the new media spend. We engineer the clip, the system, and the residency that keeps your brand in the feed long after the campaign ends.
-          </motion.p>
+            <img
+              src={mathAsset.url}
+              alt="Site 99 in residence"
+              loading="lazy"
+              decoding="async"
+              width={1000}
+              height={1250}
+              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+            />
+            <div className="absolute bottom-4 left-4 mono text-[10px] uppercase tracking-[0.3em] text-site-white bg-site-black/60 backdrop-blur px-3 py-1.5 rounded-full">
+              In residence
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -449,9 +471,9 @@ export default function Home() {
           decoding="async"
           width={1920}
           height={1080}
-          className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-screen"
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-site-black/80 via-site-black/60 to-site-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-site-black/70 via-site-black/40 to-site-black" />
         <div className="relative z-10">
           <motion.h3
             initial={{ opacity: 0, y: 40 }}

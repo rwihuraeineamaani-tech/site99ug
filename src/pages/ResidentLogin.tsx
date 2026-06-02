@@ -45,8 +45,8 @@ export default function ResidentLogin() {
   return (
     <Layout hideFooter>
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <img src={loginBgAsset.url} alt="" aria-hidden loading="lazy" decoding="async" width={1920} height={1080} className="w-full h-full object-cover opacity-20 grayscale" />
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-background" />
+        <img src={loginBgAsset.url} alt="" aria-hidden loading="lazy" decoding="async" width={1920} height={1080} className="w-full h-full object-cover opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/85 via-background/70 to-background/95" />
       </div>
       <section className="min-h-screen pt-32 px-6 md:px-10 max-w-md mx-auto relative">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-4">Resident Portal</div>
