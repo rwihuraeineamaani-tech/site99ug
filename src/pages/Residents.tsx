@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
-import { useResidents } from "@/hooks/useResidents";
+import { usePublicResidents } from "@/hooks/useResidents";
 
 export default function Residents() {
-  const { data: all = [], isLoading } = useResidents();
+  const { data: all = [], isLoading } = usePublicResidents();
   const residents = all.filter((r) => r.visible !== false);
   return (
     <Layout>
