@@ -5,11 +5,14 @@ import { Layout } from "@/components/Layout";
 import { Marquee } from "@/components/Marquee";
 import { useProjects } from "@/hooks/useProjects";
 import { usePublicResidents } from "@/hooks/useResidents";
-import heroImg from "@/assets/hero-frontier.jpg";
+import heroAsset from "@/assets/IMG_5291.jpg.asset.json";
+import studioAsset from "@/assets/IMG_5289.jpg.asset.json";
+import ctaAsset from "@/assets/IMG_5290.jpg.asset.json";
 import p1 from "@/assets/project-1.jpg";
 import p2 from "@/assets/project-2.jpg";
 import p3 from "@/assets/project-3.jpg";
 import p4 from "@/assets/project-4.jpg";
+const heroImg = heroAsset.url;
 
 const seedMap: Record<string, string> = {
   "/seed/project-1.jpg": p1,
@@ -192,6 +195,42 @@ export default function Home() {
           <span className="hidden md:inline">Scroll →</span>
         </div>
         <Marquee items={residents} />
+      </section>
+
+      {/* THE STUDIO — who we are */}
+      <section className="relative px-6 md:px-10 py-32 md:py-40 bg-background overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="md:col-span-7 relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted"
+          >
+            <img
+              src={studioAsset.url}
+              alt="The Site 99 studio team"
+              loading="lazy"
+              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 hover:scale-100"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-site-black/40 via-transparent to-transparent pointer-events-none" />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            className="md:col-span-5"
+          >
+            <div className="label text-site-red mb-4">The Studio</div>
+            <h2 className="display text-fluid-xl leading-[0.95]">
+              A small <span className="text-site-red">resident</span> team.
+            </h2>
+            <p className="mt-8 text-fluid-md text-muted-foreground max-w-md">
+              Self-taught specialists. We work together, in residence, on the brands we believe in. No freelancers, no handoffs, no excuses.
+            </p>
+          </motion.div>
+        </div>
       </section>
 
       {/* MANIFESTO */}
@@ -378,24 +417,33 @@ export default function Home() {
       </section>
 
       {/* CTA SLAB */}
-      <section className="px-6 md:px-10 py-32 md:py-48 text-center bg-background">
-        <motion.h3
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="display text-fluid-xl"
-        >
-          Ready to build a brand <br className="hidden md:block" />that <span className="text-site-red">travels</span>?
-        </motion.h3>
-        <p className="label text-muted-foreground mt-6">Qualify for residency</p>
-        <Link
-          to="/access"
-          data-hover
-          className="mt-10 inline-flex items-center gap-4 bg-site-red text-site-white px-8 py-5 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors"
-        >
-          Request Access →
-        </Link>
+      <section className="relative px-6 md:px-10 py-32 md:py-48 text-center bg-site-black text-site-white overflow-hidden">
+        <img
+          src={ctaAsset.url}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-screen"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-site-black/80 via-site-black/60 to-site-black" />
+        <div className="relative z-10">
+          <motion.h3
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="display text-fluid-xl"
+          >
+            Ready to build a brand <br className="hidden md:block" />that <span className="text-site-red">travels</span>?
+          </motion.h3>
+          <p className="label text-white/60 mt-6">Qualify for residency</p>
+          <Link
+            to="/access"
+            data-hover
+            className="mt-10 inline-flex items-center gap-4 bg-site-red text-site-white px-8 py-5 rounded-full label text-xs hover:bg-site-white hover:text-site-red transition-colors"
+          >
+            Request Access →
+          </Link>
+        </div>
       </section>
     </Layout>
   );

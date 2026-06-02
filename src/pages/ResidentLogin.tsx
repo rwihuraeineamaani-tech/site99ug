@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/Layout";
 import { toast } from "sonner";
+import loginBgAsset from "@/assets/IMG_5292.jpg.asset.json";
 
 export default function ResidentLogin() {
   const navigate = useNavigate();
@@ -43,7 +44,11 @@ export default function ResidentLogin() {
 
   return (
     <Layout hideFooter>
-      <section className="min-h-screen pt-32 px-6 md:px-10 max-w-md mx-auto">
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <img src={loginBgAsset.url} alt="" aria-hidden className="w-full h-full object-cover opacity-20 grayscale" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-background" />
+      </div>
+      <section className="min-h-screen pt-32 px-6 md:px-10 max-w-md mx-auto relative">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-4">Resident Portal</div>
         <h1 className="display text-fluid-xl leading-[0.9]">{mode === "signup" ? "Claim your plot." : "Welcome back."}</h1>
         <form onSubmit={submit} className="mt-12 space-y-8">

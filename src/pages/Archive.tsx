@@ -9,6 +9,7 @@ import p3 from "@/assets/project-3.jpg";
 import p4 from "@/assets/project-4.jpg";
 import p5 from "@/assets/project-5.jpg";
 import p6 from "@/assets/project-6.jpg";
+import processAsset from "@/assets/IMG_5293.jpg.asset.json";
 
 const seedMap: Record<string, string> = {
   "/seed/project-1.jpg": p1,
@@ -28,13 +29,34 @@ export default function Archive() {
     <Layout>
       <section className="px-6 md:px-10 pt-32 md:pt-40 pb-12">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 02 / Archive</div>
-        <h1 className="display text-fluid-hero leading-[0.85]">
-          Case studies in <br />
-          <span className="text-site-red">narrative</span> control.
-        </h1>
-        <p className="mt-10 max-w-xl text-fluid-md text-muted-foreground">
-          A living archive of the brands we have built, broadcast and defended. Each plot is a residency in motion.
-        </p>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 items-end">
+          <div className="md:col-span-7">
+            <h1 className="display text-fluid-hero leading-[0.85]">
+              Case studies in <br />
+              <span className="text-site-red">narrative</span> control.
+            </h1>
+            <p className="mt-10 max-w-xl text-fluid-md text-muted-foreground">
+              A living archive of the brands we have built, broadcast and defended. Each plot is a residency in motion.
+            </p>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 1.05 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            className="md:col-span-5 relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted"
+          >
+            <img
+              src={processAsset.url}
+              alt="The work in progress at Site 99"
+              loading="lazy"
+              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+            />
+            <div className="absolute bottom-4 left-4 mono text-[10px] uppercase tracking-[0.3em] text-site-white bg-site-black/60 backdrop-blur px-3 py-1.5 rounded-full">
+              In progress
+            </div>
+          </motion.div>
+        </div>
       </section>
 
       <section className="border-t border-border px-6 md:px-10 py-12 md:py-16">
