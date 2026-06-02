@@ -268,7 +268,7 @@ export default function Home() {
                 Self-taught specialists. We work together, in residence, on the brands we believe in. No freelancers, no handoffs, no excuses.
               </p>
               <p className="text-fluid-md text-muted-foreground">
-                Every plot is built by the same hands that ship it — strategy, identity, film, code and broadcast under one roof. We stay until the brand can travel on its own.
+                Every plot is built by the same hands that ship it  strategy, identity, film, code and broadcast under one roof. We stay until the brand can travel on its own.
               </p>
             </div>
           </motion.div>
