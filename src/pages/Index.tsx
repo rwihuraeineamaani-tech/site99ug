@@ -381,17 +381,17 @@ export default function Home() {
               transition={{ delay: (i % 2) * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className={i % 2 === 1 ? "md:translate-y-16" : ""}
             >
-              <Link to="/archive" data-hover className="group block">
-                <div className="overflow-hidden rounded-2xl bg-muted aspect-[4/5]">
+              <Link to="/archive" data-hover className="group block" style={{ perspective: 1100 }}>
+                <Tilt3D max={8} scale={1.03} className="overflow-hidden rounded-2xl bg-muted aspect-[4/5] shadow-[0_30px_60px_-20px_hsl(0_0%_0%/0.4)]">
                   <img
                     src={p.img}
                     alt={p.title}
                     loading="lazy"
                     width={800}
                     height={1000}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    className="w-full h-full object-cover"
                   />
-                </div>
+                </Tilt3D>
                 <div className="mt-5 flex items-center justify-between">
                   <div>
                     <div className="display text-2xl md:text-3xl">{p.title}</div>
