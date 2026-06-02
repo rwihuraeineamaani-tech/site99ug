@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/Layout";
 import { toast } from "sonner";
+import loginBgAsset from "@/assets/IMG_5292.jpg.asset.json";
 
 export default function ResidentLogin() {
   const navigate = useNavigate();
