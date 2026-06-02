@@ -197,6 +197,42 @@ export default function Home() {
         <Marquee items={residents} />
       </section>
 
+      {/* THE STUDIO — who we are */}
+      <section className="relative px-6 md:px-10 py-32 md:py-40 bg-background overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="md:col-span-7 relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted"
+          >
+            <img
+              src={studioAsset.url}
+              alt="The Site 99 studio team"
+              loading="lazy"
+              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 hover:scale-100"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-site-black/40 via-transparent to-transparent pointer-events-none" />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            className="md:col-span-5"
+          >
+            <div className="label text-site-red mb-4">The Studio</div>
+            <h2 className="display text-fluid-xl leading-[0.95]">
+              A small <span className="text-site-red">resident</span> team.
+            </h2>
+            <p className="mt-8 text-fluid-md text-muted-foreground max-w-md">
+              Self-taught specialists. We work together, in residence, on the brands we believe in. No freelancers, no handoffs, no excuses.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* MANIFESTO */}
       <section ref={manifestoRef} className="px-6 md:px-10 py-32 md:py-48 max-w-7xl mx-auto">
         <div className="label text-site-red mb-8">Doctrine</div>
