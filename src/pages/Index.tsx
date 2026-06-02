@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Marquee } from "@/components/Marquee";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useProjects } from "@/hooks/useProjects";
 import { usePublicResidents } from "@/hooks/useResidents";
 import heroAsset from "@/assets/IMG_5291.jpg.asset.json";
