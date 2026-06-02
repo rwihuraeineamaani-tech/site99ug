@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Marquee } from "@/components/Marquee";
+import { Tilt3D } from "@/components/Tilt3D";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProjects } from "@/hooks/useProjects";
 import { usePublicResidents } from "@/hooks/useResidents";
@@ -226,17 +227,20 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-2xl bg-muted"
+            className="relative"
+            style={{ perspective: 1400 }}
           >
-            <img
-              src={studioAsset.url}
-              alt="The Site 99 studio team"
-              loading="lazy"
-              decoding="async"
-              width={1920}
-              height={1080}
-              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-            />
+            <Tilt3D max={6} scale={1.015} className="relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-2xl bg-muted shadow-[0_40px_80px_-20px_hsl(0_0%_0%/0.45),0_10px_30px_-10px_hsl(0_0%_0%/0.35)]">
+              <img
+                src={studioAsset.url}
+                alt="The Site 99 studio team"
+                loading="lazy"
+                decoding="async"
+                width={1920}
+                height={1080}
+                className="w-full h-full object-cover"
+              />
+            </Tilt3D>
           </motion.div>
 
           <motion.div
@@ -312,20 +316,23 @@ export default function Home() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="md:col-span-5 relative aspect-[4/5] overflow-hidden rounded-2xl bg-site-black"
+            className="md:col-span-5"
+            style={{ perspective: 1200 }}
           >
-            <img
-              src={mathAsset.url}
-              alt="Site 99 in residence"
-              loading="lazy"
-              decoding="async"
-              width={1000}
-              height={1250}
-              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-            />
-            <div className="absolute bottom-4 left-4 mono text-[10px] uppercase tracking-[0.3em] text-site-white bg-site-black/60 backdrop-blur px-3 py-1.5 rounded-full">
-              In residence
-            </div>
+            <Tilt3D max={9} scale={1.025} className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-site-black shadow-[0_50px_100px_-20px_hsl(0_0%_0%/0.7),0_15px_40px_-10px_hsl(var(--site-red)/0.35)]">
+              <img
+                src={mathAsset.url}
+                alt="Site 99 in residence"
+                loading="lazy"
+                decoding="async"
+                width={1000}
+                height={1250}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute bottom-4 left-4 mono text-[10px] uppercase tracking-[0.3em] text-site-white bg-site-black/60 backdrop-blur px-3 py-1.5 rounded-full">
+                In residence
+              </div>
+            </Tilt3D>
           </motion.div>
         </div>
       </section>
@@ -374,17 +381,17 @@ export default function Home() {
               transition={{ delay: (i % 2) * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className={i % 2 === 1 ? "md:translate-y-16" : ""}
             >
-              <Link to="/archive" data-hover className="group block">
-                <div className="overflow-hidden rounded-2xl bg-muted aspect-[4/5]">
+              <Link to="/archive" data-hover className="group block" style={{ perspective: 1100 }}>
+                <Tilt3D max={8} scale={1.03} className="overflow-hidden rounded-2xl bg-muted aspect-[4/5] shadow-[0_30px_60px_-20px_hsl(0_0%_0%/0.4)]">
                   <img
                     src={p.img}
                     alt={p.title}
                     loading="lazy"
                     width={800}
                     height={1000}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    className="w-full h-full object-cover"
                   />
-                </div>
+                </Tilt3D>
                 <div className="mt-5 flex items-center justify-between">
                   <div>
                     <div className="display text-2xl md:text-3xl">{p.title}</div>
