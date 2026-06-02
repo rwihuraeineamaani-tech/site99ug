@@ -316,20 +316,23 @@ export default function Home() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="md:col-span-5 relative aspect-[4/5] overflow-hidden rounded-2xl bg-site-black"
+            className="md:col-span-5"
+            style={{ perspective: 1200 }}
           >
-            <img
-              src={mathAsset.url}
-              alt="Site 99 in residence"
-              loading="lazy"
-              decoding="async"
-              width={1000}
-              height={1250}
-              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-            />
-            <div className="absolute bottom-4 left-4 mono text-[10px] uppercase tracking-[0.3em] text-site-white bg-site-black/60 backdrop-blur px-3 py-1.5 rounded-full">
-              In residence
-            </div>
+            <Tilt3D max={9} scale={1.025} className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-site-black shadow-[0_50px_100px_-20px_hsl(0_0%_0%/0.7),0_15px_40px_-10px_hsl(var(--site-red)/0.35)]">
+              <img
+                src={mathAsset.url}
+                alt="Site 99 in residence"
+                loading="lazy"
+                decoding="async"
+                width={1000}
+                height={1250}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute bottom-4 left-4 mono text-[10px] uppercase tracking-[0.3em] text-site-white bg-site-black/60 backdrop-blur px-3 py-1.5 rounded-full">
+                In residence
+              </div>
+            </Tilt3D>
           </motion.div>
         </div>
       </section>
