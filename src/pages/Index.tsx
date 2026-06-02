@@ -217,6 +217,9 @@ export default function Home() {
               src={studioAsset.url}
               alt="The Site 99 studio team"
               loading="lazy"
+              decoding="async"
+              width={1200}
+              height={900}
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 hover:scale-100"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-site-black/40 via-transparent to-transparent pointer-events-none" />
