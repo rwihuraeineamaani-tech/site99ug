@@ -417,7 +417,14 @@ export default function Home() {
       </section>
 
       {/* CTA SLAB */}
-      <section className="px-6 md:px-10 py-32 md:py-48 text-center bg-background">
+      <section className="relative px-6 md:px-10 py-32 md:py-48 text-center bg-site-black text-site-white overflow-hidden">
+        <img
+          src={ctaAsset.url}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-screen"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-site-black/80 via-site-black/60 to-site-black" />
         <motion.h3
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
