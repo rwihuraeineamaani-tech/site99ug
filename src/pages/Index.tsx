@@ -227,17 +227,20 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-2xl bg-muted"
+            className="relative"
+            style={{ perspective: 1400 }}
           >
-            <img
-              src={studioAsset.url}
-              alt="The Site 99 studio team"
-              loading="lazy"
-              decoding="async"
-              width={1920}
-              height={1080}
-              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-            />
+            <Tilt3D max={6} scale={1.015} className="relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-2xl bg-muted shadow-[0_40px_80px_-20px_hsl(0_0%_0%/0.45),0_10px_30px_-10px_hsl(0_0%_0%/0.35)]">
+              <img
+                src={studioAsset.url}
+                alt="The Site 99 studio team"
+                loading="lazy"
+                decoding="async"
+                width={1920}
+                height={1080}
+                className="w-full h-full object-cover"
+              />
+            </Tilt3D>
           </motion.div>
 
           <motion.div
