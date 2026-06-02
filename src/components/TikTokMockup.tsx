@@ -155,45 +155,73 @@ export const TikTokMockup = ({ src, alt }: { src: string; alt: string }) => {
       </motion.div>
 
       {/* Right side action rail */}
-      <div className="absolute right-3 bottom-24 flex flex-col items-center gap-5 text-white z-10">
-        <div className="w-10 h-10 rounded-full ring-2 ring-white bg-white overflow-hidden">
+      <div className="absolute right-2 bottom-28 flex flex-col items-center gap-3 text-white z-20">
+        <div className="w-9 h-9 rounded-full ring-2 ring-white bg-white overflow-hidden">
           <img src={logoCircle.url} alt="Site 99" className="w-full h-full object-cover" />
         </div>
 
-        {/* LIKE — interactive */}
-        <div className="flex flex-col items-center gap-1">
-          <motion.button
-            type="button"
-            onClick={onLikeBtn}
-            whileTap={{ scale: 0.78 }}
-            animate={liked ? { scale: [1, 1.35, 1] } : { scale: 1 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            aria-pressed={liked}
-            aria-label={liked ? "Unlike" : "Like"}
-            className="outline-none"
-          >
-            <Heart
-              className={`w-8 h-8 transition-colors ${liked ? "text-site-red" : "text-white"}`}
-              fill={liked ? "currentColor" : "white"}
-            />
-          </motion.button>
-          <span className="text-[11px] mono">
-            <LiveNumber base={842_300 + likeBoost} ratePerSec={2.3} />
-          </span>
-        </div>
+        {/* LIKE */}
+        <ActionButton
+          onClick={(e) => {
+            toggleLike();
+            const rect = e.currentTarget.getBoundingClientRect();
+            const parent = (e.currentTarget.closest("[data-mockup]") as HTMLElement | null)?.getBoundingClientRect();
+            if (parent) addHeart(rect.left - parent.left + rect.width / 2, rect.top - parent.top);
+          }}
+          active={liked}
+          ariaLabel={liked ? "Unlike" : "Like"}
+          label={<LiveNumber base={842_300 + likeBoost} ratePerSec={2.3} />}
+        >
+          <Heart className={`w-6 h-6 transition-colors ${liked ? "text-site-red" : "text-white"}`} fill={liked ? "currentColor" : "white"} />
+        </ActionButton>
 
-        <ActionStat icon={<MessageCircle className="w-7 h-7" fill="white" />} base={12_400} rate={0.4} />
-        <ActionStat icon={<Bookmark className="w-7 h-7" fill="white" />} base={56_700} rate={0.6} />
-        <ActionStat icon={<Share2 className="w-7 h-7" />} base={9_100} rate={0.2} />
+        {/* COMMENT */}
+        <ActionButton
+          onClick={() => setCommentBoost((n) => n + 1)}
+          ariaLabel="Comment"
+          label={<LiveNumber base={12_400 + commentBoost} ratePerSec={0.4} />}
+        >
+          <MessageCircle className="w-6 h-6" fill="white" />
+        </ActionButton>
 
-        {/* Spinning vinyl */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-          className="w-9 h-9 rounded-full border-2 border-white/30 bg-gradient-to-br from-zinc-700 to-black flex items-center justify-center"
+        {/* BOOKMARK */}
+        <ActionButton
+          onClick={() =>
+            setSaved((prev) => {
+              const next = !prev;
+              setSaveBoost((n) => n + (next ? 1 : -1));
+              return next;
+            })
+          }
+          active={saved}
+          ariaLabel={saved ? "Remove bookmark" : "Save"}
+          label={<LiveNumber base={56_700 + saveBoost} ratePerSec={0.6} />}
+        >
+          <Bookmark className={`w-6 h-6 ${saved ? "text-yellow-400" : "text-white"}`} fill={saved ? "currentColor" : "white"} />
+        </ActionButton>
+
+        {/* SHARE */}
+        <ActionButton
+          onClick={() => setShareBoost((n) => n + 1)}
+          ariaLabel="Share"
+          label={<LiveNumber base={9_100 + shareBoost} ratePerSec={0.2} />}
+        >
+          <Share2 className="w-6 h-6" />
+        </ActionButton>
+
+        {/* Spinning vinyl — mute toggle */}
+        <motion.button
+          type="button"
+          onClick={() => setMusicMuted((m) => !m)}
+          aria-pressed={musicMuted}
+          aria-label={musicMuted ? "Unmute" : "Mute"}
+          whileTap={{ scale: 0.85 }}
+          animate={{ rotate: musicMuted ? 0 : 360 }}
+          transition={{ duration: musicMuted ? 0.3 : 6, repeat: musicMuted ? 0 : Infinity, ease: "linear" }}
+          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${musicMuted ? "border-white/20 bg-black/60 opacity-60" : "border-white/30 bg-gradient-to-br from-zinc-700 to-black"}`}
         >
           <Music2 className="w-3 h-3 text-white" />
-        </motion.div>
+        </motion.button>
       </div>
 
       {/* Bottom caption */}
