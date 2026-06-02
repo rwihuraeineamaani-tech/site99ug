@@ -425,23 +425,25 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-screen"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-site-black/80 via-site-black/60 to-site-black" />
-        <motion.h3
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="display text-fluid-xl"
-        >
-          Ready to build a brand <br className="hidden md:block" />that <span className="text-site-red">travels</span>?
-        </motion.h3>
-        <p className="label text-muted-foreground mt-6">Qualify for residency</p>
-        <Link
-          to="/access"
-          data-hover
-          className="mt-10 inline-flex items-center gap-4 bg-site-red text-site-white px-8 py-5 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors"
-        >
-          Request Access →
-        </Link>
+        <div className="relative z-10">
+          <motion.h3
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="display text-fluid-xl"
+          >
+            Ready to build a brand <br className="hidden md:block" />that <span className="text-site-red">travels</span>?
+          </motion.h3>
+          <p className="label text-white/60 mt-6">Qualify for residency</p>
+          <Link
+            to="/access"
+            data-hover
+            className="mt-10 inline-flex items-center gap-4 bg-site-red text-site-white px-8 py-5 rounded-full label text-xs hover:bg-site-white hover:text-site-red transition-colors"
+          >
+            Request Access →
+          </Link>
+        </div>
       </section>
     </Layout>
   );
