@@ -271,3 +271,35 @@ function ActionStat({ icon, base, rate }: { icon: React.ReactNode; base: number;
     </div>
   );
 }
+
+function ActionButton({
+  children,
+  label,
+  onClick,
+  active,
+  ariaLabel,
+}: {
+  children: React.ReactNode;
+  label: React.ReactNode;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  active?: boolean;
+  ariaLabel: string;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-0.5">
+      <motion.button
+        type="button"
+        onClick={onClick}
+        whileTap={{ scale: 0.78 }}
+        animate={active ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        aria-pressed={active}
+        aria-label={ariaLabel}
+        className="outline-none p-1"
+      >
+        {children}
+      </motion.button>
+      <span className="text-[10px] mono leading-none">{label}</span>
+    </div>
+  );
+}
