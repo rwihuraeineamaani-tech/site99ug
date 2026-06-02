@@ -98,7 +98,7 @@ export default function Home() {
     <Layout>
       {/* HERO — black canvas with northern-lights aurora */}
       <section ref={heroRef} className="relative min-h-[110vh] overflow-hidden bg-site-black text-site-white">
-        <motion.div style={{ y: heroY, scale: heroScale }} className="absolute inset-0">
+        <motion.div style={{ y: heroY, scale: heroScale, willChange: "transform" }} className="absolute inset-0">
           <div className="absolute inset-0 bg-site-black" />
           <img
             src={heroImg}
@@ -106,6 +106,8 @@ export default function Home() {
             className="w-full h-full object-cover opacity-30 mix-blend-screen"
             width={1920}
             height={1080}
+            fetchPriority="high"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-site-black/60 via-transparent to-site-black" />
         </motion.div>
