@@ -225,25 +225,24 @@ export default function Home() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="md:col-span-7 relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted"
+            className="md:col-span-8 relative aspect-[5/4] md:aspect-[3/2] overflow-hidden rounded-2xl bg-muted"
           >
             <img
               src={studioAsset.url}
               alt="The Site 99 studio team"
               loading="lazy"
               decoding="async"
-              width={1200}
-              height={900}
-              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 hover:scale-100"
+              width={1600}
+              height={1067}
+              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-site-black/40 via-transparent to-transparent pointer-events-none" />
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.15 }}
-            className="md:col-span-5"
+            className="md:col-span-4"
           >
             <div className="label text-site-red mb-4">The Studio</div>
             <h2 className="display text-fluid-xl leading-[0.95]">
