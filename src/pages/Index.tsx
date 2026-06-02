@@ -71,14 +71,18 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
 }
 
 export default function Home() {
+  const reduce = useReducedMotion();
+  const springCfg = { stiffness: 120, damping: 28, mass: 0.4, restDelta: 0.001 };
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const titleY = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const smoothHero = useSpring(scrollYProgress, springCfg);
+  const heroY = useTransform(smoothHero, [0, 1], [0, reduce ? 0 : 200]);
+  const heroScale = useTransform(smoothHero, [0, 1], [1, reduce ? 1 : 1.15]);
+  const titleY = useTransform(smoothHero, [0, 1], [0, reduce ? 0 : -120]);
 
   const manifestoRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: mp } = useScroll({ target: manifestoRef, offset: ["start end", "end start"] });
+  const smoothMp = useSpring(mp, springCfg);
 
   const words = "We build brands that travel without us. Land will not be more valuable than online attention. We earn that attention with stories worth watching.".split(" ");
 
