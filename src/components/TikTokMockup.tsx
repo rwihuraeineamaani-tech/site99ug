@@ -1,6 +1,7 @@
 import { motion, useInView, useMotionValue, animate, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Heart, MessageCircle, Share2, Bookmark, Music2 } from "lucide-react";
+import logoCircle from "@/assets/site-logo-circle.png.asset.json";
 
 const fmt = (n: number) => {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
@@ -150,7 +151,9 @@ export const TikTokMockup = ({ src, alt }: { src: string; alt: string }) => {
 
       {/* Right side action rail */}
       <div className="absolute right-3 bottom-24 flex flex-col items-center gap-5 text-white z-10">
-        <div className="w-10 h-10 rounded-full ring-2 ring-white bg-site-red flex items-center justify-center text-[10px] font-bold">99</div>
+        <div className="w-10 h-10 rounded-full ring-2 ring-white bg-white overflow-hidden">
+          <img src={logoCircle.url} alt="Site 99" className="w-full h-full object-cover" />
+        </div>
 
         {/* LIKE — interactive */}
         <div className="flex flex-col items-center gap-1">
