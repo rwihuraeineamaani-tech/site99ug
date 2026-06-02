@@ -9,6 +9,7 @@ import p3 from "@/assets/project-3.jpg";
 import p4 from "@/assets/project-4.jpg";
 import p5 from "@/assets/project-5.jpg";
 import p6 from "@/assets/project-6.jpg";
+import processAsset from "@/assets/IMG_5293.jpg.asset.json";
 
 const seedMap: Record<string, string> = {
   "/seed/project-1.jpg": p1,
