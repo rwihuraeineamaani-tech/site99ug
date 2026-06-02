@@ -448,9 +448,9 @@ export default function Home() {
           decoding="async"
           width={1920}
           height={1080}
-          className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-screen"
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-site-black/80 via-site-black/60 to-site-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-site-black/70 via-site-black/40 to-site-black" />
         <div className="relative z-10">
           <motion.h3
             initial={{ opacity: 0, y: 40 }}
