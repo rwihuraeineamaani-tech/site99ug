@@ -104,6 +104,13 @@ export type Database = {
             foreignKeyName: "briefs_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "briefs_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -135,6 +142,13 @@ export type Database = {
           sender_role?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "messages_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "messages_resident_id_fkey"
             columns: ["resident_id"]
@@ -217,6 +231,13 @@ export type Database = {
             foreignKeyName: "resident_projects_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_projects_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -293,7 +314,42 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_residents: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_order: number | null
+          id: string | null
+          name: string | null
+          since: string | null
+          status: string | null
+          territory: string | null
+          visible: boolean | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          name?: string | null
+          since?: string | null
+          status?: string | null
+          territory?: string | null
+          visible?: boolean | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          name?: string | null
+          since?: string | null
+          status?: string | null
+          territory?: string | null
+          visible?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_resident_invite: { Args: never; Returns: boolean }
