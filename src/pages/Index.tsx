@@ -150,7 +150,7 @@ export default function Home() {
           <span className="w-1.5 h-1.5 bg-site-red rounded-full animate-pulse" /> Residency Open
         </div>
 
-        <motion.div style={{ y: titleY }} className="relative z-10 min-h-[110vh] px-6 md:px-10 pt-40 pb-24 md:pb-32 flex flex-col justify-end gap-10 md:gap-14">
+        <motion.div style={{ y: titleY, willChange: "transform" }} className="relative z-10 min-h-[110vh] px-6 md:px-10 pt-40 pb-24 md:pb-32 flex flex-col justify-end gap-10 md:gap-14">
           <div className="space-y-1 md:space-y-2">
             <div className="overflow-hidden">
               <motion.h1
