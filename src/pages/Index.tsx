@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Marquee } from "@/components/Marquee";
 import { useProjects } from "@/hooks/useProjects";
-import { useResidents } from "@/hooks/useResidents";
+import { usePublicResidents } from "@/hooks/useResidents";
 import heroImg from "@/assets/hero-frontier.jpg";
 import p1 from "@/assets/project-1.jpg";
 import p2 from "@/assets/project-2.jpg";
@@ -80,7 +80,7 @@ export default function Home() {
   const words = "We build brands that travel without us. Land will not be more valuable than online attention. We earn that attention with stories worth watching.".split(" ");
 
   const { data: dbProjects = [] } = useProjects();
-  const { data: dbResidents = [] } = useResidents();
+  const { data: dbResidents = [] } = usePublicResidents();
   const glimpseProjects = dbProjects.length
     ? dbProjects.slice(0, 4).map((p) => ({ title: p.title, client: p.client, tag: p.tag, img: resolveCover(p.cover_url) }))
     : glimpseFallback;
