@@ -1,6 +1,7 @@
 import { motion, useInView, useMotionValue, animate, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Heart, MessageCircle, Share2, Bookmark, Music2 } from "lucide-react";
+import logoCircle from "@/assets/site-logo-circle.png.asset.json";
 
 const fmt = (n: number) => {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
