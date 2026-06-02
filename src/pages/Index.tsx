@@ -219,39 +219,47 @@ export default function Home() {
       </section>
 
       {/* THE STUDIO — who we are */}
-      <section className="relative px-6 md:px-10 py-32 md:py-40 bg-background overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center max-w-7xl mx-auto">
+      <section className="relative px-6 md:px-10 py-24 md:py-32 bg-background overflow-hidden">
+        <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="md:col-span-8 relative aspect-[5/4] md:aspect-[3/2] overflow-hidden rounded-2xl bg-muted"
+            className="relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-2xl bg-muted"
           >
             <img
               src={studioAsset.url}
               alt="The Site 99 studio team"
               loading="lazy"
               decoding="async"
-              width={1600}
-              height={1067}
+              width={1920}
+              height={1080}
               className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
             />
           </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.15 }}
-            className="md:col-span-4"
+            className="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start"
           >
-            <div className="label text-site-red mb-4">The Studio</div>
-            <h2 className="display text-fluid-xl leading-[0.95]">
-              A small <span className="text-site-red">resident</span> team.
-            </h2>
-            <p className="mt-8 text-fluid-md text-muted-foreground max-w-md">
-              Self-taught specialists. We work together, in residence, on the brands we believe in. No freelancers, no handoffs, no excuses.
-            </p>
+            <div className="md:col-span-5">
+              <div className="label text-site-red mb-4">The Studio</div>
+              <h2 className="display text-fluid-xl leading-[0.95]">
+                A small <span className="text-site-red">resident</span> team.
+              </h2>
+            </div>
+            <div className="md:col-span-7 space-y-6">
+              <p className="text-fluid-md text-foreground/90">
+                Self-taught specialists. We work together, in residence, on the brands we believe in. No freelancers, no handoffs, no excuses.
+              </p>
+              <p className="text-fluid-md text-muted-foreground">
+                Every plot is built by the same hands that ship it — strategy, identity, film, code and broadcast under one roof. We stay until the brand can travel on its own.
+              </p>
+            </div>
           </motion.div>
         </div>
       </section>
