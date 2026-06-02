@@ -45,7 +45,7 @@ export default function ResidentLogin() {
   return (
     <Layout hideFooter>
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <img src={loginBgAsset.url} alt="" aria-hidden className="w-full h-full object-cover opacity-20 grayscale" />
+        <img src={loginBgAsset.url} alt="" aria-hidden loading="lazy" decoding="async" width={1920} height={1080} className="w-full h-full object-cover opacity-20 grayscale" />
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-background" />
       </div>
       <section className="min-h-screen pt-32 px-6 md:px-10 max-w-md mx-auto relative">

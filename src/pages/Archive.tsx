@@ -50,6 +50,9 @@ export default function Archive() {
               src={processAsset.url}
               alt="The work in progress at Site 99"
               loading="lazy"
+              decoding="async"
+              width={1200}
+              height={900}
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
             />
             <div className="absolute bottom-4 left-4 mono text-[10px] uppercase tracking-[0.3em] text-site-white bg-site-black/60 backdrop-blur px-3 py-1.5 rounded-full">

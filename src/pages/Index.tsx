@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, useInView, useMotionValue, animate } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring, animate, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
@@ -71,14 +71,18 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
 }
 
 export default function Home() {
+  const reduce = useReducedMotion();
+  const springCfg = { stiffness: 120, damping: 28, mass: 0.4, restDelta: 0.001 };
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const titleY = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const smoothHero = useSpring(scrollYProgress, springCfg);
+  const heroY = useTransform(smoothHero, [0, 1], [0, reduce ? 0 : 200]);
+  const heroScale = useTransform(smoothHero, [0, 1], [1, reduce ? 1 : 1.15]);
+  const titleY = useTransform(smoothHero, [0, 1], [0, reduce ? 0 : -120]);
 
   const manifestoRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: mp } = useScroll({ target: manifestoRef, offset: ["start end", "end start"] });
+  const smoothMp = useSpring(mp, springCfg);
 
   const words = "We build brands that travel without us. Land will not be more valuable than online attention. We earn that attention with stories worth watching.".split(" ");
 
@@ -94,7 +98,7 @@ export default function Home() {
     <Layout>
       {/* HERO — black canvas with northern-lights aurora */}
       <section ref={heroRef} className="relative min-h-[110vh] overflow-hidden bg-site-black text-site-white">
-        <motion.div style={{ y: heroY, scale: heroScale }} className="absolute inset-0">
+        <motion.div style={{ y: heroY, scale: heroScale, willChange: "transform" }} className="absolute inset-0">
           <div className="absolute inset-0 bg-site-black" />
           <img
             src={heroImg}
@@ -102,6 +106,8 @@ export default function Home() {
             className="w-full h-full object-cover opacity-30 mix-blend-screen"
             width={1920}
             height={1080}
+            fetchPriority="high"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-site-black/60 via-transparent to-site-black" />
         </motion.div>
@@ -144,7 +150,7 @@ export default function Home() {
           <span className="w-1.5 h-1.5 bg-site-red rounded-full animate-pulse" /> Residency Open
         </div>
 
-        <motion.div style={{ y: titleY }} className="relative z-10 min-h-[110vh] px-6 md:px-10 pt-40 pb-24 md:pb-32 flex flex-col justify-end gap-10 md:gap-14">
+        <motion.div style={{ y: titleY, willChange: "transform" }} className="relative z-10 min-h-[110vh] px-6 md:px-10 pt-40 pb-24 md:pb-32 flex flex-col justify-end gap-10 md:gap-14">
           <div className="space-y-1 md:space-y-2">
             <div className="overflow-hidden">
               <motion.h1
@@ -211,6 +217,9 @@ export default function Home() {
               src={studioAsset.url}
               alt="The Site 99 studio team"
               loading="lazy"
+              decoding="async"
+              width={1200}
+              height={900}
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 hover:scale-100"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-site-black/40 via-transparent to-transparent pointer-events-none" />
@@ -240,7 +249,7 @@ export default function Home() {
           {words.map((w, i) => {
             const start = i / words.length;
             const end = start + 1 / words.length;
-            const opacity = useTransform(mp, [start * 0.7, end * 0.7], [0.15, 1]);
+            const opacity = useTransform(smoothMp, [start * 0.7, end * 0.7], [0.15, 1]);
             return (
               <motion.span key={i} style={{ opacity }} className={w.includes("attention.") || w.includes("us.") ? "text-site-red" : ""}>
                 {w}
@@ -422,6 +431,10 @@ export default function Home() {
           src={ctaAsset.url}
           alt=""
           aria-hidden
+          loading="lazy"
+          decoding="async"
+          width={1920}
+          height={1080}
           className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-screen"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-site-black/80 via-site-black/60 to-site-black" />
