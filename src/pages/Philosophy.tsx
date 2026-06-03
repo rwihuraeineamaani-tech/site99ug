@@ -47,8 +47,9 @@ export default function Philosophy() {
                   <span
                     key={i}
                     aria-hidden
-                    className="text-[40vw] leading-none block absolute inset-0"
+                    className="text-[40vw] leading-none block absolute inset-0 tracking-tighter"
                     style={{
+                      fontFamily: "'Archivo Black', system-ui, sans-serif",
                       transform: `translateZ(${-depth * 3}px)`,
                       color: `hsl(0 ${sat}% ${lightness}%)`,
                     }}
@@ -63,8 +64,9 @@ export default function Philosophy() {
                   color: numColor as any,
                   transform: "translateZ(8px)",
                   textShadow: "0 0 80px rgba(182,0,0,0.55), 0 0 30px rgba(182,0,0,0.4)",
+                  fontFamily: "'Archivo Black', system-ui, sans-serif",
                 }}
-                className="text-[40vw] leading-none block relative"
+                className="text-[40vw] leading-none block relative tracking-tighter"
               >
                 99
               </motion.span>
