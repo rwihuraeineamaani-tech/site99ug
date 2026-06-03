@@ -64,8 +64,9 @@ export default function Philosophy() {
                   color: numColor as any,
                   transform: "translateZ(8px)",
                   textShadow: "0 0 80px rgba(182,0,0,0.55), 0 0 30px rgba(182,0,0,0.4)",
+                  fontFamily: "'Archivo Black', system-ui, sans-serif",
                 }}
-                className="text-[40vw] leading-none block relative"
+                className="text-[40vw] leading-none block relative tracking-tighter"
               >
                 99
               </motion.span>
