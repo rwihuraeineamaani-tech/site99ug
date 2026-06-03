@@ -47,8 +47,9 @@ export default function Philosophy() {
                   <span
                     key={i}
                     aria-hidden
-                    className="text-[40vw] leading-none block absolute inset-0"
+                    className="text-[40vw] leading-none block absolute inset-0 tracking-tighter"
                     style={{
+                      fontFamily: "'Archivo Black', system-ui, sans-serif",
                       transform: `translateZ(${-depth * 3}px)`,
                       color: `hsl(0 ${sat}% ${lightness}%)`,
                     }}
