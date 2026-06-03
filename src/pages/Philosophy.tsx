@@ -33,14 +33,41 @@ export default function Philosophy() {
       {/* 3D scrolling 99 */}
       <section ref={ref} className="relative h-[300vh] border-t border-border">
         <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden bg-site-black">
-          <div className="absolute inset-0 flex items-center justify-center" style={{ perspective: 1200 }}>
+          <div className="absolute inset-0 flex items-center justify-center" style={{ perspective: 1600 }}>
             <motion.div
-              style={{ rotateX, rotateY, scale, color: numColor as any }}
-              className="display select-none"
+              style={{ rotateX, rotateY, scale, transformStyle: "preserve-3d" }}
+              className="display select-none relative"
             >
-              <span className="text-[40vw] leading-none block" style={{ textShadow: "0 0 80px rgba(182,0,0,0.4)" }}>
+              {/* Extruded depth layers — back to front */}
+              {Array.from({ length: 28 }).map((_, i) => {
+                const depth = 28 - i;
+                const lightness = Math.max(4, 22 - depth * 0.7);
+                const sat = Math.max(0, 70 - depth * 2.5);
+                return (
+                  <span
+                    key={i}
+                    aria-hidden
+                    className="text-[40vw] leading-none block absolute inset-0"
+                    style={{
+                      transform: `translateZ(${-depth * 3}px)`,
+                      color: `hsl(0 ${sat}% ${lightness}%)`,
+                    }}
+                  >
+                    99
+                  </span>
+                );
+              })}
+              {/* Front face */}
+              <motion.span
+                style={{
+                  color: numColor as any,
+                  transform: "translateZ(8px)",
+                  textShadow: "0 0 80px rgba(182,0,0,0.55), 0 0 30px rgba(182,0,0,0.4)",
+                }}
+                className="text-[40vw] leading-none block relative"
+              >
                 99
-              </span>
+              </motion.span>
             </motion.div>
           </div>
           <div className="absolute bottom-10 left-6 md:left-10 label text-[11px] text-white/60 max-w-xs">
