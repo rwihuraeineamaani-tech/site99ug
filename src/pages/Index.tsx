@@ -454,22 +454,25 @@ export default function Home() {
           </Link>
         </div>
         <div className="border-t border-border">
-          {residents.slice(0, 4).map((r, i) => (
+          {marqueeItems.slice(0, 4).map((r, i) => (
             <motion.div
-              key={r}
+              key={r.name}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="grid grid-cols-12 items-center border-b border-border py-6 md:py-8 group hover:bg-site-red transition-colors duration-300 cursor-default"
+              className="grid grid-cols-12 items-center gap-4 border-b border-border px-4 md:px-6 py-6 md:py-8 group hover:bg-site-red transition-colors duration-300 cursor-default"
             >
-              <div className="col-span-1 mono text-xs text-muted-foreground group-hover:text-site-white px-2">
+              <div className="col-span-1 mono text-xs text-muted-foreground group-hover:text-site-white">
                 {String(i + 1).padStart(2, "0")}
               </div>
-              <div className="col-span-8 display text-2xl md:text-4xl group-hover:text-site-white group-hover:translate-x-3 transition-transform duration-500">
-                {r}
+              <div className="col-span-7 md:col-span-6 display text-2xl md:text-4xl group-hover:text-site-white group-hover:translate-x-3 transition-transform duration-500">
+                {r.name}
               </div>
-              <div className="col-span-3 text-right mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-site-white pr-2">
+              <div className="col-span-4 md:col-span-3 mono text-[11px] md:text-xs uppercase tracking-[0.22em] text-site-red group-hover:text-site-white truncate">
+                {r.territory || "—"}
+              </div>
+              <div className="hidden md:block md:col-span-2 text-right mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-site-white">
                 Active
               </div>
             </motion.div>
