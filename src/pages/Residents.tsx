@@ -13,7 +13,7 @@ export default function Residents() {
         description="Brands in residency at Site 99. Each resident occupies a permanent plot in our narrative grid."
         path="/residents"
       />
-      <section className="px-5 md:px-8 pt-24 md:pt-28 pb-16">
+      <section className="px-4 md:px-6 pt-24 md:pt-28 pb-16">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 03 / Residents</div>
         <h1 className="display text-fluid-hero leading-[0.85]">
           Those who have <br />
@@ -25,7 +25,7 @@ export default function Residents() {
       </section>
 
       <section className="border-t border-border">
-        <div className="grid grid-cols-12 mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground border-b border-border px-5 md:px-8 py-4">
+        <div className="grid grid-cols-12 mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground border-b border-border px-4 md:px-6 py-4">
           <div className="col-span-1">N°</div>
           <div className="col-span-5 md:col-span-4">Resident</div>
           <div className="col-span-3">Territory</div>
@@ -41,7 +41,7 @@ export default function Residents() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.04 }}
-            className="grid grid-cols-12 items-center border-b border-border px-5 md:px-8 py-6 md:py-8 group hover:bg-site-red transition-colors duration-300"
+            className="grid grid-cols-12 items-center border-b border-border px-4 md:px-6 py-6 md:py-8 group hover:bg-site-red transition-colors duration-300"
           >
             <div className="col-span-1 mono text-xs text-muted-foreground group-hover:text-site-white">{String(i + 1).padStart(2, "0")}</div>
             <div className="col-span-5 md:col-span-4 display text-2xl md:text-5xl group-hover:translate-x-3 transition-transform duration-500">
@@ -58,7 +58,7 @@ export default function Residents() {
         ))}
       </section>
 
-      <section className="px-5 md:px-8 py-32 grid md:grid-cols-3 gap-10 border-t border-border">
+      <section className="px-4 md:px-6 py-32 grid md:grid-cols-3 gap-10 border-t border-border">
         {[
           { k: "Exclusivity", v: "We do not take everyone. Plots are limited and qualified for." },
           { k: "Longevity", v: "A resident stays. Monthly retainers, multi-year tenure, compounding equity." },

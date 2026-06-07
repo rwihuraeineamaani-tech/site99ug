@@ -15,6 +15,8 @@ import ResidentLogin from "./pages/ResidentLogin.tsx";
 import ResidentPortal from "./pages/ResidentPortal.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import TikTokViralEconomicsUganda from "./pages/blog/TikTokViralEconomicsUganda.tsx";
+import Services from "./pages/Services.tsx";
+import About from "./pages/About.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const AnimatedRoutes = () => {
         <Route path="/residents/login" element={<ResidentLogin />} />
         <Route path="/residents/portal" element={<ResidentPortal />} />
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
