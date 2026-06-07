@@ -3,7 +3,7 @@ import logo from "@/assets/site99-logo.png";
 
 export const Footer = () => (
   <footer className="border-t border-border bg-background text-foreground">
-    <div className="px-6 md:px-10 py-12 md:py-16 grid grid-cols-2 md:grid-cols-4 gap-8 label">
+    <div className="px-5 md:px-8 py-12 md:py-16 grid grid-cols-2 md:grid-cols-4 gap-8 label">
       <div className="col-span-2 md:col-span-1">
         <img src={logo} alt="Site 99" className="h-24 md:h-32 w-auto object-contain" />
         <p className="mt-4 normal-case tracking-normal text-muted-foreground font-sans text-sm">
@@ -35,7 +35,7 @@ export const Footer = () => (
         </ul>
       </div>
     </div>
-    <div className="border-t border-border px-6 md:px-10 py-5 flex flex-col md:flex-row justify-between gap-2 label text-[11px] text-muted-foreground">
+    <div className="border-t border-border px-5 md:px-8 py-5 flex flex-col md:flex-row justify-between gap-2 label text-[11px] text-muted-foreground">
       <span>© {new Date().getFullYear()} Site 99. All rights reserved.</span>
       <span>site99ug.com</span>
     </div>

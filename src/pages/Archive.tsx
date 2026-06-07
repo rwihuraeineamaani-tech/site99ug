@@ -33,7 +33,7 @@ export default function Archive() {
         description="Case studies and selected work from Site 99 — brand residencies, campaigns, and content systems that travel."
         path="/archive"
       />
-      <section className="px-6 md:px-10 pt-32 md:pt-40 pb-12">
+      <section className="px-5 md:px-8 pt-24 md:pt-28 pb-12">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 02 / Archive</div>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 items-end">
           <div className="md:col-span-7">
@@ -68,7 +68,7 @@ export default function Archive() {
         </div>
       </section>
 
-      <section className="border-t border-border px-6 md:px-10 py-12 md:py-16">
+      <section className="border-t border-border px-5 md:px-8 py-12 md:py-16">
         {isLoading ? (
           <div className="mono text-xs text-muted-foreground py-20 text-center">Loading archive…</div>
         ) : projects.length === 0 ? (
