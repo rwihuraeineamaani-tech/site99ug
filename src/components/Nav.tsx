@@ -69,7 +69,7 @@ export const Nav = () => {
         </Link>
 
         {/* Desktop inline links */}
-        <nav className={`hidden md:flex items-center gap-1 text-site-white rounded-full px-5 py-2.5 transition-all duration-300 ${(pathname !== "/" || scrolled || servicesOpen) ? "bg-site-black/85 backdrop-blur-md border border-white/10" : "bg-transparent border border-transparent"}`}>
+        <nav className={`hidden md:flex items-center gap-1 text-site-white rounded-full px-5 py-2.5 transition-all duration-300 ${scrolled ? "opacity-0 pointer-events-none -translate-y-2" : "opacity-100"} ${(pathname !== "/" || servicesOpen) ? "bg-site-black/85 backdrop-blur-md border border-white/10" : "bg-transparent border border-transparent"}`}>
           <div
             className="relative"
             ref={servicesRef}
@@ -131,7 +131,7 @@ export const Nav = () => {
 
         <button
           onClick={() => setOpen((o) => !o)}
-          className="relative z-[200] flex items-center gap-3 mono text-xs uppercase tracking-[0.25em] font-sans mix-blend-difference text-site-white"
+          className={`relative z-[200] flex items-center gap-3 mono text-xs uppercase tracking-[0.25em] font-sans text-site-white rounded-full px-4 py-2 transition-all duration-300 ${(pathname !== "/" || scrolled) ? "bg-site-black/85 backdrop-blur-md border border-white/10" : "bg-transparent border border-transparent mix-blend-difference"}`}
           data-hover
           aria-label="Toggle menu"
         >
