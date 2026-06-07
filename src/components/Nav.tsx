@@ -60,12 +60,17 @@ export const Nav = () => {
         </Link>
 
         {/* Desktop inline links */}
-        <nav className="hidden md:flex items-center gap-8 mix-blend-difference text-site-white">
-          <div className="relative" ref={servicesRef}>
+        <nav className="hidden md:flex items-center gap-1 bg-site-black/85 backdrop-blur-md text-site-white rounded-full px-5 py-2.5 border border-white/10">
+          <div
+            className="relative"
+            ref={servicesRef}
+            onMouseEnter={() => setServicesOpen(true)}
+            onMouseLeave={() => setServicesOpen(false)}
+          >
             <button
               onClick={() => setServicesOpen((o) => !o)}
               data-hover
-              className="mono text-xs uppercase tracking-[0.25em] flex items-center gap-1.5 hover:opacity-70 transition-opacity"
+              className="mono text-xs uppercase tracking-[0.25em] flex items-center gap-1.5 px-3 py-1.5 hover:opacity-70 transition-opacity"
             >
               Services
               <motion.span
@@ -83,19 +88,21 @@ export const Nav = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-4 min-w-[280px] bg-site-black text-site-white border border-white/10 rounded-xl py-2 mix-blend-normal shadow-2xl"
+                  className="absolute top-full left-1/2 -translate-x-1/2 pt-3 min-w-[280px]"
                 >
-                  {services.map((s) => (
-                    <Link
-                      key={s.to}
-                      to={s.to}
-                      data-hover
-                      onClick={() => setServicesOpen(false)}
-                      className="block px-5 py-2.5 mono text-[11px] uppercase tracking-[0.2em] hover:bg-site-red transition-colors"
-                    >
-                      {s.label}
-                    </Link>
-                  ))}
+                  <div className="bg-site-black text-site-white border border-white/10 rounded-xl py-2 shadow-2xl">
+                    {services.map((s) => (
+                      <Link
+                        key={s.to}
+                        to={s.to}
+                        data-hover
+                        onClick={() => setServicesOpen(false)}
+                        className="block px-5 py-2.5 mono text-[11px] uppercase tracking-[0.2em] hover:bg-site-red transition-colors"
+                      >
+                        {s.label}
+                      </Link>
+                    ))}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -105,12 +112,13 @@ export const Nav = () => {
               key={l.to}
               to={l.to}
               data-hover
-              className="mono text-xs uppercase tracking-[0.25em] hover:opacity-70 transition-opacity"
+              className="mono text-xs uppercase tracking-[0.25em] px-3 py-1.5 hover:opacity-70 transition-opacity"
             >
               {l.label}
             </Link>
           ))}
         </nav>
+
 
         <button
           onClick={() => setOpen((o) => !o)}
