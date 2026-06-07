@@ -169,9 +169,6 @@ export default function Home() {
           </div>
         )}
 
-        <div className="absolute top-32 right-6 md:right-10 label text-[11px] text-white/80 text-right flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-site-red rounded-full animate-pulse" /> Residency Open
-        </div>
 
         <motion.div style={{ y: titleY, willChange: "transform" }} className="relative z-10 min-h-[110vh] px-6 md:px-10 pt-40 pb-24 md:pb-32 flex flex-col justify-end gap-10 md:gap-14">
           <div className="space-y-1 md:space-y-2">
