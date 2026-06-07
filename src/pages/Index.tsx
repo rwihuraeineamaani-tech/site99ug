@@ -226,9 +226,9 @@ export default function Home() {
       </section>
 
       {/* MARQUEE — light section */}
-      <section className="border-y border-border bg-background py-8 md:py-10">
-        <div className="px-6 md:px-10 mb-4 flex items-center justify-between label text-[11px] text-muted-foreground">
-          <span>In Residency </span>
+      <section className="border-y border-border bg-background py-16 md:py-20">
+        <div className="px-6 md:px-10 mb-6 md:mb-8 flex items-center justify-between label text-[11px] text-muted-foreground">
+          <span>In Residency</span>
           <span className="hidden md:inline">Scroll →</span>
         </div>
         <Marquee items={marqueeItems} />
