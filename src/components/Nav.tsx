@@ -23,9 +23,9 @@ const services = [
 ];
 
 const inlineLinks = [
-  { to: "/about", label: "About" },
   { to: "/residents", label: "Residents" },
   { to: "/archive", label: "Projects" },
+  { to: "/about", label: "About" },
 ];
 
 export const Nav = () => {
