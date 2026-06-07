@@ -1,0 +1,11 @@
+# Site 99
+
+> Site 99 is a creative agency built on narrative control. We build brand residencies, content systems, and campaigns for ambitious teams.
+
+## Pages
+
+- [Home](/): Site 99's manifesto — narrative control and creative residency.
+- [Archive](/archive): Case studies and selected work — campaigns and content systems.
+- [Residents](/residents): Brands currently in residency at Site 99.
+- [Philosophy](/philosophy): The Site 99 doctrines on narrative, attention, and craft.
+- [Access](/access): Apply for residency — tell us about your brand and brief.
