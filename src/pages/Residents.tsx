@@ -67,7 +67,7 @@ export default function Residents() {
             className="border-l-2 border-site-red pl-6"
           >
             <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-3">0{i + 1}</div>
-            <h3 className="display text-3xl md:text-4xl mb-4">{b.k}</h3>
+            <h2 className="display text-3xl md:text-4xl mb-4">{b.k}</h2>
             <p className="text-muted-foreground">{b.v}</p>
           </motion.div>
         ))}
