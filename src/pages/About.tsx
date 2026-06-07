@@ -18,7 +18,7 @@ export default function About() {
         description="Site 99 is a creative residency from Kampala building brands that travel without us."
         path="/about"
       />
-      <section className="px-5 md:px-8 pt-24 md:pt-28 pb-12">
+      <section className="px-4 md:px-6 pt-24 md:pt-28 pb-12">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 06 / About</div>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-end">
           <div className="md:col-span-7">
@@ -42,7 +42,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="border-t border-border px-5 md:px-8 py-16 md:py-24">
+      <section className="border-t border-border px-4 md:px-6 py-16 md:py-24">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           <div className="md:col-span-5">
             <div className="label text-site-red mb-4">The Studio</div>
@@ -59,7 +59,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="section-dark px-5 md:px-8 py-16 md:py-24 border-t">
+      <section className="section-dark px-4 md:px-6 py-16 md:py-24 border-t">
         <div className="label text-site-red mb-10">Pillars</div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {pillars.map((p, i) => (
@@ -79,7 +79,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="px-5 md:px-8 py-16 md:py-24 text-center border-t border-border">
+      <section className="px-4 md:px-6 py-16 md:py-24 text-center border-t border-border">
         <h2 className="display text-fluid-xl">Want to work with us?</h2>
         <Link
           to="/access"
