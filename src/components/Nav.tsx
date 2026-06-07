@@ -69,7 +69,7 @@ export const Nav = () => {
         </Link>
 
         {/* Desktop inline links */}
-        <nav className="hidden md:flex items-center gap-1 bg-site-black/85 backdrop-blur-md text-site-white rounded-full px-5 py-2.5 border border-white/10">
+        <nav className={`hidden md:flex items-center gap-1 text-site-white rounded-full px-5 py-2.5 transition-all duration-300 ${(pathname !== "/" || scrolled || servicesOpen) ? "bg-site-black/85 backdrop-blur-md border border-white/10" : "bg-transparent border border-transparent"}`}>
           <div
             className="relative"
             ref={servicesRef}
