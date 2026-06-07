@@ -36,6 +36,8 @@ const AnimatedRoutes = () => {
         <Route path="/residents/login" element={<ResidentLogin />} />
         <Route path="/residents/portal" element={<ResidentPortal />} />
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
