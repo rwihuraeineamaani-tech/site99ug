@@ -8,8 +8,8 @@ interface Props {
 export const Marquee = ({ items, className = "" }: Props) => {
   const doubled = [...items, ...items];
   return (
-    <div className={`overflow-hidden py-6 md:py-8 ${className}`}>
-      <div className="marquee-track flex items-center gap-16 w-max will-change-transform">
+    <div className={`overflow-hidden py-3 md:py-4 ${className}`}>
+      <div className="marquee-track flex items-center gap-12 w-max will-change-transform">
         {doubled.map((t, i) => {
           const name = typeof t === "string" ? t : t.name;
           const territory =
