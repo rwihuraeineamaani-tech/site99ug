@@ -36,7 +36,7 @@ export default function TikTokViralEconomicsUganda() {
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
       </Helmet>
 
-      <article className="px-6 md:px-10 pt-24 md:pt-28 pb-24 max-w-3xl mx-auto">
+      <article className="px-5 md:px-8 pt-24 md:pt-28 pb-24 max-w-3xl mx-auto">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">
           N° 05 / Field Notes
         </div>
