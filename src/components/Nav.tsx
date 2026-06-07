@@ -65,7 +65,7 @@ export const Nav = () => {
     <>
       <header className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-8 md:px-16 py-5">
         <Link to="/" className="flex items-center gap-2 isolate" data-hover style={{ mixBlendMode: "normal" }}>
-          <img src={new URL('../assets/site99-logo.png', import.meta.url).href} alt="Site 99" className="h-16 md:h-24 w-auto" style={{ mixBlendMode: "normal", opacity: 1 }} />
+          <img src={new URL('../assets/site99-logo.png', import.meta.url).href} alt="Site 99" className="h-24 md:h-36 w-auto" style={{ mixBlendMode: "normal", opacity: 1 }} />
         </Link>
 
         {/* Desktop inline links */}
