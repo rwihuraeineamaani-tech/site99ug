@@ -100,6 +100,10 @@ export default function Home() {
     : glimpseFallback;
   const visibleResidents = dbResidents.filter((r) => r.visible !== false);
   const residents = visibleResidents.length ? visibleResidents.map((r) => r.name) : residentsFallback;
+  const marqueeItems = visibleResidents.length
+    ? visibleResidents.map((r) => ({ name: r.name, territory: r.territory }))
+    : residentsFallback.map((n) => ({ name: n }));
+
 
   return (
     <Layout>
