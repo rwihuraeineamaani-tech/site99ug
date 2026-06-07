@@ -81,10 +81,15 @@ export default function Access() {
                 { k: "territory", label: "04 — Desired Territory", type: "text", placeholder: "What space do you intend to occupy?" },
               ].map((f) => (
                 <div key={f.k} className="group">
-                  <label className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground group-focus-within:text-site-red transition-colors">
+                  <label
+                    htmlFor={`access-${f.k}`}
+                    className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground group-focus-within:text-site-red transition-colors"
+                  >
                     {f.label}
                   </label>
                   <input
+                    id={`access-${f.k}`}
+                    name={f.k}
                     required
                     type={f.type}
                     placeholder={f.placeholder}
@@ -96,10 +101,15 @@ export default function Access() {
                 </div>
               ))}
               <div className="group">
-                <label className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground group-focus-within:text-site-red transition-colors">
+                <label
+                  htmlFor="access-brief"
+                  className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground group-focus-within:text-site-red transition-colors"
+                >
                   05 — Brief
                 </label>
                 <textarea
+                  id="access-brief"
+                  name="brief"
                   required
                   rows={4}
                   placeholder="The narrative you want to control."
@@ -109,6 +119,7 @@ export default function Access() {
                   className="mt-3 w-full bg-transparent border-b-2 border-border focus:border-site-red outline-none py-3 text-xl placeholder:text-muted-foreground/40 transition-colors resize-none"
                 />
               </div>
+
 
               <button
                 type="submit"
