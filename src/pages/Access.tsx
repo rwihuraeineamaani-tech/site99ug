@@ -42,7 +42,7 @@ export default function Access() {
         description="Apply for residency at Site 99. Tell us about your brand, territory, and brief."
         path="/access"
       />
-      <section className="relative min-h-screen pt-28 pb-16 px-4 md:px-6 overflow-hidden">
+      <section className="relative min-h-screen pt-28 pb-16 px-8 md:px-16 overflow-hidden">
         {/* pulse waves */}
         <motion.div
           key={pulse}

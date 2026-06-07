@@ -69,7 +69,7 @@ export default function Services() {
         description="Brand strategy, content, campaigns, residency, AI automations, web design and social. The full Site 99 service stack."
         path="/services"
       />
-      <section className="px-4 md:px-6 pt-24 md:pt-28 pb-12">
+      <section className="px-8 md:px-16 pt-24 md:pt-28 pb-12">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 05 / Services</div>
         <h1 className="display text-fluid-hero leading-[0.85]">
           The full <br />
@@ -89,7 +89,7 @@ export default function Services() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ delay: (i % 3) * 0.05, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 border-b border-border px-4 md:px-6 py-14 md:py-20 scroll-mt-24"
+            className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 border-b border-border px-8 md:px-16 py-14 md:py-20 scroll-mt-24"
           >
             <div className="md:col-span-4">
               <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-4">{s.n}</div>
