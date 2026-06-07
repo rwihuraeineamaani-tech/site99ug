@@ -70,7 +70,7 @@
 
 @layer utilities {
   .text-fluid-hero {
-    font-size: clamp(3rem, 10vw, 10rem);
+    font-size: clamp(2.5rem, 9vw, 9rem);
   }
   .text-fluid-xl {
     font-size: clamp(2.5rem, 8vw, 9rem);
