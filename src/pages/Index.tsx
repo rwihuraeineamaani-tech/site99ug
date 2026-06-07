@@ -224,7 +224,7 @@ export default function Home() {
           <span>In Residency </span>
           <span className="hidden md:inline">Scroll →</span>
         </div>
-        <Marquee items={residents} />
+        <Marquee items={marqueeItems} />
       </section>
 
       {/* THE STUDIO — who we are */}
