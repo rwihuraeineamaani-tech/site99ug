@@ -50,7 +50,6 @@
     @apply bg-background text-foreground;
     font-family: 'Montserrat', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
-    cursor: none;
   }
   ::selection {
     background: hsl(var(--site-red));

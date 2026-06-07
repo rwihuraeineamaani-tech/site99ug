@@ -180,7 +180,7 @@ export default function Home() {
         )}
 
 
-        <motion.div style={{ y: titleY, willChange: "transform" }} className="relative z-10 h-screen px-4 md:px-6 pt-28 md:pt-32 pb-12 md:pb-16 flex flex-col justify-end gap-6 md:gap-10">
+        <motion.div style={{ y: titleY, willChange: "transform" }} className="relative z-10 h-screen px-8 md:px-16 pt-28 md:pt-32 pb-12 md:pb-16 flex flex-col justify-end gap-6 md:gap-10">
           <h1 className="display text-fluid-hero leading-[0.9] space-y-1 md:space-y-2">
             <span className="block overflow-hidden">
               <motion.span
@@ -227,7 +227,7 @@ export default function Home() {
 
       {/* MARQUEE — light section */}
       <section className="border-y border-border bg-background py-6 md:py-8">
-        <div className="px-4 md:px-6 mb-3 md:mb-4 flex items-center justify-between label text-[11px] text-muted-foreground">
+        <div className="px-8 md:px-16 mb-3 md:mb-4 flex items-center justify-between label text-[11px] text-muted-foreground">
           <span>In Residency</span>
           <span className="hidden md:inline">Scroll →</span>
         </div>
@@ -235,7 +235,7 @@ export default function Home() {
       </section>
 
       {/* THE STUDIO — who we are */}
-      <section className="relative px-4 md:px-6 py-14 md:py-20 bg-background overflow-hidden">
+      <section className="relative px-8 md:px-16 py-14 md:py-20 bg-background overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -284,7 +284,7 @@ export default function Home() {
       </section>
 
       {/* MANIFESTO */}
-      <section ref={manifestoRef} className="px-4 md:px-6 py-20 md:py-28 max-w-7xl mx-auto">
+      <section ref={manifestoRef} className="px-8 md:px-16 py-20 md:py-28 max-w-7xl mx-auto">
         <div className="label text-site-red mb-8">Doctrine</div>
         <h2 className="display text-fluid-xl leading-[0.95] flex flex-wrap gap-x-4 gap-y-2 text-left">
           {words.map((w, i) => {
@@ -301,7 +301,7 @@ export default function Home() {
       </section>
 
       {/* THE MATH — viral economics pull-quote */}
-      <section className="section-dark px-4 md:px-6 py-20 md:py-28 border-t">
+      <section className="section-dark px-8 md:px-16 py-20 md:py-28 border-t">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
           <div className="md:col-span-7">
             <div className="label text-site-red mb-8">The Math</div>
@@ -358,7 +358,7 @@ export default function Home() {
       </section>
 
       {/* ARCHIVE GLIMPSE */}
-      <section className="px-4 md:px-6 py-16 md:py-24 bg-background">
+      <section className="px-8 md:px-16 py-16 md:py-24 bg-background">
         <div className="flex items-end justify-between mb-8 md:mb-10">
           <div>
             <div className="label text-site-red mb-4">N° 02 / Archive</div>
@@ -412,7 +412,7 @@ export default function Home() {
       </section>
 
       {/* PHILOSOPHY GLIMPSE */}
-      <section className="section-dark px-4 md:px-6 py-16 md:py-24 border-t">
+      <section className="section-dark px-8 md:px-16 py-16 md:py-24 border-t">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-end justify-between mb-8 md:mb-10">
             <div>
@@ -443,7 +443,7 @@ export default function Home() {
       </section>
 
       {/* RESIDENTS GLIMPSE */}
-      <section className="px-4 md:px-6 py-16 md:py-24 bg-background">
+      <section className="px-8 md:px-16 py-16 md:py-24 bg-background">
         <div className="flex items-end justify-between mb-12">
           <div>
             <div className="label text-site-red mb-4">N° 03 / Residents</div>
@@ -461,7 +461,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="grid grid-cols-12 items-center gap-4 border-b border-border px-4 md:px-6 py-6 md:py-8 group hover:bg-site-red transition-colors duration-300 cursor-default"
+              className="grid grid-cols-12 items-center gap-4 border-b border-border px-8 md:px-16 py-6 md:py-8 group hover:bg-site-red transition-colors duration-300 cursor-default"
             >
               <div className="col-span-1 mono text-xs text-muted-foreground group-hover:text-site-white">
                 {String(i + 1).padStart(2, "0")}
@@ -481,7 +481,7 @@ export default function Home() {
       </section>
 
       {/* CTA SLAB */}
-      <section className="relative px-4 md:px-6 py-20 md:py-28 text-center bg-site-black text-site-white overflow-hidden">
+      <section className="relative px-8 md:px-16 py-20 md:py-28 text-center bg-site-black text-site-white overflow-hidden">
         <img
           src={ctaAsset.url}
           alt=""

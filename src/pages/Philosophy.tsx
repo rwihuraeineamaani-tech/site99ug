@@ -27,7 +27,7 @@ export default function Philosophy() {
         description="Narrative Control is the discipline of setting the terms by which your brand is understood. The Site 99 doctrines."
         path="/philosophy"
       />
-      <section className="px-4 md:px-6 pt-24 md:pt-28 pb-16">
+      <section className="px-8 md:px-16 pt-24 md:pt-28 pb-16">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 04 / Philosophy</div>
         <h1 className="display text-fluid-hero">Narrative<br/><span className="text-site-red">Control.</span></h1>
         <p className="mt-10 max-w-2xl text-fluid-md text-muted-foreground">
@@ -88,7 +88,7 @@ export default function Philosophy() {
       </section>
 
       {/* Doctrines */}
-      <section className="px-4 md:px-6 py-24 border-t border-border bg-background">
+      <section className="px-8 md:px-16 py-24 border-t border-border bg-background">
         <div className="flex items-end justify-between mb-12">
           <h2 className="display text-fluid-xl">Our <span className="text-site-red">Doctrine</span></h2>
           <span className="label text-muted-foreground hidden md:block">What we believe, in practice</span>
@@ -111,7 +111,7 @@ export default function Philosophy() {
         </div>
       </section>
 
-      <section className="px-4 md:px-6 py-32 max-w-4xl">
+      <section className="px-8 md:px-16 py-32 max-w-4xl">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">Doctrine</div>
         <p className="display text-fluid-lg leading-tight">
           "A brand without narrative control is a tenant. A brand <span className="text-site-red">with</span> it is the landlord."
