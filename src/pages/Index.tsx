@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring, 
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+import Seo from "@/components/Seo";
 import { Marquee } from "@/components/Marquee";
 import { TikTokMockup } from "@/components/TikTokMockup";
 import { Tilt3D } from "@/components/Tilt3D";
@@ -107,6 +108,11 @@ export default function Home() {
 
   return (
     <Layout>
+      <Seo
+        title="Site 99 — Narrative Control & Creative Residency"
+        description="Site 99 is a creative agency built on narrative control. Brand residencies, content systems, and campaigns for ambitious teams."
+        path="/"
+      />
       {/* HERO — black canvas with northern-lights aurora */}
       <section ref={heroRef} className="relative min-h-screen h-screen overflow-hidden bg-site-black text-site-white">
         <motion.div style={{ y: heroY, scale: heroScale, willChange: "transform" }} className="absolute inset-0">

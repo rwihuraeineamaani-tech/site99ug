@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
+import Seo from "@/components/Seo";
 import { ProjectLightbox } from "@/components/ProjectLightbox";
 import { useProjects, type Project } from "@/hooks/useProjects";
 import p1 from "@/assets/project-1.jpg";
@@ -27,6 +28,11 @@ export default function Archive() {
 
   return (
     <Layout>
+      <Seo
+        title="Archive — Site 99"
+        description="Case studies and selected work from Site 99 — brand residencies, campaigns, and content systems that travel."
+        path="/archive"
+      />
       <section className="px-6 md:px-10 pt-32 md:pt-40 pb-12">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 02 / Archive</div>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 items-end">

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
+import Seo from "@/components/Seo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -36,6 +37,11 @@ export default function Access() {
 
   return (
     <Layout hideFooter>
+      <Seo
+        title="Request Access — Site 99"
+        description="Apply for residency at Site 99. Tell us about your brand, territory, and brief."
+        path="/access"
+      />
       <section className="relative min-h-screen pt-28 pb-16 px-6 md:px-10 overflow-hidden">
         {/* pulse waves */}
         <motion.div
