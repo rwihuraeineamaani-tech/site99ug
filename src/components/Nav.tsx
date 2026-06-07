@@ -31,8 +31,17 @@ const inlineLinks = [
 export const Nav = () => {
   const [open, setOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const servicesRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
 
   useEffect(() => {
     setOpen(false);
@@ -60,7 +69,7 @@ export const Nav = () => {
         </Link>
 
         {/* Desktop inline links */}
-        <nav className="hidden md:flex items-center gap-1 bg-site-black/85 backdrop-blur-md text-site-white rounded-full px-5 py-2.5 border border-white/10">
+        <nav className={`hidden md:flex items-center gap-1 text-site-white rounded-full px-5 py-2.5 transition-all duration-300 ${(pathname !== "/" || scrolled || servicesOpen) ? "bg-site-black/85 backdrop-blur-md border border-white/10" : "bg-transparent border border-transparent"}`}>
           <div
             className="relative"
             ref={servicesRef}
