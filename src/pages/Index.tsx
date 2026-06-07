@@ -175,28 +175,29 @@ export default function Home() {
 
 
         <motion.div style={{ y: titleY, willChange: "transform" }} className="relative z-10 h-screen px-6 md:px-10 pt-28 md:pt-32 pb-12 md:pb-16 flex flex-col justify-end gap-6 md:gap-10">
-          <div className="space-y-1 md:space-y-2">
-            <div className="overflow-hidden">
-              <motion.h1
+          <h1 className="display text-fluid-hero leading-[0.9] space-y-1 md:space-y-2">
+            <span className="block overflow-hidden">
+              <motion.span
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                className="display text-fluid-hero leading-[0.9]"
+                className="block"
               >
                 Brands that
-              </motion.h1>
-            </div>
-            <div className="overflow-hidden">
-              <motion.h1
+              </motion.span>
+            </span>
+            <span className="block overflow-hidden">
+              <motion.span
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.35 }}
-                className="display text-fluid-hero leading-[0.9]"
+                className="block"
               >
                 travel <span className="text-site-red">without</span> us.
-              </motion.h1>
-            </div>
-          </div>
+              </motion.span>
+            </span>
+          </h1>
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
