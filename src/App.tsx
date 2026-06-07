@@ -15,6 +15,8 @@ import ResidentLogin from "./pages/ResidentLogin.tsx";
 import ResidentPortal from "./pages/ResidentPortal.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import TikTokViralEconomicsUganda from "./pages/blog/TikTokViralEconomicsUganda.tsx";
+import Services from "./pages/Services.tsx";
+import About from "./pages/About.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
