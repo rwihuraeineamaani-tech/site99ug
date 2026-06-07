@@ -13,7 +13,7 @@ export default function Residents() {
         description="Brands in residency at Site 99. Each resident occupies a permanent plot in our narrative grid."
         path="/residents"
       />
-      <section className="px-6 md:px-10 pt-32 md:pt-40 pb-16">
+      <section className="px-6 md:px-10 pt-24 md:pt-28 pb-16">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 03 / Residents</div>
         <h1 className="display text-fluid-hero leading-[0.85]">
           Those who have <br />

@@ -33,7 +33,7 @@ export default function Archive() {
         description="Case studies and selected work from Site 99 — brand residencies, campaigns, and content systems that travel."
         path="/archive"
       />
-      <section className="px-6 md:px-10 pt-32 md:pt-40 pb-12">
+      <section className="px-6 md:px-10 pt-24 md:pt-28 pb-12">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 02 / Archive</div>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 items-end">
           <div className="md:col-span-7">

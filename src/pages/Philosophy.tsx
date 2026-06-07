@@ -27,7 +27,7 @@ export default function Philosophy() {
         description="Narrative Control is the discipline of setting the terms by which your brand is understood. The Site 99 doctrines."
         path="/philosophy"
       />
-      <section className="px-6 md:px-10 pt-32 md:pt-40 pb-16">
+      <section className="px-6 md:px-10 pt-24 md:pt-28 pb-16">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 04 / Philosophy</div>
         <h1 className="display text-fluid-hero">Narrative<br/><span className="text-site-red">Control.</span></h1>
         <p className="mt-10 max-w-2xl text-fluid-md text-muted-foreground">

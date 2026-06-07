@@ -235,7 +235,7 @@ export default function Home() {
       </section>
 
       {/* THE STUDIO — who we are */}
-      <section className="relative px-6 md:px-10 py-24 md:py-32 bg-background overflow-hidden">
+      <section className="relative px-6 md:px-10 py-14 md:py-20 bg-background overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -263,7 +263,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.15 }}
-            className="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start"
+            className="mt-8 md:mt-10 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start"
           >
             <div className="md:col-span-5">
               <div className="label text-site-red mb-4">The Studio</div>
@@ -284,7 +284,7 @@ export default function Home() {
       </section>
 
       {/* MANIFESTO */}
-      <section ref={manifestoRef} className="px-6 md:px-10 py-32 md:py-48 max-w-7xl mx-auto">
+      <section ref={manifestoRef} className="px-6 md:px-10 py-20 md:py-28 max-w-7xl mx-auto">
         <div className="label text-site-red mb-8">Doctrine</div>
         <h2 className="display text-fluid-xl leading-[0.95] flex flex-wrap gap-x-4 gap-y-2 text-left">
           {words.map((w, i) => {
@@ -301,7 +301,7 @@ export default function Home() {
       </section>
 
       {/* THE MATH — viral economics pull-quote */}
-      <section className="section-dark px-6 md:px-10 py-32 md:py-48 border-t">
+      <section className="section-dark px-6 md:px-10 py-20 md:py-28 border-t">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
           <div className="md:col-span-7">
             <div className="label text-site-red mb-8">The Math</div>
@@ -358,8 +358,8 @@ export default function Home() {
       </section>
 
       {/* ARCHIVE GLIMPSE */}
-      <section className="px-6 md:px-10 py-32 md:py-40 bg-background">
-        <div className="flex items-end justify-between mb-12 md:mb-16">
+      <section className="px-6 md:px-10 py-16 md:py-24 bg-background">
+        <div className="flex items-end justify-between mb-8 md:mb-10">
           <div>
             <div className="label text-site-red mb-4">N° 02 / Archive</div>
             <h2 className="display text-fluid-xl">Selected Work</h2>
@@ -412,9 +412,9 @@ export default function Home() {
       </section>
 
       {/* PHILOSOPHY GLIMPSE */}
-      <section className="section-dark px-6 md:px-10 py-32 md:py-40 border-t">
+      <section className="section-dark px-6 md:px-10 py-16 md:py-24 border-t">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-end justify-between mb-12 md:mb-16">
+          <div className="flex items-end justify-between mb-8 md:mb-10">
             <div>
               <div className="label text-site-red mb-4">N° 04 / Philosophy</div>
               <h2 className="display text-fluid-xl">Narrative <span className="text-site-red">Control.</span></h2>
@@ -443,7 +443,7 @@ export default function Home() {
       </section>
 
       {/* RESIDENTS GLIMPSE */}
-      <section className="px-6 md:px-10 py-32 md:py-40 bg-background">
+      <section className="px-6 md:px-10 py-16 md:py-24 bg-background">
         <div className="flex items-end justify-between mb-12">
           <div>
             <div className="label text-site-red mb-4">N° 03 / Residents</div>
@@ -481,7 +481,7 @@ export default function Home() {
       </section>
 
       {/* CTA SLAB */}
-      <section className="relative px-6 md:px-10 py-32 md:py-48 text-center bg-site-black text-site-white overflow-hidden">
+      <section className="relative px-6 md:px-10 py-20 md:py-28 text-center bg-site-black text-site-white overflow-hidden">
         <img
           src={ctaAsset.url}
           alt=""
