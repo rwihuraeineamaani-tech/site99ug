@@ -104,7 +104,7 @@ export default function Home() {
   return (
     <Layout>
       {/* HERO — black canvas with northern-lights aurora */}
-      <section ref={heroRef} className="relative min-h-[110vh] overflow-hidden bg-site-black text-site-white">
+      <section ref={heroRef} className="relative min-h-screen h-screen overflow-hidden bg-site-black text-site-white">
         <motion.div style={{ y: heroY, scale: heroScale, willChange: "transform" }} className="absolute inset-0">
           <div className="absolute inset-0 bg-site-black" />
           <img
