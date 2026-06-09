@@ -36,8 +36,7 @@ const residentsFallback = [
   "Nehemiah Consultants",
 ];
 
-const stats = [
-  { k: "Residents In Trust", v: 6, suffix: "" },
+const baseStats = [
   { k: "Years Building", v: 6, suffix: "" },
   { k: "People Reached", v: 7.2, suffix: "M" },
   { k: "Stories Shipped", v: 240, suffix: "+" },
