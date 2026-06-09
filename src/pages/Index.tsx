@@ -36,8 +36,7 @@ const residentsFallback = [
   "Nehemiah Consultants",
 ];
 
-const stats = [
-  { k: "Residents In Trust", v: 6, suffix: "" },
+const baseStats = [
   { k: "Years Building", v: 6, suffix: "" },
   { k: "People Reached", v: 7.2, suffix: "M" },
   { k: "Stories Shipped", v: 240, suffix: "+" },
@@ -104,6 +103,10 @@ export default function Home() {
   const marqueeItems: { name: string; territory?: string }[] = visibleResidents.length
     ? visibleResidents.map((r) => ({ name: r.name, territory: r.territory }))
     : residentsFallback.map((n) => ({ name: n, territory: undefined }));
+  const stats = [
+    { k: "Residents In Trust", v: visibleResidents.length, suffix: "" },
+    ...baseStats,
+  ];
 
 
   return (
