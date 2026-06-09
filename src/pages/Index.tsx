@@ -103,6 +103,10 @@ export default function Home() {
   const marqueeItems: { name: string; territory?: string }[] = visibleResidents.length
     ? visibleResidents.map((r) => ({ name: r.name, territory: r.territory }))
     : residentsFallback.map((n) => ({ name: n, territory: undefined }));
+  const stats = [
+    { k: "Residents In Trust", v: visibleResidents.length, suffix: "" },
+    ...baseStats,
+  ];
 
 
   return (
