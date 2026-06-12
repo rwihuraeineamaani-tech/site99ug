@@ -126,15 +126,21 @@ export default function Home() {
       <section ref={heroRef} className="relative min-h-screen h-screen overflow-hidden bg-site-black text-site-white">
         <motion.div style={{ y: heroY, scale: heroScale, willChange: "transform" }} className="absolute inset-0">
           <div className="absolute inset-0 bg-site-black" />
-          <img
-            src={heroImg}
-            alt="Site 99 — narrative control"
-            className="w-full h-full object-cover opacity-70"
-            width={1920}
-            height={1080}
-            fetchPriority="high"
-            decoding="async"
-          />
+          {heroImages.map((src, i) => (
+            <motion.img
+              key={src}
+              src={src}
+              alt="Site 99 — narrative control"
+              className="absolute inset-0 w-full h-full object-cover"
+              width={1920}
+              height={1080}
+              fetchPriority={i === 0 ? "high" : "low"}
+              decoding="async"
+              initial={false}
+              animate={{ opacity: heroIdx === i ? 0.7 : 0, scale: heroIdx === i ? 1 : 1.04 }}
+              transition={{ opacity: { duration: 1.6, ease: [0.22, 1, 0.36, 1] }, scale: { duration: 6, ease: "linear" } }}
+            />
+          ))}
           <div className="absolute inset-0 bg-gradient-to-b from-site-black/40 via-site-black/20 to-site-black" />
         </motion.div>
 
