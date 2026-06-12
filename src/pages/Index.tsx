@@ -80,6 +80,11 @@ export default function Home() {
   const isMobile = useIsMobile();
   const lite = !!reduce;
   const heroRef = useRef<HTMLDivElement>(null);
+  const [heroIdx, setHeroIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setHeroIdx((i) => (i + 1) % heroImages.length), 5000);
+    return () => clearInterval(id);
+  }, []);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const springCfg = { stiffness: 120, damping: 28, mass: 0.4, restDelta: 0.001 };
   const smoothHero = useSpring(scrollYProgress, springCfg);
