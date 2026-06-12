@@ -20,6 +20,7 @@ const services = [
   { to: "/services#ai-automation", label: "AI & Automations" },
   { to: "/services#web-design", label: "Website Design" },
   { to: "/services#social-media", label: "Social Media Handling" },
+  { to: "/services#production", label: "Production & Live Streaming" },
 ];
 
 const inlineLinks = [

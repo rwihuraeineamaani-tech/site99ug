@@ -59,6 +59,14 @@ const services = [
     body: "Daily posting, community management, trend monitoring and reporting across TikTok, Instagram, X, LinkedIn and YouTube Shorts. You stay in the conversation without ever opening the app.",
     deliverables: ["Content calendar & posting", "Community management", "Trend & culture monitoring", "Monthly reporting"],
   },
+  {
+    slug: "production",
+    n: "08",
+    title: "Production & Live Streaming",
+    lede: "Multi-camera production and live broadcast for sport, culture and events.",
+    body: "From basketball games to concerts, launches and conferences — we run the full production stack. Multi-cam capture, switching, graphics, commentary feeds and simulcast to YouTube, TikTok, Facebook and custom RTMP. Built for venues with patchy power and patchier internet.",
+    deliverables: ["Multi-camera live capture", "Sports & event broadcast", "Stream graphics & overlays", "Multi-platform simulcast"],
+  },
 ];
 
 export default function Services() {
