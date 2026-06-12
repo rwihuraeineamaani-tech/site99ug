@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProjects } from "@/hooks/useProjects";
 import { usePublicResidents } from "@/hooks/useResidents";
 import heroAsset from "@/assets/IMG_5291.jpg.asset.json";
+import hero2Asset from "@/assets/IMG_5725.png.asset.json";
 import studioAsset from "@/assets/IMG_5289.jpg.asset.json";
 import ctaAsset from "@/assets/IMG_5290.jpg.asset.json";
 import mathAsset from "@/assets/IMG_5292.jpg.asset.json";
@@ -17,7 +18,7 @@ import p1 from "@/assets/project-1.jpg";
 import p2 from "@/assets/project-2.jpg";
 import p3 from "@/assets/project-3.jpg";
 import p4 from "@/assets/project-4.jpg";
-const heroImg = heroAsset.url;
+const heroImages = [heroAsset.url, hero2Asset.url];
 
 const seedMap: Record<string, string> = {
   "/seed/project-1.jpg": p1,
@@ -79,6 +80,11 @@ export default function Home() {
   const isMobile = useIsMobile();
   const lite = !!reduce;
   const heroRef = useRef<HTMLDivElement>(null);
+  const [heroIdx, setHeroIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setHeroIdx((i) => (i + 1) % heroImages.length), 5000);
+    return () => clearInterval(id);
+  }, []);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const springCfg = { stiffness: 120, damping: 28, mass: 0.4, restDelta: 0.001 };
   const smoothHero = useSpring(scrollYProgress, springCfg);
@@ -120,15 +126,21 @@ export default function Home() {
       <section ref={heroRef} className="relative min-h-screen h-screen overflow-hidden bg-site-black text-site-white">
         <motion.div style={{ y: heroY, scale: heroScale, willChange: "transform" }} className="absolute inset-0">
           <div className="absolute inset-0 bg-site-black" />
-          <img
-            src={heroImg}
-            alt="Site 99 — narrative control"
-            className="w-full h-full object-cover opacity-70"
-            width={1920}
-            height={1080}
-            fetchPriority="high"
-            decoding="async"
-          />
+          {heroImages.map((src, i) => (
+            <motion.img
+              key={src}
+              src={src}
+              alt="Site 99 — narrative control"
+              className="absolute inset-0 w-full h-full object-cover"
+              width={1920}
+              height={1080}
+              fetchPriority={i === 0 ? "high" : "low"}
+              decoding="async"
+              initial={false}
+              animate={{ opacity: heroIdx === i ? 0.7 : 0, scale: heroIdx === i ? 1 : 1.04 }}
+              transition={{ opacity: { duration: 1.6, ease: [0.22, 1, 0.36, 1] }, scale: { duration: 6, ease: "linear" } }}
+            />
+          ))}
           <div className="absolute inset-0 bg-gradient-to-b from-site-black/40 via-site-black/20 to-site-black" />
         </motion.div>
 
