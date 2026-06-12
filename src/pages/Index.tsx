@@ -82,7 +82,7 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [heroIdx, setHeroIdx] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setHeroIdx((i) => (i + 1) % heroImages.length), 5000);
+    const id = setInterval(() => setHeroIdx((i) => (i + 1) % heroImages.length), 7000);
     return () => clearInterval(id);
   }, []);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
