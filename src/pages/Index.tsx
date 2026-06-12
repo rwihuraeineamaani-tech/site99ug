@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProjects } from "@/hooks/useProjects";
 import { usePublicResidents } from "@/hooks/useResidents";
 import heroAsset from "@/assets/IMG_5291.jpg.asset.json";
+import hero2Asset from "@/assets/IMG_5725.png.asset.json";
 import studioAsset from "@/assets/IMG_5289.jpg.asset.json";
 import ctaAsset from "@/assets/IMG_5290.jpg.asset.json";
 import mathAsset from "@/assets/IMG_5292.jpg.asset.json";
@@ -17,7 +18,7 @@ import p1 from "@/assets/project-1.jpg";
 import p2 from "@/assets/project-2.jpg";
 import p3 from "@/assets/project-3.jpg";
 import p4 from "@/assets/project-4.jpg";
-const heroImg = heroAsset.url;
+const heroImages = [heroAsset.url, hero2Asset.url];
 
 const seedMap: Record<string, string> = {
   "/seed/project-1.jpg": p1,
