@@ -14,10 +14,12 @@ type ProjForm = {
   id?: string; title: string; client: string; year: string; tag: string;
   description: string; cover_url: string; gallery_urls: string[];
   external_url: string; display_order: number; resident_ids: string[];
+  youtube_url: string; aspect_ratio: string;
 };
 const emptyProj: ProjForm = {
   title: "", client: "", year: "", tag: "", description: "",
   cover_url: "", gallery_urls: [], external_url: "", display_order: 0, resident_ids: [],
+  youtube_url: "", aspect_ratio: "4:5",
 };
 
 type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean };
@@ -143,6 +145,8 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
       description: form.description || null, cover_url: form.cover_url,
       gallery_urls: form.gallery_urls, external_url: form.external_url || null,
       display_order: form.display_order,
+      youtube_url: form.youtube_url.trim() || null,
+      aspect_ratio: form.aspect_ratio || "4:5",
     };
     let projectId = form.id;
     if (form.id) {
@@ -175,6 +179,8 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
       gallery_urls: p.gallery_urls || [], external_url: p.external_url || "",
       display_order: p.display_order,
       resident_ids: (links || []).map((l) => l.resident_id),
+      youtube_url: (p as any).youtube_url || "",
+      aspect_ratio: (p as any).aspect_ratio || "4:5",
     });
     setEditing(true); window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -200,6 +206,18 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
         <div><label className={lbl}>Tag *</label><input required className={input} value={form.tag} onChange={(e) => setForm({ ...form, tag: e.target.value })} /></div>
         <div><label className={lbl}>External URL</label><input className={input} value={form.external_url} onChange={(e) => setForm({ ...form, external_url: e.target.value })} /></div>
         <div><label className={lbl}>Display order</label><input type="number" className={input} value={form.display_order} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} /></div>
+        <div className="md:col-span-2"><label className={lbl}>YouTube URL (auto-plays muted on cover)</label><input placeholder="https://youtu.be/…" className={input} value={form.youtube_url} onChange={(e) => setForm({ ...form, youtube_url: e.target.value })} /></div>
+        <div>
+          <label className={lbl}>Cover aspect ratio</label>
+          <select className={input} value={form.aspect_ratio} onChange={(e) => setForm({ ...form, aspect_ratio: e.target.value })}>
+            <option value="1:1">1:1 — Square</option>
+            <option value="4:5">4:5 — Portrait (default)</option>
+            <option value="2:3">2:3 — Tall portrait</option>
+            <option value="3:2">3:2 — Landscape</option>
+            <option value="16:9">16:9 — Widescreen</option>
+            <option value="9:16">9:16 — Vertical</option>
+          </select>
+        </div>
         <div className="md:col-span-2"><label className={lbl}>Description</label><textarea rows={3} className={input + " resize-none"} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
         <div className="md:col-span-2">
           <label className={lbl}>Cover image *</label>

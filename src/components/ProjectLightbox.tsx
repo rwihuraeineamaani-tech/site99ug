@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import type { Project } from "@/hooks/useProjects";
+import { getYouTubeId, youtubePlayerEmbed } from "@/lib/youtube";
 
 export const ProjectLightbox = ({ project, onClose }: { project: Project | null; onClose: () => void }) => {
   useEffect(() => {
@@ -39,9 +40,24 @@ export const ProjectLightbox = ({ project, onClose }: { project: Project | null;
               Close ✕
             </button>
 
-            <div className="aspect-[4/5] md:aspect-[16/10] w-full overflow-hidden rounded-2xl bg-secondary mb-10">
-              <img src={project.cover_url} alt={project.title} className="w-full h-full object-cover" />
-            </div>
+            {(() => {
+              const ytId = getYouTubeId(project.youtube_url);
+              return ytId ? (
+                <div className="aspect-video w-full overflow-hidden rounded-2xl bg-black mb-10">
+                  <iframe
+                    src={youtubePlayerEmbed(ytId)}
+                    title={project.title}
+                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                    allowFullScreen
+                    className="w-full h-full border-0"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[4/5] md:aspect-[16/10] w-full overflow-hidden rounded-2xl bg-secondary mb-10">
+                  <img src={project.cover_url} alt={project.title} className="w-full h-full object-cover" />
+                </div>
+              );
+            })()}
 
             <div className="flex justify-between mono text-xs uppercase tracking-[0.3em] text-site-red mb-4">
               <span>{project.tag}</span>

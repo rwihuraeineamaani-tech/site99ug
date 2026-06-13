@@ -247,6 +247,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          aspect_ratio: string
           client: string
           cover_url: string
           created_at: string
@@ -259,8 +260,10 @@ export type Database = {
           title: string
           updated_at: string
           year: string
+          youtube_url: string | null
         }
         Insert: {
+          aspect_ratio?: string
           client: string
           cover_url: string
           created_at?: string
@@ -273,8 +276,10 @@ export type Database = {
           title: string
           updated_at?: string
           year: string
+          youtube_url?: string | null
         }
         Update: {
+          aspect_ratio?: string
           client?: string
           cover_url?: string
           created_at?: string
@@ -287,6 +292,7 @@ export type Database = {
           title?: string
           updated_at?: string
           year?: string
+          youtube_url?: string | null
         }
         Relationships: []
       }
