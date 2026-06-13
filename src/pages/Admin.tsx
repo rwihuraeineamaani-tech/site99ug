@@ -179,6 +179,8 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
       gallery_urls: p.gallery_urls || [], external_url: p.external_url || "",
       display_order: p.display_order,
       resident_ids: (links || []).map((l) => l.resident_id),
+      youtube_url: (p as any).youtube_url || "",
+      aspect_ratio: (p as any).aspect_ratio || "4:5",
     });
     setEditing(true); window.scrollTo({ top: 0, behavior: "smooth" });
   };
