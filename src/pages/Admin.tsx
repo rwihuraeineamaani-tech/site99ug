@@ -220,11 +220,21 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
         </div>
         <div className="md:col-span-2"><label className={lbl}>Description</label><textarea rows={3} className={input + " resize-none"} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
         <div className="md:col-span-2">
-          <label className={lbl}>Cover image *</label>
+          <label className={lbl}>Cover photo or video {form.youtube_url ? "(optional — YouTube will be used)" : "(used when no YouTube URL)"}</label>
           <div className="mt-2 flex items-center gap-4">
-            <input type="file" accept="image/*" onChange={handleCover} className="text-sm" />
-            {form.cover_url && <img src={form.cover_url} alt="cover" className="h-20 w-20 object-cover rounded-2xl" />}
+            <input type="file" accept="image/*,video/*" onChange={handleCover} className="text-sm" />
+            {form.cover_url && (
+              isVideo(form.cover_url)
+                ? <video src={form.cover_url} className="h-20 w-20 object-cover rounded-2xl bg-black" muted />
+                : <img src={form.cover_url} alt="cover" className="h-20 w-20 object-cover rounded-2xl" />
+            )}
+            {form.cover_url && (
+              <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Clear</button>
+            )}
           </div>
+          {form.youtube_url && form.cover_url && (
+            <p className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-2">Both set — YouTube takes priority on the card. Clear it above to use the cover.</p>
+          )}
         </div>
         <div className="md:col-span-2">
           <label className={lbl}>Gallery (images & videos)</label>
