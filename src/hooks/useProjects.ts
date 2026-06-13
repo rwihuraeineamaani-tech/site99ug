@@ -12,6 +12,8 @@ export type Project = {
   gallery_urls: string[];
   external_url: string | null;
   display_order: number;
+  youtube_url?: string | null;
+  aspect_ratio?: string | null;
 };
 
 export const useProjects = () =>
