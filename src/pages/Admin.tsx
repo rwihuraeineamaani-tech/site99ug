@@ -145,6 +145,8 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
       description: form.description || null, cover_url: form.cover_url,
       gallery_urls: form.gallery_urls, external_url: form.external_url || null,
       display_order: form.display_order,
+      youtube_url: form.youtube_url.trim() || null,
+      aspect_ratio: form.aspect_ratio || "4:5",
     };
     let projectId = form.id;
     if (form.id) {
