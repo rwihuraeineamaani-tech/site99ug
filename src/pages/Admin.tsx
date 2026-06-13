@@ -14,10 +14,12 @@ type ProjForm = {
   id?: string; title: string; client: string; year: string; tag: string;
   description: string; cover_url: string; gallery_urls: string[];
   external_url: string; display_order: number; resident_ids: string[];
+  youtube_url: string; aspect_ratio: string;
 };
 const emptyProj: ProjForm = {
   title: "", client: "", year: "", tag: "", description: "",
   cover_url: "", gallery_urls: [], external_url: "", display_order: 0, resident_ids: [],
+  youtube_url: "", aspect_ratio: "4:5",
 };
 
 type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean };
