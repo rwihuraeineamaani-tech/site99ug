@@ -4,6 +4,7 @@ import { Layout } from "@/components/Layout";
 import Seo from "@/components/Seo";
 import { ProjectLightbox } from "@/components/ProjectLightbox";
 import { useProjects, type Project } from "@/hooks/useProjects";
+import { getYouTubeId, youtubeBgEmbed, aspectRatioClass } from "@/lib/youtube";
 import p1 from "@/assets/project-1.jpg";
 import p2 from "@/assets/project-2.jpg";
 import p3 from "@/assets/project-3.jpg";
