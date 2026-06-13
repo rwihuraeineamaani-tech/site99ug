@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import type { Project } from "@/hooks/useProjects";
+import { getYouTubeId, youtubePlayerEmbed } from "@/lib/youtube";
 
 export const ProjectLightbox = ({ project, onClose }: { project: Project | null; onClose: () => void }) => {
   useEffect(() => {
