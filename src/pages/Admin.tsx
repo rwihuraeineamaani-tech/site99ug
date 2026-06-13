@@ -206,6 +206,18 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
         <div><label className={lbl}>Tag *</label><input required className={input} value={form.tag} onChange={(e) => setForm({ ...form, tag: e.target.value })} /></div>
         <div><label className={lbl}>External URL</label><input className={input} value={form.external_url} onChange={(e) => setForm({ ...form, external_url: e.target.value })} /></div>
         <div><label className={lbl}>Display order</label><input type="number" className={input} value={form.display_order} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} /></div>
+        <div className="md:col-span-2"><label className={lbl}>YouTube URL (auto-plays muted on cover)</label><input placeholder="https://youtu.be/…" className={input} value={form.youtube_url} onChange={(e) => setForm({ ...form, youtube_url: e.target.value })} /></div>
+        <div>
+          <label className={lbl}>Cover aspect ratio</label>
+          <select className={input} value={form.aspect_ratio} onChange={(e) => setForm({ ...form, aspect_ratio: e.target.value })}>
+            <option value="1:1">1:1 — Square</option>
+            <option value="4:5">4:5 — Portrait (default)</option>
+            <option value="2:3">2:3 — Tall portrait</option>
+            <option value="3:2">3:2 — Landscape</option>
+            <option value="16:9">16:9 — Widescreen</option>
+            <option value="9:16">9:16 — Vertical</option>
+          </select>
+        </div>
         <div className="md:col-span-2"><label className={lbl}>Description</label><textarea rows={3} className={input + " resize-none"} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
         <div className="md:col-span-2">
           <label className={lbl}>Cover image *</label>
