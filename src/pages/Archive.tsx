@@ -100,6 +100,15 @@ export default function Archive() {
                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full border-0"
                       />
                     </div>
+                  ) : /\.(mp4|webm|mov|m4v)(\?|$)/i.test(p.cover_url) ? (
+                    <video
+                      src={p.cover_url}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
                   ) : (
                     <img
                       src={resolveCover(p.cover_url)}
