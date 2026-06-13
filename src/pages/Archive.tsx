@@ -75,39 +75,54 @@ export default function Archive() {
         ) : projects.length === 0 ? (
           <div className="mono text-xs text-muted-foreground py-20 text-center">No projects yet.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {projects.map((p, i) => (
-              <motion.button
-                key={p.id}
-                type="button"
-                onClick={() => setOpen(p)}
-                data-hover
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: (i % 6) * 0.05 }}
-                className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-secondary text-left"
-              >
-                <img
-                  src={resolveCover(p.cover_url)}
-                  alt={p.title}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
-                />
-                <div className="absolute inset-0 bg-site-red/0 group-hover:bg-site-red/30 mix-blend-multiply transition-colors duration-500" />
-                <div className="absolute inset-0 p-6 md:p-7 flex flex-col justify-between text-site-white">
-                  <div className="flex justify-between mono text-[10px] uppercase tracking-[0.3em]">
-                    <span>{String(i + 1).padStart(2, "0")}</span>
-                    <span>{p.year}</span>
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 md:gap-8 [column-fill:_balance]">
+            {projects.map((p, i) => {
+              const ytId = getYouTubeId(p.youtube_url);
+              return (
+                <motion.button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setOpen(p)}
+                  data-hover
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: (i % 6) * 0.05 }}
+                  className={`group relative ${aspectRatioClass(p.aspect_ratio)} mb-6 md:mb-8 w-full overflow-hidden rounded-2xl bg-secondary text-left break-inside-avoid block`}
+                >
+                  {ytId ? (
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                      <iframe
+                        src={youtubeBgEmbed(ytId)}
+                        title={p.title}
+                        loading="lazy"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full border-0"
+                      />
+                    </div>
+                  ) : (
+                    <img
+                      src={resolveCover(p.cover_url)}
+                      alt={p.title}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-site-black/70 via-site-black/0 to-site-black/0 group-hover:from-site-black/80 transition-colors duration-500" />
+                  <div className="absolute inset-0 p-6 md:p-7 flex flex-col justify-between text-site-white">
+                    <div className="flex justify-between mono text-[10px] uppercase tracking-[0.3em]">
+                      <span>{String(i + 1).padStart(2, "0")}</span>
+                      <span>{p.year}</span>
+                    </div>
+                    <div>
+                      <div className="mono text-[10px] uppercase tracking-[0.3em] mb-2 opacity-80">{p.tag} · {p.client}</div>
+                      <h3 className="display text-3xl md:text-4xl">{p.title}</h3>
+                      <div className="mt-3 h-px w-0 bg-site-white group-hover:w-24 transition-all duration-700" />
+                    </div>
                   </div>
-                  <div>
-                    <div className="mono text-[10px] uppercase tracking-[0.3em] mb-2 opacity-80">{p.tag} · {p.client}</div>
-                    <h3 className="display text-3xl md:text-4xl">{p.title}</h3>
-                    <div className="mt-3 h-px w-0 bg-site-white group-hover:w-24 transition-all duration-700" />
-                  </div>
-                </div>
-              </motion.button>
-            ))}
+                </motion.button>
+              );
+            })}
           </div>
         )}
       </section>
