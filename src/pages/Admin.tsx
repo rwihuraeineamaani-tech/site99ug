@@ -139,7 +139,7 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.cover_url) return toast.error("Cover image is required");
+    if (!form.cover_url && !form.youtube_url.trim()) return toast.error("Add a cover image/video or a YouTube URL");
     const payload = {
       title: form.title, client: form.client, year: form.year, tag: form.tag,
       description: form.description || null, cover_url: form.cover_url,
