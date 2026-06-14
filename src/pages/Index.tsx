@@ -416,14 +416,16 @@ export default function Home() {
                     className={`relative overflow-hidden rounded-lg bg-muted ${aspectRatioClass(p.aspect_ratio)} shadow-[0_30px_60px_-20px_hsl(0_0%_0%/0.4)]`}
                   >
                     {ytId ? (
-                      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <iframe
-                          src={youtubeBgEmbed(ytId)}
-                          title={p.title}
-                          loading="lazy"
-                          allow="autoplay; encrypted-media; picture-in-picture"
-                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full border-0"
-                        />
+                      <div className="absolute inset-0 grid place-items-center bg-black pointer-events-none">
+                        <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
+                          <iframe
+                            src={youtubeBgEmbed(ytId)}
+                            title={p.title}
+                            loading="lazy"
+                            allow="autoplay; encrypted-media; picture-in-picture"
+                            className="absolute inset-0 w-full h-full border-0"
+                          />
+                        </div>
                       </div>
                     ) : isVideo ? (
                       <video
