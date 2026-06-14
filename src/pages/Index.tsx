@@ -102,8 +102,16 @@ export default function Home() {
   const { data: dbProjects = [] } = useProjects();
   const { data: dbResidents = [] } = usePublicResidents();
   const glimpseProjects = dbProjects.length
-    ? dbProjects.slice(0, 4).map((p) => ({ title: p.title, client: p.client, tag: p.tag, img: resolveCover(p.cover_url) }))
-    : glimpseFallback;
+    ? dbProjects.slice(0, 4).map((p) => ({
+        title: p.title,
+        client: p.client,
+        tag: p.tag,
+        img: resolveCover(p.cover_url),
+        cover_url: p.cover_url,
+        youtube_url: p.youtube_url,
+        aspect_ratio: p.aspect_ratio,
+      }))
+    : glimpseFallback.map((g) => ({ ...g, cover_url: g.img, youtube_url: null, aspect_ratio: "4:5" }));
   const visibleResidents = dbResidents.filter((r) => r.visible !== false);
   const residents = visibleResidents.length ? visibleResidents.map((r) => r.name) : residentsFallback;
   const marqueeItems: { name: string; territory?: string }[] = visibleResidents.length
