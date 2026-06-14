@@ -423,7 +423,7 @@ export default function Home() {
                             title={p.title}
                             loading="lazy"
                             allow="autoplay; encrypted-media; picture-in-picture"
-                            className="absolute inset-0 w-full h-full border-0 scale-[1.35]"
+                            className="absolute inset-0 w-full h-full border-0 scale-[1.15]"
                           />
                         </div>
                       </div>
