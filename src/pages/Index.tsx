@@ -413,7 +413,7 @@ export default function Home() {
                   <Tilt3D
                     max={8}
                     scale={1.03}
-                    className={`relative overflow-hidden rounded-2xl bg-muted ${aspectRatioClass(p.aspect_ratio)} shadow-[0_30px_60px_-20px_hsl(0_0%_0%/0.4)]`}
+                    className={`relative overflow-hidden rounded-lg bg-muted ${aspectRatioClass(p.aspect_ratio)} shadow-[0_30px_60px_-20px_hsl(0_0%_0%/0.4)]`}
                   >
                     {ytId ? (
                       <div className="absolute inset-0 overflow-hidden pointer-events-none">

@@ -88,7 +88,7 @@ export default function Archive() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ delay: (i % 6) * 0.05 }}
-                  className={`group relative ${aspectRatioClass(p.aspect_ratio)} mb-6 md:mb-8 w-full overflow-hidden rounded-2xl bg-secondary text-left break-inside-avoid block`}
+                  className={`group relative ${aspectRatioClass(p.aspect_ratio)} mb-6 md:mb-8 w-full overflow-hidden rounded-lg bg-secondary text-left break-inside-avoid block`}
                 >
                   {ytId ? (
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
