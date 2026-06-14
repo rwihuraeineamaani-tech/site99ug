@@ -8,6 +8,7 @@ import { TikTokMockup } from "@/components/TikTokMockup";
 import { Tilt3D } from "@/components/Tilt3D";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProjects } from "@/hooks/useProjects";
+import { getYouTubeId, youtubeBgEmbed, aspectRatioClass } from "@/lib/youtube";
 import { usePublicResidents } from "@/hooks/useResidents";
 import heroAsset from "@/assets/IMG_5291.jpg.asset.json";
 import hero2Asset from "@/assets/IMG_5725.png.asset.json";
@@ -102,8 +103,16 @@ export default function Home() {
   const { data: dbProjects = [] } = useProjects();
   const { data: dbResidents = [] } = usePublicResidents();
   const glimpseProjects = dbProjects.length
-    ? dbProjects.slice(0, 4).map((p) => ({ title: p.title, client: p.client, tag: p.tag, img: resolveCover(p.cover_url) }))
-    : glimpseFallback;
+    ? dbProjects.slice(0, 4).map((p) => ({
+        title: p.title,
+        client: p.client,
+        tag: p.tag,
+        img: resolveCover(p.cover_url),
+        cover_url: p.cover_url,
+        youtube_url: p.youtube_url,
+        aspect_ratio: p.aspect_ratio,
+      }))
+    : glimpseFallback.map((g) => ({ ...g, cover_url: g.img, youtube_url: null, aspect_ratio: "4:5" }));
   const visibleResidents = dbResidents.filter((r) => r.visible !== false);
   const residents = visibleResidents.length ? visibleResidents.map((r) => r.name) : residentsFallback;
   const marqueeItems: { name: string; territory?: string }[] = visibleResidents.length
@@ -387,37 +396,64 @@ export default function Home() {
             View all →
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {glimpseProjects.map((p, i) => (
-            <motion.div
-              key={p.title}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ delay: (i % 2) * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className={i % 2 === 1 ? "md:translate-y-16" : ""}
-            >
-              <Link to="/archive" data-hover className="group block" style={{ perspective: 1100 }}>
-                <Tilt3D max={8} scale={1.03} className="overflow-hidden rounded-2xl bg-muted aspect-[4/5] shadow-[0_30px_60px_-20px_hsl(0_0%_0%/0.4)]">
-                  <img
-                    src={p.img}
-                    alt={p.title}
-                    loading="lazy"
-                    width={800}
-                    height={1000}
-                    className="w-full h-full object-cover"
-                  />
-                </Tilt3D>
-                <div className="mt-5 flex items-center justify-between">
-                  <div>
-                    <div className="display text-2xl md:text-3xl">{p.title}</div>
-                    <div className="mono text-xs text-muted-foreground mt-1">{p.client}</div>
+        <div className="columns-1 md:columns-2 gap-6 md:gap-8 [column-fill:_balance]">
+          {glimpseProjects.map((p, i) => {
+            const ytId = getYouTubeId(p.youtube_url);
+            const isVideo = !ytId && /\.(mp4|webm|mov|m4v)(\?|$)/i.test(p.cover_url || "");
+            return (
+              <motion.div
+                key={p.title}
+                initial={{ opacity: 0, y: 60 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ delay: (i % 2) * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                className="mb-6 md:mb-8 break-inside-avoid"
+              >
+                <Link to="/archive" data-hover className="group block" style={{ perspective: 1100 }}>
+                  <Tilt3D
+                    max={8}
+                    scale={1.03}
+                    className={`relative overflow-hidden rounded-2xl bg-muted ${aspectRatioClass(p.aspect_ratio)} shadow-[0_30px_60px_-20px_hsl(0_0%_0%/0.4)]`}
+                  >
+                    {ytId ? (
+                      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <iframe
+                          src={youtubeBgEmbed(ytId)}
+                          title={p.title}
+                          loading="lazy"
+                          allow="autoplay; encrypted-media; picture-in-picture"
+                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full border-0"
+                        />
+                      </div>
+                    ) : isVideo ? (
+                      <video
+                        src={p.cover_url}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={p.img}
+                        alt={p.title}
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    )}
+                  </Tilt3D>
+                  <div className="mt-5 flex items-center justify-between">
+                    <div>
+                      <div className="display text-2xl md:text-3xl">{p.title}</div>
+                      <div className="mono text-xs text-muted-foreground mt-1">{p.client}</div>
+                    </div>
+                    <div className="label text-[10px] text-muted-foreground">{p.tag}</div>
                   </div>
-                  <div className="label text-[10px] text-muted-foreground">{p.tag}</div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
         <div className="md:hidden mt-10 text-center">
           <Link to="/archive" data-hover className="inline-flex items-center gap-3 label text-xs text-site-red">
