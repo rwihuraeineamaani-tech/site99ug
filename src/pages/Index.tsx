@@ -8,6 +8,7 @@ import { TikTokMockup } from "@/components/TikTokMockup";
 import { Tilt3D } from "@/components/Tilt3D";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProjects } from "@/hooks/useProjects";
+import { getYouTubeId, youtubeBgEmbed, aspectRatioClass } from "@/lib/youtube";
 import { usePublicResidents } from "@/hooks/useResidents";
 import heroAsset from "@/assets/IMG_5291.jpg.asset.json";
 import hero2Asset from "@/assets/IMG_5725.png.asset.json";
