@@ -326,7 +326,7 @@ export default function Home() {
 
       {/* THE MATH — viral economics pull-quote */}
       <section className="section-dark px-8 md:px-16 py-20 md:py-28 border-t">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
           <div className="md:col-span-7">
             <div className="label text-site-red mb-8">The Math</div>
             <motion.h2
