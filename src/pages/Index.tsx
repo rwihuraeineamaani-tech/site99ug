@@ -524,7 +524,7 @@ export default function Home() {
 
       {/* RESIDENTS GLIMPSE */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="flex items-end justify-between mb-12">
+        <div className="flex items-end justify-between mb-12 px-8 md:px-16">
           <div>
             <div className="label text-site-red mb-4">N° 03 / Residents</div>
             <h2 className="display text-fluid-xl">In Residency</h2>
