@@ -413,20 +413,16 @@ export default function Home() {
                   <Tilt3D
                     max={8}
                     scale={1.03}
-                    className={`relative overflow-hidden rounded-lg bg-muted ${aspectRatioClass(p.aspect_ratio)} shadow-[0_30px_60px_-20px_hsl(0_0%_0%/0.4)]`}
+                    className={`relative overflow-hidden rounded-lg bg-muted ${ytId ? "aspect-video" : aspectRatioClass(p.aspect_ratio)} shadow-[0_30px_60px_-20px_hsl(0_0%_0%/0.4)]`}
                   >
                     {ytId ? (
-                      <div className="absolute inset-0 overflow-hidden bg-black pointer-events-none grid place-items-center">
-                        <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
-                          <iframe
-                            src={youtubeBgEmbed(ytId)}
-                            title={p.title}
-                            loading="lazy"
-                            allow="autoplay; encrypted-media; picture-in-picture"
-                            className="absolute inset-0 w-full h-full border-0 scale-[1.15]"
-                          />
-                        </div>
-                      </div>
+                      <iframe
+                        src={youtubeBgEmbed(ytId)}
+                        title={p.title}
+                        loading="lazy"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+                      />
                     ) : isVideo ? (
                       <video
                         src={p.cover_url}
