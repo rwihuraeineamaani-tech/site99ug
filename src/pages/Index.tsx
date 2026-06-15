@@ -39,9 +39,9 @@ const residentsFallback = [
 ];
 
 const baseStats = [
-  { k: "Years Building", v: 6, suffix: "" },
-  { k: "People Reached", v: 7.2, suffix: "M" },
-  { k: "Stories Shipped", v: 240, suffix: "+" },
+  { k: "Years Building", v: 6, suffix: "", note: "Since 2020" },
+  { k: "People Reached", v: 7.2, suffix: "M", note: "Across feeds" },
+  { k: "Stories Shipped", v: 240, suffix: "+", note: "Films · campaigns · drops" },
 ];
 
 const glimpseFallback = [
