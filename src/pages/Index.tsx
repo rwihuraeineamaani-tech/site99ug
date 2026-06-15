@@ -308,7 +308,7 @@ export default function Home() {
       </section>
 
       {/* MANIFESTO */}
-      <section ref={manifestoRef} className="px-8 md:px-16 py-20 md:py-28 max-w-7xl mx-auto">
+      <section ref={manifestoRef} className="px-8 md:px-16 py-20 md:py-28">
         <div className="label text-site-red mb-8">Doctrine</div>
         <h2 className="display text-fluid-xl leading-[0.95] flex flex-wrap gap-x-4 gap-y-2 text-left">
           {words.map((w, i) => {
