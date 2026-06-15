@@ -260,7 +260,7 @@ export default function Home() {
 
       {/* THE STUDIO — who we are */}
       <section className="relative px-8 md:px-16 py-14 md:py-20 bg-background overflow-hidden">
-        <div className="max-w-7xl mx-auto">
+        <div>
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -308,7 +308,7 @@ export default function Home() {
       </section>
 
       {/* MANIFESTO */}
-      <section ref={manifestoRef} className="px-8 md:px-16 py-20 md:py-28 max-w-7xl mx-auto">
+      <section ref={manifestoRef} className="px-8 md:px-16 py-20 md:py-28">
         <div className="label text-site-red mb-8">Doctrine</div>
         <h2 className="display text-fluid-xl leading-[0.95] flex flex-wrap gap-x-4 gap-y-2 text-left">
           {words.map((w, i) => {
@@ -326,7 +326,7 @@ export default function Home() {
 
       {/* THE MATH — viral economics pull-quote */}
       <section className="section-dark px-8 md:px-16 py-20 md:py-28 border-t">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
           <div className="md:col-span-7">
             <div className="label text-site-red mb-8">The Math</div>
             <motion.h2
@@ -493,7 +493,7 @@ export default function Home() {
 
       {/* PHILOSOPHY GLIMPSE */}
       <section className="section-dark px-8 md:px-16 py-16 md:py-24 border-t">
-        <div className="max-w-7xl mx-auto">
+        <div>
           <div className="flex items-end justify-between mb-8 md:mb-10">
             <div>
               <div className="label text-site-red mb-4">N° 04 / Philosophy</div>
@@ -523,8 +523,8 @@ export default function Home() {
       </section>
 
       {/* RESIDENTS GLIMPSE */}
-      <section className="px-8 md:px-16 py-16 md:py-24 bg-background">
-        <div className="flex items-end justify-between mb-12">
+      <section className="py-16 md:py-24 bg-background">
+        <div className="flex items-end justify-between mb-12 px-8 md:px-16">
           <div>
             <div className="label text-site-red mb-4">N° 03 / Residents</div>
             <h2 className="display text-fluid-xl">In Residency</h2>
