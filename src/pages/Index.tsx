@@ -11,7 +11,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { getYouTubeId, youtubeBgEmbed, aspectRatioClass } from "@/lib/youtube";
 import { usePublicResidents } from "@/hooks/useResidents";
 import heroAsset from "@/assets/IMG_5291.jpg.asset.json";
-import hero2Asset from "@/assets/IMG_5725.png.asset.json";
+import hero2Asset from "@/assets/ANDE9908.jpg.asset.json";
 import studioAsset from "@/assets/IMG_5289.jpg.asset.json";
 import ctaAsset from "@/assets/IMG_5290.jpg.asset.json";
 import mathAsset from "@/assets/IMG_5292.jpg.asset.json";
