@@ -39,9 +39,9 @@ const residentsFallback = [
 ];
 
 const baseStats = [
-  { k: "Years Building", v: 6, suffix: "" },
-  { k: "People Reached", v: 7.2, suffix: "M" },
-  { k: "Stories Shipped", v: 240, suffix: "+" },
+  { k: "Years Building", v: 6, suffix: "", note: "Since 2020" },
+  { k: "People Reached", v: 7.2, suffix: "M", note: "Across feeds" },
+  { k: "Stories Shipped", v: 240, suffix: "+", note: "Films · campaigns · drops" },
 ];
 
 const glimpseFallback = [
@@ -119,7 +119,7 @@ export default function Home() {
     ? visibleResidents.map((r) => ({ name: r.name, territory: r.territory }))
     : residentsFallback.map((n) => ({ name: n, territory: undefined }));
   const stats = [
-    { k: "Residents In Trust", v: visibleResidents.length, suffix: "" },
+    { k: "Residents In Trust", v: visibleResidents.length, suffix: "", note: "Brands in residency" },
     ...baseStats,
   ];
 
@@ -362,24 +362,55 @@ export default function Home() {
         </div>
       </section>
 
-      {/* STATS */}
-      <section className="section-dark border-b grid grid-cols-2 md:grid-cols-4">
-        {stats.map((s, i) => (
-          <motion.div
-            key={s.k}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.08 }}
-            className="border-r last:border-r-0 border-border/40 p-8 md:p-12 group hover:bg-site-red transition-colors duration-500"
-          >
-            <div className="label text-[11px] text-white/60 group-hover:text-white">{s.k}</div>
-            <div className="display text-5xl md:text-7xl mt-4 text-white">
-              <Counter to={s.v} suffix={s.suffix} />
-            </div>
-          </motion.div>
-        ))}
+      {/* STATS — editorial ledger */}
+      <section className="section-dark border-y border-white/10 relative overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-site-red/60 to-transparent" />
+        <div className="px-8 md:px-16 pt-10 md:pt-14 pb-6 flex items-end justify-between">
+          <div className="label text-[11px] text-white/50">N° 02½ / Ledger</div>
+          <div className="hidden md:block label text-[11px] text-white/40">As of {new Date().getFullYear()}</div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4">
+          {stats.map((s, i) => (
+            <motion.div
+              key={s.k}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className={`relative group px-6 md:px-10 py-10 md:py-16 border-t border-white/10 ${
+                i % 2 === 1 ? "border-l border-white/10" : ""
+              } md:border-l md:first:border-l-0 transition-colors duration-500`}
+            >
+              {/* index */}
+              <div className="flex items-center justify-between mb-6 md:mb-10">
+                <span className="mono text-[10px] tracking-[0.25em] text-white/40">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="h-px w-8 bg-white/20 group-hover:w-16 group-hover:bg-site-red transition-all duration-500" />
+              </div>
+
+              {/* number */}
+              <div className="display text-fluid-xl leading-[0.9] text-white tabular-nums">
+                <Counter to={s.v} suffix={s.suffix} />
+              </div>
+
+              {/* label + note */}
+              <div className="mt-6 md:mt-8 space-y-2">
+                <div className="label text-[11px] text-white group-hover:text-site-red transition-colors duration-300">
+                  {s.k}
+                </div>
+                {s.note && (
+                  <div className="text-xs text-white/40 font-light">{s.note}</div>
+                )}
+              </div>
+
+              {/* hover accent bar */}
+              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-site-red group-hover:w-full transition-all duration-700 ease-out" />
+            </motion.div>
+          ))}
+        </div>
       </section>
+
 
       {/* ARCHIVE GLIMPSE */}
       <section className="px-8 md:px-16 py-16 md:py-24 bg-background">
