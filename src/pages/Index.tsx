@@ -119,7 +119,7 @@ export default function Home() {
     ? visibleResidents.map((r) => ({ name: r.name, territory: r.territory }))
     : residentsFallback.map((n) => ({ name: n, territory: undefined }));
   const stats = [
-    { k: "Residents In Trust", v: visibleResidents.length, suffix: "" },
+    { k: "Residents In Trust", v: visibleResidents.length, suffix: "", note: "Brands in residency" },
     ...baseStats,
   ];
 
