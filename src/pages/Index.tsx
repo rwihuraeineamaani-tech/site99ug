@@ -260,7 +260,7 @@ export default function Home() {
 
       {/* THE STUDIO — who we are */}
       <section className="relative px-8 md:px-16 py-14 md:py-20 bg-background overflow-hidden">
-        <div className="max-w-7xl mx-auto">
+        <div>
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
