@@ -493,7 +493,7 @@ export default function Home() {
 
       {/* PHILOSOPHY GLIMPSE */}
       <section className="section-dark px-8 md:px-16 py-16 md:py-24 border-t">
-        <div className="max-w-7xl mx-auto">
+        <div>
           <div className="flex items-end justify-between mb-8 md:mb-10">
             <div>
               <div className="label text-site-red mb-4">N° 04 / Philosophy</div>
