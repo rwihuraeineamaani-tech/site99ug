@@ -26,6 +26,7 @@ const services = [
 const inlineLinks = [
   { to: "/residents", label: "Residents" },
   { to: "/archive", label: "Projects" },
+  { to: "/events", label: "Events" },
   { to: "/about", label: "About" },
 ];
 

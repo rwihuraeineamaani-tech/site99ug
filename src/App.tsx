@@ -44,6 +44,12 @@ const AnimatedRoutes = () => {
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/events/:slug" element={<EventDetail />} />
+        <Route path="/tickets/thank-you" element={<TicketThankYou />} />
+        <Route path="/t/:token" element={<TicketView />} />
+        <Route path="/admin/events" element={<EventsAdmin />} />
+        <Route path="/admin/scan" element={<TicketScanner />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
