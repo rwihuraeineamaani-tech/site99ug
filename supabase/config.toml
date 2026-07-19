@@ -2,3 +2,9 @@ project_id = "uywvebyqbyywnwqjjdto"
 
 [functions.process-email-queue]
 verify_jwt = true
+
+[functions.pesapal-checkout]
+verify_jwt = false
+
+[functions.pesapal-ipn]
+verify_jwt = false

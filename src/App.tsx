@@ -17,6 +17,12 @@ import NotFound from "./pages/NotFound.tsx";
 import TikTokViralEconomicsUganda from "./pages/blog/TikTokViralEconomicsUganda.tsx";
 import Services from "./pages/Services.tsx";
 import About from "./pages/About.tsx";
+import Events from "./pages/Events.tsx";
+import EventDetail from "./pages/EventDetail.tsx";
+import TicketThankYou from "./pages/TicketThankYou.tsx";
+import TicketView from "./pages/TicketView.tsx";
+import EventsAdmin from "./pages/EventsAdmin.tsx";
+import TicketScanner from "./pages/TicketScanner.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -38,6 +44,12 @@ const AnimatedRoutes = () => {
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/events/:slug" element={<EventDetail />} />
+        <Route path="/tickets/thank-you" element={<TicketThankYou />} />
+        <Route path="/t/:token" element={<TicketView />} />
+        <Route path="/admin/events" element={<EventsAdmin />} />
+        <Route path="/admin/scan" element={<TicketScanner />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
