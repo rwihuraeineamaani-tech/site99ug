@@ -17,6 +17,12 @@ import NotFound from "./pages/NotFound.tsx";
 import TikTokViralEconomicsUganda from "./pages/blog/TikTokViralEconomicsUganda.tsx";
 import Services from "./pages/Services.tsx";
 import About from "./pages/About.tsx";
+import Events from "./pages/Events.tsx";
+import EventDetail from "./pages/EventDetail.tsx";
+import TicketThankYou from "./pages/TicketThankYou.tsx";
+import TicketView from "./pages/TicketView.tsx";
+import EventsAdmin from "./pages/EventsAdmin.tsx";
+import TicketScanner from "./pages/TicketScanner.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
