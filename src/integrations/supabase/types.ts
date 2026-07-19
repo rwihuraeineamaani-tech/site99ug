@@ -203,6 +203,51 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          ends_at: string | null
+          id: string
+          published: boolean
+          slug: string
+          starts_at: string
+          title: string
+          updated_at: string
+          venue: string | null
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          published?: boolean
+          slug: string
+          starts_at: string
+          title: string
+          updated_at?: string
+          venue?: string | null
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          published?: boolean
+          slug?: string
+          starts_at?: string
+          title?: string
+          updated_at?: string
+          venue?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           body: string
@@ -241,6 +286,59 @@ export type Database = {
             columns: ["resident_id"]
             isOneToOne: false
             referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          amount_ugx: number
+          buyer_email: string
+          buyer_name: string
+          buyer_phone: string
+          created_at: string
+          event_id: string
+          id: string
+          paid_at: string | null
+          pesapal_merchant_reference: string | null
+          pesapal_tracking_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_ugx: number
+          buyer_email: string
+          buyer_name: string
+          buyer_phone: string
+          created_at?: string
+          event_id: string
+          id?: string
+          paid_at?: string | null
+          pesapal_merchant_reference?: string | null
+          pesapal_tracking_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_ugx?: number
+          buyer_email?: string
+          buyer_name?: string
+          buyer_phone?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          paid_at?: string | null
+          pesapal_merchant_reference?: string | null
+          pesapal_tracking_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -408,6 +506,101 @@ export type Database = {
         }
         Relationships: []
       }
+      ticket_tiers: {
+        Row: {
+          capacity: number
+          created_at: string
+          event_id: string
+          id: string
+          name: string
+          price_ugx: number
+          sort: number
+          updated_at: string
+        }
+        Insert: {
+          capacity: number
+          created_at?: string
+          event_id: string
+          id?: string
+          name: string
+          price_ugx: number
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          event_id?: string
+          id?: string
+          name?: string
+          price_ugx?: number
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_tiers_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tickets: {
+        Row: {
+          created_at: string
+          holder_name: string | null
+          id: string
+          order_id: string
+          qr_token: string
+          status: string
+          tier_id: string
+          updated_at: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          holder_name?: string | null
+          id?: string
+          order_id: string
+          qr_token?: string
+          status?: string
+          tier_id: string
+          updated_at?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          holder_name?: string | null
+          id?: string
+          order_id?: string
+          qr_token?: string
+          status?: string
+          tier_id?: string
+          updated_at?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_tier_id_fkey"
+            columns: ["tier_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -476,6 +669,32 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_order_summary: {
+        Args: { _ref: string }
+        Returns: {
+          amount_ugx: number
+          buyer_email: string
+          event_slug: string
+          event_title: string
+          order_id: string
+          status: string
+          ticket_count: number
+        }[]
+      }
+      get_ticket_by_token: {
+        Args: { _token: string }
+        Returns: {
+          event_slug: string
+          event_starts_at: string
+          event_title: string
+          event_venue: string
+          holder_name: string
+          qr_token: string
+          status: string
+          ticket_id: string
+          tier_name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -500,6 +719,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      tier_sold_count: { Args: { _tier_id: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user" | "resident"
