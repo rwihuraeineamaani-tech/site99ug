@@ -1,47 +1,57 @@
-## Goal
-Bring the Resident Portal up to the same visual quality as the public site — editorial typography, atmospheric backdrop, mono labels, site-red accents — without changing any logic or data flow.
+# Event Ticketing — Pesapal (Uganda MoMo + Airtel)
 
-## Scope (visual only)
+Direct-to-merchant ticketing with Pesapal handling MTN MoMo, Airtel Money, and card at checkout. Funds settle to the payout account configured in your Pesapal dashboard (bank or MoMo merchant number). QR tickets by email, door-scan check-in, admin CRUD + sales dashboard.
 
-**1. Portal shell**
-- Replace the plain `pt-28` page with a hero band: small "Resident Portal" eyebrow in site-red, large display name, status/territory/since as a single typographic line with `·` separators.
-- Add a subtle northern-lights backdrop (toned-down version of the home hero — slow, low-opacity) behind the header band only, so it feels like the same world but doesn't distract from content.
-- Sticky top-right sign-out as an inline ghost link.
+## User flows
 
-**2. Side rail navigation**
-- Convert the current tab buttons into a numbered editorial rail: `01 Overview / 02 Projects / 03 Briefs / 04 Announcements / 05 Profile`.
-- Active tab: site-red number + foreground label + a thin red rule on the left.
-- On mobile, collapse to a horizontal scroll strip with the same numbering.
+**Buyer**
+1. Browses `/events`, opens an event
+2. Picks tier + quantity, enters name + email + phone
+3. Redirected to Pesapal hosted checkout → selects MTN MoMo / Airtel / card → pays
+4. Returns to `/tickets/thanks?order=…`; QR ticket(s) also emailed
+5. Ticket page shows a signed QR per seat
 
-**3. Overview**
-- Replace the 4-card stat grid with a single "dispatch" panel:
-  - Greeting headline ("Welcome back, {first name}.")
-  - Two-column meta: Status / Since on one side, Briefs count / Announcements count on the other — all set in display + mono labels, no boxes.
-- Add a "Latest announcement" preview card underneath (title + 2-line excerpt + date), tappable to jump to the Announcements tab.
+**Admin**
+- `/admin` gets an **Events** tab: create/edit event (title, slug, venue, date, cover, description), add ticket tiers (name, price UGX, capacity)
+- **Sales** tab: revenue, tickets sold, per-event breakdown, CSV export
+- `/admin/scan`: camera QR scanner marks tickets `used` at the door
 
-**4. Projects**
-- Keep the grid but unify with the public Residents page: full-bleed cover, title overline, year as mono caption. Hover: grayscale → color (already there) + a thin red underline on the title.
+## Data model (new tables)
 
-**5. Briefs & Announcements**
-- Drop the rounded boxed cards. Use a horizontal-rule list: date in mono on the left gutter, title display, body muted, "Open file →" in site-red. Feels like a press archive.
+- `events` — slug, title, description, venue, starts_at, ends_at, cover_url, published, created_by
+- `ticket_tiers` — event_id, name, price_ugx, capacity, sort
+- `orders` — event_id, buyer_name, buyer_email, buyer_phone, amount_ugx, status (`pending|paid|failed|cancelled`), pesapal_tracking_id, pesapal_merchant_reference
+- `tickets` — order_id, tier_id, holder_name, qr_token (random 32-byte, unique), status (`valid|used|void`), used_at, used_by
 
-**6. Profile + Messages**
-- Profile: 4-up label/value grid, no border box, just a top + bottom rule.
-- Messages: keep bubble layout but theme the resident bubble in site-red and office bubble as a subtle outlined card; round corners reduced to match the rest of the site (rounded-md not rounded-2xl). Composer becomes a single bottom bar with the send button as a red pill, mirroring the home hero's CTA.
+RLS: anon can read `events`/`ticket_tiers` where `published = true`; a ticket is readable only by its `qr_token` (fetched via a security-definer function scoped to a single token — no bulk enumeration); admins full CRUD; orders/tickets writes only via edge functions.
 
-**7. "Access pending" empty state**
-- Already on-brand; just add the same northern-lights backdrop and a "Check again" button next to Sign out.
+## Edge functions
 
-## Out of scope
-- No data model changes, no new tables, no new hooks.
-- No changes to Admin, Nav, or public site.
-- No new dependencies.
+- `pesapal-checkout` — auth: public. Validates cart, creates `orders` + reserved `tickets` (pending), calls Pesapal `Auth/RequestToken` → `Transactions/SubmitOrderRequest`, returns `redirect_url`.
+- `pesapal-ipn` — auth: public (Pesapal IPN URL). On notification, fetches `GetTransactionStatus`, flips order to `paid`/`failed`. On paid: activates tickets, enqueues confirmation email with QR links.
+- `ticket-scan` — auth: admin only. Accepts qr_token, atomically marks `valid → used`, returns holder + tier.
 
-## Files touched
-- `src/pages/ResidentPortal.tsx` — all of the above.
-- Possibly a small `src/components/PortalAurora.tsx` for the toned-down backdrop (extracted from the Index hero so we don't duplicate the animation).
+## Payment provider setup
 
-## Verification
-- Load `/residents/portal` signed in as a resident; check Overview, Projects, Briefs, Announcements, Profile.
-- Check at 928×528 (current viewport), mobile (375), and desktop (1440).
-- Confirm no console errors and existing actions (send message, open project, open brief file, sign out) still work.
+You'll be prompted to save three secrets (Pesapal dashboard → API keys):
+- `PESAPAL_CONSUMER_KEY`
+- `PESAPAL_CONSUMER_SECRET`
+- `PESAPAL_ENV` (`sandbox` or `live`)
+
+After first deploy I'll register the IPN URL against your account and store `PESAPAL_IPN_ID`. Payout to your MoMo/Airtel merchant number is configured inside Pesapal itself (Settlement Accounts), not in code.
+
+## Pages / files
+
+- `src/pages/Events.tsx`, `src/pages/EventDetail.tsx`, `src/pages/TicketView.tsx`, `src/pages/ThankYou.tsx`
+- `src/pages/admin/EventsAdmin.tsx`, `src/pages/admin/SalesDashboard.tsx`, `src/pages/admin/Scanner.tsx` (uses `html5-qrcode`)
+- Nav: add **Events** to the inline links and Services menu isn't affected
+- `supabase/functions/pesapal-checkout`, `pesapal-ipn`, `ticket-scan`
+
+## Out of scope for v1
+
+- Refunds (handled manually in Pesapal dashboard for now)
+- Reserved seating maps
+- Discount codes / early-bird auto-switching
+- Passing tickets between wallets
+
+Ready to build once you approve — I'll request the three Pesapal secrets right after the DB migration lands.
