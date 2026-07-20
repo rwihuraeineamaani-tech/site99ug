@@ -67,7 +67,16 @@ const services = [
     body: "From basketball games to concerts, launches and conferences — we run the full production stack. Multi-cam capture, switching, graphics, commentary feeds and simulcast to YouTube, TikTok, Facebook and custom RTMP. Built for venues with patchy power and patchier internet.",
     deliverables: ["Multi-camera live capture", "Sports & event broadcast", "Stream graphics & overlays", "Multi-platform simulcast"],
   },
+  {
+    slug: "ticketing",
+    n: "09",
+    title: "Event Ticketing",
+    lede: "Sell tickets in UGX with MoMo and Airtel Money. Scan at the gate.",
+    body: "A full ticketing stack for Ugandan events — tier pricing, hosted mobile-money checkout via Pesapal (MTN MoMo, Airtel Money and card), QR-coded tickets delivered by email, and a phone-based scanner for gate check-in. Launch a paid event in minutes; settle to your merchant number the same week.",
+    deliverables: ["Event pages & tier pricing (UGX)", "MoMo / Airtel Money checkout", "QR tickets & email delivery", "Gate scanner & attendance reports"],
+  },
 ];
+
 
 export default function Services() {
   return (

@@ -21,14 +21,13 @@ const services = [
   { to: "/services#web-design", label: "Website Design" },
   { to: "/services#social-media", label: "Social Media Handling" },
   { to: "/services#production", label: "Production & Live Streaming" },
+  { to: "/services#ticketing", label: "Event Ticketing" },
 ];
 
 const inlineLinks = [
-  { to: "/residents", label: "Residents" },
-  { to: "/archive", label: "Projects" },
-  { to: "/events", label: "Events" },
   { to: "/about", label: "About" },
 ];
+
 
 export const Nav = () => {
   const [open, setOpen] = useState(false);
