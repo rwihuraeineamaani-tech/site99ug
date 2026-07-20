@@ -1,0 +1,10 @@
+GRANT SELECT ON public.events TO anon, authenticated;
+GRANT SELECT ON public.ticket_tiers TO anon, authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.events TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.ticket_tiers TO authenticated;
+GRANT SELECT ON public.orders TO authenticated;
+GRANT SELECT ON public.tickets TO authenticated;
+GRANT ALL ON public.events TO service_role;
+GRANT ALL ON public.ticket_tiers TO service_role;
+GRANT ALL ON public.orders TO service_role;
+GRANT ALL ON public.tickets TO service_role;
