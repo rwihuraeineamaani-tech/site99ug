@@ -30,7 +30,9 @@ export default function EventDetail() {
 
   useEffect(() => {
     (async () => {
-      const { data: e } = await supabase.from("events").select("*").eq("slug", slug).eq("published", true).maybeSingle();
+      const isUuid = !!slug && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+      const q = supabase.from("events").select("*").eq("published", true);
+      const { data: e } = await (isUuid ? q.eq("id", slug) : q.eq("slug", slug)).maybeSingle();
       setEvent(e as Event | null);
       if (e) {
         const { data: t } = await supabase.from("ticket_tiers").select("*").eq("event_id", (e as any).id).order("sort");
@@ -39,6 +41,7 @@ export default function EventDetail() {
       setLoading(false);
     })();
   }, [slug]);
+
 
   const total = useMemo(
     () => tiers.reduce((sum, t) => sum + (qty[t.id] || 0) * t.price_ugx, 0),
