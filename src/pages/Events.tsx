@@ -54,7 +54,7 @@ export default function Events() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
             >
-              <Link to={`/events/${e.slug}`} data-hover className="group block border border-border rounded-lg overflow-hidden hover:border-site-red transition-colors">
+              <Link to={`/events/${e.slug || e.id}`} data-hover className="group block border border-border rounded-lg overflow-hidden hover:border-site-red transition-colors">
                 {e.cover_url ? (
                   <div className="aspect-video overflow-hidden">
                     <img src={e.cover_url} alt={e.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
