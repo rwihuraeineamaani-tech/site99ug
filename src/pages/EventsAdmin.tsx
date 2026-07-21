@@ -155,12 +155,41 @@ export default function EventsAdmin() {
   const loadPending = async () => {
     const { data } = await supabase
       .from("orders")
-      .select("id, buyer_name, buyer_email, buyer_phone, amount_ugx, manual_tid, manual_provider, status, created_at, pesapal_merchant_reference, event_id, events(title)")
+      .select("id, buyer_name, buyer_email, buyer_phone, amount_ugx, manual_tid, manual_provider, status, created_at, pesapal_merchant_reference, event_id, deleted_at, events(title)")
       .eq("payment_method", "manual")
       .in("status", ["pending", "paid", "rejected"])
+      .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .limit(100);
     setPending(data || []);
+  };
+
+  const loadTrashed = async () => {
+    const { data } = await supabase
+      .from("orders")
+      .select("id, buyer_name, buyer_email, buyer_phone, amount_ugx, manual_tid, manual_provider, payment_method, status, created_at, deleted_at, pesapal_merchant_reference, event_id, events(title)")
+      .not("deleted_at", "is", null)
+      .order("deleted_at", { ascending: false })
+      .limit(200);
+    setTrashed(data || []);
+  };
+
+  const trashOrder = async (o: any) => {
+    if (!confirm(`Move this order to trash?\n\n${o.buyer_name} · UGX ${Number(o.amount_ugx || 0).toLocaleString()}\n\nTickets will stop working at the gate. You can restore it from the Trashed tab.`)) return;
+    const { error } = await supabase.from("orders").update({ deleted_at: new Date().toISOString() }).eq("id", o.id);
+    if (error) return toast.error(error.message);
+    toast.success("Order moved to trash");
+    loadPending();
+    if (tab === "buyers") runSearch();
+    if (tab === "trashed") loadTrashed();
+  };
+
+  const restoreOrder = async (o: any) => {
+    const { error } = await supabase.from("orders").update({ deleted_at: null }).eq("id", o.id);
+    if (error) return toast.error(error.message);
+    toast.success("Order restored");
+    loadTrashed();
+    loadPending();
   };
 
   const loadTiers = async (eventId: string) => {
