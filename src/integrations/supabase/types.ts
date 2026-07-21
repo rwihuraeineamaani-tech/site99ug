@@ -708,6 +708,23 @@ export type Database = {
     }
     Functions: {
       accept_resident_invite: { Args: never; Returns: boolean }
+      admin_search_orders: {
+        Args: { _event_id?: string; _limit?: number; _q: string }
+        Returns: {
+          amount_ugx: number
+          buyer_email: string
+          buyer_name: string
+          buyer_phone: string
+          created_at: string
+          event_id: string
+          event_title: string
+          order_id: string
+          payment_method: string
+          similarity: number
+          status: string
+          ticket_count: number
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -769,6 +786,13 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      tier_available_counts: {
+        Args: { _event_id: string }
+        Returns: {
+          available: number
+          tier_id: string
+        }[]
+      }
       tier_sold_count: { Args: { _tier_id: string }; Returns: number }
     }
     Enums: {
