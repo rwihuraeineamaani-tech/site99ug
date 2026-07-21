@@ -15,6 +15,7 @@ type Event = {
   starts_at: string;
   ends_at?: string | null;
   cover_url: string | null;
+  poster_url?: string | null;
   momo_number: string | null;
   airtel_number: string | null;
   policy: string | null;
