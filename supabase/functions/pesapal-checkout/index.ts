@@ -62,6 +62,7 @@ Deno.serve(async (req) => {
         buyer_name: buyer.name,
         buyer_email: buyer.email.toLowerCase(),
         buyer_phone: buyer.phone,
+        buyer_age: buyerAge || null,
         amount_ugx: total,
         pesapal_merchant_reference: merchantRef,
       })
