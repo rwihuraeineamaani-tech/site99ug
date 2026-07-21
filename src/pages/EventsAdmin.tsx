@@ -434,13 +434,6 @@ export default function EventsAdmin() {
                   <input key={k} placeholder={l} value={form[k] || ""} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="w-full bg-transparent border-b border-border py-2" />
                 ))}
                 <div className="border border-border rounded p-3 space-y-2">
-                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Cover image</label>
-                  <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCover(f); }} className="text-sm" />
-                  {form.cover_url && (
-                    <div className="flex items-center gap-3">
-                      <img src={form.cover_url} alt="cover" className="h-16 w-24 object-cover rounded" />
-                      <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Clear</button>
-                <div className="border border-border rounded p-3 space-y-2">
                   <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Poster (shown clean, no fade — prefer portrait)</label>
                   <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPoster(f); }} className="text-sm" />
                   {form.poster_url && (
@@ -452,7 +445,7 @@ export default function EventsAdmin() {
                   <input placeholder="…or paste an existing image URL" value={form.poster_url || ""} onChange={(e) => setForm({ ...form, poster_url: e.target.value })} className="w-full bg-transparent border-b border-border py-2 text-xs" />
                 </div>
                 <div className="border border-border rounded p-3 space-y-2">
-                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Cover image (atmospheric backdrop, used with fade if no poster)</label>
+                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Cover image (atmospheric backdrop with fade, used when no poster)</label>
                   <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCover(f); }} className="text-sm" />
                   {form.cover_url && (
                     <div className="flex items-center gap-3">
@@ -462,6 +455,13 @@ export default function EventsAdmin() {
                   )}
                   <input placeholder="…or paste an existing image URL" value={form.cover_url || ""} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} className="w-full bg-transparent border-b border-border py-2 text-xs" />
                 </div>
+                <textarea placeholder="Description" rows={3} value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full bg-transparent border border-border rounded p-3" />
+                <textarea placeholder="Policy (refunds, entry rules, dress code…)" rows={4} value={form.policy || ""} onChange={(e) => setForm({ ...form, policy: e.target.value })} className="w-full bg-transparent border border-border rounded p-3" />
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="text-xs">Starts<input type="datetime-local" value={form.starts_at?.slice(0, 16) || ""} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
+                  <label className="text-xs">Ends<input type="datetime-local" value={form.ends_at?.slice(0, 16) || ""} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
+                </div>
+
 
                 <div className="grid grid-cols-2 gap-3">
                   <label className="text-xs">MoMo merchant #<input placeholder="e.g. 0772 000 000" value={form.momo_number || ""} onChange={(e) => setForm({ ...form, momo_number: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
