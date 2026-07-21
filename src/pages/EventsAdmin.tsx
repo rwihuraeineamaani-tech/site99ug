@@ -253,9 +253,55 @@ export default function EventsAdmin() {
   };
 
   const delTier = async (id: string) => {
+    if (!confirm("Remove this tier?")) return;
     await supabase.from("ticket_tiers").delete().eq("id", id);
     if (tierEventId) loadTiers(tierEventId);
   };
+
+  const startEditTier = (t: any) => {
+    setEditingTierId(t.id);
+    setTierEdit({
+      name: t.name || "",
+      price_ugx: t.price_ugx || 0,
+      capacity: t.capacity || 0,
+      sales_start_at: t.sales_start_at ? new Date(t.sales_start_at).toISOString().slice(0, 16) : "",
+      sales_end_at: t.sales_end_at ? new Date(t.sales_end_at).toISOString().slice(0, 16) : "",
+    });
+  };
+
+  const saveTier = async () => {
+    if (!editingTierId) return;
+    const { error } = await supabase.from("ticket_tiers").update({
+      name: tierEdit.name,
+      price_ugx: Number(tierEdit.price_ugx),
+      capacity: Number(tierEdit.capacity),
+      sales_start_at: tierEdit.sales_start_at || null,
+      sales_end_at: tierEdit.sales_end_at || null,
+    }).eq("id", editingTierId);
+    if (error) return toast.error(error.message);
+    toast.success("Tier updated");
+    setEditingTierId(null);
+    if (tierEventId) loadTiers(tierEventId);
+  };
+
+  const moveTier = async (id: string, dir: -1 | 1) => {
+    const idx = tiers.findIndex((t) => t.id === id);
+    const swap = idx + dir;
+    if (idx < 0 || swap < 0 || swap >= tiers.length) return;
+    const a = tiers[idx], b = tiers[swap];
+    // Optimistic update
+    const next = [...tiers];
+    next[idx] = b; next[swap] = a;
+    setTiers(next);
+    const { error } = await supabase.from("ticket_tiers").upsert([
+      { id: a.id, sort: swap },
+      { id: b.id, sort: idx },
+    ]);
+    if (error) { toast.error(error.message); if (tierEventId) loadTiers(tierEventId); return; }
+    if (tierEventId) loadTiers(tierEventId);
+  };
+
+
 
   const confirmOrder = async (o: any) => {
     if (!confirm(`Confirm payment of UGX ${o.amount_ugx.toLocaleString()} from ${o.buyer_name} (TID ${o.manual_tid})?\n\nTickets will be generated and emailed to ${o.buyer_email}.`)) return;
