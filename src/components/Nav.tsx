@@ -9,7 +9,8 @@ const links = [
   { to: "/services", label: "Services", n: "04" },
   { to: "/about", label: "About", n: "05" },
   { to: "/philosophy", label: "Philosophy", n: "06" },
-  { to: "/access", label: "Access", n: "07" },
+  { to: "/events", label: "Events", n: "07" },
+  { to: "/access", label: "Access", n: "08" },
 ];
 
 const services = [
@@ -25,8 +26,10 @@ const services = [
 ];
 
 const inlineLinks = [
+  { to: "/events", label: "Events" },
   { to: "/about", label: "About" },
 ];
+
 
 
 export const Nav = () => {
