@@ -45,7 +45,7 @@ const empty: any = {
 
 const emptyTier = { name: "", price_ugx: 0, capacity: 100, sales_start_at: "", sales_end_at: "" };
 
-type AdminTab = "dashboard" | "manager" | "buyers";
+type AdminTab = "dashboard" | "manager" | "buyers" | "trashed";
 
 export default function EventsAdmin() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
