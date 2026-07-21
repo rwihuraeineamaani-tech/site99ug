@@ -233,11 +233,26 @@ export default function EventDetail() {
 
             <div className="mt-10">
               {tab === "about" && (
-                <div className="max-w-3xl">
+                <div className="max-w-3xl space-y-8">
                   {event.description ? (
                     <p className="whitespace-pre-line text-lg leading-relaxed">{event.description}</p>
                   ) : (
                     <p className="mono text-xs text-muted-foreground">No description yet.</p>
+                  )}
+                  {(event as any).organizer_name && (
+                    <div className="border-t border-border pt-6">
+                      <p className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Organized by</p>
+                      <p className="display text-2xl mt-2">{(event as any).organizer_name}</p>
+                      {Array.isArray((event as any).organizer_socials) && (event as any).organizer_socials.length > 0 && (
+                        <div className="flex flex-wrap gap-3 mt-3">
+                          {(event as any).organizer_socials.map((s: any, i: number) => (
+                            <a key={i} href={s.url} target="_blank" rel="noreferrer" className="mono text-xs uppercase tracking-[0.2em] border border-border rounded-full px-3 py-1 hover:border-site-red hover:text-site-red" data-hover>
+                              {s.label || s.url}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
