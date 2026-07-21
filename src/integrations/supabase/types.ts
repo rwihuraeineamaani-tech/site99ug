@@ -205,14 +205,19 @@ export type Database = {
       }
       events: {
         Row: {
+          age_limit: number | null
           airtel_number: string | null
           cover_url: string | null
           created_at: string
           created_by: string | null
           description: string | null
           ends_at: string | null
+          gallery: string[]
           id: string
+          manual_enabled: boolean
           momo_number: string | null
+          pesapal_enabled: boolean
+          policy: string | null
           published: boolean
           slug: string
           starts_at: string
@@ -221,14 +226,19 @@ export type Database = {
           venue: string | null
         }
         Insert: {
+          age_limit?: number | null
           airtel_number?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           ends_at?: string | null
+          gallery?: string[]
           id?: string
+          manual_enabled?: boolean
           momo_number?: string | null
+          pesapal_enabled?: boolean
+          policy?: string | null
           published?: boolean
           slug: string
           starts_at: string
@@ -237,14 +247,19 @@ export type Database = {
           venue?: string | null
         }
         Update: {
+          age_limit?: number | null
           airtel_number?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           ends_at?: string | null
+          gallery?: string[]
           id?: string
+          manual_enabled?: boolean
           momo_number?: string | null
+          pesapal_enabled?: boolean
+          policy?: string | null
           published?: boolean
           slug?: string
           starts_at?: string
@@ -300,6 +315,7 @@ export type Database = {
         Row: {
           admin_notes: string | null
           amount_ugx: number
+          buyer_age: number | null
           buyer_email: string
           buyer_name: string
           buyer_phone: string
@@ -320,6 +336,7 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           amount_ugx: number
+          buyer_age?: number | null
           buyer_email: string
           buyer_name: string
           buyer_phone: string
@@ -340,6 +357,7 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           amount_ugx?: number
+          buyer_age?: number | null
           buyer_email?: string
           buyer_name?: string
           buyer_phone?: string
@@ -749,6 +767,8 @@ export type Database = {
           read_ct: number
         }[]
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       tier_sold_count: { Args: { _tier_id: string }; Returns: number }
     }
     Enums: {
