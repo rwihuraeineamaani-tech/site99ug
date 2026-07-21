@@ -98,6 +98,34 @@ export default function EventsAdmin() {
     }
   };
 
+  const uploadTemplatePdf = async (file: File) => {
+    if (file.type !== "application/pdf") return toast.error("PDF only");
+    setUploading(true);
+    try {
+      const path = `templates/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.pdf`;
+      const { error } = await supabase.storage.from("ticket-templates").upload(path, file, { contentType: "application/pdf", upsert: false });
+      if (error) throw error;
+      setForm((f: any) => ({ ...f, ticket_template_url: path }));
+      toast.success("Template uploaded");
+    } catch (e: any) {
+      toast.error(e.message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const sendTickets = async (orderId: string) => {
+    const t = toast.loading("Generating & sending tickets…");
+    const { data, error } = await supabase.functions.invoke("send-ticket-email", { body: { orderId } });
+    toast.dismiss(t);
+    if (error || !data?.ok) {
+      const details = (data as any)?.error || (error as any)?.message || "Send failed";
+      return toast.error(details);
+    }
+    toast.success(`Sent ${data.count} ticket(s) to ${data.sent_to}`);
+    loadPending();
+  };
+
   useEffect(() => {
     (async () => {
       const { data: s } = await supabase.auth.getUser();
