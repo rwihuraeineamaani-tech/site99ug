@@ -341,6 +341,7 @@ export type Database = {
           buyer_name: string
           buyer_phone: string
           created_at: string
+          deleted_at: string | null
           event_id: string
           id: string
           manual_confirmed_at: string | null
@@ -363,6 +364,7 @@ export type Database = {
           buyer_name: string
           buyer_phone: string
           created_at?: string
+          deleted_at?: string | null
           event_id: string
           id?: string
           manual_confirmed_at?: string | null
@@ -385,6 +387,7 @@ export type Database = {
           buyer_name?: string
           buyer_phone?: string
           created_at?: string
+          deleted_at?: string | null
           event_id?: string
           id?: string
           manual_confirmed_at?: string | null
@@ -738,23 +741,47 @@ export type Database = {
     }
     Functions: {
       accept_resident_invite: { Args: never; Returns: boolean }
-      admin_search_orders: {
-        Args: { _event_id?: string; _limit?: number; _q: string }
-        Returns: {
-          amount_ugx: number
-          buyer_email: string
-          buyer_name: string
-          buyer_phone: string
-          created_at: string
-          event_id: string
-          event_title: string
-          order_id: string
-          payment_method: string
-          similarity: number
-          status: string
-          ticket_count: number
-        }[]
-      }
+      admin_search_orders:
+        | {
+            Args: { _event_id?: string; _limit?: number; _q: string }
+            Returns: {
+              amount_ugx: number
+              buyer_email: string
+              buyer_name: string
+              buyer_phone: string
+              created_at: string
+              event_id: string
+              event_title: string
+              order_id: string
+              payment_method: string
+              similarity: number
+              status: string
+              ticket_count: number
+            }[]
+          }
+        | {
+            Args: {
+              _event_id?: string
+              _include_trashed?: boolean
+              _limit?: number
+              _q: string
+            }
+            Returns: {
+              amount_ugx: number
+              buyer_email: string
+              buyer_name: string
+              buyer_phone: string
+              created_at: string
+              deleted_at: string
+              event_id: string
+              event_title: string
+              order_id: string
+              payment_method: string
+              similarity: number
+              status: string
+              ticket_count: number
+            }[]
+          }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
