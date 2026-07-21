@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     const {
       eventId,
       items, // [{ tierId, quantity, holderName? }]
-      buyer, // { name, email, phone }
+      buyer, // { name, email, phone, age }
       returnUrl,
       ipnUrl,
     } = await req.json();
@@ -23,8 +23,13 @@ Deno.serve(async (req) => {
     const sb = createClient(SUPABASE_URL, SERVICE_KEY);
 
     // Load event + tiers
-    const { data: event, error: eErr } = await sb.from("events").select("id,title,published").eq("id", eventId).single();
+    const { data: event, error: eErr } = await sb.from("events").select("id,title,published,age_limit,pesapal_enabled").eq("id", eventId).single();
     if (eErr || !event || !event.published) return json({ error: "Event unavailable" }, 404);
+    if (event.pesapal_enabled === false) return json({ error: "Pesapal is temporarily closed for this event. Please use another payment method." }, 400);
+    const buyerAge = Number(buyer.age);
+    if (event.age_limit && (!buyerAge || buyerAge < event.age_limit)) {
+      return json({ error: `This event is restricted to ${event.age_limit}+. Age does not meet the limit.` }, 400);
+    }
 
     const tierIds = items.map((i: any) => i.tierId);
     const { data: tiers, error: tErr } = await sb.from("ticket_tiers").select("*").in("id", tierIds).eq("event_id", eventId);
@@ -57,6 +62,7 @@ Deno.serve(async (req) => {
         buyer_name: buyer.name,
         buyer_email: buyer.email.toLowerCase(),
         buyer_phone: buyer.phone,
+        buyer_age: buyerAge || null,
         amount_ugx: total,
         pesapal_merchant_reference: merchantRef,
       })
