@@ -13,6 +13,8 @@ type Event = {
   venue: string | null;
   starts_at: string;
   cover_url: string | null;
+  momo_number: string | null;
+  airtel_number: string | null;
 };
 
 type Tier = {
