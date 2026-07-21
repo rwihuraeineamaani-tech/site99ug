@@ -440,6 +440,7 @@ export default function EventsAdmin() {
                             {o.status === "paid" && (
                               <button onClick={() => sendTickets(o.id)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Resend tickets</button>
                             )}
+                            <button onClick={() => trashOrder(o)} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>
                           </div>
                         </td>
                       </tr>
