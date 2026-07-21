@@ -104,7 +104,7 @@ export default function EventDetail() {
       const isUuid = !!slug && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
       const q = supabase.from("events").select("*").eq("published", true);
       const { data: e } = await (isUuid ? q.eq("id", slug) : q.eq("slug", slug)).maybeSingle();
-      setEvent(e as Event | null);
+      setEvent(e as unknown as Event | null);
       if (e) {
         const eid = (e as any).id as string;
         const { data: t } = await supabase.from("ticket_tiers").select("*").eq("event_id", eid).order("sort");
