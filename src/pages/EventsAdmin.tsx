@@ -57,6 +57,8 @@ export default function EventsAdmin() {
   const [tierEventId, setTierEventId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<any[]>([]);
   const [tierForm, setTierForm] = useState<any>(emptyTier);
+  const [editingTierId, setEditingTierId] = useState<string | null>(null);
+  const [tierEdit, setTierEdit] = useState<any>(emptyTier);
   const [uploading, setUploading] = useState(false);
   const [pending, setPending] = useState<any[]>([]);
   const [trashed, setTrashed] = useState<any[]>([]);
@@ -251,9 +253,56 @@ export default function EventsAdmin() {
   };
 
   const delTier = async (id: string) => {
+    if (!confirm("Remove this tier?")) return;
     await supabase.from("ticket_tiers").delete().eq("id", id);
     if (tierEventId) loadTiers(tierEventId);
   };
+
+  const startEditTier = (t: any) => {
+    setEditingTierId(t.id);
+    setTierEdit({
+      name: t.name || "",
+      price_ugx: t.price_ugx || 0,
+      capacity: t.capacity || 0,
+      sales_start_at: t.sales_start_at ? new Date(t.sales_start_at).toISOString().slice(0, 16) : "",
+      sales_end_at: t.sales_end_at ? new Date(t.sales_end_at).toISOString().slice(0, 16) : "",
+    });
+  };
+
+  const saveTier = async () => {
+    if (!editingTierId) return;
+    const { error } = await supabase.from("ticket_tiers").update({
+      name: tierEdit.name,
+      price_ugx: Number(tierEdit.price_ugx),
+      capacity: Number(tierEdit.capacity),
+      sales_start_at: tierEdit.sales_start_at || null,
+      sales_end_at: tierEdit.sales_end_at || null,
+    }).eq("id", editingTierId);
+    if (error) return toast.error(error.message);
+    toast.success("Tier updated");
+    setEditingTierId(null);
+    if (tierEventId) loadTiers(tierEventId);
+  };
+
+  const moveTier = async (id: string, dir: -1 | 1) => {
+    const idx = tiers.findIndex((t) => t.id === id);
+    const swap = idx + dir;
+    if (idx < 0 || swap < 0 || swap >= tiers.length) return;
+    const a = tiers[idx], b = tiers[swap];
+    // Optimistic update
+    const next = [...tiers];
+    next[idx] = b; next[swap] = a;
+    setTiers(next);
+    const [r1, r2] = await Promise.all([
+      supabase.from("ticket_tiers").update({ sort: swap }).eq("id", a.id),
+      supabase.from("ticket_tiers").update({ sort: idx }).eq("id", b.id),
+    ]);
+    const error = r1.error || r2.error;
+    if (error) { toast.error(error.message); if (tierEventId) loadTiers(tierEventId); return; }
+    if (tierEventId) loadTiers(tierEventId);
+  };
+
+
 
   const confirmOrder = async (o: any) => {
     if (!confirm(`Confirm payment of UGX ${o.amount_ugx.toLocaleString()} from ${o.buyer_name} (TID ${o.manual_tid})?\n\nTickets will be generated and emailed to ${o.buyer_email}.`)) return;
@@ -611,17 +660,43 @@ export default function EventsAdmin() {
                     {tierEventId === e.id && (
                       <div className="mt-4 border-t border-border pt-4">
                         <div className="mono text-xs uppercase tracking-[0.2em] mb-2">Ticket tiers</div>
-                        {tiers.map((t) => (
-                          <div key={t.id} className="flex justify-between items-start text-sm py-2 border-b border-border/50 last:border-b-0">
-                            <div>
-                              <div>{t.name} — UGX {t.price_ugx.toLocaleString()} × {t.capacity}</div>
-                              <div className="mono text-[10px] text-muted-foreground">
-                                {t.sales_start_at ? `From ${new Date(t.sales_start_at).toLocaleString()}` : "No start"} · {t.sales_end_at ? `Until ${new Date(t.sales_end_at).toLocaleString()}` : "No end"}
+                        {tiers.map((t, i) => (
+                          <div key={t.id} className="text-sm py-2 border-b border-border/50 last:border-b-0">
+                            {editingTierId === t.id ? (
+                              <div className="space-y-2">
+                                <div className="grid grid-cols-3 gap-2">
+                                  <input placeholder="Tier name" value={tierEdit.name} onChange={(ev) => setTierEdit({ ...tierEdit, name: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
+                                  <input type="number" placeholder="UGX" value={tierEdit.price_ugx} onChange={(ev) => setTierEdit({ ...tierEdit, price_ugx: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
+                                  <input type="number" placeholder="Capacity" value={tierEdit.capacity} onChange={(ev) => setTierEdit({ ...tierEdit, capacity: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <label className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Sales open<input type="datetime-local" value={tierEdit.sales_start_at} onChange={(ev) => setTierEdit({ ...tierEdit, sales_start_at: ev.target.value })} className="w-full bg-transparent border-b border-border py-1 text-sm" /></label>
+                                  <label className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Sales close<input type="datetime-local" value={tierEdit.sales_end_at} onChange={(ev) => setTierEdit({ ...tierEdit, sales_end_at: ev.target.value })} className="w-full bg-transparent border-b border-border py-1 text-sm" /></label>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button onClick={saveTier} className="mono text-[10px] uppercase tracking-[0.2em] border border-site-red px-3 py-1 rounded" data-hover>Save</button>
+                                  <button onClick={() => setEditingTierId(null)} className="mono text-[10px] uppercase tracking-[0.2em] border border-border px-3 py-1 rounded" data-hover>Cancel</button>
+                                </div>
                               </div>
-                            </div>
-                            <button onClick={() => delTier(t.id)} className="text-site-red mono text-[10px]" data-hover>remove</button>
+                            ) : (
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex-1">
+                                  <div>{t.name} — UGX {t.price_ugx.toLocaleString()} × {t.capacity}</div>
+                                  <div className="mono text-[10px] text-muted-foreground">
+                                    {t.sales_start_at ? `From ${new Date(t.sales_start_at).toLocaleString()}` : "No start"} · {t.sales_end_at ? `Until ${new Date(t.sales_end_at).toLocaleString()}` : "No end"}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 mono text-[10px]">
+                                  <button onClick={() => moveTier(t.id, -1)} disabled={i === 0} className="px-2 py-1 border border-border rounded disabled:opacity-30" data-hover title="Move up">↑</button>
+                                  <button onClick={() => moveTier(t.id, 1)} disabled={i === tiers.length - 1} className="px-2 py-1 border border-border rounded disabled:opacity-30" data-hover title="Move down">↓</button>
+                                  <button onClick={() => startEditTier(t)} className="px-2 py-1 border border-border rounded uppercase tracking-[0.2em]" data-hover>Edit</button>
+                                  <button onClick={() => delTier(t.id)} className="px-2 py-1 border border-site-red text-site-red rounded uppercase tracking-[0.2em]" data-hover>Remove</button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         ))}
+
                         <div className="mt-3 space-y-2">
                           <div className="grid grid-cols-3 gap-2">
                             <input placeholder="Tier name" value={tierForm.name} onChange={(ev) => setTierForm({ ...tierForm, name: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
