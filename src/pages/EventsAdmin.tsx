@@ -59,6 +59,7 @@ export default function EventsAdmin() {
   const [tierForm, setTierForm] = useState<any>(emptyTier);
   const [uploading, setUploading] = useState(false);
   const [pending, setPending] = useState<any[]>([]);
+  const [trashed, setTrashed] = useState<any[]>([]);
 
   // Buyers search
   const [query, setQuery] = useState("");
