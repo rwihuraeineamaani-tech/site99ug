@@ -158,9 +158,10 @@ Deno.serve(async (req) => {
     const subject = `Your ticket${tickets.length > 1 ? "s" : ""} — ${event.title}`;
     const socials = Array.isArray(event.organizer_socials) ? (event.organizer_socials as any[]) : [];
 
+    const whenText = new Date(event.starts_at).toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" });
     const html = renderHtml({
       title: event.title,
-      whenText: new Date(event.starts_at).toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" }),
+      whenText,
       venue: event.venue || "",
       buyerName: order.buyer_name,
       links,
@@ -168,6 +169,21 @@ Deno.serve(async (req) => {
       socials,
       fromEmail,
     });
+
+    const text = [
+      `Your ticket is confirmed — ${event.title}`,
+      `${whenText}${event.venue ? " · " + event.venue : ""}`,
+      ``,
+      `Hi ${order.buyer_name}, thanks for your purchase.`,
+      `Your ${links.length > 1 ? links.length + " tickets are" : "ticket is"} available below (PDF). Show the QR at the gate.`,
+      ``,
+      ...links.map((l, i) => `Ticket ${i + 1} — ${l.name} · ${l.holder}\n${l.url}`),
+      ``,
+      `Links stay active for 60 days. Save the PDF to your phone before the event.`,
+      socials.length ? `\nFollow ${event.organizer_name || "the organizer"}: ${socials.map((s) => `${s.label} ${s.url}`).join(" · ")}` : ``,
+      ``,
+      `No-reply notice from ${fromEmail}. For help: office@site99ug.com`,
+    ].join("\n");
 
     const messageId = `ticket-${order.id}`;
     const { error: enqErr } = await sb.rpc("enqueue_email", {
@@ -178,6 +194,7 @@ Deno.serve(async (req) => {
         sender_domain: SENDER_DOMAIN,
         subject,
         html,
+        text,
         purpose: "transactional",
         label: "ticket-delivery",
         message_id: messageId,
