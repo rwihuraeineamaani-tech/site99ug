@@ -1,60 +1,63 @@
-## 1. Nav bar — only Services and About
+## Goals
 
-In `src/components/Nav.tsx`, replace the `inlineLinks` array (currently Residents, Projects, Events, About) with just:
+1. Surface **Events** in navigation.
+2. Make the **Policies** entry always visible on the buyer page (and clearer in admin).
+3. Redesign the **Event detail page** into a world-class ticketing experience.
 
-- Services (existing hover dropdown, stays on the left)
-- About (right)
+---
 
-Residents, Projects, and Events remain reachable from the burger overlay menu and from the Services dropdown, so nothing becomes orphaned.
+## 1. Navigation
 
-## 2. Add "Ticketing" as a service
+**`src/components/Nav.tsx`**
+- Add `{ to: "/events", label: "Events", n: "08" }` to the fullscreen menu `links` array (renumber Access to 09).
+- Add `Events` to the desktop inline `inlineLinks` (before About) so the top nav reads: `Services ▾ · Events · About`.
 
-Two edits:
+## 2. Policy visibility
 
-- `src/components/Nav.tsx` — add `{ to: "/services#ticketing", label: "Event Ticketing" }` to the `services` dropdown array.
-- `src/pages/Services.tsx` — add a new section with `id="ticketing"` describing event ticketing (MoMo + Airtel Money via Pesapal, QR check-in, tier pricing, scanner for gate). End with a CTA button linking to `/events` (public directory) and a note that admins manage events at `/admin/events`.
+**`src/pages/EventDetail.tsx`**
+- Make the **Policies tab always visible**; when empty, show a friendly placeholder ("Standard Site 99 event terms apply. No refunds after gate open.") instead of hiding the tab.
+- Include a small "Policies" quick-link chip near the header CTA row so buyers see it before scrolling tabs.
 
-## 3. Fix Events admin image upload
+**`src/pages/EventsAdmin.tsx`**
+- The policy textarea exists but is buried in the form. Wrap event-form inputs into labelled sections (Details / Payments / Policies / Organizer / Template / Gallery) with clear headers so the Policy field is discoverable.
 
-Currently `src/pages/EventsAdmin.tsx` only has a text field for `cover_url`. Mirror the pattern already working in `src/pages/Admin.tsx`:
+## 3. World-class Event detail redesign
 
-- Add an `uploadFile` helper that uploads to the existing public `project-images` bucket under an `events/` prefix and returns the public URL.
-- Replace the "Cover image URL" text input with a file picker (`<input type="file" accept="image/*">`) that uploads on change, sets `form.cover_url`, shows a small preview, and offers a Clear button. Keep a fallback URL field for pasting an existing link.
-- Add `uploading` state to disable Save while an upload is in flight and toast success/error.
+Full restructure of `src/pages/EventDetail.tsx`:
 
-No schema or bucket changes needed — `project-images` is already public and the admin has write access.
+**Hero**
+- Full-bleed cover with gradient overlay, title in oversized display type, date/venue/age chips floating over the image.
+- Sticky "Get tickets" CTA that scrolls to the tickets tab; on mobile it becomes a bottom bar with live total.
 
-## 4. Payment checkout & confirmation — options overview
+**Info strip** (below hero)
+- 4-column meta row: Date · Doors · Venue · Age policy — using icons and mono labels.
+- Share buttons (copy link, WhatsApp, X) and "Add to calendar" (.ics download generated client-side).
 
-You asked what other checkout/confirmation methods exist. Today the site uses **Pesapal hosted checkout + IPN callback**. Here's the landscape, no code changes in this plan — pick one and we'll wire it as a follow-up:
+**Tabs** (About / Tickets / Policies / Gallery)
+- Tabs become sticky under the header when scrolled.
+- Policies always shown.
+- Gallery upgraded to a masonry grid with lightbox (reuse existing `ProjectLightbox` pattern).
 
-**Checkout entry points (how the buyer pays)**
-- Pesapal hosted page (current) — buyer is redirected to Pesapal, picks MoMo / Airtel / card, comes back. Zero PCI scope.
-- Pesapal Express / Direct API — keep the buyer on our site; we render our own MoMo/Airtel form and call Pesapal server-side. More design control, more edge cases.
-- Flutterwave Standard — alternative aggregator, same MoMo/Airtel/card mix, slightly different fee card.
-- Direct MTN MoMo Collections API + Airtel Money Collections API — no aggregator, lower fees, but you manage two integrations and settlement per telco.
+**Tickets tab**
+- Two-column: left = tier cards, right = sticky order summary card (running subtotal, fees note, buyer form, payment method toggle, checkout button).
+- Tier cards get: tier name, price, "X left" progress bar, on-sale window, sold-out state, quantity stepper with shake feedback (kept).
+- Payment method segmented control shows disabled state with "Closed" label when a method is off.
+- Success state (manual TID submitted) shown as a full-width confirmation card with next-step guidance.
 
-**Confirmation methods (how we know it's paid)**
-- IPN webhook (current) — Pesapal POSTs to `pesapal-ipn` when status changes. Requires the endpoint to be publicly reachable (it is).
-- Return-URL poll — on the thank-you page, call `GetTransactionStatus` ourselves. Good as a **belt-and-braces backup** to IPN so a delayed webhook doesn't leave an order "pending" for the buyer.
-- Scheduled reconciliation — a cron edge function that sweeps `orders` in `pending` older than N minutes and asks the provider for status. Catches missed IPNs.
-- Manual admin action — an admin button in `/admin/events` to force-check an order or mark it paid.
+**Organizer block**
+- Moved into About tab as a distinct card with avatar-style initial, name, and social chips.
 
-**Buyer notifications (separate from confirmation)**
-- Email receipt + ticket QR via the existing email queue on successful payment.
-- SMS via Africa's Talking / Twilio to the buyer's phone number.
-- WhatsApp Business template message with the QR link.
+**Trust footer**
+- Small row: "Secured checkout · MoMo & Airtel · QR ticket by email · Support office@site99ug.com".
 
-Recommendation to discuss next turn: keep Pesapal hosted checkout, and add (a) return-URL status poll on the thank-you page and (b) a nightly reconciliation cron. That closes the "stuck pending" gap without changing the payment surface.
+**Motion & polish**
+- Framer-motion fade-up on sections.
+- Consistent `rounded-lg`, `border-border`, semantic tokens only (no hardcoded colors).
+- Mobile: single column, sticky bottom CTA, tabs horizontally scrollable (already are).
 
-## Out of scope for this plan
+---
 
-- PDF uploads (you said leave it for now).
-- Any change to the Projects admin uploader (it's working).
-- Building the payment options above — this plan only lists them.
-
-## Technical notes
-
-- Nav change is a one-array edit; the burger overlay `links` array stays untouched so nothing is unreachable.
-- Events cover upload reuses the existing `project-images` bucket + its public RLS; no migration required.
-- Services page section IDs are already anchor targets, so `/services#ticketing` will scroll correctly.
+## Out of scope
+- No schema changes.
+- No changes to edge functions or checkout logic — only presentation and buyer UX.
+- Admin form gets grouping/labels only, no new fields.
