@@ -392,12 +392,17 @@ export default function EventsAdmin() {
                         <td className="pr-4 mono">UGX {o.amount_ugx.toLocaleString()}</td>
                         <td className="pr-4 mono text-[10px] uppercase tracking-[0.2em]">{o.status}</td>
                         <td className="text-right">
-                          {o.status === "pending" && (
-                            <div className="flex gap-2 justify-end">
-                              <button onClick={() => confirmOrder(o)} className="bg-site-red text-site-white px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Confirm</button>
-                              <button onClick={() => rejectOrder(o)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Reject</button>
-                            </div>
-                          )}
+                          <div className="flex gap-2 justify-end flex-wrap">
+                            {o.status === "pending" && (
+                              <>
+                                <button onClick={() => confirmOrder(o)} className="bg-site-red text-site-white px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Confirm & Email</button>
+                                <button onClick={() => rejectOrder(o)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Reject</button>
+                              </>
+                            )}
+                            {o.status === "paid" && (
+                              <button onClick={() => sendTickets(o.id)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Resend tickets</button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
