@@ -5,6 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
+const DEFAULT_TEMPLATE_FIELDS = {
+  fields: [
+    { type: "text", key: "event_title", x: 40, y: 300, size: 22 },
+    { type: "text", key: "tier_name", x: 40, y: 270, size: 14, color: "#c1272d" },
+    { type: "text", key: "holder_name", x: 40, y: 235, size: 16 },
+    { type: "text", key: "starts_at", x: 40, y: 205, size: 11 },
+    { type: "text", key: "venue", x: 40, y: 185, size: 11 },
+    { type: "text", key: "order_ref", x: 40, y: 155, size: 9, color: "#666666" },
+    { type: "text", key: "ticket_id", x: 40, y: 140, size: 9, color: "#666666" },
+    { type: "qr", x: 420, y: 130, size: 170 },
+  ],
+};
+
 const empty: any = {
   slug: "",
   title: "",
@@ -20,6 +33,12 @@ const empty: any = {
   pesapal_enabled: true,
   manual_enabled: true,
   gallery: [] as string[],
+  organizer_name: "",
+  organizer_socials: [] as { label: string; url: string }[],
+  ticket_template_url: "",
+  ticket_template_fields: DEFAULT_TEMPLATE_FIELDS,
+  sender_from_name: "Site 99 Tickets",
+  sender_from_email: "office@site99ug.com",
   published: false,
 };
 
