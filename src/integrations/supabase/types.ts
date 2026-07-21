@@ -216,11 +216,17 @@ export type Database = {
           id: string
           manual_enabled: boolean
           momo_number: string | null
+          organizer_name: string | null
+          organizer_socials: Json
           pesapal_enabled: boolean
           policy: string | null
           published: boolean
+          sender_from_email: string
+          sender_from_name: string
           slug: string
           starts_at: string
+          ticket_template_fields: Json
+          ticket_template_url: string | null
           title: string
           updated_at: string
           venue: string | null
@@ -237,11 +243,17 @@ export type Database = {
           id?: string
           manual_enabled?: boolean
           momo_number?: string | null
+          organizer_name?: string | null
+          organizer_socials?: Json
           pesapal_enabled?: boolean
           policy?: string | null
           published?: boolean
+          sender_from_email?: string
+          sender_from_name?: string
           slug: string
           starts_at: string
+          ticket_template_fields?: Json
+          ticket_template_url?: string | null
           title: string
           updated_at?: string
           venue?: string | null
@@ -258,11 +270,17 @@ export type Database = {
           id?: string
           manual_enabled?: boolean
           momo_number?: string | null
+          organizer_name?: string | null
+          organizer_socials?: Json
           pesapal_enabled?: boolean
           policy?: string | null
           published?: boolean
+          sender_from_email?: string
+          sender_from_name?: string
           slug?: string
           starts_at?: string
+          ticket_template_fields?: Json
+          ticket_template_url?: string | null
           title?: string
           updated_at?: string
           venue?: string | null
@@ -331,6 +349,7 @@ export type Database = {
           pesapal_merchant_reference: string | null
           pesapal_tracking_id: string | null
           status: string
+          tickets_emailed_at: string | null
           updated_at: string
         }
         Insert: {
@@ -352,6 +371,7 @@ export type Database = {
           pesapal_merchant_reference?: string | null
           pesapal_tracking_id?: string | null
           status?: string
+          tickets_emailed_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -373,6 +393,7 @@ export type Database = {
           pesapal_merchant_reference?: string | null
           pesapal_tracking_id?: string | null
           status?: string
+          tickets_emailed_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -598,9 +619,11 @@ export type Database = {
       tickets: {
         Row: {
           created_at: string
+          emailed_at: string | null
           holder_name: string | null
           id: string
           order_id: string
+          pdf_url: string | null
           qr_token: string
           status: string
           tier_id: string
@@ -610,9 +633,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          emailed_at?: string | null
           holder_name?: string | null
           id?: string
           order_id: string
+          pdf_url?: string | null
           qr_token?: string
           status?: string
           tier_id: string
@@ -622,9 +647,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          emailed_at?: string | null
           holder_name?: string | null
           id?: string
           order_id?: string
+          pdf_url?: string | null
           qr_token?: string
           status?: string
           tier_id?: string

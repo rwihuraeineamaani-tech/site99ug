@@ -5,6 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
+const DEFAULT_TEMPLATE_FIELDS = {
+  fields: [
+    { type: "text", key: "event_title", x: 40, y: 300, size: 22 },
+    { type: "text", key: "tier_name", x: 40, y: 270, size: 14, color: "#c1272d" },
+    { type: "text", key: "holder_name", x: 40, y: 235, size: 16 },
+    { type: "text", key: "starts_at", x: 40, y: 205, size: 11 },
+    { type: "text", key: "venue", x: 40, y: 185, size: 11 },
+    { type: "text", key: "order_ref", x: 40, y: 155, size: 9, color: "#666666" },
+    { type: "text", key: "ticket_id", x: 40, y: 140, size: 9, color: "#666666" },
+    { type: "qr", x: 420, y: 130, size: 170 },
+  ],
+};
+
 const empty: any = {
   slug: "",
   title: "",
@@ -20,6 +33,12 @@ const empty: any = {
   pesapal_enabled: true,
   manual_enabled: true,
   gallery: [] as string[],
+  organizer_name: "",
+  organizer_socials: [] as { label: string; url: string }[],
+  ticket_template_url: "",
+  ticket_template_fields: DEFAULT_TEMPLATE_FIELDS,
+  sender_from_name: "Site 99 Tickets",
+  sender_from_email: "office@site99ug.com",
   published: false,
 };
 
@@ -79,6 +98,34 @@ export default function EventsAdmin() {
     }
   };
 
+  const uploadTemplatePdf = async (file: File) => {
+    if (file.type !== "application/pdf") return toast.error("PDF only");
+    setUploading(true);
+    try {
+      const path = `templates/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.pdf`;
+      const { error } = await supabase.storage.from("ticket-templates").upload(path, file, { contentType: "application/pdf", upsert: false });
+      if (error) throw error;
+      setForm((f: any) => ({ ...f, ticket_template_url: path }));
+      toast.success("Template uploaded");
+    } catch (e: any) {
+      toast.error(e.message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const sendTickets = async (orderId: string) => {
+    const t = toast.loading("Generating & sending tickets…");
+    const { data, error } = await supabase.functions.invoke("send-ticket-email", { body: { orderId } });
+    toast.dismiss(t);
+    if (error || !data?.ok) {
+      const details = (data as any)?.error || (error as any)?.message || "Send failed";
+      return toast.error(details);
+    }
+    toast.success(`Sent ${data.count} ticket(s) to ${data.sent_to}`);
+    loadPending();
+  };
+
   useEffect(() => {
     (async () => {
       const { data: s } = await supabase.auth.getUser();
@@ -121,6 +168,12 @@ export default function EventsAdmin() {
       age_limit: form.age_limit ? Number(form.age_limit) : null,
       policy: form.policy || null,
       gallery: form.gallery || [],
+      organizer_name: form.organizer_name || null,
+      organizer_socials: form.organizer_socials || [],
+      ticket_template_url: form.ticket_template_url || null,
+      ticket_template_fields: form.ticket_template_fields || DEFAULT_TEMPLATE_FIELDS,
+      sender_from_name: form.sender_from_name || "Site 99 Tickets",
+      sender_from_email: form.sender_from_email || "office@site99ug.com",
     };
     if (editingId) {
       const { error } = await supabase.from("events").update(payload).eq("id", editingId);
@@ -166,7 +219,7 @@ export default function EventsAdmin() {
   };
 
   const confirmOrder = async (o: any) => {
-    if (!confirm(`Confirm payment of UGX ${o.amount_ugx.toLocaleString()} from ${o.buyer_name} (TID ${o.manual_tid})?`)) return;
+    if (!confirm(`Confirm payment of UGX ${o.amount_ugx.toLocaleString()} from ${o.buyer_name} (TID ${o.manual_tid})?\n\nTickets will be generated and emailed to ${o.buyer_email}.`)) return;
     const { data: s } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("orders")
@@ -175,7 +228,7 @@ export default function EventsAdmin() {
     if (error) return toast.error(error.message);
     await supabase.from("tickets").update({ status: "valid" }).eq("order_id", o.id);
     toast.success("Confirmed — tickets are live");
-    loadPending();
+    await sendTickets(o.id);
   };
 
   const rejectOrder = async (o: any) => {
@@ -339,12 +392,17 @@ export default function EventsAdmin() {
                         <td className="pr-4 mono">UGX {o.amount_ugx.toLocaleString()}</td>
                         <td className="pr-4 mono text-[10px] uppercase tracking-[0.2em]">{o.status}</td>
                         <td className="text-right">
-                          {o.status === "pending" && (
-                            <div className="flex gap-2 justify-end">
-                              <button onClick={() => confirmOrder(o)} className="bg-site-red text-site-white px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Confirm</button>
-                              <button onClick={() => rejectOrder(o)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Reject</button>
-                            </div>
-                          )}
+                          <div className="flex gap-2 justify-end flex-wrap">
+                            {o.status === "pending" && (
+                              <>
+                                <button onClick={() => confirmOrder(o)} className="bg-site-red text-site-white px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Confirm & Email</button>
+                                <button onClick={() => rejectOrder(o)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Reject</button>
+                              </>
+                            )}
+                            {o.status === "paid" && (
+                              <button onClick={() => sendTickets(o.id)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Resend tickets</button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -423,6 +481,46 @@ export default function EventsAdmin() {
                   ) : (
                     <p className="mono text-[10px] text-muted-foreground">No gallery images yet.</p>
                   )}
+                </div>
+
+                <div className="border border-border rounded p-3 space-y-2">
+                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Organizer</label>
+                  <input placeholder="Organizer name" value={form.organizer_name || ""} onChange={(e) => setForm({ ...form, organizer_name: e.target.value })} className="w-full bg-transparent border-b border-border py-2" />
+                  <div className="space-y-2">
+                    {(form.organizer_socials || []).map((s: any, i: number) => (
+                      <div key={i} className="flex gap-2">
+                        <input placeholder="Label (Instagram)" value={s.label} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], label: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="flex-1 bg-transparent border-b border-border py-1 text-xs" />
+                        <input placeholder="https://…" value={s.url} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], url: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="flex-[2] bg-transparent border-b border-border py-1 text-xs" />
+                        <button type="button" onClick={() => setForm({ ...form, organizer_socials: form.organizer_socials.filter((_: any, j: number) => j !== i) })} className="mono text-[10px] text-site-red">×</button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => setForm({ ...form, organizer_socials: [...(form.organizer_socials || []), { label: "", url: "" }] })} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">+ add social</button>
+                  </div>
+                </div>
+
+                <div className="border border-border rounded p-3 space-y-2">
+                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Ticket PDF template</label>
+                  <input type="file" accept="application/pdf" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTemplatePdf(f); }} className="text-sm" />
+                  {form.ticket_template_url && (
+                    <div className="flex items-center gap-3">
+                      <span className="mono text-[10px] text-muted-foreground truncate flex-1">{form.ticket_template_url}</span>
+                      <button type="button" onClick={() => setForm({ ...form, ticket_template_url: "" })} className="mono text-[10px] uppercase text-site-red">Clear</button>
+                    </div>
+                  )}
+                  <p className="mono text-[10px] text-muted-foreground">Leave empty to use the default layout. Available field keys: event_title, tier_name, holder_name, starts_at, venue, order_ref, ticket_id, qr.</p>
+                  <textarea
+                    rows={8}
+                    value={JSON.stringify(form.ticket_template_fields || DEFAULT_TEMPLATE_FIELDS, null, 2)}
+                    onChange={(e) => {
+                      try { setForm({ ...form, ticket_template_fields: JSON.parse(e.target.value) }); } catch { /* ignore */ }
+                    }}
+                    className="w-full bg-transparent border border-border rounded p-2 font-mono text-[11px]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="text-xs">Sender name<input value={form.sender_from_name || ""} onChange={(e) => setForm({ ...form, sender_from_name: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
+                  <label className="text-xs">Sender email (no-reply)<input value={form.sender_from_email || ""} onChange={(e) => setForm({ ...form, sender_from_email: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
                 </div>
 
                 <label className="flex items-center gap-2 mono text-xs uppercase tracking-[0.2em]">
