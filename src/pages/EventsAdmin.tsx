@@ -26,6 +26,7 @@ const empty: any = {
   starts_at: "",
   ends_at: "",
   cover_url: "",
+  poster_url: "",
   momo_number: "",
   airtel_number: "",
   policy: "",
