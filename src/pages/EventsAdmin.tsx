@@ -57,6 +57,8 @@ export default function EventsAdmin() {
   const [tierEventId, setTierEventId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<any[]>([]);
   const [tierForm, setTierForm] = useState<any>(emptyTier);
+  const [editingTierId, setEditingTierId] = useState<string | null>(null);
+  const [tierEdit, setTierEdit] = useState<any>(emptyTier);
   const [uploading, setUploading] = useState(false);
   const [pending, setPending] = useState<any[]>([]);
   const [trashed, setTrashed] = useState<any[]>([]);
