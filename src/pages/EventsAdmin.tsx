@@ -371,15 +371,16 @@ export default function EventsAdmin() {
         </div>
 
         {/* Tabs */}
-        <div className="mt-8 border-b border-border flex gap-8">
+        <div className="mt-8 border-b border-border flex gap-8 flex-wrap">
           {([
             ["dashboard", "Dashboard"],
             ["manager", "Event Manager"],
             ["buyers", "Buyers Search"],
+            ["trashed", "Trashed"],
           ] as [AdminTab, string][]).map(([k, l]) => (
             <button
               key={k}
-              onClick={() => setTab(k)}
+              onClick={() => { setTab(k); if (k === "trashed") loadTrashed(); }}
               className={`pb-3 mono text-xs uppercase tracking-[0.3em] border-b-2 transition-colors ${tab === k ? "border-site-red text-site-red" : "border-transparent text-muted-foreground hover:text-foreground"}`}
               data-hover
             >
