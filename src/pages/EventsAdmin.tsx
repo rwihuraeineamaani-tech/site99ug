@@ -87,6 +87,12 @@ export default function EventsAdmin() {
     if (url) { setForm((f: any) => ({ ...f, cover_url: url })); toast.success("Cover uploaded"); }
   };
 
+  const uploadPoster = async (file: File) => {
+    const url = await uploadImage(file);
+    if (url) { setForm((f: any) => ({ ...f, poster_url: url })); toast.success("Poster uploaded"); }
+  };
+
+
   const uploadGallery = async (files: FileList) => {
     const urls: string[] = [];
     for (const f of Array.from(files)) {
