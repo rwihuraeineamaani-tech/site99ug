@@ -205,12 +205,14 @@ export type Database = {
       }
       events: {
         Row: {
+          airtel_number: string | null
           cover_url: string | null
           created_at: string
           created_by: string | null
           description: string | null
           ends_at: string | null
           id: string
+          momo_number: string | null
           published: boolean
           slug: string
           starts_at: string
@@ -219,12 +221,14 @@ export type Database = {
           venue: string | null
         }
         Insert: {
+          airtel_number?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           ends_at?: string | null
           id?: string
+          momo_number?: string | null
           published?: boolean
           slug: string
           starts_at: string
@@ -233,12 +237,14 @@ export type Database = {
           venue?: string | null
         }
         Update: {
+          airtel_number?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           ends_at?: string | null
           id?: string
+          momo_number?: string | null
           published?: boolean
           slug?: string
           starts_at?: string
@@ -292,6 +298,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          admin_notes: string | null
           amount_ugx: number
           buyer_email: string
           buyer_name: string
@@ -299,13 +306,19 @@ export type Database = {
           created_at: string
           event_id: string
           id: string
+          manual_confirmed_at: string | null
+          manual_confirmed_by: string | null
+          manual_provider: string | null
+          manual_tid: string | null
           paid_at: string | null
+          payment_method: string
           pesapal_merchant_reference: string | null
           pesapal_tracking_id: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          admin_notes?: string | null
           amount_ugx: number
           buyer_email: string
           buyer_name: string
@@ -313,13 +326,19 @@ export type Database = {
           created_at?: string
           event_id: string
           id?: string
+          manual_confirmed_at?: string | null
+          manual_confirmed_by?: string | null
+          manual_provider?: string | null
+          manual_tid?: string | null
           paid_at?: string | null
+          payment_method?: string
           pesapal_merchant_reference?: string | null
           pesapal_tracking_id?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          admin_notes?: string | null
           amount_ugx?: number
           buyer_email?: string
           buyer_name?: string
@@ -327,7 +346,12 @@ export type Database = {
           created_at?: string
           event_id?: string
           id?: string
+          manual_confirmed_at?: string | null
+          manual_confirmed_by?: string | null
+          manual_provider?: string | null
+          manual_tid?: string | null
           paid_at?: string | null
+          payment_method?: string
           pesapal_merchant_reference?: string | null
           pesapal_tracking_id?: string | null
           status?: string
@@ -514,6 +538,8 @@ export type Database = {
           id: string
           name: string
           price_ugx: number
+          sales_end_at: string | null
+          sales_start_at: string | null
           sort: number
           updated_at: string
         }
@@ -524,6 +550,8 @@ export type Database = {
           id?: string
           name: string
           price_ugx: number
+          sales_end_at?: string | null
+          sales_start_at?: string | null
           sort?: number
           updated_at?: string
         }
@@ -534,6 +562,8 @@ export type Database = {
           id?: string
           name?: string
           price_ugx?: number
+          sales_end_at?: string | null
+          sales_start_at?: string | null
           sort?: number
           updated_at?: string
         }
