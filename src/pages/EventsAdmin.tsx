@@ -293,10 +293,11 @@ export default function EventsAdmin() {
     const next = [...tiers];
     next[idx] = b; next[swap] = a;
     setTiers(next);
-    const { error } = await supabase.from("ticket_tiers").upsert([
-      { id: a.id, sort: swap },
-      { id: b.id, sort: idx },
+    const [r1, r2] = await Promise.all([
+      supabase.from("ticket_tiers").update({ sort: swap }).eq("id", a.id),
+      supabase.from("ticket_tiers").update({ sort: idx }).eq("id", b.id),
     ]);
+    const error = r1.error || r2.error;
     if (error) { toast.error(error.message); if (tierEventId) loadTiers(tierEventId); return; }
     if (tierEventId) loadTiers(tierEventId);
   };
