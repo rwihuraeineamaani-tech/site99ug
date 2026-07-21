@@ -119,8 +119,8 @@ export default function EventDetail() {
   };
 
   const payLabel = {
-    momo: { name: "MTN MoMo", number: "0772 000 000", code: "*165#" },
-    airtel: { name: "Airtel Money", number: "0752 000 000", code: "*185#" },
+    momo: { name: "MTN MoMo", number: event?.momo_number || "not set", code: "*165#" },
+    airtel: { name: "Airtel Money", number: event?.airtel_number || "not set", code: "*185#" },
   }[manualProvider];
 
   return (
