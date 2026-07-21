@@ -205,12 +205,14 @@ export type Database = {
       }
       events: {
         Row: {
+          airtel_number: string | null
           cover_url: string | null
           created_at: string
           created_by: string | null
           description: string | null
           ends_at: string | null
           id: string
+          momo_number: string | null
           published: boolean
           slug: string
           starts_at: string
@@ -219,12 +221,14 @@ export type Database = {
           venue: string | null
         }
         Insert: {
+          airtel_number?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           ends_at?: string | null
           id?: string
+          momo_number?: string | null
           published?: boolean
           slug: string
           starts_at: string
@@ -233,12 +237,14 @@ export type Database = {
           venue?: string | null
         }
         Update: {
+          airtel_number?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           ends_at?: string | null
           id?: string
+          momo_number?: string | null
           published?: boolean
           slug?: string
           starts_at?: string
