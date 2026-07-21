@@ -168,6 +168,12 @@ export default function EventsAdmin() {
       age_limit: form.age_limit ? Number(form.age_limit) : null,
       policy: form.policy || null,
       gallery: form.gallery || [],
+      organizer_name: form.organizer_name || null,
+      organizer_socials: form.organizer_socials || [],
+      ticket_template_url: form.ticket_template_url || null,
+      ticket_template_fields: form.ticket_template_fields || DEFAULT_TEMPLATE_FIELDS,
+      sender_from_name: form.sender_from_name || "Site 99 Tickets",
+      sender_from_email: form.sender_from_email || "office@site99ug.com",
     };
     if (editingId) {
       const { error } = await supabase.from("events").update(payload).eq("id", editingId);
