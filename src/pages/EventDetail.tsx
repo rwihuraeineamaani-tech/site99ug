@@ -385,7 +385,9 @@ export default function EventDetail() {
                 </motion.div>
               </div>
             </div>
+            )}
           </section>
+
 
           {/* INFO STRIP */}
           <section className="px-8 md:px-16 border-b border-border">
