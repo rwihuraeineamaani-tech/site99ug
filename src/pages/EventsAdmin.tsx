@@ -677,6 +677,7 @@ export default function EventsAdmin() {
                     <th className="pr-4">Amount</th>
                     <th className="pr-4">When</th>
                     <th className="pr-4">TID / Ref</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -694,10 +695,49 @@ export default function EventsAdmin() {
                       <td className="pr-4 mono">UGX {Number(o.amount_ugx || 0).toLocaleString()}</td>
                       <td className="pr-4 mono text-xs">{o.created_at ? new Date(o.created_at).toLocaleString() : ""}</td>
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
+                      <td className="pr-4 text-right">
+                        <button onClick={() => trashOrder({ id: o.order_id, buyer_name: o.buyer_name, amount_ugx: o.amount_ugx })} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>
+                      </td>
                     </tr>
                   ))}
-                  {!results.length && !searching && query && <tr><td colSpan={8} className="py-6 mono text-xs text-muted-foreground">No matches. Try a shorter query — spelling doesn't have to be exact.</td></tr>}
-                  {!query && <tr><td colSpan={8} className="py-6 mono text-xs text-muted-foreground">Start typing a name, email, phone or TID.</td></tr>}
+                  {!results.length && !searching && query && <tr><td colSpan={9} className="py-6 mono text-xs text-muted-foreground">No matches. Try a shorter query — spelling doesn't have to be exact.</td></tr>}
+                  {!query && <tr><td colSpan={9} className="py-6 mono text-xs text-muted-foreground">Start typing a name, email, phone or TID.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {tab === "trashed" && (
+          <div className="mt-8">
+            <div className="flex items-baseline justify-between">
+              <h2 className="display text-2xl">Trashed orders</h2>
+              <button onClick={loadTrashed} className="mono text-[10px] uppercase tracking-[0.2em] opacity-60 hover:opacity-100" data-hover>Refresh</button>
+            </div>
+            <p className="mono text-[10px] text-muted-foreground mt-2">Trashed orders don't count toward tier sales, don't appear in buyer search, and their tickets fail at the gate. Restore anytime.</p>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground text-left">
+                  <tr><th className="py-2 pr-4">Trashed</th><th className="pr-4">Event</th><th className="pr-4">Buyer</th><th className="pr-4">Method</th><th className="pr-4">Amount</th><th className="pr-4">Ref / TID</th><th></th></tr>
+                </thead>
+                <tbody>
+                  {trashed.map((o) => (
+                    <tr key={o.id} className="border-t border-border align-top">
+                      <td className="py-3 pr-4 mono text-xs">{o.deleted_at ? new Date(o.deleted_at).toLocaleString() : ""}</td>
+                      <td className="pr-4">{o.events?.title || "—"}</td>
+                      <td className="pr-4">
+                        <div>{o.buyer_name}</div>
+                        <div className="mono text-[10px] text-muted-foreground">{o.buyer_email}</div>
+                      </td>
+                      <td className="pr-4 mono text-xs uppercase">{o.payment_method}{o.manual_provider ? ` · ${o.manual_provider}` : ""}</td>
+                      <td className="pr-4 mono">UGX {Number(o.amount_ugx || 0).toLocaleString()}</td>
+                      <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
+                      <td className="text-right">
+                        <button onClick={() => restoreOrder(o)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Restore</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {!trashed.length && <tr><td colSpan={7} className="py-6 mono text-xs text-muted-foreground">Nothing in trash.</td></tr>}
                 </tbody>
               </table>
             </div>
