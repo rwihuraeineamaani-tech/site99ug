@@ -219,7 +219,7 @@ export default function EventsAdmin() {
   };
 
   const confirmOrder = async (o: any) => {
-    if (!confirm(`Confirm payment of UGX ${o.amount_ugx.toLocaleString()} from ${o.buyer_name} (TID ${o.manual_tid})?`)) return;
+    if (!confirm(`Confirm payment of UGX ${o.amount_ugx.toLocaleString()} from ${o.buyer_name} (TID ${o.manual_tid})?\n\nTickets will be generated and emailed to ${o.buyer_email}.`)) return;
     const { data: s } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("orders")
@@ -228,7 +228,7 @@ export default function EventsAdmin() {
     if (error) return toast.error(error.message);
     await supabase.from("tickets").update({ status: "valid" }).eq("order_id", o.id);
     toast.success("Confirmed — tickets are live");
-    loadPending();
+    await sendTickets(o.id);
   };
 
   const rejectOrder = async (o: any) => {
