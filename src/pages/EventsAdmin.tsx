@@ -254,7 +254,19 @@ export default function EventsAdmin() {
 
   const delTier = async (id: string) => {
     if (!confirm("Remove this tier?")) return;
-    await supabase.from("ticket_tiers").delete().eq("id", id);
+    const { error, count } = await supabase.from("ticket_tiers").delete({ count: "exact" }).eq("id", id);
+    if (error) {
+      if (error.code === "23503" || /foreign key|violates/i.test(error.message)) {
+        alert("Can't remove: this tier already has tickets sold. Trash those orders first, then try again.");
+      } else {
+        alert("Remove failed: " + error.message);
+      }
+      return;
+    }
+    if (!count) {
+      alert("Remove failed: no permission or tier not found.");
+      return;
+    }
     if (tierEventId) loadTiers(tierEventId);
   };
 
