@@ -26,6 +26,7 @@ const empty: any = {
   starts_at: "",
   ends_at: "",
   cover_url: "",
+  poster_url: "",
   momo_number: "",
   airtel_number: "",
   policy: "",
@@ -85,6 +86,12 @@ export default function EventsAdmin() {
     const url = await uploadImage(file);
     if (url) { setForm((f: any) => ({ ...f, cover_url: url })); toast.success("Cover uploaded"); }
   };
+
+  const uploadPoster = async (file: File) => {
+    const url = await uploadImage(file);
+    if (url) { setForm((f: any) => ({ ...f, poster_url: url })); toast.success("Poster uploaded"); }
+  };
+
 
   const uploadGallery = async (files: FileList) => {
     const urls: string[] = [];
@@ -427,7 +434,18 @@ export default function EventsAdmin() {
                   <input key={k} placeholder={l} value={form[k] || ""} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="w-full bg-transparent border-b border-border py-2" />
                 ))}
                 <div className="border border-border rounded p-3 space-y-2">
-                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Cover image</label>
+                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Poster (shown clean, no fade — prefer portrait)</label>
+                  <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPoster(f); }} className="text-sm" />
+                  {form.poster_url && (
+                    <div className="flex items-center gap-3">
+                      <img src={form.poster_url} alt="poster" className="h-24 w-16 object-cover rounded" />
+                      <button type="button" onClick={() => setForm({ ...form, poster_url: "" })} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Clear</button>
+                    </div>
+                  )}
+                  <input placeholder="…or paste an existing image URL" value={form.poster_url || ""} onChange={(e) => setForm({ ...form, poster_url: e.target.value })} className="w-full bg-transparent border-b border-border py-2 text-xs" />
+                </div>
+                <div className="border border-border rounded p-3 space-y-2">
+                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Cover image (atmospheric backdrop with fade, used when no poster)</label>
                   <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCover(f); }} className="text-sm" />
                   {form.cover_url && (
                     <div className="flex items-center gap-3">
@@ -443,6 +461,8 @@ export default function EventsAdmin() {
                   <label className="text-xs">Starts<input type="datetime-local" value={form.starts_at?.slice(0, 16) || ""} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
                   <label className="text-xs">Ends<input type="datetime-local" value={form.ends_at?.slice(0, 16) || ""} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
                 </div>
+
+
                 <div className="grid grid-cols-2 gap-3">
                   <label className="text-xs">MoMo merchant #<input placeholder="e.g. 0772 000 000" value={form.momo_number || ""} onChange={(e) => setForm({ ...form, momo_number: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
                   <label className="text-xs">Airtel merchant #<input placeholder="e.g. 0752 000 000" value={form.airtel_number || ""} onChange={(e) => setForm({ ...form, airtel_number: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>

@@ -220,6 +220,7 @@ export type Database = {
           organizer_socials: Json
           pesapal_enabled: boolean
           policy: string | null
+          poster_url: string | null
           published: boolean
           sender_from_email: string
           sender_from_name: string
@@ -247,6 +248,7 @@ export type Database = {
           organizer_socials?: Json
           pesapal_enabled?: boolean
           policy?: string | null
+          poster_url?: string | null
           published?: boolean
           sender_from_email?: string
           sender_from_name?: string
@@ -274,6 +276,7 @@ export type Database = {
           organizer_socials?: Json
           pesapal_enabled?: boolean
           policy?: string | null
+          poster_url?: string | null
           published?: boolean
           sender_from_email?: string
           sender_from_name?: string

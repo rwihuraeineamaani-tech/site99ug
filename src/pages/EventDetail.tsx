@@ -15,6 +15,7 @@ type Event = {
   starts_at: string;
   ends_at?: string | null;
   cover_url: string | null;
+  poster_url?: string | null;
   momo_number: string | null;
   airtel_number: string | null;
   policy: string | null;
@@ -250,69 +251,143 @@ export default function EventDetail() {
         <>
           {/* HERO */}
           <section className="relative pt-24 md:pt-28">
-            <div className="relative h-[62vh] min-h-[420px] max-h-[720px] w-full overflow-hidden">
-              {event.cover_url ? (
-                <img
-                  src={event.cover_url}
-                  alt={event.title}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  loading="eager"
-                  decoding="async"
-                />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-site-red/40 via-background to-background" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/10" />
+            {event.poster_url ? (
+              // POSTER MODE — clean, no fade over the artwork
+              <div className="relative w-full overflow-hidden">
+                {/* optional ambient backdrop from cover_url, heavily blurred so it doesn't fight the poster */}
+                {event.cover_url && (
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 bg-center bg-cover scale-110 blur-3xl opacity-40"
+                    style={{ backgroundImage: `url(${event.cover_url})` }}
+                  />
+                )}
+                <div className="absolute inset-0 bg-background/60" />
+                <div className="relative px-8 md:px-16 py-10 md:py-16 grid md:grid-cols-[minmax(0,420px)_1fr] gap-10 md:gap-14 items-center">
+                  <motion.img
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    src={event.poster_url}
+                    alt={`${event.title} poster`}
+                    loading="eager"
+                    decoding="async"
+                    className="w-full max-w-[420px] mx-auto md:mx-0 rounded-lg shadow-2xl object-contain"
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <div className="mono text-xs uppercase tracking-[0.3em] text-site-red">
+                      {startDate?.toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}
+                    </div>
+                    <h1 className="display text-4xl md:text-7xl mt-3 leading-[0.9]">{event.title}</h1>
+                    <div className="mt-5 flex flex-wrap items-center gap-2">
+                      {event.venue && (
+                        <span className="mono text-[10px] uppercase tracking-[0.3em] border border-border rounded-full px-3 py-1">
+                          {event.venue}
+                        </span>
+                      )}
+                      {event.age_limit && (
+                        <span className="mono text-[10px] uppercase tracking-[0.3em] border border-site-red text-site-red rounded-full px-3 py-1">
+                          {event.age_limit}+ Only
+                        </span>
+                      )}
+                      <button
+                        onClick={() => { setTab("policies"); document.getElementById("tabs-anchor")?.scrollIntoView({ behavior: "smooth" }); }}
+                        className="mono text-[10px] uppercase tracking-[0.3em] border border-border rounded-full px-3 py-1 hover:border-site-red hover:text-site-red transition-colors"
+                        data-hover
+                      >
+                        Policies
+                      </button>
+                    </div>
+                    <div className="mt-8 flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={goTickets}
+                        className="bg-site-red text-site-white px-8 py-4 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors"
+                        data-hover
+                      >
+                        Get tickets
+                      </button>
+                      <button onClick={downloadIcs} className="mono text-xs uppercase tracking-[0.25em] border border-border rounded-full px-5 py-3 hover:border-site-red" data-hover>
+                        Add to calendar
+                      </button>
+                      <button onClick={share} className="mono text-xs uppercase tracking-[0.25em] border border-border rounded-full px-5 py-3 hover:border-site-red" data-hover>
+                        Share
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            ) : (
+              // COVER MODE — atmospheric fade
+              <div className="relative h-[62vh] min-h-[420px] max-h-[720px] w-full overflow-hidden">
+                {event.cover_url ? (
+                  <img
+                    src={event.cover_url}
+                    alt={event.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="eager"
+                    decoding="async"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-site-red/40 via-background to-background" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/10" />
 
-              <div className="relative h-full flex flex-col justify-end px-8 md:px-16 pb-10 md:pb-16">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                  className="max-w-5xl"
-                >
-                  <div className="mono text-xs uppercase tracking-[0.3em] text-site-red">
-                    {startDate?.toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}
-                  </div>
-                  <h1 className="display text-5xl md:text-8xl mt-3 leading-[0.9]">{event.title}</h1>
-                  <div className="mt-5 flex flex-wrap items-center gap-2">
-                    {event.venue && (
-                      <span className="mono text-[10px] uppercase tracking-[0.3em] border border-border rounded-full px-3 py-1">
-                        {event.venue}
-                      </span>
-                    )}
-                    {event.age_limit && (
-                      <span className="mono text-[10px] uppercase tracking-[0.3em] border border-site-red text-site-red rounded-full px-3 py-1">
-                        {event.age_limit}+ Only
-                      </span>
-                    )}
-                    <button
-                      onClick={() => { setTab("policies"); document.getElementById("tabs-anchor")?.scrollIntoView({ behavior: "smooth" }); }}
-                      className="mono text-[10px] uppercase tracking-[0.3em] border border-border rounded-full px-3 py-1 hover:border-site-red hover:text-site-red transition-colors"
-                      data-hover
-                    >
-                      Policies
-                    </button>
-                  </div>
-                  <div className="mt-8 flex flex-wrap items-center gap-3">
-                    <button
-                      onClick={goTickets}
-                      className="bg-site-red text-site-white px-8 py-4 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors"
-                      data-hover
-                    >
-                      Get tickets
-                    </button>
-                    <button onClick={downloadIcs} className="mono text-xs uppercase tracking-[0.25em] border border-border rounded-full px-5 py-3 hover:border-site-red" data-hover>
-                      Add to calendar
-                    </button>
-                    <button onClick={share} className="mono text-xs uppercase tracking-[0.25em] border border-border rounded-full px-5 py-3 hover:border-site-red" data-hover>
-                      Share
-                    </button>
+                <div className="relative h-full flex flex-col justify-end px-8 md:px-16 pb-10 md:pb-16">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="max-w-5xl"
+                  >
+                    <div className="mono text-xs uppercase tracking-[0.3em] text-site-red">
+                      {startDate?.toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}
+                    </div>
+                    <h1 className="display text-5xl md:text-8xl mt-3 leading-[0.9]">{event.title}</h1>
+                    <div className="mt-5 flex flex-wrap items-center gap-2">
+                      {event.venue && (
+                        <span className="mono text-[10px] uppercase tracking-[0.3em] border border-border rounded-full px-3 py-1">
+                          {event.venue}
+                        </span>
+                      )}
+                      {event.age_limit && (
+                        <span className="mono text-[10px] uppercase tracking-[0.3em] border border-site-red text-site-red rounded-full px-3 py-1">
+                          {event.age_limit}+ Only
+                        </span>
+                      )}
+                      <button
+                        onClick={() => { setTab("policies"); document.getElementById("tabs-anchor")?.scrollIntoView({ behavior: "smooth" }); }}
+                        className="mono text-[10px] uppercase tracking-[0.3em] border border-border rounded-full px-3 py-1 hover:border-site-red hover:text-site-red transition-colors"
+                        data-hover
+                      >
+                        Policies
+                      </button>
+                    </div>
+                    <div className="mt-8 flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={goTickets}
+                        className="bg-site-red text-site-white px-8 py-4 rounded-full label text-xs hover:bg-foreground hover:text-background transition-colors"
+                        data-hover
+                      >
+                        Get tickets
+                      </button>
+                      <button onClick={downloadIcs} className="mono text-xs uppercase tracking-[0.25em] border border-border rounded-full px-5 py-3 hover:border-site-red" data-hover>
+                        Add to calendar
+                      </button>
+                      <button onClick={share} className="mono text-xs uppercase tracking-[0.25em] border border-border rounded-full px-5 py-3 hover:border-site-red" data-hover>
+                        Share
+                      </button>
+
                   </div>
                 </motion.div>
               </div>
             </div>
+            )}
           </section>
+
 
           {/* INFO STRIP */}
           <section className="px-8 md:px-16 border-b border-border">
