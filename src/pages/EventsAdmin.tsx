@@ -483,6 +483,46 @@ export default function EventsAdmin() {
                   )}
                 </div>
 
+                <div className="border border-border rounded p-3 space-y-2">
+                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Organizer</label>
+                  <input placeholder="Organizer name" value={form.organizer_name || ""} onChange={(e) => setForm({ ...form, organizer_name: e.target.value })} className="w-full bg-transparent border-b border-border py-2" />
+                  <div className="space-y-2">
+                    {(form.organizer_socials || []).map((s: any, i: number) => (
+                      <div key={i} className="flex gap-2">
+                        <input placeholder="Label (Instagram)" value={s.label} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], label: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="flex-1 bg-transparent border-b border-border py-1 text-xs" />
+                        <input placeholder="https://…" value={s.url} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], url: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="flex-[2] bg-transparent border-b border-border py-1 text-xs" />
+                        <button type="button" onClick={() => setForm({ ...form, organizer_socials: form.organizer_socials.filter((_: any, j: number) => j !== i) })} className="mono text-[10px] text-site-red">×</button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => setForm({ ...form, organizer_socials: [...(form.organizer_socials || []), { label: "", url: "" }] })} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">+ add social</button>
+                  </div>
+                </div>
+
+                <div className="border border-border rounded p-3 space-y-2">
+                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Ticket PDF template</label>
+                  <input type="file" accept="application/pdf" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTemplatePdf(f); }} className="text-sm" />
+                  {form.ticket_template_url && (
+                    <div className="flex items-center gap-3">
+                      <span className="mono text-[10px] text-muted-foreground truncate flex-1">{form.ticket_template_url}</span>
+                      <button type="button" onClick={() => setForm({ ...form, ticket_template_url: "" })} className="mono text-[10px] uppercase text-site-red">Clear</button>
+                    </div>
+                  )}
+                  <p className="mono text-[10px] text-muted-foreground">Leave empty to use the default layout. Available field keys: event_title, tier_name, holder_name, starts_at, venue, order_ref, ticket_id, qr.</p>
+                  <textarea
+                    rows={8}
+                    value={JSON.stringify(form.ticket_template_fields || DEFAULT_TEMPLATE_FIELDS, null, 2)}
+                    onChange={(e) => {
+                      try { setForm({ ...form, ticket_template_fields: JSON.parse(e.target.value) }); } catch { /* ignore */ }
+                    }}
+                    className="w-full bg-transparent border border-border rounded p-2 font-mono text-[11px]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="text-xs">Sender name<input value={form.sender_from_name || ""} onChange={(e) => setForm({ ...form, sender_from_name: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
+                  <label className="text-xs">Sender email (no-reply)<input value={form.sender_from_email || ""} onChange={(e) => setForm({ ...form, sender_from_email: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
+                </div>
+
                 <label className="flex items-center gap-2 mono text-xs uppercase tracking-[0.2em]">
                   <input type="checkbox" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} />
                   Published
