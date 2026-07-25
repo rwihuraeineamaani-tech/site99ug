@@ -4,6 +4,7 @@ import Seo from "@/components/Seo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import CopyTicketDialog from "@/components/admin/CopyTicketDialog";
 
 const DEFAULT_TEMPLATE_FIELDS = {
   fields: [
