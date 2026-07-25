@@ -837,6 +837,7 @@ export default function EventsAdmin() {
           </div>
         )}
       </section>
+      <CopyTicketDialog orderId={copyOrderId} onClose={() => setCopyOrderId(null)} />
     </Layout>
   );
 }
