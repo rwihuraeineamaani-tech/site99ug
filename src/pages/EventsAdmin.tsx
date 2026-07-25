@@ -786,7 +786,10 @@ export default function EventsAdmin() {
                       <td className="pr-4 mono text-xs">{o.created_at ? new Date(o.created_at).toLocaleString() : ""}</td>
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
                       <td className="pr-4 text-right">
-                        <button onClick={() => trashOrder({ id: o.order_id, buyer_name: o.buyer_name, amount_ugx: o.amount_ugx })} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>
+                        <div className="flex gap-2 justify-end flex-wrap">
+                          <button onClick={() => setCopyOrderId(o.order_id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy</button>
+                          <button onClick={() => trashOrder({ id: o.order_id, buyer_name: o.buyer_name, amount_ugx: o.amount_ugx })} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
