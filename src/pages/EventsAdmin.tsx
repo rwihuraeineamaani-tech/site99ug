@@ -63,6 +63,7 @@ export default function EventsAdmin() {
   const [uploading, setUploading] = useState(false);
   const [pending, setPending] = useState<any[]>([]);
   const [trashed, setTrashed] = useState<any[]>([]);
+  const [copyOrderId, setCopyOrderId] = useState<string | null>(null);
 
   // Buyers search
   const [query, setQuery] = useState("");
