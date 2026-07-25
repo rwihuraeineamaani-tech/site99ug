@@ -1,24 +1,37 @@
-## 1. Fix ticket delivery email
 
-The email provider is rejecting sends with `missing_parameter: text` — the queue payload from `send-ticket-email` only includes `html`. Add a plain-text fallback (`text`) built from the ticket links so the provider accepts it. Redeploy the function, then re-trigger delivery for the order that failed (`rwihuraeineamaani@gmail.com`, ref MANUAL-...) via the admin "Resend tickets" button.
+## Goal
+Let admins manually deliver tickets by copying the composed email content and each ticket's QR token from the admin dashboard — no automatic send required.
 
-## 2. Trash / restore orders (soft-delete)
+## Changes
 
-Scope: an admin marks an entire order inactive. Its tickets stop working at the gate and it's hidden from active dashboards, but it can be restored.
+### 1. `EventsAdmin.tsx` — new "Copy for manual send" action
+For each paid order (in Pending TIDs, Buyers search, and confirmed orders), add a **Copy ticket details** button next to the existing "Resend tickets" / "Confirm & Email" actions.
 
-**Database**
-- Add `deleted_at timestamptz` to `orders`.
-- Update `get_ticket_by_token` and `tier_sold_count` / `tier_available_counts` to ignore orders where `deleted_at is not null` (trashed orders free their seat and their QR fails scan).
-- Update `admin_search_orders` to accept an `_include_trashed boolean` and filter accordingly.
+Clicking it opens a modal (shadcn `Dialog`) showing:
+- **To**: buyer email
+- **Subject**: `Your ticket(s) — <event title>`
+- **Body (plain text)**: the same text block currently built inside `send-ticket-email` (greeting, event title, date, venue, per-ticket lines) — but instead of PDF links, list each ticket with its QR token URL: `https://site99ug.com/t/<qr_token>`
+- **Per-ticket QR data**: for each ticket a row showing
+  - Holder name · Tier
+  - QR token value (raw string)
+  - QR payload URL (`https://site99ug.com/t/<qr_token>`) — this is what the scanner reads
+  - Individual "Copy" buttons for the raw token and the URL
 
-**Admin UI (`EventsAdmin.tsx`)**
-- Add a "Trash" button on each order row in the Dashboard pending list and Buyers search results → sets `deleted_at = now()` with a confirm dialog.
-- Add a "Trashed" tab listing soft-deleted orders with a "Restore" button (clears `deleted_at`).
-- Trashed orders are excluded from stats, pending TID list, and default buyer search.
+Each section has its own **Copy** button (uses `navigator.clipboard.writeText`) with a toast confirmation.
 
-**Scanner (`ticket-scan` / `TicketScanner.tsx`)**
-- Because `get_ticket_by_token` will exclude trashed orders, scanning a trashed ticket returns "not found / invalid" — no code change needed beyond the RPC update.
+### 2. Data source
+Fetch on modal open:
+- `orders` row (already loaded)
+- `events` row (title, venue, starts_at, organizer_name, organizer_socials, sender_from_email)
+- `tickets` for the order with `holder_name, qr_token, ticket_tiers(name)`
+
+Compose the email text client-side using the same format as `send-ticket-email/index.ts` so the copied text matches what the automatic sender would produce, minus the PDF link (replaced by the `/t/<token>` view URL).
+
+### 3. No backend / schema changes
+Purely a frontend admin convenience. `send-ticket-email` stays as-is for when email delivery works.
 
 ## Technical notes
-- Soft-delete only; no row deletion. Restore is a single UPDATE.
-- Email fix is a one-line payload addition + redeploy; no schema change.
+- New file: `src/components/admin/CopyTicketDialog.tsx` holding the dialog + copy helpers.
+- Import and mount it from `EventsAdmin.tsx` where order rows render; pass `orderId`.
+- Use existing `useToast` for copy feedback.
+- QR content shown is exactly what `send-ticket-email` embeds today: `${PUBLIC_SITE}/t/${qr_token}` (so any QR generator the user picks will produce a scannable code).
