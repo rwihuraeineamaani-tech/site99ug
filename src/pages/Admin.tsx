@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/Layout";
+import AdminShell from "@/components/admin/AdminShell";
 import { useProjects, type Project } from "@/hooks/useProjects";
 import { useResidents, type Resident } from "@/hooks/useResidents";
 import { useBriefs } from "@/hooks/useBriefs";
