@@ -476,7 +476,7 @@ export default function EventsAdmin() {
                         <td className="pr-4 mono text-xs uppercase">{o.manual_provider}</td>
                         <td className="pr-4 mono text-xs">{o.manual_tid}</td>
                         <td className="pr-4 mono">UGX {o.amount_ugx.toLocaleString()}</td>
-                        <td className="pr-4 mono text-[10px] uppercase tracking-[0.2em]">{o.status}</td>
+                        <td className="pr-4"><StatusPill status={o.status} /></td>
                         <td className="text-right">
                           <div className="flex gap-2 justify-end flex-wrap">
                             {o.status === "pending" && (
