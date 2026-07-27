@@ -58,21 +58,21 @@ export default function Admin() {
 
   const signOut = async () => { await supabase.auth.signOut(); navigate("/admin/login", { replace: true }); };
 
-  if (!authChecked) return <Layout hideFooter><div className="min-h-screen pt-32 px-6 mono text-xs">Loading…</div></Layout>;
+  if (!authChecked) return <AdminShell title="Admin"><p className="mono text-xs text-muted-foreground">Loading…</p></AdminShell>;
 
   if (!isAdmin) {
     return (
-      <Layout hideFooter>
-        <section className="min-h-screen pt-32 px-6 md:px-10 max-w-2xl mx-auto">
+      <AdminShell title="Not yet authorized.">
+        <div className="max-w-2xl">
           <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-4">Access pending</div>
-          <h1 className="display text-fluid-hero leading-[0.85]">Not yet authorized.</h1>
-          <p className="mt-6 text-fluid-md text-muted-foreground">Share this user ID with whoever set up the site:</p>
+          <p className="text-fluid-md text-muted-foreground">Share this user ID with whoever set up the site:</p>
           <code className="mt-6 block bg-secondary p-4 mono text-xs break-all">{userId}</code>
           <button onClick={signOut} className="mt-8 mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Sign out →</button>
-        </section>
-      </Layout>
+        </div>
+      </AdminShell>
     );
   }
+
 
   const tabs: Tab[] = ["projects","residents","briefs","announcements","messages","requests"];
   const label = (t: Tab) => (t === "requests" ? "Access Requests" : t);
