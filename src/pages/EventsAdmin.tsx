@@ -819,8 +819,9 @@ export default function EventsAdmin() {
             </div>
           </div>
         )}
-      </section>
+      </div>
+      <Seo title="Events Admin — Site 99" description="Manage events" path="/admin/events" />
       <CopyTicketDialog orderId={copyOrderId} onClose={() => setCopyOrderId(null)} />
-    </Layout>
+    </AdminShell>
   );
 }
