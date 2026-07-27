@@ -766,7 +766,7 @@ export default function EventsAdmin() {
                       </td>
                       <td className="pr-4">{o.event_title}</td>
                       <td className="pr-4 mono text-xs uppercase">{o.payment_method}{o.manual_provider ? ` · ${o.manual_provider}` : ""}</td>
-                      <td className="pr-4 mono text-[10px] uppercase tracking-[0.2em]">{o.status}</td>
+                      <td className="pr-4"><StatusPill status={o.status} /></td>
                       <td className="pr-4 mono">UGX {Number(o.amount_ugx || 0).toLocaleString()}</td>
                       <td className="pr-4 mono text-xs">{o.created_at ? new Date(o.created_at).toLocaleString() : ""}</td>
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
