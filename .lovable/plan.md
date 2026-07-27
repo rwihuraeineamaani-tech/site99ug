@@ -1,37 +1,31 @@
-
 ## Goal
-Let admins manually deliver tickets by copying the composed email content and each ticket's QR token from the admin dashboard — no automatic send required.
+Make `/admin/events` (and `/admin`) feel like a real console, and fix the header overlapping the page title.
+
+## The overlap
+The global `Nav` renders a fixed header with a logo at `h-24` (96px) / `md:h-36` (144px) plus `py-5`, so the header occupies roughly 136–184px. Admin pages start their content at `pt-28` (112px), so the logo and Menu button sit on top of the "Admin / Events" title and the action buttons. At the current 876px-wide preview this is exactly what's happening.
+
+Fix: give admin pages a chrome of their own instead of fighting the marketing nav.
 
 ## Changes
 
-### 1. `EventsAdmin.tsx` — new "Copy for manual send" action
-For each paid order (in Pending TIDs, Buyers search, and confirmed orders), add a **Copy ticket details** button next to the existing "Resend tickets" / "Confirm & Email" actions.
+### 1. Admin shell (new `src/components/admin/AdminShell.tsx`)
+- Wraps admin pages without the marketing `Nav`/`Footer` (`Layout` gets bypassed, or a `bare` variant is used).
+- Own slim top bar: small Site 99 mark, "Console" label, right side = Export, Scanner link, Sign out.
+- Left sidebar on desktop (Dashboard, Event Manager, Buyers, Trashed, Scanner, Site Admin), collapsing to a horizontal scrollable tab strip on mobile.
+- Content region uses consistent `px-6 md:px-10 py-8` — no `pt-28` guesswork, so nothing can be covered.
 
-Clicking it opens a modal (shadcn `Dialog`) showing:
-- **To**: buyer email
-- **Subject**: `Your ticket(s) — <event title>`
-- **Body (plain text)**: the same text block currently built inside `send-ticket-email` (greeting, event title, date, venue, per-ticket lines) — but instead of PDF links, list each ticket with its QR token URL: `https://site99ug.com/t/<qr_token>`
-- **Per-ticket QR data**: for each ticket a row showing
-  - Holder name · Tier
-  - QR token value (raw string)
-  - QR payload URL (`https://site99ug.com/t/<qr_token>`) — this is what the scanner reads
-  - Individual "Copy" buttons for the raw token and the URL
+### 2. `EventsAdmin.tsx` upgrade
+- Move the existing four tabs into the shell's nav; keep the same state machine.
+- Dashboard: restyle the 4 stat cards (label, big number, subtle accent rule), add "Tickets issued" and "Paid orders today".
+- Pending TID table: sticky header, zebra rows, status pills (pending / paid / rejected) instead of raw mono text, actions collapsed into a compact row that wraps cleanly on narrow screens.
+- Event Manager: keep the current form but group it into collapsible sections (Details, Media, Payments, Policies, Organizer, Ticketing) so the form stops being one long scroll; tier list gets clearer edit/reorder controls.
+- Buyers Search & Trashed: shared table component so all three lists look identical.
+- Empty and loading states get proper placeholders instead of bare text.
 
-Each section has its own **Copy** button (uses `navigator.clipboard.writeText`) with a toast confirmation.
-
-### 2. Data source
-Fetch on modal open:
-- `orders` row (already loaded)
-- `events` row (title, venue, starts_at, organizer_name, organizer_socials, sender_from_email)
-- `tickets` for the order with `holder_name, qr_token, ticket_tiers(name)`
-
-Compose the email text client-side using the same format as `send-ticket-email/index.ts` so the copied text matches what the automatic sender would produce, minus the PDF link (replaced by the `/t/<token>` view URL).
-
-### 3. No backend / schema changes
-Purely a frontend admin convenience. `send-ticket-email` stays as-is for when email delivery works.
+### 3. `Admin.tsx` (site admin)
+- Adopt the same shell and card/table styling so both admin screens match.
 
 ## Technical notes
-- New file: `src/components/admin/CopyTicketDialog.tsx` holding the dialog + copy helpers.
-- Import and mount it from `EventsAdmin.tsx` where order rows render; pass `orderId`.
-- Use existing `useToast` for copy feedback.
-- QR content shown is exactly what `send-ticket-email` embeds today: `${PUBLIC_SITE}/t/${qr_token}` (so any QR generator the user picks will produce a scannable code).
+- Purely presentational: no schema, RPC, or edge-function changes; all existing handlers (`confirmOrder`, `sendTickets`, `trashOrder`, `exportCsv`, tier CRUD) are reused as-is.
+- New files: `src/components/admin/AdminShell.tsx`, `src/components/admin/OrdersTable.tsx`, `src/components/admin/StatCard.tsx`.
+- Styling stays on semantic tokens plus the existing `site-red` / `site-black` tokens.

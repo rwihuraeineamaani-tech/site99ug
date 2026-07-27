@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Layout } from "@/components/Layout";
+import AdminShell from "@/components/admin/AdminShell";
 import { useProjects, type Project } from "@/hooks/useProjects";
 import { useResidents, type Resident } from "@/hooks/useResidents";
 import { useBriefs } from "@/hooks/useBriefs";
@@ -57,52 +57,42 @@ export default function Admin() {
 
   const signOut = async () => { await supabase.auth.signOut(); navigate("/admin/login", { replace: true }); };
 
-  if (!authChecked) return <Layout hideFooter><div className="min-h-screen pt-32 px-6 mono text-xs">Loading…</div></Layout>;
+  if (!authChecked) return <AdminShell title="Admin"><p className="mono text-xs text-muted-foreground">Loading…</p></AdminShell>;
 
   if (!isAdmin) {
     return (
-      <Layout hideFooter>
-        <section className="min-h-screen pt-32 px-6 md:px-10 max-w-2xl mx-auto">
+      <AdminShell title="Not yet authorized.">
+        <div className="max-w-2xl">
           <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-4">Access pending</div>
-          <h1 className="display text-fluid-hero leading-[0.85]">Not yet authorized.</h1>
-          <p className="mt-6 text-fluid-md text-muted-foreground">Share this user ID with whoever set up the site:</p>
+          <p className="text-fluid-md text-muted-foreground">Share this user ID with whoever set up the site:</p>
           <code className="mt-6 block bg-secondary p-4 mono text-xs break-all">{userId}</code>
           <button onClick={signOut} className="mt-8 mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Sign out →</button>
-        </section>
-      </Layout>
+        </div>
+      </AdminShell>
     );
   }
 
+
   const tabs: Tab[] = ["projects","residents","briefs","announcements","messages","requests"];
+  const label = (t: Tab) => (t === "requests" ? "Access Requests" : t);
 
   return (
-    <Layout hideFooter>
-      <section className="min-h-screen pt-28 pb-20 px-6 md:px-10 max-w-6xl mx-auto">
-        <div className="flex justify-between items-end mb-8 border-b border-border pb-6">
-          <div>
-            <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-3">Admin Console</div>
-            <h1 className="display text-fluid-xl">Site 99 Manager</h1>
-          </div>
-          <button onClick={signOut} className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red">Sign out →</button>
-        </div>
-
-        <nav className="flex flex-wrap gap-x-6 gap-y-2 mb-10 mono text-xs uppercase tracking-[0.3em]">
-          {tabs.map((t) => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`pb-2 border-b-2 transition-colors ${tab===t?"border-site-red text-site-red":"border-transparent text-muted-foreground hover:text-foreground"}`}>
-              {t === "requests" ? "Access Requests" : t}
-            </button>
-          ))}
-        </nav>
-
-        {tab === "projects" && <ProjectsAdmin userId={userId} qc={qc} />}
-        {tab === "residents" && <ResidentsAdmin qc={qc} />}
-        {tab === "briefs" && <BriefsAdmin userId={userId} qc={qc} />}
-        {tab === "announcements" && <AnnouncementsAdmin qc={qc} />}
-        {tab === "messages" && <MessagesAdmin />}
-        {tab === "requests" && <AccessRequests />}
-      </section>
-    </Layout>
+    <AdminShell
+      title="Site 99 Manager"
+      eyebrow="Site console"
+      active={tab}
+      nav={[
+        ...tabs.map((t) => ({ key: t, label: label(t), onClick: () => setTab(t) })),
+        { key: "events", label: "Events ↗", to: "/admin/events" },
+      ]}
+    >
+      {tab === "projects" && <ProjectsAdmin userId={userId} qc={qc} />}
+      {tab === "residents" && <ResidentsAdmin qc={qc} />}
+      {tab === "briefs" && <BriefsAdmin userId={userId} qc={qc} />}
+      {tab === "announcements" && <AnnouncementsAdmin qc={qc} />}
+      {tab === "messages" && <MessagesAdmin />}
+      {tab === "requests" && <AccessRequests />}
+    </AdminShell>
   );
 }
 

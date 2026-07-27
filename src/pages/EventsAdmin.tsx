@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Layout } from "@/components/Layout";
 import Seo from "@/components/Seo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import CopyTicketDialog from "@/components/admin/CopyTicketDialog";
+import AdminShell from "@/components/admin/AdminShell";
+import { StatCard, StatusPill } from "@/components/admin/StatCard";
 
 const DEFAULT_TEMPLATE_FIELDS = {
   fields: [
@@ -413,58 +414,47 @@ export default function EventsAdmin() {
     return { live: events.filter((e) => e.published).length, drafts: events.filter((e) => !e.published).length, pendingCount, paidCount: paidOrders.length, revenue };
   }, [events, pending, pendingCount]);
 
-  if (isAdmin === null) return <Layout><p className="p-16">Loading…</p></Layout>;
-  if (!isAdmin) return <Layout><div className="p-16"><p>Admin only. <Link to="/admin/login" className="underline">Sign in</Link></p></div></Layout>;
+  if (isAdmin === null)
+    return <AdminShell title="Events" eyebrow="Events console"><p className="mono text-xs text-muted-foreground">Loading…</p></AdminShell>;
+  if (!isAdmin)
+    return (
+      <AdminShell title="Events" eyebrow="Events console">
+        <p className="text-sm">Admin only. <Link to="/admin/login" className="underline text-site-red">Sign in</Link></p>
+      </AdminShell>
+    );
+
+  const navItems = [
+    { key: "dashboard", label: "Dashboard", badge: pendingCount, onClick: () => setTab("dashboard") },
+    { key: "manager", label: "Event Manager", onClick: () => setTab("manager") },
+    { key: "buyers", label: "Buyers Search", onClick: () => setTab("buyers") },
+    { key: "trashed", label: "Trashed", onClick: () => { setTab("trashed"); loadTrashed(); } },
+    { key: "scan", label: "Scanner ↗", to: "/admin/scan" },
+    { key: "site", label: "Site Admin ↗", to: "/admin" },
+  ];
 
   return (
-    <Layout>
-      <Seo title="Events Admin — Site 99" description="Manage events" path="/admin/events" />
-      <section className="pt-28 pb-16 px-8 md:px-16">
-        <div className="flex justify-between items-baseline gap-6 flex-wrap">
-          <div>
-            <div className="mono text-xs uppercase tracking-[0.3em] text-site-red">Admin</div>
-            <h1 className="display text-5xl mt-2">Events</h1>
-          </div>
-          <div className="flex gap-3 items-center">
-            <button onClick={() => exportCsv()} className="mono text-xs uppercase tracking-[0.2em] border border-border px-4 py-2 rounded-full" data-hover>Export all buyers</button>
-            <Link to="/admin/scan" className="mono text-xs uppercase tracking-[0.2em] border border-site-red px-4 py-2 rounded-full" data-hover>
-              Open Scanner →
-            </Link>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="mt-8 border-b border-border flex gap-8 flex-wrap">
-          {([
-            ["dashboard", "Dashboard"],
-            ["manager", "Event Manager"],
-            ["buyers", "Buyers Search"],
-            ["trashed", "Trashed"],
-          ] as [AdminTab, string][]).map(([k, l]) => (
-            <button
-              key={k}
-              onClick={() => { setTab(k); if (k === "trashed") loadTrashed(); }}
-              className={`pb-3 mono text-xs uppercase tracking-[0.3em] border-b-2 transition-colors ${tab === k ? "border-site-red text-site-red" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-              data-hover
-            >
-              {l}{k === "dashboard" && pendingCount > 0 && <span className="ml-2 text-site-red">({pendingCount})</span>}
-            </button>
-          ))}
-        </div>
-
+    <AdminShell
+      title="Events"
+      eyebrow="Events console"
+      nav={navItems}
+      active={tab}
+      actions={
+        <button onClick={() => exportCsv()} className="mono text-[10px] uppercase tracking-[0.2em] border border-border rounded-full px-3 py-1.5" data-hover>
+          Export buyers
+        </button>
+      }
+    >
+      <div>
         {tab === "dashboard" && (
           <>
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 ["Live events", stats.live],
                 ["Drafts", stats.drafts],
                 ["Pending TID", stats.pendingCount],
                 ["Manual revenue", `UGX ${stats.revenue.toLocaleString()}`],
               ].map(([l, v]) => (
-                <div key={l as string} className="border border-border rounded-lg p-5">
-                  <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">{l}</div>
-                  <div className="display text-3xl mt-2">{v as any}</div>
-                </div>
+                <StatCard key={l as string} label={l as string} value={v as any} />
               ))}
             </div>
 
@@ -491,7 +481,7 @@ export default function EventsAdmin() {
                         <td className="pr-4 mono text-xs uppercase">{o.manual_provider}</td>
                         <td className="pr-4 mono text-xs">{o.manual_tid}</td>
                         <td className="pr-4 mono">UGX {o.amount_ugx.toLocaleString()}</td>
-                        <td className="pr-4 mono text-[10px] uppercase tracking-[0.2em]">{o.status}</td>
+                        <td className="pr-4"><StatusPill status={o.status} /></td>
                         <td className="text-right">
                           <div className="flex gap-2 justify-end flex-wrap">
                             {o.status === "pending" && (
@@ -781,7 +771,7 @@ export default function EventsAdmin() {
                       </td>
                       <td className="pr-4">{o.event_title}</td>
                       <td className="pr-4 mono text-xs uppercase">{o.payment_method}{o.manual_provider ? ` · ${o.manual_provider}` : ""}</td>
-                      <td className="pr-4 mono text-[10px] uppercase tracking-[0.2em]">{o.status}</td>
+                      <td className="pr-4"><StatusPill status={o.status} /></td>
                       <td className="pr-4 mono">UGX {Number(o.amount_ugx || 0).toLocaleString()}</td>
                       <td className="pr-4 mono text-xs">{o.created_at ? new Date(o.created_at).toLocaleString() : ""}</td>
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
@@ -836,8 +826,9 @@ export default function EventsAdmin() {
             </div>
           </div>
         )}
-      </section>
+      </div>
+      <Seo title="Events Admin — Site 99" description="Manage events" path="/admin/events" />
       <CopyTicketDialog orderId={copyOrderId} onClose={() => setCopyOrderId(null)} />
-    </Layout>
+    </AdminShell>
   );
 }
