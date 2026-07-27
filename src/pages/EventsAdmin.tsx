@@ -415,8 +415,14 @@ export default function EventsAdmin() {
     return { live: events.filter((e) => e.published).length, drafts: events.filter((e) => !e.published).length, pendingCount, paidCount: paidOrders.length, revenue };
   }, [events, pending, pendingCount]);
 
-  if (isAdmin === null) return <Layout><p className="p-16">Loading…</p></Layout>;
-  if (!isAdmin) return <Layout><div className="p-16"><p>Admin only. <Link to="/admin/login" className="underline">Sign in</Link></p></div></Layout>;
+  if (isAdmin === null)
+    return <AdminShell title="Events" eyebrow="Events console"><p className="mono text-xs text-muted-foreground">Loading…</p></AdminShell>;
+  if (!isAdmin)
+    return (
+      <AdminShell title="Events" eyebrow="Events console">
+        <p className="text-sm">Admin only. <Link to="/admin/login" className="underline text-site-red">Sign in</Link></p>
+      </AdminShell>
+    );
 
   const navItems = [
     { key: "dashboard", label: "Dashboard", badge: pendingCount, onClick: () => setTab("dashboard") },
