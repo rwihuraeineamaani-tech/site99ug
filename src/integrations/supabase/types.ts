@@ -853,7 +853,14 @@ export type Database = {
       tier_sold_count: { Args: { _tier_id: string }; Returns: number }
     }
     Enums: {
-      app_role: "admin" | "user" | "resident"
+      app_role:
+        | "admin"
+        | "user"
+        | "resident"
+        | "event_manager"
+        | "scanner"
+        | "viewer"
+        | "site_editor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -981,7 +988,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "resident"],
+      app_role: [
+        "admin",
+        "user",
+        "resident",
+        "event_manager",
+        "scanner",
+        "viewer",
+        "site_editor",
+      ],
     },
   },
 } as const
