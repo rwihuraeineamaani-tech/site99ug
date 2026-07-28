@@ -426,18 +426,21 @@ export default function EventsAdmin() {
   if (!isAdmin)
     return (
       <AdminShell title="Events" eyebrow="Events console">
-        <p className="text-sm">Admin only. <Link to="/admin/login" className="underline text-site-red">Sign in</Link></p>
+        <p className="text-sm">You don't have access to the events console. <Link to="/admin/login" className="underline text-site-red">Sign in</Link></p>
       </AdminShell>
     );
 
+  const activeTab: AdminTab = tab === "manager" && !canManage ? "dashboard" : tab;
+
   const navItems = [
     { key: "dashboard", label: "Dashboard", badge: pendingCount, onClick: () => setTab("dashboard") },
-    { key: "manager", label: "Event Manager", onClick: () => setTab("manager") },
+    ...(canManage ? [{ key: "manager", label: "Event Manager", onClick: () => setTab("manager") }] : []),
     { key: "buyers", label: "Buyers Search", onClick: () => setTab("buyers") },
     { key: "trashed", label: "Trashed", onClick: () => { setTab("trashed"); loadTrashed(); } },
-    { key: "scan", label: "Scanner ↗", to: "/admin/scan" },
+    ...(canManage ? [{ key: "scan", label: "Scanner ↗", to: "/admin/scan" }] : []),
     { key: "site", label: "Site Admin ↗", to: "/admin" },
   ];
+
 
   return (
     <AdminShell
