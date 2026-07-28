@@ -9,6 +9,8 @@ import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { useMessages } from "@/hooks/useMessages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import TeamPanel from "@/components/admin/TeamPanel";
+
 
 type ProjForm = {
   id?: string; title: string; client: string; year: string; tag: string;
