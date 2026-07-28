@@ -250,7 +250,7 @@ export default function EventDetail() {
       {event && (
         <>
           {/* HERO */}
-          <section className="relative pt-24 md:pt-28">
+          <section className="relative pt-36 md:pt-48">
             {event.poster_url ? (
               // POSTER MODE — clean, no fade over the artwork
               <div className="relative w-full overflow-hidden">
