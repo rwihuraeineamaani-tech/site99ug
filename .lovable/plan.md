@@ -1,31 +1,44 @@
-## Goal
-Make `/admin/events` (and `/admin`) feel like a real console, and fix the header overlapping the page title.
+## 1. Team accounts with selective access
 
-## The overlap
-The global `Nav` renders a fixed header with a logo at `h-24` (96px) / `md:h-36` (144px) plus `py-5`, so the header occupies roughly 136–184px. Admin pages start their content at `pt-28` (112px), so the logo and Menu button sit on top of the "Admin / Events" title and the action buttons. At the current 876px-wide preview this is exactly what's happening.
+Add four new roles alongside `admin`: **event_manager**, **scanner**, **viewer**, **site_editor**.
 
-Fix: give admin pages a chrome of their own instead of fighting the marketing nav.
+**Database**
+- Extend the `app_role` enum with the four new values.
+- Add a small `team_members` table (user_id, email, display name, created_by) so the console can list accounts — `auth.users` isn't directly readable from the app.
+- Add a helper `has_any_role(_user_id, _roles[])` for policies, and update existing policies so:
+  - events / tiers: admin or event_manager can write; everyone else read
+  - orders / tickets: admin + event_manager write, viewer read-only, scanner limited to scan validation
+  - projects / residents / announcements: admin + site_editor
+- Grants on the new table for `authenticated` + `service_role`.
 
-## Changes
+**Server**
+- New edge function `admin-users` (service role, JWT validated in code, caller must be admin) with actions: `create` (email + password you set, email auto-confirmed), `set_roles`, `reset_password`, `delete`. Roles are validated against an allow-list so nobody can self-escalate.
 
-### 1. Admin shell (new `src/components/admin/AdminShell.tsx`)
-- Wraps admin pages without the marketing `Nav`/`Footer` (`Layout` gets bypassed, or a `bare` variant is used).
-- Own slim top bar: small Site 99 mark, "Console" label, right side = Export, Scanner link, Sign out.
-- Left sidebar on desktop (Dashboard, Event Manager, Buyers, Trashed, Scanner, Site Admin), collapsing to a horizontal scrollable tab strip on mobile.
-- Content region uses consistent `px-6 md:px-10 py-8` — no `pt-28` guesswork, so nothing can be covered.
+**UI — new "Team" tab in the admin console**
+- Table of members: email, roles as pills, created date.
+- "New member" form: email, name, password, role checkboxes.
+- Per-row: edit roles, reset password, remove.
+- Route guards updated: `/admin/events` opens for admin/event_manager/viewer (viewer sees read-only — no confirm, no trash, no edit), `/admin/scan` for admin/event_manager/scanner, `/admin` for admin/site_editor. Sidebar items hide based on role.
 
-### 2. `EventsAdmin.tsx` upgrade
-- Move the existing four tabs into the shell's nav; keep the same state machine.
-- Dashboard: restyle the 4 stat cards (label, big number, subtle accent rule), add "Tickets issued" and "Paid orders today".
-- Pending TID table: sticky header, zebra rows, status pills (pending / paid / rejected) instead of raw mono text, actions collapsed into a compact row that wraps cleanly on narrow screens.
-- Event Manager: keep the current form but group it into collapsible sections (Details, Media, Payments, Policies, Organizer, Ticketing) so the form stops being one long scroll; tier list gets clearer edit/reorder controls.
-- Buyers Search & Trashed: shared table component so all three lists look identical.
-- Empty and loading states get proper placeholders instead of bare text.
+## 2. Nav bar fix on public events pages
 
-### 3. `Admin.tsx` (site admin)
-- Adopt the same shell and card/table styling so both admin screens match.
+The fixed header's logo is `h-24 / md:h-36` plus padding (~136–184px tall), while `/events` starts content at `pt-28` (112px) and `/events/:slug` at `pt-24`. The logo and Menu button sit over the page title.
+
+Fix: introduce a shared header-height spacing token and apply it to the public pages that start with text right under the nav (`Events`, `EventDetail`), so content clears the header at every breakpoint. Also shrink the logo slightly once scrolled so the header doesn't dominate the event hero.
+
+## 3. Suggestions to upgrade the site
+
+Ranked; none of these are in the plan above — tell me which you want next.
+
+1. **Buyer self-service**: a "Find my tickets" page (email + order ref) so people can re-download tickets without emailing you.
+2. **Finish email verification** for `notify.site99ug.com` — automatic ticket delivery stays broken until the DNS records are added; everything else is already built.
+3. **Events list upgrade**: past/upcoming split, city + date filters, "sold out" and "few left" badges, and event JSON-LD so Google shows dates and prices in search results.
+4. **Analytics**: sales-over-time chart, revenue by tier, and check-in rate on the admin dashboard.
+5. **Performance/SEO**: convert the hero and gallery images to WebP with width-based srcsets — the JPGs are the heaviest thing on mobile.
+6. **Discount / promo codes** and complimentary ticket issuing from the console.
+7. **Waitlist capture** when a tier sells out.
 
 ## Technical notes
-- Purely presentational: no schema, RPC, or edge-function changes; all existing handlers (`confirmOrder`, `sendTickets`, `trashOrder`, `exportCsv`, tier CRUD) are reused as-is.
-- New files: `src/components/admin/AdminShell.tsx`, `src/components/admin/OrdersTable.tsx`, `src/components/admin/StatCard.tsx`.
-- Styling stays on semantic tokens plus the existing `site-red` / `site-black` tokens.
+- Enum values must be committed before use, so this ships as two migrations (enum first, then policies).
+- Password creation uses the service role inside the edge function only; no admin key ever reaches the browser.
+- Viewer read-only is enforced in RLS as well as UI, not just by hiding buttons.
