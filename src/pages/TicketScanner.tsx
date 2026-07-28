@@ -15,9 +15,16 @@ export default function TicketScanner() {
     const start = async () => {
       const { data } = await supabase.auth.getSession();
       if (!data.session) {
-        setError("You must be signed in as an admin.");
+        setError("You must be signed in to scan tickets.");
         return;
       }
+      const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", data.session.user.id);
+      const list = (rows ?? []).map((r) => r.role as string);
+      if (!list.some((r) => ["admin", "event_manager", "scanner"].includes(r))) {
+        setError("Your account doesn't have gate scanner access.");
+        return;
+      }
+
       const el = document.getElementById("qr-reader");
       if (!el) return;
       const scanner = new Html5Qrcode("qr-reader");
