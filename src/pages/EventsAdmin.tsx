@@ -494,17 +494,17 @@ export default function EventsAdmin() {
                         <td className="pr-4"><StatusPill status={o.status} /></td>
                         <td className="text-right">
                           <div className="flex gap-2 justify-end flex-wrap">
-                            {o.status === "pending" && (
+                            {canManage && o.status === "pending" && (
                               <>
                                 <button onClick={() => confirmOrder(o)} className="bg-site-red text-site-white px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Confirm & Email</button>
                                 <button onClick={() => rejectOrder(o)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Reject</button>
                               </>
                             )}
-                            {o.status === "paid" && (
+                            {canManage && o.status === "paid" && (
                               <button onClick={() => sendTickets(o.id)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Resend tickets</button>
                             )}
-                            <button onClick={() => setCopyOrderId(o.id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy for manual</button>
-                            <button onClick={() => trashOrder(o)} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>
+                            {canManage && <button onClick={() => setCopyOrderId(o.id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy for manual</button>}
+                            {canManage && <button onClick={() => trashOrder(o)} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>}
                           </div>
                         </td>
                       </tr>
@@ -787,8 +787,8 @@ export default function EventsAdmin() {
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
                       <td className="pr-4 text-right">
                         <div className="flex gap-2 justify-end flex-wrap">
-                          <button onClick={() => setCopyOrderId(o.order_id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy</button>
-                          <button onClick={() => trashOrder({ id: o.order_id, buyer_name: o.buyer_name, amount_ugx: o.amount_ugx })} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>
+                          {canManage && <button onClick={() => setCopyOrderId(o.order_id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy</button>}
+                          {canManage && <button onClick={() => trashOrder({ id: o.order_id, buyer_name: o.buyer_name, amount_ugx: o.amount_ugx })} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>}
                         </div>
                       </td>
                     </tr>
@@ -826,7 +826,7 @@ export default function EventsAdmin() {
                       <td className="pr-4 mono">UGX {Number(o.amount_ugx || 0).toLocaleString()}</td>
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
                       <td className="text-right">
-                        <button onClick={() => restoreOrder(o)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Restore</button>
+                        {canManage && <button onClick={() => restoreOrder(o)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Restore</button>}
                       </td>
                     </tr>
                   ))}
