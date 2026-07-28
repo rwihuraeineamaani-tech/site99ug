@@ -145,14 +145,19 @@ export default function EventsAdmin() {
     (async () => {
       const { data: s } = await supabase.auth.getUser();
       if (!s.user) return setIsAdmin(false);
-      const { data: r } = await supabase.rpc("has_role", { _user_id: s.user.id, _role: "admin" });
-      setIsAdmin(!!r);
-      if (r) {
+      const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", s.user.id);
+      const list = (rows ?? []).map((r) => r.role as string);
+      const manage = list.includes("admin") || list.includes("event_manager");
+      const view = manage || list.includes("viewer");
+      setCanManage(manage);
+      setIsAdmin(view);
+      if (view) {
         load();
         loadPending();
       }
     })();
   }, []);
+
 
   const load = async () => {
     const { data } = await supabase.from("events").select("*").order("starts_at", { ascending: false });
