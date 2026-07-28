@@ -51,6 +51,8 @@ type AdminTab = "dashboard" | "manager" | "buyers" | "trashed";
 
 export default function EventsAdmin() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [canManage, setCanManage] = useState(false);
+
   const [tab, setTab] = useState<AdminTab>("dashboard");
 
   const [events, setEvents] = useState<any[]>([]);
