@@ -38,7 +38,7 @@ export default function Events() {
         description="Book tickets to Site 99 events. Pay with MTN MoMo or Airtel Money."
         path="/events"
       />
-      <section className="pt-28 pb-16 px-8 md:px-16">
+      <section className="pt-40 md:pt-52 pb-16 px-8 md:px-16">
         <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 08 / Events</div>
         <h1 className="display text-fluid-hero leading-[0.9]">Upcoming <span className="text-site-red">gatherings.</span></h1>
         <p className="mt-6 max-w-xl text-muted-foreground">Tickets settle to Mobile Money in seconds. Bring the QR to the gate.</p>
