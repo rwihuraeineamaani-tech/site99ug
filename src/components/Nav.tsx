@@ -69,8 +69,9 @@ export const Nav = () => {
     <>
       <header className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-8 md:px-16 py-5">
         <Link to="/" className="flex items-center gap-2 isolate" data-hover style={{ mixBlendMode: "normal" }}>
-          <img src={new URL('../assets/site99-logo.png', import.meta.url).href} alt="Site 99" className="h-24 md:h-36 w-auto" style={{ mixBlendMode: "normal", opacity: 1 }} />
+          <img src={new URL('../assets/site99-logo.png', import.meta.url).href} alt="Site 99" className={`w-auto transition-all duration-300 ${scrolled ? "h-14 md:h-20" : "h-24 md:h-36"}`} style={{ mixBlendMode: "normal", opacity: 1 }} />
         </Link>
+
 
         {/* Desktop inline links */}
         <nav className={`hidden md:flex items-center gap-1 text-site-white rounded-full px-5 py-2.5 transition-all duration-300 ${scrolled ? "opacity-0 pointer-events-none -translate-y-2" : "opacity-100"} ${(pathname !== "/" || servicesOpen) ? "bg-site-black/85 backdrop-blur-md border border-white/10" : "bg-transparent border border-transparent"}`}>
