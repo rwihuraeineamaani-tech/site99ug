@@ -25,7 +25,7 @@ const emptyProj: ProjForm = {
 type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean };
 const emptyRes: ResForm = { name: "", territory: "", since: "", status: "Active", display_order: 0, email: "", visible: true };
 
-type Tab = "projects" | "residents" | "briefs" | "announcements" | "messages" | "requests";
+type Tab = "projects" | "residents" | "briefs" | "announcements" | "messages" | "requests" | "team";
 
 const lbl = "mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground";
 const input = "mt-2 w-full bg-transparent border-b border-border focus:border-site-red outline-none py-2 text-lg";
