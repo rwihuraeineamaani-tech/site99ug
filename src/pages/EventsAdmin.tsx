@@ -51,6 +51,8 @@ type AdminTab = "dashboard" | "manager" | "buyers" | "trashed";
 
 export default function EventsAdmin() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [canManage, setCanManage] = useState(false);
+
   const [tab, setTab] = useState<AdminTab>("dashboard");
 
   const [events, setEvents] = useState<any[]>([]);
@@ -143,14 +145,19 @@ export default function EventsAdmin() {
     (async () => {
       const { data: s } = await supabase.auth.getUser();
       if (!s.user) return setIsAdmin(false);
-      const { data: r } = await supabase.rpc("has_role", { _user_id: s.user.id, _role: "admin" });
-      setIsAdmin(!!r);
-      if (r) {
+      const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", s.user.id);
+      const list = (rows ?? []).map((r) => r.role as string);
+      const manage = list.includes("admin") || list.includes("event_manager");
+      const view = manage || list.includes("viewer");
+      setCanManage(manage);
+      setIsAdmin(view);
+      if (view) {
         load();
         loadPending();
       }
     })();
   }, []);
+
 
   const load = async () => {
     const { data } = await supabase.from("events").select("*").order("starts_at", { ascending: false });
@@ -419,25 +426,28 @@ export default function EventsAdmin() {
   if (!isAdmin)
     return (
       <AdminShell title="Events" eyebrow="Events console">
-        <p className="text-sm">Admin only. <Link to="/admin/login" className="underline text-site-red">Sign in</Link></p>
+        <p className="text-sm">You don't have access to the events console. <Link to="/admin/login" className="underline text-site-red">Sign in</Link></p>
       </AdminShell>
     );
 
+  const activeTab: AdminTab = tab === "manager" && !canManage ? "dashboard" : tab;
+
   const navItems = [
     { key: "dashboard", label: "Dashboard", badge: pendingCount, onClick: () => setTab("dashboard") },
-    { key: "manager", label: "Event Manager", onClick: () => setTab("manager") },
+    ...(canManage ? [{ key: "manager", label: "Event Manager", onClick: () => setTab("manager") }] : []),
     { key: "buyers", label: "Buyers Search", onClick: () => setTab("buyers") },
     { key: "trashed", label: "Trashed", onClick: () => { setTab("trashed"); loadTrashed(); } },
-    { key: "scan", label: "Scanner ↗", to: "/admin/scan" },
+    ...(canManage ? [{ key: "scan", label: "Scanner ↗", to: "/admin/scan" }] : []),
     { key: "site", label: "Site Admin ↗", to: "/admin" },
   ];
+
 
   return (
     <AdminShell
       title="Events"
       eyebrow="Events console"
       nav={navItems}
-      active={tab}
+      active={activeTab}
       actions={
         <button onClick={() => exportCsv()} className="mono text-[10px] uppercase tracking-[0.2em] border border-border rounded-full px-3 py-1.5" data-hover>
           Export buyers
@@ -445,7 +455,7 @@ export default function EventsAdmin() {
       }
     >
       <div>
-        {tab === "dashboard" && (
+        {activeTab === "dashboard" && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
@@ -484,17 +494,17 @@ export default function EventsAdmin() {
                         <td className="pr-4"><StatusPill status={o.status} /></td>
                         <td className="text-right">
                           <div className="flex gap-2 justify-end flex-wrap">
-                            {o.status === "pending" && (
+                            {canManage && o.status === "pending" && (
                               <>
                                 <button onClick={() => confirmOrder(o)} className="bg-site-red text-site-white px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Confirm & Email</button>
                                 <button onClick={() => rejectOrder(o)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Reject</button>
                               </>
                             )}
-                            {o.status === "paid" && (
+                            {canManage && o.status === "paid" && (
                               <button onClick={() => sendTickets(o.id)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Resend tickets</button>
                             )}
-                            <button onClick={() => setCopyOrderId(o.id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy for manual</button>
-                            <button onClick={() => trashOrder(o)} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>
+                            {canManage && <button onClick={() => setCopyOrderId(o.id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy for manual</button>}
+                            {canManage && <button onClick={() => trashOrder(o)} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>}
                           </div>
                         </td>
                       </tr>
@@ -507,7 +517,7 @@ export default function EventsAdmin() {
           </>
         )}
 
-        {tab === "manager" && (
+        {activeTab === "manager" && (
           <div className="mt-8 grid lg:grid-cols-2 gap-12">
             <div className="border border-border rounded-lg p-6">
               <h2 className="display text-2xl">{editingId ? "Edit" : "New"} event</h2>
@@ -723,7 +733,7 @@ export default function EventsAdmin() {
           </div>
         )}
 
-        {tab === "buyers" && (
+        {activeTab === "buyers" && (
           <div className="mt-8">
             <div className="flex gap-3 items-end flex-wrap">
               <label className="flex-1 min-w-[280px]">
@@ -777,8 +787,8 @@ export default function EventsAdmin() {
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
                       <td className="pr-4 text-right">
                         <div className="flex gap-2 justify-end flex-wrap">
-                          <button onClick={() => setCopyOrderId(o.order_id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy</button>
-                          <button onClick={() => trashOrder({ id: o.order_id, buyer_name: o.buyer_name, amount_ugx: o.amount_ugx })} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>
+                          {canManage && <button onClick={() => setCopyOrderId(o.order_id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy</button>}
+                          {canManage && <button onClick={() => trashOrder({ id: o.order_id, buyer_name: o.buyer_name, amount_ugx: o.amount_ugx })} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>}
                         </div>
                       </td>
                     </tr>
@@ -791,7 +801,7 @@ export default function EventsAdmin() {
           </div>
         )}
 
-        {tab === "trashed" && (
+        {activeTab === "trashed" && (
           <div className="mt-8">
             <div className="flex items-baseline justify-between">
               <h2 className="display text-2xl">Trashed orders</h2>
@@ -816,7 +826,7 @@ export default function EventsAdmin() {
                       <td className="pr-4 mono">UGX {Number(o.amount_ugx || 0).toLocaleString()}</td>
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
                       <td className="text-right">
-                        <button onClick={() => restoreOrder(o)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Restore</button>
+                        {canManage && <button onClick={() => restoreOrder(o)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Restore</button>}
                       </td>
                     </tr>
                   ))}

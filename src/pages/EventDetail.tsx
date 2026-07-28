@@ -244,13 +244,14 @@ export default function EventDetail() {
         path={`/events/${slug}`}
       />
 
-      {loading && <section className="pt-32 px-8 md:px-16"><p className="mono text-xs">Loading…</p></section>}
-      {!loading && !event && <section className="pt-32 px-8 md:px-16"><p className="mono text-xs">Event not found.</p></section>}
+      {loading && <section className="pt-40 md:pt-52 px-8 md:px-16"><p className="mono text-xs">Loading…</p></section>}
+      {!loading && !event && <section className="pt-40 md:pt-52 px-8 md:px-16"><p className="mono text-xs">Event not found.</p></section>}
+
 
       {event && (
         <>
           {/* HERO */}
-          <section className="relative pt-24 md:pt-28">
+          <section className="relative pt-36 md:pt-48">
             {event.poster_url ? (
               // POSTER MODE — clean, no fade over the artwork
               <div className="relative w-full overflow-hidden">

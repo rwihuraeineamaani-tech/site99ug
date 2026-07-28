@@ -9,6 +9,8 @@ import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { useMessages } from "@/hooks/useMessages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import TeamPanel from "@/components/admin/TeamPanel";
+
 
 type ProjForm = {
   id?: string; title: string; client: string; year: string; tag: string;
@@ -25,7 +27,7 @@ const emptyProj: ProjForm = {
 type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean };
 const emptyRes: ResForm = { name: "", territory: "", since: "", status: "Active", display_order: 0, email: "", visible: true };
 
-type Tab = "projects" | "residents" | "briefs" | "announcements" | "messages" | "requests";
+type Tab = "projects" | "residents" | "briefs" | "announcements" | "messages" | "requests" | "team";
 
 const lbl = "mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground";
 const input = "mt-2 w-full bg-transparent border-b border-border focus:border-site-red outline-none py-2 text-lg";
@@ -35,6 +37,7 @@ export default function Admin() {
   const qc = useQueryClient();
   const [authChecked, setAuthChecked] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("projects");
 
@@ -45,7 +48,9 @@ export default function Admin() {
       setUserId(sess.session.user.id);
       const { data: roles } = await supabase
         .from("user_roles").select("role").eq("user_id", sess.session.user.id);
-      setIsAdmin(!!roles?.some((r) => r.role === "admin"));
+      const list = (roles ?? []).map((r) => r.role as string);
+      setIsAdmin(list.includes("admin"));
+      setCanEdit(list.includes("admin") || list.includes("site_editor"));
       setAuthChecked(true);
     };
     init();
@@ -59,7 +64,7 @@ export default function Admin() {
 
   if (!authChecked) return <AdminShell title="Admin"><p className="mono text-xs text-muted-foreground">Loading…</p></AdminShell>;
 
-  if (!isAdmin) {
+  if (!canEdit) {
     return (
       <AdminShell title="Not yet authorized.">
         <div className="max-w-2xl">
@@ -73,27 +78,30 @@ export default function Admin() {
   }
 
 
-  const tabs: Tab[] = ["projects","residents","briefs","announcements","messages","requests"];
+  const tabs: Tab[] = ["projects","residents","briefs","announcements","messages","requests", ...(isAdmin ? ["team" as Tab] : [])];
   const label = (t: Tab) => (t === "requests" ? "Access Requests" : t);
+  const activeTab: Tab = tab === "team" && !isAdmin ? "projects" : tab;
 
   return (
     <AdminShell
       title="Site 99 Manager"
       eyebrow="Site console"
-      active={tab}
+      active={activeTab}
       nav={[
         ...tabs.map((t) => ({ key: t, label: label(t), onClick: () => setTab(t) })),
         { key: "events", label: "Events ↗", to: "/admin/events" },
       ]}
     >
-      {tab === "projects" && <ProjectsAdmin userId={userId} qc={qc} />}
-      {tab === "residents" && <ResidentsAdmin qc={qc} />}
-      {tab === "briefs" && <BriefsAdmin userId={userId} qc={qc} />}
-      {tab === "announcements" && <AnnouncementsAdmin qc={qc} />}
-      {tab === "messages" && <MessagesAdmin />}
-      {tab === "requests" && <AccessRequests />}
+      {activeTab === "projects" && <ProjectsAdmin userId={userId} qc={qc} />}
+      {activeTab === "residents" && <ResidentsAdmin qc={qc} />}
+      {activeTab === "briefs" && <BriefsAdmin userId={userId} qc={qc} />}
+      {activeTab === "announcements" && <AnnouncementsAdmin qc={qc} />}
+      {activeTab === "messages" && <MessagesAdmin />}
+      {activeTab === "requests" && <AccessRequests />}
+      {activeTab === "team" && isAdmin && <TeamPanel />}
     </AdminShell>
   );
+
 }
 
 /* ---------- Projects ---------- */
