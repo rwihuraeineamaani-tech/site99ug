@@ -447,7 +447,7 @@ export default function EventsAdmin() {
       title="Events"
       eyebrow="Events console"
       nav={navItems}
-      active={tab}
+      active={activeTab}
       actions={
         <button onClick={() => exportCsv()} className="mono text-[10px] uppercase tracking-[0.2em] border border-border rounded-full px-3 py-1.5" data-hover>
           Export buyers
@@ -455,7 +455,7 @@ export default function EventsAdmin() {
       }
     >
       <div>
-        {tab === "dashboard" && (
+        {activeTab === "dashboard" && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
@@ -517,7 +517,7 @@ export default function EventsAdmin() {
           </>
         )}
 
-        {tab === "manager" && (
+        {activeTab === "manager" && (
           <div className="mt-8 grid lg:grid-cols-2 gap-12">
             <div className="border border-border rounded-lg p-6">
               <h2 className="display text-2xl">{editingId ? "Edit" : "New"} event</h2>
@@ -733,7 +733,7 @@ export default function EventsAdmin() {
           </div>
         )}
 
-        {tab === "buyers" && (
+        {activeTab === "buyers" && (
           <div className="mt-8">
             <div className="flex gap-3 items-end flex-wrap">
               <label className="flex-1 min-w-[280px]">
@@ -801,7 +801,7 @@ export default function EventsAdmin() {
           </div>
         )}
 
-        {tab === "trashed" && (
+        {activeTab === "trashed" && (
           <div className="mt-8">
             <div className="flex items-baseline justify-between">
               <h2 className="display text-2xl">Trashed orders</h2>
