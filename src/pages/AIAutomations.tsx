@@ -136,7 +136,7 @@ export default function AIAutomations() {
 
 
         {/* AUDIT TOOL */}
-        <section className="relative px-8 md:px-16 py-24 md:py-36 border-t border-white/10">
+        <section id="audit" className="relative px-8 md:px-16 py-24 md:py-36 border-t border-white/10 scroll-mt-8">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <h2 className="display text-3xl md:text-5xl">Automation audit</h2>
             <span className="tech text-[11px] uppercase tracking-[0.24em] text-white/40">3 questions · no signup</span>
