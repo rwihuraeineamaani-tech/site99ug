@@ -39,7 +39,7 @@ const AnimatedRoutes = () => {
   return (
     <ThemeWipeProvider>
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Routes location={location} key={location.pathname.startsWith("/ai-automations") ? "/ai-automations" : location.pathname}>
         <Route path="/" element={<Index />} />
         <Route path="/archive" element={<Archive />} />
         <Route path="/residents" element={<Residents />} />
