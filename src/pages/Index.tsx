@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring, 
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+import { WipeLink } from "@/components/ThemeWipe";
 import Seo from "@/components/Seo";
 import { Marquee } from "@/components/Marquee";
 import { TikTokMockup } from "@/components/TikTokMockup";
@@ -246,6 +247,35 @@ export default function Home() {
               <span className="group-hover:translate-x-2 transition-transform">→</span>
             </Link>
           </motion.div>
+        </motion.div>
+      </section>
+
+      {/* AI & AUTOMATIONS TEASER — dark panel previewing the sector theme */}
+      <section className="px-8 md:px-16 py-8 md:py-10 bg-background">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="relative overflow-hidden rounded-2xl bg-site-black text-site-white p-6 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-70"
+            style={{ background: "radial-gradient(50vw 40vw at 85% 20%, hsl(var(--ai-accent) / 0.28), transparent 70%)" }}
+          />
+          <div className="relative z-10">
+            <span className="tech text-[11px] uppercase tracking-[0.28em] text-ai-accent">Sector</span>
+            <h2 className="display mt-3 text-2xl md:text-4xl">Site 99 AI &amp; Automations</h2>
+            <p className="mt-3 text-white/70 max-w-md">The AI systems Site 99 builds to make businesses run smarter.</p>
+          </div>
+          <WipeLink
+            to="/ai-automations"
+            className="relative z-10 inline-flex items-center gap-3 rounded-full bg-ai-accent px-7 py-4 label text-xs text-site-black hover:bg-site-white transition-colors self-start cursor-pointer"
+          >
+            Explore
+            <span aria-hidden>→</span>
+          </WipeLink>
         </motion.div>
       </section>
 
