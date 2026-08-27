@@ -41,7 +41,7 @@ export default function AIKazi() {
             transition={{ duration: 0.6 }}
             src={kaziMark.url}
             alt="Kazi Intelligent Systems"
-            className="mt-8 h-16 w-auto md:h-28"
+            className="mt-8 h-10 w-auto md:h-16"
           />
           <h1 className="sr-only">Kazi Intelligent Systems</h1>
           <p className="tech mt-4 text-[11px] uppercase tracking-[0.28em] text-[#a98bff]">Intelligent Systems</p>
