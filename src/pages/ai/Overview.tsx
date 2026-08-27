@@ -179,7 +179,7 @@ export default function AIOverview() {
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
           <div>
             <span className="tech text-[10px] uppercase tracking-[0.24em] text-white/40">Product 01</span>
-            <img src={kaziMark.url} alt="Kazi Intelligent Systems" loading="lazy" className="mt-5 h-7 w-auto md:h-9" />
+            <img src={kaziMark.url} alt="Kazi Intelligent Systems" loading="lazy" className="mt-5 h-9 w-auto md:h-11" />
             <p className="mt-5 max-w-xl leading-relaxed text-white/70">
               Kazi means work. It stands for the systems that make everyday work faster and easier — for everyone, and
               everything.

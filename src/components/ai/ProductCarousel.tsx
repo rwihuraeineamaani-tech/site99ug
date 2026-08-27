@@ -22,7 +22,7 @@ export const ProductCarousel = () => {
 
         <div className="relative">
           <span className="tech text-[10px] uppercase tracking-[0.24em] text-white/40">Product 01</span>
-          <img src={kaziMark.url} alt="Kazi Intelligent Systems" loading="lazy" className="mt-5 h-7 md:h-9 w-auto" />
+          <img src={kaziMark.url} alt="Kazi Intelligent Systems" loading="lazy" className="mt-5 h-9 md:h-11 w-auto" />
           <p className="mt-2 tech text-[11px] uppercase tracking-[0.24em] text-white/45">Intelligent Systems</p>
 
           <p className="mt-7 max-w-xl text-white/75 leading-relaxed">
