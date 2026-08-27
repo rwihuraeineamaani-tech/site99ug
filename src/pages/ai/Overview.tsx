@@ -30,49 +30,90 @@ export default function AIOverview() {
       </Helmet>
 
       {/* HERO */}
-      <section className="relative min-h-[100svh] overflow-hidden px-4 pb-10 pt-10 sm:px-8 md:px-16">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="ai-scan absolute inset-x-0 top-0 h-[2px] bg-white/25 blur-[2px]" />
-        </div>
-
+      <section className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-4 pb-16 pt-28 sm:px-8 md:px-16">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 26 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-5xl flex-col justify-between gap-10 border border-white/12 p-5 sm:p-8 md:p-12"
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="relative z-10"
         >
-          <div>
-            <div className="flex items-center gap-3">
-              <span className="h-px w-8 bg-white" />
-              <span className="tech text-[10px] font-bold uppercase tracking-[0.4em] text-white">Site 99 Sector</span>
+          <div className="flex items-center gap-3">
+            <span className="h-px w-8 bg-white" />
+            <span className="tech text-[10px] font-bold uppercase tracking-[0.4em] text-white">Site 99 Sector</span>
+          </div>
+
+          <h1 className="display mt-6 text-[clamp(2.8rem,10.5vw,9rem)] font-black leading-[0.88] tracking-tight">
+            AI &amp;
+            <br />
+            Automations
+          </h1>
+
+          <div className="mt-8 grid gap-10 border-t border-white/12 pt-8 md:grid-cols-[1.2fr_1fr] md:gap-16">
+            <p className="text-fluid-md leading-relaxed text-white/75 md:max-w-xl">
+              We build the software your business is currently doing by hand. Custom systems, intelligent workflows and
+              automations — designed, engineered and maintained by Site 99. Kazi means work. We make it lighter.
+            </p>
+            <div className="grid grid-cols-3 gap-4 self-end">
+              {[
+                { k: "Audit", v: "5 min" },
+                { k: "First build", v: "2–6 wks" },
+                { k: "Support", v: "Ongoing" },
+              ].map((m) => (
+                <div key={m.k} className="border-l border-white/15 pl-3">
+                  <p className="display text-lg md:text-2xl">{m.v}</p>
+                  <p className="tech mt-1 text-[9px] uppercase tracking-[0.24em] text-white/40">{m.k}</p>
+                </div>
+              ))}
             </div>
-            <h1 className="display mt-4 text-[clamp(2.6rem,11vw,7rem)] font-black leading-[0.92] tracking-tight">
-              AI &amp;
-              <br />
-              Automations
-            </h1>
           </div>
 
-          <div className="md:max-w-lg">
-            <SystemLedger />
-          </div>
-
-          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-            <p className="text-fluid-md text-white/75 md:max-w-sm">Kazi means work. Systems that make it lighter.</p>
-            <a href="#audit" className="group flex flex-col items-start gap-3 md:items-center">
-              <span className="tech text-[10px] font-bold uppercase tracking-[0.3em] text-white/60 transition-colors group-hover:text-white">
-                Scroll to audit
-              </span>
-              <span className="relative block h-12 w-px overflow-hidden bg-white/25">
-                <motion.span
-                  className="absolute inset-x-0 h-1/2 bg-white"
-                  animate={{ y: ["-100%", "200%"] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                />
-              </span>
+          <div className="mt-10 flex flex-wrap items-center gap-3">
+            <a
+              href="#audit"
+              className="rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-white/85"
+            >
+              Run the free audit
             </a>
+            <Link
+              to="/ai-automations/systems"
+              className="rounded-full border border-white/25 px-7 py-3.5 text-sm font-semibold transition-colors hover:border-white/60"
+            >
+              See what we build
+            </Link>
           </div>
         </motion.div>
+
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-full overflow-hidden">
+          <div className="ai-scan absolute inset-x-0 top-0 h-[2px] bg-white/20 blur-[2px]" />
+        </div>
+      </section>
+
+      {/* WHAT WE BUILD */}
+      <section className="border-t border-white/10 px-4 py-20 sm:px-8 md:px-16 md:py-28">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <h2 className="display text-3xl md:text-5xl">What we can build</h2>
+          <Link
+            to="/ai-automations/systems"
+            className="tech text-[10px] uppercase tracking-[0.24em] text-white/50 underline underline-offset-4 hover:text-white"
+          >
+            See all systems →
+          </Link>
+        </div>
+        <CapabilityScroll />
+      </section>
+
+      {/* COMMAND CENTER */}
+      <section className="border-t border-white/10 px-4 py-20 sm:px-8 md:px-16 md:py-28">
+        <div className="relative mx-auto w-full max-w-5xl border border-white/12 p-5 sm:p-8 md:p-12">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <h2 className="display text-3xl md:text-5xl">Live system floor</h2>
+            <span className="tech text-[11px] uppercase tracking-[0.24em] text-white/40">status · realtime</span>
+          </div>
+          <div className="mt-8 md:max-w-lg">
+            <SystemLedger />
+          </div>
+          <p className="mt-8 text-fluid-md text-white/70">Kazi means work. Systems that make it lighter.</p>
+        </div>
       </section>
 
       {/* AUDIT */}
@@ -131,20 +172,6 @@ export default function AIOverview() {
             </motion.div>
           ))}
         </div>
-      </section>
-
-      {/* CAPABILITY TEASER */}
-      <section className="border-t border-white/10 px-4 py-20 sm:px-8 md:px-16 md:py-28">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="display text-3xl md:text-5xl">What we can build</h2>
-          <Link
-            to="/ai-automations/systems"
-            className="tech text-[10px] uppercase tracking-[0.24em] text-white/50 underline underline-offset-4 hover:text-white"
-          >
-            See all systems →
-          </Link>
-        </div>
-        <CapabilityScroll />
       </section>
 
       {/* KAZI TEASER */}
