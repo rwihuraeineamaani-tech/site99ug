@@ -20,7 +20,7 @@ export const AINav = () => {
           <img
             src={kaziLogo.url}
             alt="Kazi — Site 99 AI & Automations"
-            className="h-8 w-auto select-none object-contain transition-transform duration-300 group-hover:scale-[1.04] md:h-10"
+            className="h-6 w-auto select-none object-contain transition-transform duration-300 group-hover:scale-[1.04] md:h-8"
           />
         </WipeLink>
 
