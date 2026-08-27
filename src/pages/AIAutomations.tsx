@@ -5,6 +5,7 @@ import { WipeLink } from "@/components/ThemeWipe";
 import Seo from "@/components/Seo";
 import { AuditTool } from "@/components/ai/AuditTool";
 import { ParticleField } from "@/components/ai/ParticleField";
+import { PoweredByLockup } from "@/components/ai/PoweredByLockup";
 import { ProductCarousel } from "@/components/ai/ProductCarousel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
