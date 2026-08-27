@@ -271,7 +271,7 @@ export default function Home() {
           </div>
           <WipeLink
             to="/ai-automations"
-            className="relative z-10 inline-flex items-center gap-3 rounded-full bg-ai-accent px-7 py-4 label text-xs text-site-black hover:bg-site-white transition-colors self-start cursor-pointer"
+            className="relative z-10 inline-flex items-center gap-3 rounded-full bg-site-white px-7 py-4 label text-xs text-site-black hover:bg-white/85 transition-colors self-start cursor-pointer"
           >
             Explore
             <span aria-hidden>→</span>
