@@ -55,7 +55,8 @@ export default function Philosophy() {
                     aria-hidden
                     className="text-[40vw] leading-none block absolute inset-0 tracking-tighter"
                     style={{
-                      fontFamily: "'Archivo Black', system-ui, sans-serif",
+                      fontFamily: "'Montserrat', system-ui, sans-serif",
+                      fontWeight: 900,
                       transform: `translateZ(${-depth * 3}px)`,
                       color: `hsl(0 ${sat}% ${lightness}%)`,
                     }}
@@ -70,7 +71,8 @@ export default function Philosophy() {
                   color: numColor as any,
                   transform: "translateZ(8px)",
                   textShadow: "0 0 80px rgba(182,0,0,0.55), 0 0 30px rgba(182,0,0,0.4)",
-                  fontFamily: "'Archivo Black', system-ui, sans-serif",
+                  fontFamily: "'Montserrat', system-ui, sans-serif",
+                  fontWeight: 900,
                 }}
                 className="text-[40vw] leading-none block relative tracking-tighter"
               >
