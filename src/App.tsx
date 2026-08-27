@@ -24,12 +24,15 @@ import TicketView from "./pages/TicketView.tsx";
 import EventsAdmin from "./pages/EventsAdmin.tsx";
 import TicketScanner from "./pages/TicketScanner.tsx";
 import ScrollToTop from "./components/ScrollToTop";
+import AIAutomations from "./pages/AIAutomations.tsx";
+import { ThemeWipeProvider } from "./components/ThemeWipe";
 
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
   return (
+    <ThemeWipeProvider>
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Index />} />
@@ -44,6 +47,7 @@ const AnimatedRoutes = () => {
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
+        <Route path="/ai-automations" element={<AIAutomations />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:slug" element={<EventDetail />} />
         <Route path="/tickets/thank-you" element={<TicketThankYou />} />
@@ -53,6 +57,7 @@ const AnimatedRoutes = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
+    </ThemeWipeProvider>
   );
 };
 

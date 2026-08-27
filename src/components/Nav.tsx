@@ -9,8 +9,9 @@ const links = [
   { to: "/services", label: "Services", n: "04" },
   { to: "/about", label: "About", n: "05" },
   { to: "/philosophy", label: "Philosophy", n: "06" },
-  { to: "/events", label: "Events", n: "07" },
-  { to: "/access", label: "Access", n: "08" },
+  { to: "/ai-automations", label: "AI & Automations", n: "07" },
+  { to: "/events", label: "Events", n: "08" },
+  { to: "/access", label: "Access", n: "09" },
 ];
 
 const services = [
@@ -18,7 +19,7 @@ const services = [
   { to: "/services#content-film", label: "Content & Film" },
   { to: "/services#campaigns", label: "Campaigns & Broadcast" },
   { to: "/services#residency", label: "Digital Residency" },
-  { to: "/services#ai-automation", label: "AI & Automations" },
+  { to: "/ai-automations", label: "AI & Automations" },
   { to: "/services#web-design", label: "Website Design" },
   { to: "/services#social-media", label: "Social Media Handling" },
   { to: "/services#production", label: "Production & Live Streaming" },
@@ -26,6 +27,7 @@ const services = [
 ];
 
 const inlineLinks = [
+  { to: "/ai-automations", label: "AI & Automations" },
   { to: "/events", label: "Events" },
   { to: "/about", label: "About" },
 ];
