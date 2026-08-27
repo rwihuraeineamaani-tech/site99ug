@@ -18,9 +18,9 @@ export const AINav = () => {
       <nav className="flex items-center justify-between gap-4 px-4 py-3 sm:px-8 md:px-16">
         <WipeLink to="/ai-automations" className="group flex shrink-0 items-center gap-3">
           <img
-            src={kaziLogo.url}
-            alt="Kazi — Site 99 AI & Automations"
-            className="h-8 w-auto select-none object-contain transition-transform duration-300 group-hover:scale-[1.04] md:h-10"
+            src={sectorLogo.url}
+            alt="Site 99 AI & Automations"
+            className="h-7 w-auto select-none object-contain transition-transform duration-300 group-hover:scale-[1.04] md:h-9"
           />
         </WipeLink>
 
