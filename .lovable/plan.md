@@ -1,44 +1,50 @@
-## 1. Team accounts with selective access
+# AI & Automations sector page
 
-Add four new roles alongside `admin`: **event_manager**, **scanner**, **viewer**, **site_editor**.
+A new dark-themed sector page at `/ai-automations`, framed as Site 99's AI & Automation arm — with Kazi Intelligent Systems as one product inside it, not the headline. Real motion throughout: an animated light-to-black transition on entry, a live particle-network background, and an interactive business audit tool.
 
-**Database**
-- Extend the `app_role` enum with the four new values.
-- Add a small `team_members` table (user_id, email, display name, created_by) so the console can list accounts — `auth.users` isn't directly readable from the app.
-- Add a helper `has_any_role(_user_id, _roles[])` for policies, and update existing policies so:
-  - events / tiers: admin or event_manager can write; everyone else read
-  - orders / tickets: admin + event_manager write, viewer read-only, scanner limited to scan validation
-  - projects / residents / announcements: admin + site_editor
-- Grants on the new table for `authenticated` + `service_role`.
+## 1. Navigation
+- Add "AI & Automations" to the main nav (desktop inline links, mobile menu overlay, and the numbered link list).
+- The existing Services dropdown item `/services#ai-automation` gets repointed to the new page.
 
-**Server**
-- New edge function `admin-users` (service role, JWT validated in code, caller must be admin) with actions: `create` (email + password you set, email auto-confirmed), `set_roles`, `reset_password`, `delete`. Roles are validated against an allow-list so nobody can self-escalate.
+## 2. Homepage teaser
+- A compact dark panel placed immediately after the hero on the homepage: headline "Site 99 AI & Automations", one line "The AI systems Site 99 builds to make businesses run smarter.", and an "Explore" button.
+- Rendered near-black inside the light page so it previews the theme shift; the Explore button triggers the same transition as the nav link.
 
-**UI — new "Team" tab in the admin console**
-- Table of members: email, roles as pills, created date.
-- "New member" form: email, name, password, role checkboxes.
-- Per-row: edit roles, reset password, remove.
-- Route guards updated: `/admin/events` opens for admin/event_manager/viewer (viewer sees read-only — no confirm, no trash, no edit), `/admin/scan` for admin/event_manager/scanner, `/admin` for admin/site_editor. Sidebar items hide based on role.
+## 3. Theme transition (real animation)
+- A global overlay component: on click of any AI & Automations link, capture the click coordinates, expand a black radial circle from that point over the whole viewport (~750ms, eased), navigate mid-sweep, then fade the overlay out on the new page.
+- Built with Framer Motion (already in the project) plus a CSS `clip-path` circle; respects reduced-motion (instant navigation instead).
 
-## 2. Nav bar fix on public events pages
+## 4. `/ai-automations` page (black theme)
+Sections top to bottom:
 
-The fixed header's logo is `h-24 / md:h-36` plus padding (~136–184px tall), while `/events` starts content at `pt-28` (112px) and `/events/:slug` at `pt-24`. The logo and Menu button sit over the page title.
+1. **Hero** — "AI & Automations" + "Kazi means work. Systems that make it lighter." + scroll cue. Nothing else.
+2. **Business audit tool** (the page's centrepiece, largest section):
+   - Step 1: business category buttons (Retail/E-commerce, Services, Events, Education, Hospitality, Other).
+   - Step 2: multi-select pain points (Customer replies/support, Scheduling/bookings, Data entry, Invoicing/payments, Social media/content, Reporting).
+   - Step 3: team size (Just me, 2–10, 11–50, 50+).
+   - Result card: 2–3 automation opportunities from a rule-based mapping table in code (pain point + category + team size modifiers), plus CTA "Want us to build this for you?" that scrolls to the contact form.
+   - Monospace step labels, progress bar, slide/fade transitions between steps, no signup.
+3. **Product showcase** — a smaller horizontal carousel below the tool: one Kazi Intelligent Systems slide ("Intelligent workflow systems, powered by machine learning and AI." + "Learn more") and 2 blurred non-clickable "More products coming soon." cards.
+4. **Positioning strip** — 4 short lines revealed on scroll (fade/slide), no paragraphs.
+5. **About** — small understated bio card: Rwihura Eineammani, Lead Engineer, undertaking a Bachelor's degree in Engineering, Robotics and Artificial Intelligence.
+6. **Contact / demo** — name, company, email, "What would you like to automate?"; button "Request a Demo"; beside it "or email us directly at info@site99ug.com".
 
-Fix: introduce a shared header-height spacing token and apply it to the public pages that start with text right under the nav (`Events`, `EventDetail`), so content clears the header at every breakpoint. Also shrink the logo slightly once scrolled so the header doesn't dominate the event hero.
+**Animated background**: a canvas particle field (sparse slow dots joined by faint accent lines) running on requestAnimationFrame, capped particle count and paused when off-screen/reduced-motion, fewer particles on mobile.
 
-## 3. Suggestions to upgrade the site
+## 5. Design
+- Near-black background, single accent: electric blue. Montserrat for text, JetBrains Mono (already loaded) for labels, step numbers and tags.
+- Page-scoped dark tokens so the rest of the site's light theme is untouched.
+- Fully responsive, mobile-first — tap targets, single-column audit tool, reduced particle density.
 
-Ranked; none of these are in the plan above — tell me which you want next.
+## 6. Backend for the demo form
+- New `ai_leads` table (name, company, email, message, created_at) with RLS: anonymous insert allowed, reads restricted to admin/site_editor staff roles, plus the required GRANTs.
+- A `send-ai-lead-notification` edge function emails the submission to info@site99ug.com, mirroring the existing access-request notification.
+- Note: automated sending still depends on the pending `notify.site99ug.com` DNS verification; until it verifies, submissions are stored safely and the visible "email us directly" mailto link is the guaranteed path.
 
-1. **Buyer self-service**: a "Find my tickets" page (email + order ref) so people can re-download tickets without emailing you.
-2. **Finish email verification** for `notify.site99ug.com` — automatic ticket delivery stays broken until the DNS records are added; everything else is already built.
-3. **Events list upgrade**: past/upcoming split, city + date filters, "sold out" and "few left" badges, and event JSON-LD so Google shows dates and prices in search results.
-4. **Analytics**: sales-over-time chart, revenue by tier, and check-in rate on the admin dashboard.
-5. **Performance/SEO**: convert the hero and gallery images to WebP with width-based srcsets — the JPGs are the heaviest thing on mobile.
-6. **Discount / promo codes** and complimentary ticket issuing from the console.
-7. **Waitlist capture** when a tier sells out.
+## 7. SEO
+- Unique title/description via the existing `Seo` component, JSON-LD `Service` entry, and `/ai-automations` added to `sitemap.xml`.
 
 ## Technical notes
-- Enum values must be committed before use, so this ships as two migrations (enum first, then policies).
-- Password creation uses the service role inside the edge function only; no admin key ever reaches the browser.
-- Viewer read-only is enforced in RLS as well as UI, not just by hiding buttons.
+- New files: `src/pages/AIAutomations.tsx`, `src/components/ai/ParticleField.tsx`, `src/components/ai/AuditTool.tsx`, `src/components/ai/ProductCarousel.tsx`, `src/components/ThemeWipeLink.tsx`, `src/components/ai/auditRules.ts`.
+- Edited: `src/App.tsx` (route), `src/components/Nav.tsx`, `src/pages/Index.tsx` (teaser), `public/sitemap.xml`.
+- Audit logic is pure client-side mapping — no AI call — so results are instant.
