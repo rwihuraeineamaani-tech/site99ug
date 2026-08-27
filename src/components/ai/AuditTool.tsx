@@ -30,16 +30,16 @@ export const AuditTool = () => {
   };
 
   const chip = (active: boolean) =>
-    `text-left rounded-lg border px-4 py-3.5 text-sm transition-colors ${
+    `text-left rounded-none border px-4 py-3.5 text-sm transition-colors ${
       active
-        ? "border-ai-accent bg-ai-accent/15 text-white"
+        ? "border-white bg-white/10 text-white"
         : "border-white/12 bg-white/[0.03] text-white/75 hover:border-white/30 hover:text-white"
     }`;
 
   return (
-    <div className="relative rounded-2xl border border-white/12 bg-white/[0.03] backdrop-blur-sm p-5 sm:p-8 md:p-10">
+    <div className="relative rounded-none border border-white/15 bg-black p-5 sm:p-8 md:p-10">
       <div className="flex items-center justify-between gap-4">
-        <span className="tech text-[11px] uppercase tracking-[0.28em] text-ai-accent">
+        <span className="tech text-[11px] uppercase tracking-[0.28em] text-white">
           {result ? "Result" : `Step 0${step + 1} / 03 — ${stepLabels[step]}`}
         </span>
         {result && (
@@ -51,7 +51,7 @@ export const AuditTool = () => {
 
       <div className="mt-4 h-px w-full bg-white/10 overflow-hidden">
         <motion.div
-          className="h-px bg-ai-accent"
+          className="h-px bg-white"
           initial={false}
           animate={{ width: result ? "100%" : `${((step + 1) / 3) * 100}%` }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
@@ -76,9 +76,9 @@ export const AuditTool = () => {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + i * 0.1, duration: 0.45 }}
-                    className="rounded-xl border border-white/12 bg-black/40 p-5"
+                    className="rounded-none border border-white/15 bg-black p-5"
                   >
-                    <span className="tech text-[10px] uppercase tracking-[0.24em] text-ai-accent">{s.tag}</span>
+                    <span className="tech text-[10px] uppercase tracking-[0.24em] text-white">{s.tag}</span>
                     <p className="mt-3 font-semibold text-white leading-snug">{s.title}</p>
                     <p className="mt-2 text-sm text-white/60 leading-relaxed">{s.body}</p>
                   </motion.div>
@@ -86,7 +86,7 @@ export const AuditTool = () => {
               </div>
               <a
                 href="#demo"
-                className="mt-8 inline-flex items-center gap-3 rounded-full bg-ai-accent px-7 py-4 text-sm font-semibold text-black hover:bg-white transition-colors"
+                className="mt-8 inline-flex items-center gap-3 rounded-full bg-white px-7 py-4 text-sm font-semibold text-black hover:bg-white/85 transition-colors"
               >
                 Want us to build this for you?
                 <span aria-hidden>→</span>
@@ -156,7 +156,7 @@ export const AuditTool = () => {
           <button
             onClick={next}
             disabled={!canNext}
-            className="rounded-full bg-ai-accent px-7 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-white disabled:opacity-30 disabled:hover:bg-ai-accent"
+            className="rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-white/85 disabled:opacity-30"
           >
             {step === 2 ? "See my results" : "Continue"}
           </button>
