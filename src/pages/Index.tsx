@@ -262,10 +262,10 @@ export default function Home() {
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-70"
-            style={{ background: "radial-gradient(50vw 40vw at 85% 20%, hsl(var(--ai-accent) / 0.28), transparent 70%)" }}
+            style={{ background: "radial-gradient(50vw 40vw at 85% 20%, hsl(0 0% 100% / 0.14), transparent 70%)" }}
           />
           <div className="relative z-10">
-            <span className="tech text-[11px] uppercase tracking-[0.28em] text-ai-accent">Sector</span>
+            <span className="tech text-[11px] uppercase tracking-[0.28em] text-white/50">Sector</span>
             <h2 className="display mt-3 text-2xl md:text-4xl">Site 99 AI &amp; Automations</h2>
             <p className="mt-3 text-white/70 max-w-md">The AI systems Site 99 builds to make businesses run smarter.</p>
           </div>
