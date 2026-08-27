@@ -68,11 +68,15 @@ export default function AIOverview() {
             </p>
             <div className="grid grid-cols-3 gap-4 self-end">
               {[
-                { k: "Audit", v: "5 min" },
-                { k: "First build", v: "2–6 wks" },
-                { k: "Support", v: "Ongoing" },
+                { k: "Audit", v: "5 min", Icon: Timer },
+                { k: "First build", v: "2–6 wks", Icon: Rocket },
+                { k: "Support", v: "Ongoing", Icon: LifeBuoy },
               ].map((m) => (
-                <div key={m.k} className="border-l border-white/15 pl-3">
+                <div
+                  key={m.k}
+                  className="group border-l border-white/15 pl-3 transition-colors hover:border-white/60"
+                >
+                  <m.Icon className="mb-2 h-4 w-4 text-white/40 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:text-white" />
                   <p className="display text-lg md:text-2xl">{m.v}</p>
                   <p className="tech mt-1 text-[9px] uppercase tracking-[0.24em] text-white/40">{m.k}</p>
                 </div>
@@ -83,15 +87,18 @@ export default function AIOverview() {
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <a
               href="#audit"
-              className="rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-white/85"
+              className="group inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-white/85"
             >
+              <ScanLine className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
               Run the free audit
             </a>
             <Link
               to="/ai-automations/systems"
-              className="rounded-full border border-white/25 px-7 py-3.5 text-sm font-semibold transition-colors hover:border-white/60"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/25 px-7 py-3.5 text-sm font-semibold transition-colors hover:border-white/60"
             >
+              <Boxes className="h-4 w-4 text-white/60 transition-colors group-hover:text-white" />
               See what we build
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
         </motion.div>
