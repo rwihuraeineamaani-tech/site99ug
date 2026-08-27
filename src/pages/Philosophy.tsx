@@ -72,6 +72,7 @@ export default function Philosophy() {
                   transform: "translateZ(8px)",
                   textShadow: "0 0 80px rgba(182,0,0,0.55), 0 0 30px rgba(182,0,0,0.4)",
                   fontFamily: "'Montserrat', system-ui, sans-serif",
+                  fontWeight: 900,
                 }}
                 className="text-[40vw] leading-none block relative tracking-tighter"
               >
