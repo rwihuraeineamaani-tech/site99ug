@@ -5,6 +5,7 @@ import { WipeLink } from "@/components/ThemeWipe";
 import Seo from "@/components/Seo";
 import { AuditTool } from "@/components/ai/AuditTool";
 import { ParticleField } from "@/components/ai/ParticleField";
+import { PoweredByLockup } from "@/components/ai/PoweredByLockup";
 import { ProductCarousel } from "@/components/ai/ProductCarousel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -152,10 +153,15 @@ export default function AIAutomations() {
 
         {/* DEMO / CONTACT */}
         <section id="demo" className="px-8 md:px-16 py-24 md:py-36 border-t border-white/10 scroll-mt-24">
+          <p className="display text-center text-3xl md:text-6xl italic text-white/90">_work made easier_</p>
+          <p className="mt-4 mb-16 text-center tech text-[11px] uppercase tracking-[0.28em] text-white/40">
+            contact us now to get a DEMO
+          </p>
           <div className="grid gap-10 lg:grid-cols-[1fr_0.8fr]">
             <div>
               <h2 className="display text-3xl md:text-5xl">Request a demo</h2>
               <p className="mt-4 text-white/60 max-w-md">Tell us what you'd like to automate. We'll come back with a build path.</p>
+
               <p className="mt-6 text-sm text-white/50">
                 or email us directly at{" "}
                 <a href="mailto:info@site99ug.com" className="text-white underline underline-offset-4 hover:text-white/70 transition-colors">
@@ -201,9 +207,11 @@ export default function AIAutomations() {
           </div>
         </section>
 
-        <footer className="px-8 md:px-16 py-10 border-t border-white/10 tech text-[11px] uppercase tracking-[0.24em] text-white/35">
-          © Site 99 — AI &amp; Automations
+        <footer className="px-8 md:px-16 py-20 border-t border-white/10 flex flex-col items-center gap-6">
+          <PoweredByLockup className="h-24 md:h-28" />
+          <p className="tech text-[11px] uppercase tracking-[0.24em] text-white/35">© Site 99 UG LTD</p>
         </footer>
+
       </main>
     </div>
   );
