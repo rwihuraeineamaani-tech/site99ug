@@ -118,6 +118,24 @@
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
+  .ai-grid {
+    background-image:
+      linear-gradient(to right, hsl(0 0% 100% / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(0 0% 100% / 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .ai-scan {
+    animation: ai-scan-y 6s linear infinite;
+  }
+  @keyframes ai-scan-y {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(100svh); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ai-scan { display: none; }
+  }
   .ai-scroll-left {
     animation: ai-scroll-x 55s linear infinite;
   }
