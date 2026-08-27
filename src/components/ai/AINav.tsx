@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { WipeLink } from "@/components/ThemeWipe";
-import sectorLogo from "@/assets/site99-ai-white.png.asset.json";
+import sectorLogo from "@/assets/site99-ai-white-v2.png.asset.json";
 
 const links = [
   { to: "/ai-automations", label: "Overview", end: true },
