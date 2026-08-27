@@ -9,12 +9,15 @@ export const ProductCarousel = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5 }}
-          className="w-[300px] sm:w-[360px] rounded-xl border border-ai-accent/40 bg-gradient-to-b from-ai-accent/12 to-transparent p-6"
+          className="w-[300px] sm:w-[360px] rounded-none border border-white/25 bg-black p-6"
         >
-          <span className="tech text-[10px] uppercase tracking-[0.24em] text-ai-accent">Product 01</span>
+          <span className="tech text-[10px] uppercase tracking-[0.24em] text-white/50">Product 01</span>
           <h3 className="mt-3 text-xl font-bold text-white">Kazi Intelligent Systems</h3>
-          <p className="mt-2 text-sm text-white/65">Intelligent workflow systems, powered by machine learning and AI.</p>
-          <a href="#demo" className="mt-5 inline-block tech text-[11px] uppercase tracking-[0.22em] text-ai-accent hover:text-white transition-colors">
+          <p className="mt-2 text-sm text-white/55">Intelligent workflow systems, powered by machine learning and AI.</p>
+          <a
+            href="#demo"
+            className="mt-5 inline-block tech text-[11px] uppercase tracking-[0.22em] text-white/70 hover:text-white transition-colors"
+          >
             Learn more →
           </a>
         </motion.article>
@@ -23,14 +26,14 @@ export const ProductCarousel = () => {
           <div
             key={n}
             aria-hidden
-            className="w-[240px] sm:w-[280px] rounded-xl border border-white/10 bg-white/[0.03] p-6 select-none"
+            className="w-[240px] sm:w-[280px] rounded-none border border-white/10 bg-black p-6 select-none"
           >
-            <div className="blur-[6px] opacity-40">
+            <div className="blur-[6px] opacity-30">
               <span className="tech text-[10px] uppercase tracking-[0.24em] text-white">Product 0{n}</span>
               <h3 className="mt-3 text-xl font-bold text-white">Classified system</h3>
               <p className="mt-2 text-sm text-white/70">A system in development inside the sector.</p>
             </div>
-            <p className="mt-5 tech text-[11px] uppercase tracking-[0.22em] text-white/40">More products coming soon.</p>
+            <p className="mt-5 tech text-[11px] uppercase tracking-[0.22em] text-white/35">More products coming soon.</p>
           </div>
         ))}
       </div>

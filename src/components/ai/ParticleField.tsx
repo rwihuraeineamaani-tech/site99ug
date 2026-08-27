@@ -24,17 +24,16 @@ export const ParticleField = () => {
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const density = w < 768 ? 22000 : 14000;
-      const count = Math.min(90, Math.max(24, Math.round((w * h) / density)));
+      const density = w < 768 ? 26000 : 17000;
+      const count = Math.min(70, Math.max(20, Math.round((w * h) / density)));
       pts = Array.from({ length: count }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.18,
-        vy: (Math.random() - 0.5) * 0.18,
+        vx: (Math.random() - 0.5) * 0.13,
+        vy: (Math.random() - 0.5) * 0.13,
       }));
     };
 
-    const accent = "56, 160, 255";
     const linkDist = () => (w < 768 ? 110 : 150);
 
     const draw = () => {
@@ -52,7 +51,7 @@ export const ParticleField = () => {
           const dy = pts[i].y - pts[j].y;
           const dist = Math.hypot(dx, dy);
           if (dist < d) {
-            ctx.strokeStyle = `rgba(${accent}, ${0.14 * (1 - dist / d)})`;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.09 * (1 - dist / d)})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(pts[i].x, pts[i].y);
@@ -62,9 +61,9 @@ export const ParticleField = () => {
         }
       }
       for (const p of pts) {
-        ctx.fillStyle = `rgba(${accent}, 0.55)`;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.4, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
         ctx.fill();
       }
       raf = requestAnimationFrame(draw);
