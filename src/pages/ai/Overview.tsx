@@ -1,6 +1,18 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+import {
+  Activity,
+  ArrowRight,
+  Boxes,
+  Cpu,
+  Gauge,
+  LifeBuoy,
+  Rocket,
+  ScanLine,
+  Sparkles,
+  Timer,
+} from "lucide-react";
 import Seo from "@/components/Seo";
 import { AuditTool } from "@/components/ai/AuditTool";
 import { SystemLedger } from "@/components/ai/SystemLedger";
