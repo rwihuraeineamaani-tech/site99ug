@@ -118,6 +118,23 @@
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
+  .ai-scroll-left {
+    animation: ai-scroll-x 55s linear infinite;
+  }
+  .ai-scroll-right {
+    animation: ai-scroll-x 65s linear infinite reverse;
+  }
+  @keyframes ai-scroll-x {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @media (max-width: 767px) {
+    .ai-scroll-left { animation-duration: 35s; }
+    .ai-scroll-right { animation-duration: 42s; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ai-scroll-left, .ai-scroll-right { animation: none; }
+  }
   .glitch {
     animation: glitch 2.5s infinite;
   }

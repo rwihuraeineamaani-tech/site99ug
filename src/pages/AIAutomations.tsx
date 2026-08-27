@@ -7,6 +7,7 @@ import { AuditTool } from "@/components/ai/AuditTool";
 import { ParticleField } from "@/components/ai/ParticleField";
 import { PoweredByLockup } from "@/components/ai/PoweredByLockup";
 import { ProductCarousel } from "@/components/ai/ProductCarousel";
+import { CapabilityScroll } from "@/components/ai/CapabilityScroll";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -114,6 +115,25 @@ export default function AIAutomations() {
           </div>
           <ProductCarousel />
         </section>
+
+        {/* CAPABILITIES */}
+        <section className="relative px-8 md:px-16 py-20 md:py-28 border-t border-white/10">
+          <div className="mb-8">
+            <h2 className="display text-3xl md:text-5xl">What we can build</h2>
+            <p className="tech mt-3 text-[11px] uppercase tracking-[0.24em] text-white/40">
+              Custom systems, shipped fast
+            </p>
+          </div>
+          <CapabilityScroll />
+          <p className="mt-8 text-sm text-white/50">
+            Not on the list?{" "}
+            <a href="#demo" className="text-white underline underline-offset-4">
+              We build custom.
+            </a>
+          </p>
+        </section>
+
+
 
         {/* POSITIONING */}
         <section className="px-8 md:px-16 py-24 md:py-36 border-t border-white/10">
