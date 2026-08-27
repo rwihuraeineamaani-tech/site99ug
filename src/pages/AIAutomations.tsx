@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Nav } from "@/components/Nav";
+import { WipeLink } from "@/components/ThemeWipe";
 import Seo from "@/components/Seo";
 import { AuditTool } from "@/components/ai/AuditTool";
 import { ParticleField } from "@/components/ai/ParticleField";
@@ -42,7 +42,7 @@ export default function AIAutomations() {
   };
 
   const field =
-    "w-full rounded-lg border border-white/12 bg-white/[0.03] px-4 py-3.5 text-sm text-white placeholder:text-white/35 outline-none focus:border-ai-accent transition-colors";
+    "w-full rounded-none border border-white/15 bg-black px-4 py-3.5 text-sm text-white placeholder:text-white/35 outline-none focus:border-white transition-colors";
 
   return (
     <div className="ai-theme grain min-h-screen bg-black text-white">
@@ -64,14 +64,19 @@ export default function AIAutomations() {
           })}
         </script>
       </Helmet>
-      <Nav />
+      <WipeLink
+        to="/"
+        className="fixed left-8 top-8 z-50 tech text-[11px] uppercase tracking-[0.28em] text-white/45 hover:text-white transition-colors md:left-16"
+      >
+        ← Site 99
+      </WipeLink>
 
       <main>
         {/* HERO */}
         <section className="relative min-h-[92svh] flex flex-col justify-end overflow-hidden px-8 md:px-16 pt-40 pb-14">
           <div className="absolute inset-0">
             <ParticleField />
-            <div className="absolute inset-0 bg-[radial-gradient(70vw_60vw_at_70%_10%,hsl(var(--ai-accent)/0.16),transparent_70%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(75vw_60vw_at_65%_8%,hsl(0_0%_100%/0.08),transparent_70%)]" />
           </div>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -79,7 +84,7 @@ export default function AIAutomations() {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="relative z-10"
           >
-            <span className="tech text-[11px] uppercase tracking-[0.3em] text-ai-accent">Site 99 Sector</span>
+            <span className="tech text-[11px] uppercase tracking-[0.3em] text-white/50">Site 99 Sector</span>
             <h1 className="display mt-5 text-fluid-hero leading-[0.9]">AI &amp; Automations</h1>
             <p className="mt-5 text-fluid-md text-white/70">Kazi means work. Systems that make it lighter.</p>
             <div className="mt-12 flex items-center gap-3 tech text-[11px] uppercase tracking-[0.24em] text-white/40">
@@ -92,7 +97,7 @@ export default function AIAutomations() {
         </section>
 
         {/* AUDIT TOOL */}
-        <section className="relative px-8 md:px-16 py-16 md:py-24 border-t border-white/10">
+        <section className="relative px-8 md:px-16 py-24 md:py-36 border-t border-white/10">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <h2 className="display text-3xl md:text-5xl">Automation audit</h2>
             <span className="tech text-[11px] uppercase tracking-[0.24em] text-white/40">3 questions · no signup</span>
@@ -101,7 +106,7 @@ export default function AIAutomations() {
         </section>
 
         {/* PRODUCTS */}
-        <section className="relative px-8 md:px-16 py-14 border-t border-white/10">
+        <section className="relative px-8 md:px-16 py-20 md:py-28 border-t border-white/10">
           <div className="mb-6 flex items-center justify-between gap-4">
             <h2 className="tech text-[11px] uppercase tracking-[0.28em] text-white/50">Products in the sector</h2>
             <span className="tech text-[11px] uppercase tracking-[0.24em] text-white/25 hidden sm:inline">Swipe →</span>
@@ -110,7 +115,7 @@ export default function AIAutomations() {
         </section>
 
         {/* POSITIONING */}
-        <section className="px-8 md:px-16 py-16 md:py-24 border-t border-white/10">
+        <section className="px-8 md:px-16 py-24 md:py-36 border-t border-white/10">
           <div className="grid gap-6 md:grid-cols-2">
             {positioning.map((line, i) => (
               <motion.p
@@ -121,7 +126,7 @@ export default function AIAutomations() {
                 transition={{ duration: 0.55, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className="display text-2xl md:text-4xl leading-tight"
               >
-                <span className="tech mr-4 align-middle text-[11px] tracking-[0.24em] text-ai-accent">0{i + 1}</span>
+                <span className="tech mr-4 align-middle text-[11px] tracking-[0.24em] text-white/50">0{i + 1}</span>
                 {line}
               </motion.p>
             ))}
@@ -129,13 +134,13 @@ export default function AIAutomations() {
         </section>
 
         {/* ABOUT */}
-        <section className="px-8 md:px-16 py-14 border-t border-white/10">
+        <section className="px-8 md:px-16 py-20 md:py-28 border-t border-white/10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="max-w-xl rounded-xl border border-white/10 bg-white/[0.03] p-6"
+            className="max-w-xl rounded-none border border-white/15 bg-black p-6"
           >
             <span className="tech text-[10px] uppercase tracking-[0.24em] text-white/40">Who builds it</span>
             <p className="mt-3 font-semibold">Rwihura Eineammani — Lead Engineer</p>
@@ -146,26 +151,26 @@ export default function AIAutomations() {
         </section>
 
         {/* DEMO / CONTACT */}
-        <section id="demo" className="px-8 md:px-16 py-16 md:py-24 border-t border-white/10 scroll-mt-24">
+        <section id="demo" className="px-8 md:px-16 py-24 md:py-36 border-t border-white/10 scroll-mt-24">
           <div className="grid gap-10 lg:grid-cols-[1fr_0.8fr]">
             <div>
               <h2 className="display text-3xl md:text-5xl">Request a demo</h2>
               <p className="mt-4 text-white/60 max-w-md">Tell us what you'd like to automate. We'll come back with a build path.</p>
               <p className="mt-6 text-sm text-white/50">
                 or email us directly at{" "}
-                <a href="mailto:info@site99ug.com" className="text-ai-accent hover:text-white transition-colors">
+                <a href="mailto:info@site99ug.com" className="text-white underline underline-offset-4 hover:text-white/70 transition-colors">
                   info@site99ug.com
                 </a>
               </p>
             </div>
 
             {sent ? (
-              <div className="rounded-2xl border border-ai-accent/40 bg-ai-accent/10 p-8">
-                <span className="tech text-[11px] uppercase tracking-[0.24em] text-ai-accent">Received</span>
+              <div className="rounded-none border border-white/25 bg-black p-8">
+                <span className="tech text-[11px] uppercase tracking-[0.24em] text-white/50">Received</span>
                 <p className="mt-3 text-xl font-semibold">We'll be in touch shortly.</p>
               </div>
             ) : (
-              <form onSubmit={submit} className="rounded-2xl border border-white/12 bg-white/[0.03] p-6 md:p-8 grid gap-4">
+              <form onSubmit={submit} className="rounded-none border border-white/15 bg-black p-6 md:p-8 grid gap-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="ai-name" className="tech text-[10px] uppercase tracking-[0.24em] text-white/40">Name</label>
@@ -187,7 +192,7 @@ export default function AIAutomations() {
                 <button
                   type="submit"
                   disabled={sending}
-                  className="mt-2 rounded-full bg-ai-accent px-7 py-4 text-sm font-semibold text-black hover:bg-white transition-colors disabled:opacity-50"
+                  className="mt-2 rounded-full bg-white px-7 py-4 text-sm font-semibold text-black hover:bg-white/85 transition-colors disabled:opacity-50"
                 >
                   {sending ? "Sending…" : "Request a Demo"}
                 </button>

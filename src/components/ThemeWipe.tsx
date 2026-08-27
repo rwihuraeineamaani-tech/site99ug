@@ -8,48 +8,53 @@ const Ctx = createContext<WipeFn>(() => {});
 
 export const useThemeWipe = () => useContext(Ctx);
 
+const EASE = [0.76, 0, 0.24, 1] as const;
+
 export const ThemeWipeProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
-  const [wipe, setWipe] = useState<{ x: number; y: number } | null>(null);
+  const [phase, setPhase] = useState<"idle" | "cover" | "reveal">("idle");
 
   const start = useCallback<WipeFn>(
-    (to, origin) => {
+    (to) => {
       const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
       if (reduced) {
         navigate(to);
         return;
       }
-      const x = origin?.x ?? window.innerWidth / 2;
-      const y = origin?.y ?? window.innerHeight / 2;
-      setWipe({ x, y });
-      window.setTimeout(() => navigate(to), 460);
-      window.setTimeout(() => setWipe(null), 900);
+      setPhase("cover");
+      window.setTimeout(() => {
+        navigate(to);
+        window.scrollTo({ top: 0 });
+        setPhase("reveal");
+      }, 430);
+      window.setTimeout(() => setPhase("idle"), 1000);
     },
     [navigate],
   );
 
+  const covering = phase === "cover";
+
   return (
     <Ctx.Provider value={start}>
-      {children}
+      <motion.div
+        animate={{ scale: covering ? 0.965 : 1, opacity: covering ? 0.35 : 1 }}
+        transition={{ duration: 0.43, ease: EASE }}
+        style={{ transformOrigin: "50% 45%" }}
+      >
+        {children}
+      </motion.div>
+
       <AnimatePresence>
-        {wipe && (
+        {phase !== "idle" && (
           <motion.div
-            key="theme-wipe"
+            key="morph"
             aria-hidden
-            className="fixed inset-0 z-[500] pointer-events-none"
-            initial={{ clipPath: `circle(0px at ${wipe.x}px ${wipe.y}px)` }}
-            animate={{ clipPath: `circle(${Math.hypot(window.innerWidth, window.innerHeight) * 1.1}px at ${wipe.x}px ${wipe.y}px)` }}
-            exit={{ opacity: 0 }}
-            transition={{ clipPath: { duration: 0.75, ease: [0.76, 0, 0.24, 1] }, opacity: { duration: 0.35 } }}
-            style={{
-              background:
-                "radial-gradient(circle at var(--wx) var(--wy), hsl(var(--ai-accent) / 0.35), hsl(0 0% 2%) 45%, hsl(0 0% 0%) 100%)",
-              // @ts-expect-error custom props
-              "--wx": `${wipe.x}px`,
-              "--wy": `${wipe.y}px`,
-            }}
+            className="fixed inset-0 z-[500] pointer-events-none bg-black"
+            initial={{ y: "100%" }}
+            animate={{ y: phase === "cover" ? "0%" : "-100%" }}
+            transition={{ duration: phase === "cover" ? 0.45 : 0.55, ease: EASE }}
           >
-            <div className="absolute inset-0 opacity-40 [background-image:radial-gradient(hsl(var(--ai-accent)/0.6)_1px,transparent_1px)] [background-size:26px_26px] animate-pulse" />
+            <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(hsl(0_0%_100%/0.8)_1px,transparent_1px)] [background-size:26px_26px]" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -77,7 +82,7 @@ export const WipeLink = ({
       onClick={(e) => {
         e.preventDefault();
         onNavigate?.();
-        wipe(to, { x: e.clientX, y: e.clientY });
+        wipe(to);
       }}
     >
       {children}
