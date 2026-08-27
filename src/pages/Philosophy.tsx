@@ -56,6 +56,8 @@ export default function Philosophy() {
                     className="text-[40vw] leading-none block absolute inset-0 tracking-tighter"
                     style={{
                       fontFamily: "'Montserrat', system-ui, sans-serif",
+                  fontWeight: 900,
+                      fontWeight: 900,
                       transform: `translateZ(${-depth * 3}px)`,
                       color: `hsl(0 ${sat}% ${lightness}%)`,
                     }}
