@@ -24,7 +24,12 @@ import TicketView from "./pages/TicketView.tsx";
 import EventsAdmin from "./pages/EventsAdmin.tsx";
 import TicketScanner from "./pages/TicketScanner.tsx";
 import ScrollToTop from "./components/ScrollToTop";
-import AIAutomations from "./pages/AIAutomations.tsx";
+import AILayout from "./components/ai/AILayout";
+import AIOverview from "./pages/ai/Overview.tsx";
+import AISystems from "./pages/ai/Systems.tsx";
+import AIKazi from "./pages/ai/Kazi.tsx";
+import AIAbout from "./pages/ai/About.tsx";
+import AIContact from "./pages/ai/Contact.tsx";
 import { ThemeWipeProvider } from "./components/ThemeWipe";
 
 const queryClient = new QueryClient();
@@ -34,7 +39,7 @@ const AnimatedRoutes = () => {
   return (
     <ThemeWipeProvider>
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Routes location={location} key={location.pathname.startsWith("/ai-automations") ? "/ai-automations" : location.pathname}>
         <Route path="/" element={<Index />} />
         <Route path="/archive" element={<Archive />} />
         <Route path="/residents" element={<Residents />} />
@@ -47,7 +52,13 @@ const AnimatedRoutes = () => {
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
-        <Route path="/ai-automations" element={<AIAutomations />} />
+        <Route path="/ai-automations" element={<AILayout />}>
+          <Route index element={<AIOverview />} />
+          <Route path="systems" element={<AISystems />} />
+          <Route path="kazi" element={<AIKazi />} />
+          <Route path="about" element={<AIAbout />} />
+          <Route path="contact" element={<AIContact />} />
+        </Route>
         <Route path="/events" element={<Events />} />
         <Route path="/events/:slug" element={<EventDetail />} />
         <Route path="/tickets/thank-you" element={<TicketThankYou />} />
