@@ -8,6 +8,7 @@ import { ParticleField } from "@/components/ai/ParticleField";
 import { PoweredByLockup } from "@/components/ai/PoweredByLockup";
 import { ProductCarousel } from "@/components/ai/ProductCarousel";
 import { CapabilityScroll } from "@/components/ai/CapabilityScroll";
+import { SystemLedger } from "@/components/ai/SystemLedger";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -75,31 +76,67 @@ export default function AIAutomations() {
 
       <main>
         {/* HERO */}
-        <section className="relative min-h-[92svh] flex flex-col justify-end overflow-hidden px-8 md:px-16 pt-40 pb-14">
+        <section className="relative min-h-[100svh] overflow-hidden px-4 sm:px-8 md:px-16 pt-24 pb-10 md:pt-28">
           <div className="absolute inset-0">
             <ParticleField />
-            <div className="absolute inset-0 bg-[radial-gradient(75vw_60vw_at_65%_8%,hsl(0_0%_100%/0.08),transparent_70%)]" />
+            <div className="ai-grid absolute inset-0 opacity-[0.18]" />
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="ai-scan absolute inset-x-0 top-0 h-[2px] bg-white/25 blur-[2px]" />
+            </div>
+            <div className="absolute inset-0 bg-[radial-gradient(75vw_60vw_at_65%_8%,hsl(0_0%_100%/0.07),transparent_70%)]" />
           </div>
+
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-10"
+            className="relative z-10 mx-auto flex min-h-[calc(100svh-8.5rem)] w-full max-w-5xl flex-col justify-between gap-10 border border-white/12 p-5 sm:p-8 md:p-12"
           >
-            <span className="tech text-[11px] uppercase tracking-[0.3em] text-white/50">Site 99 Sector</span>
-            <h1 className="display mt-5 text-fluid-hero leading-[0.9]">AI &amp; Automations</h1>
-            <p className="mt-5 text-fluid-md text-white/70">Kazi means work. Systems that make it lighter.</p>
-            <div className="mt-12 flex items-center gap-3 tech text-[11px] uppercase tracking-[0.24em] text-white/40">
-              <motion.span animate={{ y: [0, 6, 0] }} transition={{ duration: 1.8, repeat: Infinity }}>
-                ↓
-              </motion.span>
-              Run the audit
+            {/* top */}
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="h-px w-8 bg-white" />
+                <span className="tech text-[10px] font-bold uppercase tracking-[0.4em] text-white">Site 99 Sector</span>
+              </div>
+              <h1 className="display mt-4 text-[clamp(2.6rem,11vw,7rem)] font-black leading-[0.92] tracking-tight">
+                AI &amp;
+                <br />
+                Automations
+              </h1>
+            </div>
+
+            {/* ledger */}
+            <div className="md:max-w-lg">
+              <SystemLedger />
+            </div>
+
+            {/* bottom */}
+            <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+              <p className="text-fluid-md text-white/75 md:max-w-sm">
+                Kazi means work. Systems that make it lighter.
+              </p>
+              <a
+                href="#audit"
+                className="group flex flex-col items-start gap-3 md:items-center"
+              >
+                <span className="tech text-[10px] font-bold uppercase tracking-[0.3em] text-white/60 transition-colors group-hover:text-white">
+                  Scroll to audit
+                </span>
+                <span className="relative block h-12 w-px overflow-hidden bg-white/25">
+                  <motion.span
+                    className="absolute inset-x-0 h-1/2 bg-white"
+                    animate={{ y: ["-100%", "200%"] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  />
+                </span>
+              </a>
             </div>
           </motion.div>
         </section>
 
+
         {/* AUDIT TOOL */}
-        <section className="relative px-8 md:px-16 py-24 md:py-36 border-t border-white/10">
+        <section id="audit" className="relative px-8 md:px-16 py-24 md:py-36 border-t border-white/10 scroll-mt-8">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <h2 className="display text-3xl md:text-5xl">Automation audit</h2>
             <span className="tech text-[11px] uppercase tracking-[0.24em] text-white/40">3 questions · no signup</span>
