@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { WipeLink } from "./ThemeWipe";
 
 const links = [
   { to: "/", label: "Frontier", n: "01" },
@@ -123,16 +124,26 @@ export const Nav = () => {
               )}
             </AnimatePresence>
           </div>
-          {inlineLinks.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              data-hover
-              className="mono text-xs uppercase tracking-[0.25em] px-3 py-1.5 hover:opacity-70 transition-opacity"
-            >
-              {l.label}
-            </Link>
-          ))}
+          {inlineLinks.map((l) =>
+            l.to === "/ai-automations" ? (
+              <WipeLink
+                key={l.to}
+                to={l.to}
+                className="mono text-xs uppercase tracking-[0.25em] px-3 py-1.5 hover:opacity-70 transition-opacity cursor-pointer"
+              >
+                {l.label}
+              </WipeLink>
+            ) : (
+              <Link
+                key={l.to}
+                to={l.to}
+                data-hover
+                className="mono text-xs uppercase tracking-[0.25em] px-3 py-1.5 hover:opacity-70 transition-opacity"
+              >
+                {l.label}
+              </Link>
+            )
+          )}
         </nav>
 
 
