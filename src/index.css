@@ -137,18 +137,18 @@
     .ai-scan { display: none; }
   }
   .ai-scroll-left {
-    animation: ai-scroll-x 55s linear infinite;
+    animation: ai-scroll-x 95s linear infinite;
   }
   .ai-scroll-right {
-    animation: ai-scroll-x 65s linear infinite reverse;
+    animation: ai-scroll-x 115s linear infinite reverse;
   }
   @keyframes ai-scroll-x {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
   @media (max-width: 767px) {
-    .ai-scroll-left { animation-duration: 35s; }
-    .ai-scroll-right { animation-duration: 42s; }
+    .ai-scroll-left { animation-duration: 62s; }
+    .ai-scroll-right { animation-duration: 74s; }
   }
   @media (prefers-reduced-motion: reduce) {
     .ai-scroll-left, .ai-scroll-right { animation: none; }

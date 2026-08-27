@@ -17,9 +17,9 @@ export const AINav = () => {
       <nav className="flex items-center justify-between gap-4 px-4 py-3 sm:px-8 md:px-16">
         <WipeLink
           to="/"
-          className="tech shrink-0 text-[10px] font-bold uppercase tracking-[0.28em] text-white/45 transition-colors hover:text-white"
+          className="tech shrink-0 rounded-full border border-white/25 px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-white/70 transition-colors hover:border-white hover:bg-white hover:text-black"
         >
-          ← Site 99
+          ← Main site
         </WipeLink>
 
         <ul className="flex items-center gap-4 overflow-x-auto sm:gap-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
