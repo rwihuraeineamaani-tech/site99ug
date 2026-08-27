@@ -49,8 +49,9 @@ export default function AIOverview() {
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10"
         >
-          <div className="flex items-center gap-3">
-            <span className="h-px w-8 bg-white" />
+          <div className="group flex items-center gap-3">
+            <span className="h-px w-8 bg-white transition-all duration-300 group-hover:w-12" />
+            <Cpu className="h-3.5 w-3.5 text-white/70 transition-transform duration-500 group-hover:rotate-90 group-hover:text-white" />
             <span className="tech text-[10px] font-bold uppercase tracking-[0.4em] text-white">Site 99 Sector</span>
           </div>
 
