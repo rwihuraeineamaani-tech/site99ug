@@ -206,9 +206,11 @@ export default function AIAutomations() {
           </div>
         </section>
 
-        <footer className="px-8 md:px-16 py-10 border-t border-white/10 tech text-[11px] uppercase tracking-[0.24em] text-white/35">
-          © Site 99 — AI &amp; Automations
+        <footer className="px-8 md:px-16 py-20 border-t border-white/10 flex flex-col items-center gap-6">
+          <PoweredByLockup className="h-24 md:h-28" />
+          <p className="tech text-[11px] uppercase tracking-[0.24em] text-white/35">© Site 99 UG LTD</p>
         </footer>
+
       </main>
     </div>
   );
