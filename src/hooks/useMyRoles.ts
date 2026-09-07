@@ -201,10 +201,15 @@ export function useMyRoles(): RoleState {
 
   const landingPath = isStaff ? "/app" : isClient ? "/portal" : has("resident") ? "/residents/portal" : "/";
 
+  const primaryRole = TEAM_ROLES.find((r) => roles.includes(r));
+  const title = primaryRole ? ROLE_LABELS[primaryRole] : isClient ? "Client" : has("resident") ? "Resident" : null;
+
   return {
     loading,
     userId,
     email,
+    displayName,
+    title,
     roles,
     has,
     isStaff,
