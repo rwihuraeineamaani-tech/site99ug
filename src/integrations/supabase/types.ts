@@ -963,6 +963,66 @@ export type Database = {
         }
         Relationships: []
       }
+      resident_contracts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          ends_on: string | null
+          file_path: string | null
+          id: string
+          notes: string | null
+          resident_id: string
+          starts_on: string | null
+          status: string
+          title: string
+          updated_at: string
+          value_ugx: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          resident_id: string
+          starts_on?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          value_ugx?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          resident_id?: string
+          starts_on?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          value_ugx?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_contracts_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_contracts_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resident_projects: {
         Row: {
           created_at: string
@@ -1014,6 +1074,7 @@ export type Database = {
           id: string
           invited_at: string
           name: string
+          notes: string | null
           retainer_ugx: number
           since: string
           status: string
@@ -1032,6 +1093,7 @@ export type Database = {
           id?: string
           invited_at?: string
           name: string
+          notes?: string | null
           retainer_ugx?: number
           since: string
           status?: string
@@ -1050,6 +1112,7 @@ export type Database = {
           id?: string
           invited_at?: string
           name?: string
+          notes?: string | null
           retainer_ugx?: number
           since?: string
           status?: string
@@ -1617,8 +1680,31 @@ export type Database = {
           territory: string
         }[]
       }
+      resident_records: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          contact_user_id: string
+          created_at: string
+          email: string
+          handler_user_id: string
+          id: string
+          invited_at: string
+          name: string
+          notes: string
+          since: string
+          status: string
+          territory: string
+          user_id: string
+          visible: boolean
+        }[]
+      }
       set_client_pay: {
         Args: { _people: Json; _resident_id: string; _retainer_ugx: number }
+        Returns: undefined
+      }
+      set_resident_notes: {
+        Args: { _notes: string; _resident_id: string }
         Returns: undefined
       }
       show_limit: { Args: never; Returns: number }

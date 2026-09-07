@@ -22,7 +22,7 @@ type Draft = { retainer: string; people: Person[] };
 const ugx = (n: number) => `UGX ${Math.round(n).toLocaleString()}`;
 const field = "field text-sm";
 
-export default function ClientPayPanel() {
+export default function ClientPayPanel({ residentId, index = "02" }: { residentId?: string; index?: string } = {}) {
   const [rows, setRows] = useState<PayRow[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,18 +46,21 @@ export default function ClientPayPanel() {
 
   const clients = useMemo(() => {
     const map = new Map<string, { id: string; name: string; retainer: number; people: PayRow[] }>();
-    rows.forEach((r) => {
-      const entry = map.get(r.resident_id) ?? {
-        id: r.resident_id,
-        name: r.resident_name,
-        retainer: r.retainer_ugx ?? 0,
-        people: [],
-      };
-      if (r.user_id) entry.people.push(r);
-      map.set(r.resident_id, entry);
-    });
+    rows
+      .filter((r) => !residentId || r.resident_id === residentId)
+      .forEach((r) => {
+        const entry = map.get(r.resident_id) ?? {
+          id: r.resident_id,
+          name: r.resident_name,
+          retainer: r.retainer_ugx ?? 0,
+          people: [],
+        };
+        if (r.user_id) entry.people.push(r);
+        map.set(r.resident_id, entry);
+      });
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
-  }, [rows]);
+  }, [rows, residentId]);
+
 
   const nameOf = (id: string) => {
     const m = members.find((x) => x.user_id === id);
@@ -123,7 +126,12 @@ export default function ClientPayPanel() {
 
   return (
     <div>
-      <SectionHeading index="02" title="Team on each client" hint="One contact, any number of handlers" />
+      <SectionHeading
+        index={index}
+        title={residentId ? "Money" : "Team on each client"}
+        hint="One contact, any number of handlers"
+      />
+
       <div className="space-y-4">
         {clients.map((c) => {
           const paid = c.people.reduce((a, p) => a + (p.computed_ugx ?? 0), 0);

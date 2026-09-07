@@ -1,14 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import Seo from "@/components/Seo";
-import AppShell from "@/components/system/AppShell";
-import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
+import { SectionHeading, StatusChip } from "@/components/system";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { useMyAssignments } from "@/hooks/useMyAssignments";
-import ClientPayPanel from "@/components/system/ClientPayPanel";
 import {
   METRIC_COLUMNS,
   lastCompletedWeek,
@@ -20,7 +17,7 @@ import {
 } from "@/lib/weeks";
 import { ArrowUpRight, Download, TrendingDown, TrendingUp } from "lucide-react";
 
-type ResidentOpt = { id: string; name: string; territory: string; contact_user_id: string | null; handler_user_id: string | null };
+export type ResidentOpt = { id: string; name: string; territory: string; contact_user_id: string | null; handler_user_id: string | null };
 type Account = { id: string; resident_id: string; platform: string; handle: string; active: boolean; sort: number };
 type MetricRow = {
   id: string;
@@ -40,8 +37,19 @@ const emptyDraft = (): Draft =>
 
 const num = (v: number | null | undefined) => (v === null || v === undefined ? "—" : v.toLocaleString());
 
-export default function Clients() {
-  const { userId, isLeadership, canSeeFinance } = useMyRoles();
+export default function AccountsPanel({
+  residentId,
+  showPending = true,
+  showNames = true,
+  index = "01",
+}: {
+  residentId?: string;
+  showPending?: boolean;
+  showNames?: boolean;
+  index?: string;
+} = {}) {
+  const { userId, isLeadership } = useMyRoles();
+
   const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const [loading, setLoading] = useState(true);
   const [residents, setResidents] = useState<ResidentOpt[]>([]);
@@ -115,15 +123,17 @@ export default function Clients() {
   );
 
   const groups = useMemo(() => {
-    const ids = Array.from(new Set(accounts.map((a) => a.resident_id)));
+    const scoped = residentId ? accounts.filter((a) => a.resident_id === residentId) : accounts;
+    const ids = Array.from(new Set(scoped.map((a) => a.resident_id)));
     return ids
       .map((id) => ({
         resident: resById.get(id),
         id,
-        accounts: accounts.filter((a) => a.resident_id === id),
+        accounts: scoped.filter((a) => a.resident_id === id),
       }))
       .sort((a, b) => (a.resident?.name ?? "").localeCompare(b.resident?.name ?? ""));
-  }, [accounts, resById]);
+  }, [accounts, resById, residentId]);
+
 
   const openEntry = (account: Account, w: string) => {
     const existing = (byAccount.get(account.id) ?? []).find((m) => m.week_start === w);
@@ -217,58 +227,55 @@ export default function Clients() {
   };
 
   return (
-    <AppShell eyebrow="Client relations">
-      <Seo
-        title="Client relations — Site 99"
-        description="Every account we manage and its weekly numbers."
-        path="/app/clients"
-        noindex
-      />
-      <PageHeader
-        eyebrow="Client relations"
-        title="Accounts."
-        lede="Every social account we manage, with its numbers filled in once a week — so month-end reports write themselves."
-      />
-
+    <>
       {loading ? (
         <p className="text-sm text-ink-soft">Loading…</p>
       ) : (
         <>
-          {pending.length > 0 && (
+          {showPending && pending.filter((a) => !residentId || a.resident_id === residentId).length > 0 && (
             <div className="mb-12">
               <SectionHeading
                 index="00"
                 title={`Numbers for ${weekLabel(week)}`}
-                hint={`${pending.length} still to fill`}
+                hint={`${pending.filter((a) => !residentId || a.resident_id === residentId).length} still to fill`}
               />
               <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
-                {pending.map((a) => (
-                  <li key={a.id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
-                    <span className="text-sm font-semibold">{resById.get(a.resident_id)?.name ?? "—"}</span>
-                    <StatusChip value={a.platform} tone="violet" />
-                    <span className="text-xs text-ink-faint truncate">{a.handle}</span>
-                    <Button size="sm" className="ml-auto" onClick={() => openEntry(a, week)}>
-                      Add the week
-                    </Button>
-                  </li>
-                ))}
+                {pending
+                  .filter((a) => !residentId || a.resident_id === residentId)
+                  .map((a) => (
+                    <li key={a.id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
+                      <span className="text-sm font-semibold">{resById.get(a.resident_id)?.name ?? "—"}</span>
+                      <StatusChip value={a.platform} tone="violet" />
+                      <span className="text-xs text-ink-faint truncate">{a.handle}</span>
+                      <Button size="sm" className="ml-auto" onClick={() => openEntry(a, week)}>
+                        Add the week
+                      </Button>
+                    </li>
+                  ))}
               </ul>
             </div>
           )}
 
-          <SectionHeading index="01" title="Clients" hint={`${groups.length} with accounts`} />
+          <SectionHeading
+            index={index}
+            title="Accounts and numbers"
+            hint={`${groups.reduce((n, g) => n + g.accounts.length, 0)} accounts`}
+          />
           {groups.length === 0 ? (
             <p className="text-sm text-ink-soft">
-              No accounts set up yet. Founders and management add them on the client record in Site editing → Residents.
+              No accounts set up yet. Founders and management add them on the resident record in Site editing.
             </p>
           ) : (
             <div className="space-y-6">
               {groups.map((g) => (
                 <div key={g.id} className="surface rounded-2xl overflow-hidden">
-                  <div className="px-5 py-4 flex items-baseline gap-3 border-b border-rule">
-                    <div className="display text-lg">{g.resident?.name ?? "Unknown client"}</div>
-                    <div className="text-xs text-ink-faint">{g.resident?.territory}</div>
-                  </div>
+                  {showNames && (
+                    <div className="px-5 py-4 flex items-baseline gap-3 border-b border-rule">
+                      <div className="display text-lg">{g.resident?.name ?? "Unknown client"}</div>
+                      <div className="text-xs text-ink-faint">{g.resident?.territory}</div>
+                    </div>
+                  )}
+
                   <ul className="divide-y divide-rule">
                     {g.accounts.map((a) => {
                       const { latest, previous } = latestPair(a.id);
@@ -316,11 +323,6 @@ export default function Clients() {
                   </ul>
                 </div>
               ))}
-            </div>
-          )}
-          {canSeeFinance && (
-            <div className="mt-14">
-              <ClientPayPanel />
             </div>
           )}
         </>
@@ -491,6 +493,6 @@ export default function Clients() {
           )}
         </DialogContent>
       </Dialog>
-    </AppShell>
+    </>
   );
 }
