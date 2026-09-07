@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.team_members_self_update_guard() FROM PUBLIC, anon, authenticated;
