@@ -65,6 +65,7 @@ export type ContentItem = {
   crew_notes: string | null;
   shoot_at: string | null;
   edit_file_url: string | null;
+  edit_remarks: string | null;
   sent_direct: boolean;
   editor_done_at: string | null;
   founder_approved_at: string | null;
