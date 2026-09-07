@@ -359,6 +359,9 @@ export default function ContentPipeline() {
 
   const crewComplete = crew.length > 0 && crew.every((c) => c.user_id);
 
+  /** Once an idea is approved its core details are frozen (also enforced in the database). */
+  const locked = !!editing && editing.stage !== "Idea";
+
   const ownerSelect = (value: string, onChange: (v: string) => void, className = field, disabled = false) => (
     <select className={className} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)}>
       <option value="">No one yet — idea archive</option>
