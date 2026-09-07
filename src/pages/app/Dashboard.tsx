@@ -6,6 +6,7 @@ import AppShell from "@/components/system/AppShell";
 import { PageHeader, Metric, SectionHeading, StatusChip } from "@/components/system";
 import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
 import { refCode } from "@/lib/contentFlow";
+import { weekLabel } from "@/lib/weeks";
 
 type ContentRow = {
   id: string;
@@ -25,6 +26,14 @@ type FlowRow = {
   metrics_due_at: string | null;
 };
 
+type PendingWeek = {
+  account_id: string;
+  resident_name: string;
+  platform: string;
+  handle: string;
+  week_start: string;
+};
+
 type ResidentLink = { id: string; name: string; contact_user_id: string | null; handler_user_id: string | null };
 
 const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_director"] as const;
@@ -38,6 +47,7 @@ export default function Dashboard() {
   const [flow, setFlow] = useState<FlowRow[]>([]);
   const [resLinks, setResLinks] = useState<ResidentLink[]>([]);
   const [myCrew, setMyCrew] = useState<{ content_id: string; role: string }[]>([]);
+  const [pendingWeeks, setPendingWeeks] = useState<PendingWeek[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,6 +93,18 @@ export default function Dashboard() {
       cancelled = true;
     };
   }, [userId, departments.content]);
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.rpc("my_pending_account_weeks");
+      if (!cancelled) setPendingWeeks((data as unknown as PendingWeek[]) ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   const waiting = useMemo(() => {
     if (!userId) return [] as { item: FlowRow; why: string }[];
