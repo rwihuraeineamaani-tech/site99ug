@@ -94,6 +94,21 @@ type Member = { user_id: string; name: string };
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
 
+/** Post links are stored one per platform as "Platform: url". */
+const parsePostedLinks = (rows: string[] | null): Record<string, string> => {
+  const out: Record<string, string> = {};
+  (rows ?? []).forEach((row) => {
+    const at = row.indexOf(": ");
+    if (at > 0) out[row.slice(0, at)] = row.slice(at + 2).trim();
+    else out[""] = row.trim();
+  });
+  return out;
+};
+const postedLinkParts = (row: string) => {
+  const at = row.indexOf(": ");
+  return at > 0 ? { platform: row.slice(0, at), url: row.slice(at + 2).trim() } : { platform: "", url: row.trim() };
+};
+
 /** "Belongs to" is one picker over two record types: r:<id> for a resident, p:<id> for a project. */
 const encodeOwner = (residentId: string | null, projectId: string | null) =>
   residentId ? `r:${residentId}` : projectId ? `p:${projectId}` : "";
