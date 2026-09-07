@@ -66,43 +66,42 @@ export function DeckHeader({
   tagline: string;
   actions?: ReactNode;
 }) {
-  const { time, date, greeting } = useKampalaClock();
+  const { greeting } = useKampalaClock();
   const first = (name || "there").split(/[\s@]/)[0];
 
   return (
-    <header className="relative deck-glow rule-b pb-6 mb-8">
-      <div className="relative flex flex-wrap items-end justify-between gap-6">
+    <header className="relative deck-glow rule-b pb-5 mb-6">
+      <div className="relative flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 rise">
           <div className="eyebrow text-signal mb-2 flex items-center gap-2">
             <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-signal" />
             Command deck
           </div>
-          <h1 className="display text-3xl md:text-5xl leading-[0.95] capitalize">
+          <h1 className="display text-2xl md:text-4xl leading-[0.95] capitalize">
             {greeting}, {first}.
           </h1>
-          {titles.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {titles.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-rule bg-paper-sunken px-2.5 py-1 eyebrow text-[10px] text-ink-soft"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-          )}
-          <p className="mt-3 text-sm text-ink-soft max-w-2xl">{tagline}</p>
+          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            {titles.map((t) => (
+              <span
+                key={t}
+                className="rounded-full border border-rule bg-paper-sunken px-2.5 py-1 eyebrow text-[10px] text-ink-soft"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+          <p className="mt-2.5 text-sm text-ink-soft max-w-2xl">{tagline}</p>
         </div>
-        <div className="rise text-right" style={{ ["--d" as string]: "80ms" }}>
-          <div className="display text-4xl md:text-5xl num tracking-tight">{time}</div>
-          <div className="mt-1 eyebrow text-ink-faint">{date} · Kampala</div>
-          {actions && <div className="mt-3 flex justify-end gap-2">{actions}</div>}
-        </div>
+        {actions && (
+          <div className="rise flex flex-wrap justify-end gap-2" style={{ ["--d" as string]: "80ms" }}>
+            {actions}
+          </div>
+        )}
       </div>
     </header>
   );
 }
+
 
 export function DeckStat({
   label,
