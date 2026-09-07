@@ -165,7 +165,7 @@ export default function Shoots() {
 
   return (
     <AppShell>
-      <Seo title="Shoot days — Site 99" description="Plan shoot days, the ideas on them and the gear booked out." noindex />
+      <Seo title="Shoot days — Site 99" description="Plan shoot days, the ideas on them and the gear booked out." path="/app/shoots" noindex />
       <PageHeader
         eyebrow="Content & strategy"
         title="Shoot days."

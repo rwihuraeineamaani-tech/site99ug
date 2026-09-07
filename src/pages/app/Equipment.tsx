@@ -67,7 +67,7 @@ export default function Equipment() {
 
   return (
     <AppShell>
-      <Seo title="Equipment — Site 99" description="The kit list: what we own and what's booked out." noindex />
+      <Seo title="Equipment — Site 99" description="The kit list: what we own and what's booked out." path="/app/equipment" noindex />
       <PageHeader
         eyebrow="Management & ops"
         title="Equipment."
