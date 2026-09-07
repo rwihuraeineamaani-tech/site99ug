@@ -54,15 +54,15 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   ];
 
   const work: ShellNavItem[] = [];
-  if (canManageEvents || canViewEvents) work.push({ to: "/admin/events", label: "Events", icon: CalendarDays });
-  if (canScan) work.push({ to: "/admin/scan", label: "Gate scanner", icon: ScanLine });
+  if (canManageEvents || canViewEvents) work.push({ to: "/app/events", label: "Events", icon: CalendarDays });
+  if (canScan) work.push({ to: "/app/scan", label: "Gate scanner", icon: ScanLine });
   if (canEditSite) work.push({ to: "/admin", label: "Public site", icon: PenSquare });
   if (work.length) groups.push({ label: "Work", items: work });
 
   if (canSeeFinance) {
     groups.push({
       label: "Money",
-      items: [{ to: "/admin/events", label: "Ticket revenue", icon: Wallet }],
+      items: [{ to: "/app/events", label: "Ticket revenue", icon: Wallet }],
     });
   }
 

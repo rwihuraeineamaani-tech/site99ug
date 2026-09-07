@@ -72,6 +72,22 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
+          path="/app/events"
+          element={
+            <RequireRole gate="staff">
+              <EventsAdmin />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/scan"
+          element={
+            <RequireRole gate="staff">
+              <TicketScanner />
+            </RequireRole>
+          }
+        />
+        <Route
           path="/portal"
           element={
             <RequireRole gate="client">
@@ -96,8 +112,8 @@ const AnimatedRoutes = () => {
         <Route path="/events/:slug" element={<EventDetail />} />
         <Route path="/tickets/thank-you" element={<TicketThankYou />} />
         <Route path="/t/:token" element={<TicketView />} />
-        <Route path="/admin/events" element={<EventsAdmin />} />
-        <Route path="/admin/scan" element={<TicketScanner />} />
+        <Route path="/admin/events" element={<Navigate to="/app/events" replace />} />
+        <Route path="/admin/scan" element={<Navigate to="/app/scan" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>

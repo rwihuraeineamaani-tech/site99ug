@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { Layout } from "@/components/Layout";
+import AppShell from "@/components/system/AppShell";
 import Seo from "@/components/Seo";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -65,11 +65,11 @@ export default function TicketScanner() {
   }, []);
 
   return (
-    <Layout hideFooter>
-      <Seo title="Ticket Scanner — Site 99" description="Scan event tickets" path="/admin/scan" />
-      <section className="pt-28 pb-16 px-8 md:px-16">
-        <div className="mono text-xs uppercase tracking-[0.3em] text-site-red">Admin</div>
-        <h1 className="display text-5xl mt-2">Ticket Scanner</h1>
+    <AppShell eyebrow="Events">
+      <Seo title="Ticket Scanner — Site 99" description="Scan event tickets" path="/app/scan" noindex />
+      <section>
+        <div className="eyebrow text-signal">Events</div>
+        <h1 className="display text-4xl md:text-5xl mt-2">Gate scanner</h1>
 
         <div className="mt-8 grid md:grid-cols-2 gap-8 max-w-4xl">
           <div id="qr-reader" className="w-full aspect-square border border-border rounded-lg overflow-hidden" />
@@ -93,6 +93,6 @@ export default function TicketScanner() {
           </div>
         </div>
       </section>
-    </Layout>
+    </AppShell>
   );
 }
