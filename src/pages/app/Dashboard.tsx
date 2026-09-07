@@ -5,7 +5,12 @@ import { toast } from "sonner";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { StatusChip } from "@/components/system";
-import { DeckHeader, DeckStat, DeckPanel, DeckList } from "@/components/deck";
+import { DeckHeader, DeckPanel, DeckList, DeckStrip, DeckColumn, DeckCard } from "@/components/deck";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarEntry, KIND_LABEL, addDays, loadCalendar, weekStart } from "@/lib/calendarFeed";
+
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 import { useMyAssignments } from "@/hooks/useMyAssignments";
 import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
 import { refCode } from "@/lib/contentFlow";
