@@ -328,15 +328,35 @@ export default function Shoots() {
       )}
 
       <div className="mt-10">
-        <SectionHeading index="01" title="Planned" hint={`${days.length} day${days.length === 1 ? "" : "s"}`} />
+        <SectionHeading
+          index="01"
+          title={tab === "wrapped" ? "Wrapped" : tab === "all" ? "Every shoot day" : "Planned"}
+          hint={`${sorted.length} day${sorted.length === 1 ? "" : "s"}`}
+        />
+        <div className="mb-4 flex flex-wrap gap-2">
+          {(["planned", "wrapped", "all"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`press rounded-full border px-3 py-1 text-xs focus-ring ${
+                tab === t ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised text-ink-soft"
+              }`}
+            >
+              {t === "planned" ? "Planned" : t === "wrapped" ? "Wrapped" : "All"}
+            </button>
+          ))}
+        </div>
         {loading ? (
           <p className="text-sm text-ink-faint">Loading…</p>
         ) : sorted.length === 0 ? (
-          <p className="text-sm text-ink-soft">Nothing yet. As soon as an idea is crewed it shows up here.</p>
+          <p className="text-sm text-ink-soft">
+            {tab === "wrapped" ? "No wrapped days yet." : "Nothing yet. As soon as an idea is crewed it shows up here."}
+          </p>
         ) : (
           <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
             {sorted.map((d) => {
               const list = itemsOf(d.id);
+              const wrapped = d.status === "done";
               return (
                 <li key={d.id}>
                   <button
@@ -345,9 +365,12 @@ export default function Shoots() {
                   >
                     <CalendarDays className="h-4 w-4 text-ink-faint shrink-0" />
                     <span className="font-semibold">{ownerName(d)}</span>
-                    <StatusChip value={STATUS_LABEL[d.status] ?? d.status} tone={d.status === "draft" ? "amber" : d.status === "done" ? "neutral" : "active"} />
-                    <span className="num text-xs text-ink-soft">{d.shoot_date ?? "no date yet"}</span>
-                    {d.call_time && <span className="num text-xs text-ink-faint">{d.call_time}</span>}
+                    <StatusChip value={STATUS_LABEL[d.status] ?? d.status} tone={d.status === "draft" ? "amber" : wrapped ? "neutral" : "active"} />
+                    <span className="num text-xs text-ink-soft">
+                      {wrapped ? `shot ${d.shoot_date ?? "—"}` : d.shoot_date ?? "no date yet"}
+                    </span>
+                    {d.call_time && !wrapped && <span className="num text-xs text-ink-faint">{d.call_time}</span>}
+                    {d.brief_sent_at && !wrapped && <span className="text-[11px] text-ink-faint">brief sent</span>}
                     <span className="ml-auto text-xs text-ink-faint">
                       {list.length} idea{list.length === 1 ? "" : "s"}
                     </span>
@@ -358,6 +381,7 @@ export default function Shoots() {
           </ul>
         )}
       </div>
+
 
       <Dialog open={!!open} onOpenChange={(v) => !v && setOpenId(null)}>
         <DialogContent className="max-w-2xl max-h-[88vh] overflow-y-auto">
