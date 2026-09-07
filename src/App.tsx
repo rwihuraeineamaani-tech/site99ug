@@ -33,6 +33,8 @@ import { ThemeWipeProvider } from "./components/ThemeWipe";
 import Login from "./pages/Login.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Dashboard from "./pages/app/Dashboard.tsx";
+import StudioCalendar from "./pages/app/Calendar.tsx";
+
 import AppTeam from "./pages/app/Team.tsx";
 import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
