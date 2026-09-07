@@ -686,7 +686,7 @@ export default function ContentPipeline() {
       );
 
     if (s === "Editing")
-      return isFounder || isItemEditor ? (
+      return isFounder || isItemEditor || isOnCrew ? (
         <div className={box}>
           <div className="eyebrow text-ink-faint">Post production</div>
           {editing.edit_remarks && (
