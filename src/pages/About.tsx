@@ -19,16 +19,17 @@ export default function About() {
         path="/about"
       />
       <section className="px-8 md:px-16 pt-24 md:pt-28 pb-12">
-        <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 06 / About</div>
+        <div className="eyebrow text-signal mb-6">N° 06 / About</div>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-end">
           <div className="md:col-span-7">
             <h1 className="display text-fluid-hero leading-[0.85]">
               A small studio <br />
-              <span className="text-site-red">in residence.</span>
+              <span className="text-signal">in residence.</span>
             </h1>
-            <p className="mt-8 max-w-xl text-fluid-md text-muted-foreground">
+            <p className="mt-8 max-w-xl text-fluid-md text-ink-soft">
               Site 99 is a creative residency based in Kampala. We build entertaining content and brand systems for ambitious teams across East Africa and beyond.
             </p>
+
           </div>
           <motion.div
             initial={{ opacity: 0, scale: 1.05 }}
