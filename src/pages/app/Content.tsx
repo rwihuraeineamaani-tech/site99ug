@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
@@ -122,12 +122,14 @@ const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_direct
 
 export default function ContentPipeline() {
   const { canEditContent, userId, has } = useMyRoles();
+  const navigate = useNavigate();
   const isFounder = has(...FOUNDER_ROLES);
 
   const [items, setItems] = useState<ContentItem[]>([]);
   const [residents, setResidents] = useState<ResidentRow[]>([]);
   const [projects, setProjects] = useState<ProjectRow[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
+  const [crewByItem, setCrewByItem] = useState<Record<string, CrewRow[]>>({});
   const [authors, setAuthors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"board" | "list" | "archive">("board");
@@ -159,11 +161,12 @@ export default function ContentPipeline() {
 
   const load = async () => {
     setLoading(true);
-    const [{ data: rows, error }, { data: cs }, { data: ps }, { data: tm }] = await Promise.all([
+    const [{ data: rows, error }, { data: cs }, { data: ps }, { data: tm }, { data: allCrew }] = await Promise.all([
       supabase.from("content_items").select("*").order("planned_at", { ascending: true, nullsFirst: false }),
       supabase.rpc("resident_options"),
       supabase.from("projects").select("id, title, client").order("display_order"),
       supabase.from("team_members").select("user_id, display_name, email"),
+      supabase.from("content_crew").select("*"),
     ]);
     if (error) toast.error(error.message);
     setItems((rows as unknown as ContentItem[]) ?? []);
@@ -176,6 +179,11 @@ export default function ContentPipeline() {
       map[m.user_id] = name;
       list.push({ user_id: m.user_id, name });
     });
+    const byItem: Record<string, CrewRow[]> = {};
+    ((allCrew as CrewRow[]) ?? []).forEach((c) => {
+      (byItem[c.content_id] ??= []).push(c);
+    });
+    setCrewByItem(byItem);
     setAuthors(map);
     setMembers(list.sort((a, b) => a.name.localeCompare(b.name)));
     setLoading(false);
@@ -382,6 +390,80 @@ export default function ContentPipeline() {
     </select>
   );
 
+  /* ---------- one-press next step, shown on the cards and rows ---------- */
+  type Quick = { label: string; run?: () => void | Promise<void>; ghost?: boolean };
+
+  /** Move one item forward without opening it. */
+  const move = async (id: string, next: Stage, values: Record<string, unknown> = {}) => {
+    setBusy(true);
+    const ok = await patch(id, { ...values, stage: next });
+    setBusy(false);
+    if (ok) toast.success(`Moved to ${next}.`);
+  };
+
+  /** The buttons a signed-in person may press on a card at its current stage. */
+  const quickFor = (i: ContentItem): Quick[] => {
+    const r = i.resident_id ? residents.find((x) => x.id === i.resident_id) : null;
+    const contact = !!userId && r?.contact_user_id === userId;
+    const handler = !!userId && r?.handler_user_id === userId;
+    const rows = crewByItem[i.id] ?? [];
+    const itemEditor = !!userId && rows.some((c) => c.user_id === userId && /edit/i.test(c.role));
+    const crewFilled = rows.length > 0 && rows.every((c) => c.user_id);
+    const openIt: Quick["run"] = undefined;
+
+    switch (i.stage as Stage) {
+      case "Idea":
+        return isFounder
+          ? [
+              { label: "Approve", run: () => move(i.id, crewFilled ? "Crewed" : "Approved") },
+              { label: "Reject", run: () => move(i.id, "Rejected"), ghost: true },
+            ]
+          : [];
+      case "Approved":
+        return isFounder || contact ? [{ label: "Fill the crew", run: openIt }] : [];
+      case "Crewed":
+      case "Scheduled":
+        return canEditContent ? [{ label: "Open shoot day", run: () => navigate("/app/shoots"), ghost: true }] : [];
+      case "Shooting":
+        return isFounder || contact ? [{ label: "Shoot done", run: () => move(i.id, "Editing") }] : [];
+      case "Editing":
+        return isFounder || itemEditor ? [{ label: "Add the cut", run: openIt }] : [];
+      case "Review":
+        return isFounder ? [{ label: "Review it", run: openIt }] : [];
+      case "Handover":
+        return isFounder || handler ? [{ label: "Add post links", run: openIt }] : [];
+      case "Posted":
+        return isFounder || handler ? [{ label: "Add the numbers", run: openIt }] : [];
+      default:
+        return [];
+    }
+  };
+
+  /** Render the quick buttons for an item; falling back to opening the card. */
+  const quickButtons = (i: ContentItem, className = "") => {
+    const acts = quickFor(i);
+    if (acts.length === 0) return null;
+    return (
+      <div className={`flex flex-wrap gap-1.5 ${className}`} onClick={(e) => e.stopPropagation()}>
+        {acts.map((a) => (
+          <button
+            key={a.label}
+            type="button"
+            disabled={busy}
+            onClick={() => (a.run ? a.run() : openEdit(i))}
+            className={`press rounded-full border px-2.5 py-1 text-[11px] font-semibold focus-ring disabled:opacity-50 ${
+              a.ghost
+                ? "border-rule bg-paper-raised text-ink-soft hover:border-ink"
+                : "border-signal bg-signal text-paper hover:opacity-90"
+            }`}
+          >
+            {a.label}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
   const columns: Column<ContentItem>[] = [
     {
       key: "ref",
@@ -409,6 +491,12 @@ export default function ContentPipeline() {
       header: "Shoot / planned",
       align: "right",
       cell: (r) => <span className="num">{r.shoot_at ?? r.planned_at ?? "—"}</span>,
+    },
+    {
+      key: "next",
+      header: "Next step",
+      align: "right",
+      cell: (r) => quickButtons(r, "justify-end") ?? <span className="text-ink-faint">—</span>,
     },
   ];
 
@@ -476,7 +564,7 @@ export default function ContentPipeline() {
           </label>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button
-              disabled={busy || crew.length === 0}
+              disabled={busy}
               onClick={() => advance(crewComplete ? "Crewed" : "Approved", { crew_notes: crewNotes || null })}
             >
               Approve
@@ -915,6 +1003,7 @@ export default function ContentPipeline() {
                           </span>
                         )}
                       </div>
+                      {quickButtons(i, "mt-2.5")}
                     </article>
                   ))}
                   {canEditContent && s === "Idea" && (
