@@ -188,7 +188,7 @@ export default function Shoots() {
     }
   };
 
-  const saveDetails = () =>
+  const writeDetails = () =>
     open &&
     run(
       () =>
@@ -203,6 +203,64 @@ export default function Shoots() {
           .eq("id", open.id),
       "Saved"
     );
+
+  /** Check the client and the crew are actually free before booking the day. */
+  const saveDetails = async () => {
+    if (!open || !date) return writeDetails();
+    const crewIds = Array.from(
+      new Set(
+        itemsOf(open.id)
+          .flatMap((i) => crew.filter((c) => c.content_id === i.id))
+          .map((c) => c.user_id)
+          .filter(Boolean) as string[]
+      )
+    );
+    const { data } = await supabase.rpc("availability_conflicts", {
+      _user_ids: crewIds.length ? crewIds : null,
+      _resident_id: open.resident_id,
+      _on_date: date,
+      _from_time: callTime || null,
+      _to_time: null,
+    });
+    const rows = (data as Conflict[]) ?? [];
+    if (rows.length === 0) return writeDetails();
+    const hard = rows.filter((r) => r.strictness === "hard");
+    if (hard.length === 0) {
+      toast.warning(
+        `Heads up: ${rows.map((r) => `${whoIsBusy(r)} — ${r.title}`).join("; ")}. Saving anyway.`
+      );
+      return writeDetails();
+    }
+    setClash(hard);
+  };
+
+  const whoIsBusy = (c: Conflict) =>
+    c.owner_kind === "resident"
+      ? residents.find((r) => r.id === c.resident_id)?.name ?? "The client"
+      : memberName(c.owner_user_id) ?? "A crew member";
+
+  const forceThrough = async () => {
+    if (!open || !clash) return;
+    if (!overrideReason.trim()) return toast.error("Give a reason for forcing this booking.");
+    setBusy(true);
+    const { error } = await supabase.from("schedule_overrides").insert(
+      clash.map((c) => ({
+        shoot_day_id: open.id,
+        on_date: date,
+        blocked_user_id: c.owner_kind === "staff" ? c.owner_user_id : null,
+        blocked_resident_id: c.owner_kind === "resident" ? c.resident_id : null,
+        reason: overrideReason.trim(),
+        approved_by: userId,
+      })) as never
+    );
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    setClash(null);
+    setOverrideReason("");
+    await writeDetails();
+  };
+
+
 
   const addItem = (contentId: string) =>
     open && run(() => supabase.from("shoot_day_items").insert({ shoot_day_id: open.id, content_id: contentId }), "Added");
