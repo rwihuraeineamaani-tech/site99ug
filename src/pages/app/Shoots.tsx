@@ -12,7 +12,7 @@ import { CalendarDays, Plus, X } from "lucide-react";
 
 type ShootDay = {
   id: string;
-  resident_id: string;
+  resident_id: string | null;
   status: string;
   project_id: string | null;
   shoot_date: string | null;
