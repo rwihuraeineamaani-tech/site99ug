@@ -145,6 +145,12 @@ export function useRolesState(): RoleState {
         firstLoad.current = false;
         return;
       }
+      // A different person just signed in — hold the guards until their roles are known.
+      if (currentUser.current !== data.user.id) {
+        setLoading(true);
+        setRoles([]);
+        setAssignments([]);
+      }
       currentUser.current = data.user.id;
       setUserId(data.user.id);
       setEmail(data.user.email ?? null);
