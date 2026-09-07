@@ -6,6 +6,7 @@ import AppShell from "@/components/system/AppShell";
 import { PageHeader, Metric, SectionHeading, StatusChip } from "@/components/system";
 import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
 import { refCode } from "@/lib/contentFlow";
+import { weekLabel } from "@/lib/weeks";
 
 type ContentRow = {
   id: string;
@@ -25,6 +26,14 @@ type FlowRow = {
   metrics_due_at: string | null;
 };
 
+type PendingWeek = {
+  account_id: string;
+  resident_name: string;
+  platform: string;
+  handle: string;
+  week_start: string;
+};
+
 type ResidentLink = { id: string; name: string; contact_user_id: string | null; handler_user_id: string | null };
 
 const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_director"] as const;
@@ -38,6 +47,7 @@ export default function Dashboard() {
   const [flow, setFlow] = useState<FlowRow[]>([]);
   const [resLinks, setResLinks] = useState<ResidentLink[]>([]);
   const [myCrew, setMyCrew] = useState<{ content_id: string; role: string }[]>([]);
+  const [pendingWeeks, setPendingWeeks] = useState<PendingWeek[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,6 +93,18 @@ export default function Dashboard() {
       cancelled = true;
     };
   }, [userId, departments.content]);
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.rpc("my_pending_account_weeks");
+      if (!cancelled) setPendingWeeks((data as unknown as PendingWeek[]) ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   const waiting = useMemo(() => {
     if (!userId) return [] as { item: FlowRow; why: string }[];
@@ -167,9 +189,32 @@ export default function Dashboard() {
         />
       </div>
 
+      {pendingWeeks.length > 0 && (
+        <div className="mt-12">
+          <SectionHeading
+            index="00"
+            title={`Weekly numbers — ${weekLabel(pendingWeeks[0].week_start)}`}
+            hint={`${pendingWeeks.length} account${pendingWeeks.length === 1 ? "" : "s"} to fill`}
+          />
+          <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
+            {pendingWeeks.map((p) => (
+              <li key={p.account_id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
+                <span className="text-sm font-semibold">{p.resident_name}</span>
+                <StatusChip value={p.platform} tone="violet" />
+                <span className="text-xs text-ink-faint truncate">{p.handle}</span>
+                <Link to="/app/clients" className="ml-auto text-xs font-semibold text-signal focus-ring whitespace-nowrap">
+                  Add the week →
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {waiting.length > 0 && (
         <div className="mt-12">
-          <SectionHeading index="00" title="Waiting on you" hint={`${waiting.length} to act on`} />
+          <SectionHeading index="01" title="Waiting on you" hint={`${waiting.length} to act on`} />
+
           <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
             {waiting.map(({ item, why }) => (
               <li key={`${item.id}-${why}`} className="px-4 py-3 flex items-center gap-3">

@@ -36,7 +36,8 @@ import Dashboard from "./pages/app/Dashboard.tsx";
 import AppTeam from "./pages/app/Team.tsx";
 import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
-import { ClientRelations, Sales, LegalContracts, ManagementOps, Finance } from "./pages/app/Departments.tsx";
+import { Sales, LegalContracts, ManagementOps, Finance } from "./pages/app/Departments.tsx";
+import ClientRelations from "./pages/app/Clients.tsx";
 import RequireRole from "./components/system/RequireRole";
 
 
