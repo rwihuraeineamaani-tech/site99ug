@@ -171,6 +171,24 @@ export function useMyRoles(): RoleState {
   const isLeadership = has(...LEADERSHIP);
   const canSeeFinance = has(...FINANCE);
 
+  const canEditContent = has("admin", "founder", "managing_director", "creative_director", "creative");
+  const canManageClients = has("admin", "founder", "managing_director", "sales_head", "creative_director");
+  const canManageEvents = has("admin", "founder", "managing_director", "event_manager");
+  const canViewEvents = has("admin", "founder", "managing_director", "event_manager", "viewer", "finance_ops");
+  const canScan = has("admin", "founder", "managing_director", "event_manager", "scanner");
+  const canEditSite = has("admin", "founder", "creative_director", "creative", "site_editor");
+
+  const departments: Record<Department, boolean> = {
+    content: canEditContent || has("sales_head", "legal", "viewer"),
+    clients: canManageClients || has("legal", "finance_ops"),
+    sales: has("admin", "founder", "managing_director", "sales_head"),
+    legal: has("admin", "founder", "managing_director", "legal"),
+    ops: isLeadership,
+    finance: canSeeFinance,
+    site: canEditSite,
+    events: canViewEvents || canScan,
+  };
+
   const landingPath = isStaff ? "/app" : isClient ? "/portal" : has("resident") ? "/residents/portal" : "/";
 
   return {
@@ -186,12 +204,15 @@ export function useMyRoles(): RoleState {
     clientId,
     canSeeFinance,
     canManageTeam: isLeadership,
-    canManageClients: has("admin", "founder", "managing_director", "sales_head", "creative_director"),
-    canManageEvents: has("admin", "founder", "managing_director", "event_manager"),
-    canViewEvents: has("admin", "founder", "managing_director", "event_manager", "viewer", "finance_ops"),
-    canScan: has("admin", "founder", "managing_director", "event_manager", "scanner"),
-    canEditSite: has("admin", "founder", "creative_director", "creative", "site_editor"),
+    canManageClients,
+    canManageEvents,
+    canViewEvents,
+    canScan,
+    canEditSite,
+    canEditContent,
+    departments,
     landingPath,
     reload: () => setTick((t) => t + 1),
   };
 }
+
