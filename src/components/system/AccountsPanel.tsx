@@ -126,15 +126,17 @@ export default function AccountsPanel({
   );
 
   const groups = useMemo(() => {
-    const ids = Array.from(new Set(accounts.map((a) => a.resident_id)));
+    const scoped = residentId ? accounts.filter((a) => a.resident_id === residentId) : accounts;
+    const ids = Array.from(new Set(scoped.map((a) => a.resident_id)));
     return ids
       .map((id) => ({
         resident: resById.get(id),
         id,
-        accounts: accounts.filter((a) => a.resident_id === id),
+        accounts: scoped.filter((a) => a.resident_id === id),
       }))
       .sort((a, b) => (a.resident?.name ?? "").localeCompare(b.resident?.name ?? ""));
-  }, [accounts, resById]);
+  }, [accounts, resById, residentId]);
+
 
   const openEntry = (account: Account, w: string) => {
     const existing = (byAccount.get(account.id) ?? []).find((m) => m.week_start === w);
