@@ -284,14 +284,17 @@ export default function ContentPipeline() {
   const save = async () => {
     if (!draft.title.trim()) return toast.error("Give it a title first.");
     setBusy(true);
-    const payload = {
-      title: draft.title.trim(),
-      ...decodeOwner(draft.owner),
-      content_type: draft.content_type,
-      planned_at: draft.planned_at || null,
-      link: draft.link.trim() || null,
-      notes: draft.notes.trim() || null,
-    };
+    const isLocked = !!editing && editing.stage !== "Idea";
+    const payload = isLocked
+      ? { notes: draft.notes.trim() || null }
+      : {
+          title: draft.title.trim(),
+          ...decodeOwner(draft.owner),
+          content_type: draft.content_type,
+          link: draft.link.trim() || null,
+          notes: draft.notes.trim() || null,
+        };
+
     const { error } = await supabase.from("content_items").update(payload).eq("id", editing!.id);
     setBusy(false);
     if (error) return toast.error(error.message);
@@ -356,8 +359,11 @@ export default function ContentPipeline() {
 
   const crewComplete = crew.length > 0 && crew.every((c) => c.user_id);
 
-  const ownerSelect = (value: string, onChange: (v: string) => void, className = field) => (
-    <select className={className} value={value} onChange={(e) => onChange(e.target.value)}>
+  /** Once an idea is approved its core details are frozen (also enforced in the database). */
+  const locked = !!editing && editing.stage !== "Idea";
+
+  const ownerSelect = (value: string, onChange: (v: string) => void, className = field, disabled = false) => (
+    <select className={className} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)}>
       <option value="">No one yet — idea archive</option>
       <optgroup label="Residents">
         {residents.map((r) => (
@@ -1042,17 +1048,23 @@ export default function ContentPipeline() {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="text-sm sm:col-span-2">
               <span className="eyebrow text-ink-faint">Title</span>
-              <input className={field} value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+              <input
+                className={`${field} ${locked ? "opacity-60" : ""}`}
+                value={draft.title}
+                disabled={locked}
+                onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+              />
             </label>
             <label className="text-sm">
               <span className="eyebrow text-ink-faint">Resident or project</span>
-              {ownerSelect(draft.owner, (v) => setDraft({ ...draft, owner: v }))}
+              {ownerSelect(draft.owner, (v) => setDraft({ ...draft, owner: v }), `${field} ${locked ? "opacity-60" : ""}`, locked)}
             </label>
             <label className="text-sm">
               <span className="eyebrow text-ink-faint">Type</span>
               <select
-                className={field}
+                className={`${field} ${locked ? "opacity-60" : ""}`}
                 value={draft.content_type}
+                disabled={locked}
                 onChange={(e) => setDraft({ ...draft, content_type: e.target.value })}
               >
                 {[...new Set([...TYPES, draft.content_type])].map((t) => (
@@ -1063,18 +1075,15 @@ export default function ContentPipeline() {
               </select>
             </label>
             <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Planned date</span>
+              <span className="eyebrow text-ink-faint">Reference link</span>
               <input
-                type="date"
-                className={field}
-                value={draft.planned_at}
-                onChange={(e) => setDraft({ ...draft, planned_at: e.target.value })}
+                className={`${field} ${locked ? "opacity-60" : ""}`}
+                value={draft.link}
+                disabled={locked}
+                onChange={(e) => setDraft({ ...draft, link: e.target.value })}
               />
             </label>
-            <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Reference link</span>
-              <input className={field} value={draft.link} onChange={(e) => setDraft({ ...draft, link: e.target.value })} />
-            </label>
+
             <label className="text-sm sm:col-span-2">
               <span className="eyebrow text-ink-faint">Notes</span>
               <textarea
@@ -1087,6 +1096,12 @@ export default function ContentPipeline() {
           </div>
 
           <p className="text-xs text-ink-faint">The stage is set by the steps above — it can never be typed in by hand.</p>
+          {locked && (
+            <p className="text-xs text-ink-faint">
+              Title, resident or project, type and reference link were locked when this idea was approved. The date comes from
+              its shoot day.
+            </p>
+          )}
 
           <DialogFooter className="mt-2 flex items-center gap-2">
             {isFounder && (

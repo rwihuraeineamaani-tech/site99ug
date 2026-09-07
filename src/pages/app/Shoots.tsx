@@ -12,18 +12,20 @@ import { CalendarDays, Plus, X } from "lucide-react";
 
 type ShootDay = {
   id: string;
-  resident_id: string;
+  resident_id: string | null;
   status: string;
+  project_id: string | null;
   shoot_date: string | null;
   call_time: string | null;
   location: string | null;
   notes: string | null;
 };
 type DayItem = { id: string; shoot_day_id: string; content_id: string };
-type Item = { id: string; ref_no: number; title: string; content_type: string; stage: string; resident_id: string | null };
+type Item = { id: string; ref_no: number; title: string; content_type: string; stage: string; resident_id: string | null; project_id: string | null };
 type Gear = { id: string; name: string; category: string; quantity: number; active: boolean };
 type Booking = { id: string; shoot_day_id: string; equipment_id: string; qty: number };
 type Resident = { id: string; name: string };
+type Project = { id: string; title: string; client: string };
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
@@ -45,6 +47,7 @@ export default function Shoots() {
   const [gear, setGear] = useState<Gear[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -54,16 +57,17 @@ export default function Shoots() {
   const [notes, setNotes] = useState("");
 
   const load = async () => {
-    const [{ data: d }, { data: di }, { data: it }, { data: g }, { data: b }, { data: rs }] = await Promise.all([
+    const [{ data: d }, { data: di }, { data: it }, { data: g }, { data: b }, { data: rs }, { data: pj }] = await Promise.all([
       supabase.from("shoot_days").select("*").order("shoot_date", { ascending: true, nullsFirst: true }),
       supabase.from("shoot_day_items").select("*"),
       supabase
         .from("content_items")
-        .select("id, ref_no, title, content_type, stage, resident_id")
+        .select("id, ref_no, title, content_type, stage, resident_id, project_id")
         .in("stage", ["Crewed", "Scheduled", "Shooting"]),
       supabase.from("equipment").select("*").order("category").order("name"),
       supabase.from("shoot_day_equipment").select("*"),
       supabase.rpc("resident_options"),
+      supabase.from("projects").select("id, title, client").order("display_order"),
     ]);
     setDays((d as ShootDay[]) ?? []);
     setDayItems((di as DayItem[]) ?? []);
@@ -71,6 +75,7 @@ export default function Shoots() {
     setGear((g as Gear[]) ?? []);
     setBookings((b as Booking[]) ?? []);
     setResidents(((rs as Resident[]) ?? []).map((r) => ({ id: r.id, name: r.name })));
+    setProjects((pj as Project[]) ?? []);
     setLoading(false);
   };
 
@@ -88,14 +93,22 @@ export default function Shoots() {
     setNotes(open.notes ?? "");
   }, [openId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const residentName = (id: string) => residents.find((r) => r.id === id)?.name ?? "Unassigned client";
+  /** A shoot day belongs to a resident or a project. */
+  const ownerName = (d: ShootDay) => {
+    if (d.resident_id) return residents.find((r) => r.id === d.resident_id)?.name ?? "Client";
+    const p = projects.find((x) => x.id === d.project_id);
+    return p ? `${p.title} (project)` : "Unassigned";
+  };
   const itemsOf = (dayId: string) =>
     dayItems.filter((i) => i.shoot_day_id === dayId).map((i) => items.find((x) => x.id === i.content_id)).filter(Boolean) as Item[];
 
   /** Crewed ideas for this client that aren't on any shoot day yet. */
   const spareFor = (day: ShootDay) =>
     items.filter(
-      (i) => i.stage === "Crewed" && i.resident_id === day.resident_id && !dayItems.some((d) => d.content_id === i.id)
+      (i) =>
+        i.stage === "Crewed" &&
+        (day.resident_id ? i.resident_id === day.resident_id : i.project_id === day.project_id) &&
+        !dayItems.some((d) => d.content_id === i.id)
     );
 
   /** Units of a piece of gear already taken by other confirmed shoots on the same date. */
@@ -158,9 +171,12 @@ export default function Shoots() {
   const call = (rpc: "confirm_shoot_day" | "start_shoot_day" | "finish_shoot_day", ok: string) =>
     open && run(() => supabase.rpc(rpc, { _day_id: open.id }) as never, ok);
 
-  const newDay = async (residentId: string) => {
-    if (!residentId) return;
-    await run(() => supabase.from("shoot_days").insert({ resident_id: residentId }), "Shoot day created");
+  const newDay = async (owner: string) => {
+    if (!owner) return;
+    const payload: { resident_id?: string; project_id?: string } = owner.startsWith("p:")
+      ? { project_id: owner.slice(2) }
+      : { resident_id: owner.slice(2) };
+    await run(() => supabase.from("shoot_days").insert(payload), "Shoot day created");
   };
 
   return (
@@ -176,12 +192,21 @@ export default function Shoots() {
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <span className="eyebrow text-ink-faint">New shoot day</span>
           <select className="rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs press focus-ring" defaultValue="" onChange={(e) => { newDay(e.target.value); e.currentTarget.value = ""; }}>
-            <option value="">Pick a client…</option>
-            {residents.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name}
-              </option>
-            ))}
+            <option value="">Pick a client or project…</option>
+            <optgroup label="Clients">
+              {residents.map((r) => (
+                <option key={r.id} value={`r:${r.id}`}>
+                  {r.name}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Projects">
+              {projects.map((p) => (
+                <option key={p.id} value={`p:${p.id}`}>
+                  {p.title} — {p.client}
+                </option>
+              ))}
+            </optgroup>
           </select>
         </div>
       )}
@@ -203,7 +228,7 @@ export default function Shoots() {
                     className="w-full text-left px-4 py-4 flex flex-wrap items-center gap-3 hover:bg-paper-sunken focus-ring"
                   >
                     <CalendarDays className="h-4 w-4 text-ink-faint shrink-0" />
-                    <span className="font-semibold">{residentName(d.resident_id)}</span>
+                    <span className="font-semibold">{ownerName(d)}</span>
                     <StatusChip value={STATUS_LABEL[d.status] ?? d.status} tone={d.status === "draft" ? "amber" : d.status === "done" ? "neutral" : "active"} />
                     <span className="num text-xs text-ink-soft">{d.shoot_date ?? "no date yet"}</span>
                     {d.call_time && <span className="num text-xs text-ink-faint">{d.call_time}</span>}
@@ -223,7 +248,7 @@ export default function Shoots() {
           {open && (
             <>
               <DialogHeader>
-                <DialogTitle>{residentName(open.resident_id)}</DialogTitle>
+                <DialogTitle>{ownerName(open)}</DialogTitle>
               </DialogHeader>
 
               <div className="grid gap-3 sm:grid-cols-3">
