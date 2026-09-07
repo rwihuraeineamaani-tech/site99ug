@@ -485,6 +485,49 @@ export default function Shoots() {
                 )}
               </div>
 
+              {/* the brief everyone reads */}
+              <div className="rounded-xl border border-rule bg-paper-raised p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="eyebrow text-ink-faint">Shoot day brief</span>
+                  {open.brief_sent_at && (
+                    <span className="text-[11px] text-ink-faint">sent {new Date(open.brief_sent_at).toLocaleString()}</span>
+                  )}
+                  <div className="ml-auto flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => copyBrief(open)}>
+                      Copy
+                    </Button>
+                    {canEditContent && (
+                      <Button size="sm" disabled={busy} onClick={() => sendBrief(open)}>
+                        {open.brief_sent_at ? "Send again" : "Send the brief"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-ink-soft">{briefText(open)}</pre>
+              </div>
+
+              {/* where the content went, once the day is wrapped */}
+              {open.status === "done" && (
+                <div className="rounded-xl border border-rule bg-paper-sunken p-4">
+                  <div className="eyebrow text-ink-faint">Where the content is now</div>
+                  <ul className="mt-2 space-y-1.5">
+                    {itemsOf(open.id).map((i) => (
+                      <li key={i.id} className="flex flex-wrap items-center gap-2 text-sm">
+                        <span className="num text-[11px] text-ink-faint w-20 shrink-0">{refCode(i.ref_no)}</span>
+                        <span className="truncate">{i.title}</span>
+                        <StatusChip value={i.stage} tone={i.stage === "Archived" || i.stage === "Posted" ? "neutral" : "active"} />
+                        <span className="text-xs text-ink-faint">{STAGE_NOTE[i.stage as Stage] ?? ""}</span>
+                        <a className="ml-auto text-xs text-signal underline focus-ring" href={`/app/content?ref=${i.ref_no}`}>
+                          Open
+                        </a>
+                      </li>
+                    ))}
+                    {itemsOf(open.id).length === 0 && <li className="text-xs text-ink-soft">Nothing was attached to this day.</li>}
+                  </ul>
+                </div>
+              )}
+
+
               {canEditContent && (
                 <div className="flex flex-wrap gap-2">
                   {open.status === "draft" && (
