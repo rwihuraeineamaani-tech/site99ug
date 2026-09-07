@@ -94,6 +94,23 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
+          path="/app/shoots"
+          element={
+            <RequireRole gate="content">
+              <Shoots />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/equipment"
+          element={
+            <RequireRole gate="ops">
+              <EquipmentPage />
+            </RequireRole>
+          }
+        />
+
+        <Route
           path="/app/sales"
           element={
             <RequireRole gate="sales">
