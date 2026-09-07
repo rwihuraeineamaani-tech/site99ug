@@ -1093,6 +1093,12 @@ export default function ContentPipeline() {
           </div>
 
           <p className="text-xs text-ink-faint">The stage is set by the steps above — it can never be typed in by hand.</p>
+          {locked && (
+            <p className="text-xs text-ink-faint">
+              Title, resident or project, type and reference link were locked when this idea was approved. The date comes from
+              its shoot day.
+            </p>
+          )}
 
           <DialogFooter className="mt-2 flex items-center gap-2">
             {isFounder && (
