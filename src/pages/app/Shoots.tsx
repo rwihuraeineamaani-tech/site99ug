@@ -38,6 +38,15 @@ type Gear = { id: string; name: string; category: string; quantity: number; acti
 type Booking = { id: string; shoot_day_id: string; equipment_id: string; qty: number };
 type Resident = { id: string; name: string; contact_user_id?: string | null };
 type Project = { id: string; title: string; client: string };
+type Conflict = {
+  block_id: string;
+  owner_kind: "staff" | "resident";
+  owner_user_id: string | null;
+  resident_id: string | null;
+  title: string;
+  strictness: "warn" | "hard";
+};
+
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
@@ -52,7 +61,11 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function Shoots() {
-  const { canEditContent, userId } = useMyRoles();
+  const { canEditContent, userId, has } = useMyRoles();
+  const canOverride = has("admin", "founder", "managing_director");
+  const [clash, setClash] = useState<Conflict[] | null>(null);
+  const [overrideReason, setOverrideReason] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState<ShootDay[]>([]);
   const [dayItems, setDayItems] = useState<DayItem[]>([]);
@@ -188,7 +201,7 @@ export default function Shoots() {
     }
   };
 
-  const saveDetails = () =>
+  const writeDetails = () =>
     open &&
     run(
       () =>
@@ -203,6 +216,64 @@ export default function Shoots() {
           .eq("id", open.id),
       "Saved"
     );
+
+  /** Check the client and the crew are actually free before booking the day. */
+  const saveDetails = async () => {
+    if (!open || !date) return writeDetails();
+    const crewIds = Array.from(
+      new Set(
+        itemsOf(open.id)
+          .flatMap((i) => crew.filter((c) => c.content_id === i.id))
+          .map((c) => c.user_id)
+          .filter(Boolean) as string[]
+      )
+    );
+    const { data } = await supabase.rpc("availability_conflicts", {
+      _user_ids: crewIds.length ? crewIds : null,
+      _resident_id: open.resident_id,
+      _on_date: date,
+      _from_time: callTime || null,
+      _to_time: null,
+    });
+    const rows = (data as Conflict[]) ?? [];
+    if (rows.length === 0) return writeDetails();
+    const hard = rows.filter((r) => r.strictness === "hard");
+    if (hard.length === 0) {
+      toast.warning(
+        `Heads up: ${rows.map((r) => `${whoIsBusy(r)} — ${r.title}`).join("; ")}. Saving anyway.`
+      );
+      return writeDetails();
+    }
+    setClash(hard);
+  };
+
+  const whoIsBusy = (c: Conflict) =>
+    c.owner_kind === "resident"
+      ? residents.find((r) => r.id === c.resident_id)?.name ?? "The client"
+      : memberName(c.owner_user_id) ?? "A crew member";
+
+  const forceThrough = async () => {
+    if (!open || !clash) return;
+    if (!overrideReason.trim()) return toast.error("Give a reason for forcing this booking.");
+    setBusy(true);
+    const { error } = await supabase.from("schedule_overrides").insert(
+      clash.map((c) => ({
+        shoot_day_id: open.id,
+        on_date: date,
+        blocked_user_id: c.owner_kind === "staff" ? c.owner_user_id : null,
+        blocked_resident_id: c.owner_kind === "resident" ? c.resident_id : null,
+        reason: overrideReason.trim(),
+        approved_by: userId,
+      })) as never
+    );
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    setClash(null);
+    setOverrideReason("");
+    await writeDetails();
+  };
+
+
 
   const addItem = (contentId: string) =>
     open && run(() => supabase.from("shoot_day_items").insert({ shoot_day_id: open.id, content_id: contentId }), "Added");
@@ -559,6 +630,52 @@ export default function Shoots() {
                 <p className="text-xs text-ink-soft">Save the date first, then confirm — confirming schedules every idea on the day.</p>
               )}
             </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!clash} onOpenChange={(v) => !v && setClash(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>That day is blocked</DialogTitle>
+          </DialogHeader>
+          <ul className="space-y-2 text-sm">
+            {(clash ?? []).map((c) => (
+              <li key={c.block_id} className="rounded-lg border border-signal/50 px-3 py-2">
+                <span className="font-semibold">{whoIsBusy(c)}</span> is not available on {date} — {c.title}.
+              </li>
+            ))}
+          </ul>
+          {canOverride ? (
+            <>
+              <p className="mt-3 text-xs text-ink-soft">
+                You can force this booking through. The reason is kept on the record.
+              </p>
+              <textarea
+                className={field}
+                rows={2}
+                value={overrideReason}
+                onChange={(e) => setOverrideReason(e.target.value)}
+                placeholder="Why this has to happen anyway"
+              />
+              <div className="mt-3 flex gap-2">
+                <Button onClick={forceThrough} disabled={busy}>
+                  Force the booking
+                </Button>
+                <Button variant="ghost" onClick={() => setClash(null)}>
+                  Pick another day
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="mt-3 flex gap-2">
+              <Button variant="ghost" onClick={() => setClash(null)}>
+                Pick another day
+              </Button>
+              <span className="self-center text-xs text-ink-soft">
+                A managing director or founder can override this.
+              </span>
+            </div>
           )}
         </DialogContent>
       </Dialog>

@@ -154,6 +154,90 @@ export type Database = {
         }
         Relationships: []
       }
+      availability_blocks: {
+        Row: {
+          all_day: boolean
+          byweekday: number[]
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          end_time: string | null
+          freq: string
+          id: string
+          interval_n: number
+          note: string | null
+          occurrences: number | null
+          owner_kind: string
+          owner_user_id: string | null
+          resident_id: string | null
+          start_date: string
+          start_time: string | null
+          strictness: string
+          title: string
+          until: string | null
+          updated_at: string
+        }
+        Insert: {
+          all_day?: boolean
+          byweekday?: number[]
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          end_time?: string | null
+          freq?: string
+          id?: string
+          interval_n?: number
+          note?: string | null
+          occurrences?: number | null
+          owner_kind?: string
+          owner_user_id?: string | null
+          resident_id?: string | null
+          start_date: string
+          start_time?: string | null
+          strictness?: string
+          title: string
+          until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          all_day?: boolean
+          byweekday?: number[]
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          end_time?: string | null
+          freq?: string
+          id?: string
+          interval_n?: number
+          note?: string | null
+          occurrences?: number | null
+          owner_kind?: string
+          owner_user_id?: string | null
+          resident_id?: string | null
+          start_date?: string
+          start_time?: string | null
+          strictness?: string
+          title?: string
+          until?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_blocks_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_blocks_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       briefs: {
         Row: {
           body: string | null
@@ -1868,6 +1952,61 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_overrides: {
+        Row: {
+          approved_by: string
+          blocked_resident_id: string | null
+          blocked_user_id: string | null
+          created_at: string
+          id: string
+          on_date: string
+          reason: string
+          shoot_day_id: string | null
+        }
+        Insert: {
+          approved_by: string
+          blocked_resident_id?: string | null
+          blocked_user_id?: string | null
+          created_at?: string
+          id?: string
+          on_date: string
+          reason: string
+          shoot_day_id?: string | null
+        }
+        Update: {
+          approved_by?: string
+          blocked_resident_id?: string | null
+          blocked_user_id?: string | null
+          created_at?: string
+          id?: string
+          on_date?: string
+          reason?: string
+          shoot_day_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_overrides_blocked_resident_id_fkey"
+            columns: ["blocked_resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_overrides_blocked_resident_id_fkey"
+            columns: ["blocked_resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_overrides_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shoot_day_equipment: {
         Row: {
           created_at: string
@@ -2443,6 +2582,33 @@ export type Database = {
       approve_payment_run: {
         Args: { _line_ids?: string[]; _run_id: string }
         Returns: undefined
+      }
+      availability_conflicts: {
+        Args: {
+          _from_time?: string
+          _on_date: string
+          _resident_id: string
+          _to_time?: string
+          _user_ids: string[]
+        }
+        Returns: {
+          all_day: boolean
+          block_id: string
+          end_time: string
+          owner_kind: string
+          owner_user_id: string
+          resident_id: string
+          start_time: string
+          strictness: string
+          title: string
+        }[]
+      }
+      block_occurs_on: {
+        Args: {
+          b: Database["public"]["Tables"]["availability_blocks"]["Row"]
+          d: string
+        }
+        Returns: boolean
       }
       build_payment_run: { Args: { _month?: string }; Returns: string }
       can_edit_content: { Args: { _user_id: string }; Returns: boolean }
