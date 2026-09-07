@@ -284,14 +284,17 @@ export default function ContentPipeline() {
   const save = async () => {
     if (!draft.title.trim()) return toast.error("Give it a title first.");
     setBusy(true);
-    const payload = {
-      title: draft.title.trim(),
-      ...decodeOwner(draft.owner),
-      content_type: draft.content_type,
-      planned_at: draft.planned_at || null,
-      link: draft.link.trim() || null,
-      notes: draft.notes.trim() || null,
-    };
+    const isLocked = !!editing && editing.stage !== "Idea";
+    const payload = isLocked
+      ? { notes: draft.notes.trim() || null }
+      : {
+          title: draft.title.trim(),
+          ...decodeOwner(draft.owner),
+          content_type: draft.content_type,
+          link: draft.link.trim() || null,
+          notes: draft.notes.trim() || null,
+        };
+
     const { error } = await supabase.from("content_items").update(payload).eq("id", editing!.id);
     setBusy(false);
     if (error) return toast.error(error.message);
