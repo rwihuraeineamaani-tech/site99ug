@@ -633,6 +633,52 @@ export default function Shoots() {
           )}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!clash} onOpenChange={(v) => !v && setClash(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>That day is blocked</DialogTitle>
+          </DialogHeader>
+          <ul className="space-y-2 text-sm">
+            {(clash ?? []).map((c) => (
+              <li key={c.block_id} className="rounded-lg border border-signal/50 px-3 py-2">
+                <span className="font-semibold">{whoIsBusy(c)}</span> is not available on {date} — {c.title}.
+              </li>
+            ))}
+          </ul>
+          {canOverride ? (
+            <>
+              <p className="mt-3 text-xs text-ink-soft">
+                You can force this booking through. The reason is kept on the record.
+              </p>
+              <textarea
+                className={field}
+                rows={2}
+                value={overrideReason}
+                onChange={(e) => setOverrideReason(e.target.value)}
+                placeholder="Why this has to happen anyway"
+              />
+              <div className="mt-3 flex gap-2">
+                <Button onClick={forceThrough} disabled={busy}>
+                  Force the booking
+                </Button>
+                <Button variant="ghost" onClick={() => setClash(null)}>
+                  Pick another day
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="mt-3 flex gap-2">
+              <Button variant="ghost" onClick={() => setClash(null)}>
+                Pick another day
+              </Button>
+              <span className="self-center text-xs text-ink-soft">
+                A managing director or founder can override this.
+              </span>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
