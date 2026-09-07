@@ -96,6 +96,15 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
+          path="/app/calendar"
+          element={
+            <RequireRole gate="staff">
+              <StudioCalendar />
+            </RequireRole>
+          }
+        />
+
+        <Route
           path="/app/team"
           element={
             <RequireRole gate="leadership">
