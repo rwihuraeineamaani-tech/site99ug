@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ROLE_HINTS, ROLE_LABELS, TEAM_ROLES, type StaffRole } from "@/hooks/useMyRoles";
+import { PASSWORD_HINT, suggestPassword } from "@/lib/password";
 
 type Member = {
   id: string;
@@ -78,8 +79,12 @@ export default function TeamPanel() {
   const create = async () => {
     setBusy(true);
     try {
-      await call({ action: "create", ...form });
-      toast.success("Team member created");
+      const res = await call({ action: "create", ...form });
+      toast.success(
+        res?.reused
+          ? "That email already had an account — it now uses this password and access."
+          : "Team member created"
+      );
       setForm({ email: "", display_name: "", title: "", password: "", roles: [] });
       setShowNew(false);
       load();
@@ -89,6 +94,7 @@ export default function TeamPanel() {
       setBusy(false);
     }
   };
+
 
   const saveRoles = async (m: Member) => {
     setBusy(true);
@@ -190,7 +196,30 @@ export default function TeamPanel() {
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 placeholder="min 8 characters"
               />
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className={btn}
+                  onClick={() => setForm({ ...form, password: suggestPassword() })}
+                >
+                  Suggest
+                </button>
+                {form.password && (
+                  <button
+                    type="button"
+                    className={btn}
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(form.password);
+                      toast.success("Password copied");
+                    }}
+                  >
+                    Copy
+                  </button>
+                )}
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">{PASSWORD_HINT}</p>
             </div>
+
           </div>
           <div>
             <div className={`${lbl} mb-3`}>Access levels</div>

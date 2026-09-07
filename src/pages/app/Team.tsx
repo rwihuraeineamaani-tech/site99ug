@@ -5,6 +5,7 @@ import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip, DataTable, type Column } from "@/components/system";
 import TeamPanel from "@/components/admin/TeamPanel";
+import { PASSWORD_HINT, suggestPassword } from "@/lib/password";
 
 type Client = { id: string; name: string; contact_person: string | null; status: string; category: string };
 type ClientUser = { id: string; client_id: string; email: string; accepted_at: string | null };
@@ -58,12 +59,18 @@ export default function Team() {
       body: { action: "create", ...invite, roles: ["client"] },
     });
     setBusy(false);
-    const msg = (data as { error?: string } | null)?.error ?? error?.message;
+    const res = data as { error?: string; reused?: boolean } | null;
+    const msg = res?.error ?? error?.message;
     if (msg) return toast.error(msg);
-    toast.success("Client login created — share the password with them directly.");
+    toast.success(
+      res?.reused
+        ? "That email already had an account — it now opens this client's portal with the password you set."
+        : "Client login created — share the password with them directly."
+    );
     setInvite({ client_id: "", email: "", display_name: "", password: "" });
     load();
   };
+
 
   const cols: Column<Client>[] = [
     { key: "name", header: "Client", cell: (r) => <span className="font-medium">{r.name}</span> },
@@ -170,7 +177,26 @@ export default function Team() {
               onChange={(e) => setInvite({ ...invite, password: e.target.value })}
               placeholder="min 8 characters"
             />
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button type="button" className={btn} onClick={() => setInvite({ ...invite, password: suggestPassword() })}>
+                Suggest
+              </button>
+              {invite.password && (
+                <button
+                  type="button"
+                  className={btn}
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(invite.password);
+                    toast.success("Password copied");
+                  }}
+                >
+                  Copy
+                </button>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-ink-soft">{PASSWORD_HINT}</p>
           </div>
+
           <button className={btn} disabled={busy} onClick={inviteClient}>
             Create client login
           </button>
