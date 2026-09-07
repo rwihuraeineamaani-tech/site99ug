@@ -95,7 +95,7 @@ export default function CopyTicketDialog({ orderId, onClose }: Props) {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Email body (plain text)</div>
-                <button onClick={() => copy(composed.body, "Email body copied")} className="mono text-[10px] uppercase bg-site-red text-site-white px-3 py-1 rounded" data-hover>Copy body</button>
+                <button onClick={() => copy(composed.body, "Email body copied")} className="ctl ctl-solid mono text-[10px] uppercase px-3 py-1 focus-ring" data-hover>Copy body</button>
               </div>
               <textarea readOnly value={composed.body} className="field w-full h-56 - p-3 mono text-xs" />
             </div>
@@ -136,7 +136,7 @@ function Field({ label, value }: { label: string; value: string }) {
     <div>
       <div className="flex items-center justify-between mb-1">
         <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</div>
-        <button onClick={() => copy(value, `${label} copied`)} className="mono text-[10px] uppercase opacity-70 hover:opacity-100" data-hover>Copy</button>
+        <button onClick={() => copy(value, `${label} copied`)} className="ctl mono text-[10px] uppercase opacity-70 hover:opacity-100 focus-ring px-3 py-1.5" data-hover>Copy</button>
       </div>
       <div className="border border-border rounded px-3 py-2 mono text-xs break-all">{value}</div>
     </div>
@@ -149,7 +149,7 @@ function RowCopy({ label, value }: { label: string; value: string }) {
       <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1">{label}</div>
       <div className="flex gap-2 items-stretch">
         <input readOnly value={value} className="field flex-1 - px-2 py-1 mono text-xs" />
-        <button onClick={() => copy(value, "Copied")} className="mono text-[10px] uppercase bg-site-red text-site-white px-3 rounded" data-hover>Copy</button>
+        <button onClick={() => copy(value, "Copied")} className="ctl ctl-solid mono text-[10px] uppercase px-3 focus-ring py-1.5" data-hover>Copy</button>
       </div>
     </div>
   );

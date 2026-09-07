@@ -447,7 +447,7 @@ export default function EventsAdmin() {
       nav={navItems}
       active={activeTab}
       actions={
-        <button onClick={() => exportCsv()} className="mono text-[10px] uppercase tracking-[0.2em] border border-border rounded-full px-3 py-1.5" data-hover>
+        <button onClick={() => exportCsv()} className="ctl mono text-[10px] uppercase tracking-[0.2em] - px-3 py-1.5 focus-ring" data-hover>
           Export buyers
         </button>
       }
@@ -494,15 +494,15 @@ export default function EventsAdmin() {
                           <div className="flex gap-2 justify-end flex-wrap">
                             {canManage && o.status === "pending" && (
                               <>
-                                <button onClick={() => confirmOrder(o)} className="bg-site-red text-site-white px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Confirm & Email</button>
-                                <button onClick={() => rejectOrder(o)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Reject</button>
+                                <button onClick={() => confirmOrder(o)} className="ctl ctl-solid px-3 py-1 mono text-[10px] uppercase focus-ring" data-hover>Confirm & Email</button>
+                                <button onClick={() => rejectOrder(o)} className="ctl - px-3 py-1 mono text-[10px] uppercase focus-ring" data-hover>Reject</button>
                               </>
                             )}
                             {canManage && o.status === "paid" && (
-                              <button onClick={() => sendTickets(o.id)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Resend tickets</button>
+                              <button onClick={() => sendTickets(o.id)} className="ctl -site-red text-site-red px-3 py-1 mono text-[10px] uppercase focus-ring" data-hover>Resend tickets</button>
                             )}
-                            {canManage && <button onClick={() => setCopyOrderId(o.id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy for manual</button>}
-                            {canManage && <button onClick={() => trashOrder(o)} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>}
+                            {canManage && <button onClick={() => setCopyOrderId(o.id)} className="ctl - px-3 py-1 mono text-[10px] uppercase focus-ring" data-hover>Copy for manual</button>}
+                            {canManage && <button onClick={() => trashOrder(o)} className="ctl - text-muted-foreground px-3 py-1 mono text-[10px] uppercase focus-ring" data-hover>Trash</button>}
                           </div>
                         </td>
                       </tr>
@@ -533,7 +533,7 @@ export default function EventsAdmin() {
                   {form.poster_url && (
                     <div className="flex items-center gap-3">
                       <img src={form.poster_url} alt="poster" className="h-24 w-16 object-cover rounded" />
-                      <button type="button" onClick={() => setForm({ ...form, poster_url: "" })} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Clear</button>
+                      <button type="button" onClick={() => setForm({ ...form, poster_url: "" })} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Clear</button>
                     </div>
                   )}
                   <input placeholder="…or paste an existing image URL" value={form.poster_url || ""} onChange={(e) => setForm({ ...form, poster_url: e.target.value })} className="w-full bg-transparent border-b border-border py-2 text-xs" />
@@ -544,7 +544,7 @@ export default function EventsAdmin() {
                   {form.cover_url && (
                     <div className="flex items-center gap-3">
                       <img src={form.cover_url} alt="cover" className="h-16 w-24 object-cover rounded" />
-                      <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Clear</button>
+                      <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Clear</button>
                     </div>
                   )}
                   <input placeholder="…or paste an existing image URL" value={form.cover_url || ""} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} className="w-full bg-transparent border-b border-border py-2 text-xs" />
@@ -605,10 +605,10 @@ export default function EventsAdmin() {
                       <div key={i} className="flex gap-2">
                         <input placeholder="Label (Instagram)" value={s.label} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], label: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="flex-1 bg-transparent border-b border-border py-1 text-xs" />
                         <input placeholder="https://…" value={s.url} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], url: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="flex-[2] bg-transparent border-b border-border py-1 text-xs" />
-                        <button type="button" onClick={() => setForm({ ...form, organizer_socials: form.organizer_socials.filter((_: any, j: number) => j !== i) })} className="mono text-[10px] text-site-red">×</button>
+                        <button type="button" onClick={() => setForm({ ...form, organizer_socials: form.organizer_socials.filter((_: any, j: number) => j !== i) })} className="ctl mono text-[10px] text-site-red focus-ring px-3 py-1.5">×</button>
                       </div>
                     ))}
-                    <button type="button" onClick={() => setForm({ ...form, organizer_socials: [...(form.organizer_socials || []), { label: "", url: "" }] })} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">+ add social</button>
+                    <button type="button" onClick={() => setForm({ ...form, organizer_socials: [...(form.organizer_socials || []), { label: "", url: "" }] })} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">+ add social</button>
                   </div>
                 </div>
 
@@ -618,7 +618,7 @@ export default function EventsAdmin() {
                   {form.ticket_template_url && (
                     <div className="flex items-center gap-3">
                       <span className="mono text-[10px] text-muted-foreground truncate flex-1">{form.ticket_template_url}</span>
-                      <button type="button" onClick={() => setForm({ ...form, ticket_template_url: "" })} className="mono text-[10px] uppercase text-site-red">Clear</button>
+                      <button type="button" onClick={() => setForm({ ...form, ticket_template_url: "" })} className="ctl mono text-[10px] uppercase text-site-red focus-ring px-3 py-1.5">Clear</button>
                     </div>
                   )}
                   <p className="mono text-[10px] text-muted-foreground">Leave empty to use the default layout. Available field keys: event_title, tier_name, holder_name, starts_at, venue, order_ref, ticket_id, qr.</p>
@@ -643,7 +643,7 @@ export default function EventsAdmin() {
                 </label>
                 <div className="flex gap-3">
                   <button onClick={save} disabled={uploading} className="ctl ctl-solid px-6 py-3 mono text-xs uppercase disabled:opacity-50 focus-ring" data-hover>{uploading ? "Uploading…" : "Save"}</button>
-                  {editingId && <button onClick={() => { setEditingId(null); setForm(empty); }} className="border border-border px-6 py-3 rounded-full mono text-xs uppercase" data-hover>Cancel</button>}
+                  {editingId && <button onClick={() => { setEditingId(null); setForm(empty); }} className="ctl - px-6 py-3 mono text-xs uppercase focus-ring" data-hover>Cancel</button>}
                 </div>
               </div>
             </div>
@@ -664,10 +664,10 @@ export default function EventsAdmin() {
                         </div>
                       </div>
                       <div className="flex gap-2 mono text-[10px] uppercase tracking-[0.2em] flex-wrap">
-                        <button onClick={() => { setEditingId(e.id); setForm({ ...empty, ...e, gallery: e.gallery || [] }); }} className="px-3 py-1 border border-border rounded" data-hover>Edit</button>
-                        <button onClick={() => loadTiers(e.id)} className="px-3 py-1 border border-border rounded" data-hover>Tiers</button>
-                        <button onClick={() => exportCsv(e.id)} className="px-3 py-1 border border-border rounded" data-hover>CSV</button>
-                        <button onClick={() => del(e.id)} className="px-3 py-1 border border-site-red text-site-red rounded" data-hover>Del</button>
+                        <button onClick={() => { setEditingId(e.id); setForm({ ...empty, ...e, gallery: e.gallery || [] }); }} className="ctl px-3 py-1 - focus-ring" data-hover>Edit</button>
+                        <button onClick={() => loadTiers(e.id)} className="ctl px-3 py-1 - focus-ring" data-hover>Tiers</button>
+                        <button onClick={() => exportCsv(e.id)} className="ctl px-3 py-1 - focus-ring" data-hover>CSV</button>
+                        <button onClick={() => del(e.id)} className="ctl px-3 py-1 -site-red text-site-red focus-ring" data-hover>Del</button>
                       </div>
                     </div>
                     {tierEventId === e.id && (
@@ -688,7 +688,7 @@ export default function EventsAdmin() {
                                 </div>
                                 <div className="flex gap-2">
                                   <button onClick={saveTier} className="ctl mono text-[10px] uppercase tracking-[0.2em] px-3 py-1 focus-ring" data-hover>Save</button>
-                                  <button onClick={() => setEditingTierId(null)} className="mono text-[10px] uppercase tracking-[0.2em] border border-border px-3 py-1 rounded" data-hover>Cancel</button>
+                                  <button onClick={() => setEditingTierId(null)} className="ctl mono text-[10px] uppercase tracking-[0.2em] - px-3 py-1 focus-ring" data-hover>Cancel</button>
                                 </div>
                               </div>
                             ) : (
@@ -700,10 +700,10 @@ export default function EventsAdmin() {
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-1 mono text-[10px]">
-                                  <button onClick={() => moveTier(t.id, -1)} disabled={i === 0} className="px-2 py-1 border border-border rounded disabled:opacity-30" data-hover title="Move up">↑</button>
-                                  <button onClick={() => moveTier(t.id, 1)} disabled={i === tiers.length - 1} className="px-2 py-1 border border-border rounded disabled:opacity-30" data-hover title="Move down">↓</button>
-                                  <button onClick={() => startEditTier(t)} className="px-2 py-1 border border-border rounded uppercase tracking-[0.2em]" data-hover>Edit</button>
-                                  <button onClick={() => delTier(t.id)} className="px-2 py-1 border border-site-red text-site-red rounded uppercase tracking-[0.2em]" data-hover>Remove</button>
+                                  <button onClick={() => moveTier(t.id, -1)} disabled={i === 0} className="ctl px-2 py-1 - disabled:opacity-30 focus-ring" data-hover title="Move up">↑</button>
+                                  <button onClick={() => moveTier(t.id, 1)} disabled={i === tiers.length - 1} className="ctl px-2 py-1 - disabled:opacity-30 focus-ring" data-hover title="Move down">↓</button>
+                                  <button onClick={() => startEditTier(t)} className="ctl px-2 py-1 - uppercase tracking-[0.2em] focus-ring" data-hover>Edit</button>
+                                  <button onClick={() => delTier(t.id)} className="ctl px-2 py-1 -site-red text-site-red uppercase tracking-[0.2em] focus-ring" data-hover>Remove</button>
                                 </div>
                               </div>
                             )}
@@ -750,7 +750,7 @@ export default function EventsAdmin() {
                   {events.map((e) => <option key={e.id} value={e.id}>{e.title}</option>)}
                 </select>
               </label>
-              <button onClick={() => exportCsv(scopeEventId || undefined)} className="mono text-xs uppercase tracking-[0.2em] border border-site-red px-4 py-2 rounded-full" data-hover>Export CSV</button>
+              <button onClick={() => exportCsv(scopeEventId || undefined)} className="ctl mono text-xs uppercase tracking-[0.2em] -site-red px-4 py-2 focus-ring" data-hover>Export CSV</button>
             </div>
 
             <div className="mt-6 overflow-x-auto">
@@ -785,8 +785,8 @@ export default function EventsAdmin() {
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
                       <td className="pr-4 text-right">
                         <div className="flex gap-2 justify-end flex-wrap">
-                          {canManage && <button onClick={() => setCopyOrderId(o.order_id)} className="border border-border px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Copy</button>}
-                          {canManage && <button onClick={() => trashOrder({ id: o.order_id, buyer_name: o.buyer_name, amount_ugx: o.amount_ugx })} className="border border-border text-muted-foreground hover:text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Trash</button>}
+                          {canManage && <button onClick={() => setCopyOrderId(o.order_id)} className="ctl - px-3 py-1 mono text-[10px] uppercase focus-ring" data-hover>Copy</button>}
+                          {canManage && <button onClick={() => trashOrder({ id: o.order_id, buyer_name: o.buyer_name, amount_ugx: o.amount_ugx })} className="ctl - text-muted-foreground px-3 py-1 mono text-[10px] uppercase focus-ring" data-hover>Trash</button>}
                         </div>
                       </td>
                     </tr>
@@ -824,7 +824,7 @@ export default function EventsAdmin() {
                       <td className="pr-4 mono">UGX {Number(o.amount_ugx || 0).toLocaleString()}</td>
                       <td className="pr-4 mono text-xs">{o.manual_tid || o.pesapal_merchant_reference}</td>
                       <td className="text-right">
-                        {canManage && <button onClick={() => restoreOrder(o)} className="border border-site-red text-site-red px-3 py-1 rounded mono text-[10px] uppercase" data-hover>Restore</button>}
+                        {canManage && <button onClick={() => restoreOrder(o)} className="ctl -site-red text-site-red px-3 py-1 mono text-[10px] uppercase focus-ring" data-hover>Restore</button>}
                       </td>
                     </tr>
                   ))}

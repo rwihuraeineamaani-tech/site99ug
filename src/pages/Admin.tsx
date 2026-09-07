@@ -227,7 +227,7 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
                 : <img src={form.cover_url} alt="cover" className="h-20 w-20 object-cover rounded-2xl" />
             )}
             {form.cover_url && (
-              <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Clear</button>
+              <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Clear</button>
             )}
           </div>
           {form.youtube_url && form.cover_url && (
@@ -275,7 +275,7 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
           <button type="submit" disabled={uploading} className="ctl ctl-solid px-8 py-4 label text-xs disabled:opacity-50 focus-ring">
             {editing ? "Save changes" : "Create project"}
           </button>
-          {editing && <button type="button" onClick={() => { setForm(emptyProj); setEditing(false); }} className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Cancel</button>}
+          {editing && <button type="button" onClick={() => { setForm(emptyProj); setEditing(false); }} className="ctl mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Cancel</button>}
         </div>
       </form>
 
@@ -287,8 +287,8 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
               <div className="display text-xl truncate">{p.title}</div>
               <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">{p.tag} · {p.client} · {p.year} · order {p.display_order}</div>
             </div>
-            <button onClick={() => edit(p)} className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red">Edit</button>
-            <button onClick={() => remove(p.id)} className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Delete</button>
+            <button onClick={() => edit(p)} className="ctl mono text-xs uppercase tracking-[0.3em] focus-ring px-3 py-1.5">Edit</button>
+            <button onClick={() => remove(p.id)} className="ctl mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Delete</button>
           </div>
         ))}
       </div>
@@ -358,7 +358,7 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
         </div>
         <div className="md:col-span-2 flex gap-3">
           <button type="submit" className="ctl ctl-solid px-8 py-4 label text-xs focus-ring">{editing ? "Save changes" : "Invite resident"}</button>
-          {editing && <button type="button" onClick={() => { setForm(emptyRes); setEditing(false); }} className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Cancel</button>}
+          {editing && <button type="button" onClick={() => { setForm(emptyRes); setEditing(false); }} className="ctl mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Cancel</button>}
         </div>
       </form>
 
@@ -405,9 +405,9 @@ office@site99ug.com`;
             >
               Copy invite
             </button>
-            <button onClick={() => toggleVisible(r)} className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red">{shown ? "Hide" : "Show"}</button>
-            <button onClick={() => edit(r)} className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red">Edit</button>
-            <button onClick={() => remove(r.id)} className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Delete</button>
+            <button onClick={() => toggleVisible(r)} className="ctl mono text-xs uppercase tracking-[0.3em] focus-ring px-3 py-1.5">{shown ? "Hide" : "Show"}</button>
+            <button onClick={() => edit(r)} className="ctl mono text-xs uppercase tracking-[0.3em] focus-ring px-3 py-1.5">Edit</button>
+            <button onClick={() => remove(r.id)} className="ctl mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Delete</button>
           </div>
           );
         })}
@@ -490,7 +490,7 @@ function BriefsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<typ
             <div key={b.id} className="border border-border p-4 rounded-2xl">
               <div className="flex justify-between items-start gap-4 mb-1">
                 <div className="display text-xl">{b.title}</div>
-                <button onClick={() => remove(b.id)} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Delete</button>
+                <button onClick={() => remove(b.id)} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Delete</button>
               </div>
               <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">
                 {r?.name ?? "—"} · {new Date(b.created_at).toLocaleString()}
@@ -554,7 +554,7 @@ function AnnouncementsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
                   <input type="checkbox" checked={a.published} onChange={(e) => togglePub(a.id, e.target.checked)} />
                   pub
                 </label>
-                <button onClick={() => remove(a.id)} className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Delete</button>
+                <button onClick={() => remove(a.id)} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Delete</button>
               </div>
             </div>
             <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">
