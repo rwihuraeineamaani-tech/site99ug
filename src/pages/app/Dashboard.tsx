@@ -16,6 +16,7 @@ import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
 import { refCode } from "@/lib/contentFlow";
 import { weekLabel } from "@/lib/weeks";
 import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
+import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
 
 type FlowRow = {
   id: string;
@@ -43,7 +44,7 @@ const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_direct
 const LIVE = ["Idea", "Approved", "Crewed", "Scheduled", "Shooting", "Editing", "Review", "Handover"];
 
 export default function Dashboard() {
-  const { roles, canSeeFinance, departments, canScan, isLeadership, displayName, email, userId, has } = useMyRoles();
+  const { roles, canSeeFinance, departments, isLeadership, displayName, email, userId, has } = useMyRoles();
   const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const isFounder = has(...FOUNDER_ROLES);
 
@@ -212,20 +213,39 @@ export default function Dashboard() {
   const titles = roles.filter((r): r is StaffRole => r in ROLE_LABELS).map((r) => ROLE_LABELS[r]);
   const shareTotal = myShares.reduce((s, r) => s + Number(r.computed_ugx ?? 0), 0);
 
-  const modules = [
-    { to: "/app/content", label: "Content & strategy", note: "Idea to posted, per client", count: live.length, on: departments.content },
-    { to: "/app/shoots", label: "Shoot days", note: "Call sheets, crew and gear", count: shootPrompts.length, on: departments.content },
-    { to: "/app/residents", label: "Residents", note: "Client records and contacts", count: clients ?? undefined, on: departments.clients },
-    { to: "/app/sales", label: "Sales", note: "Leads, proposals and deals", on: departments.sales },
-    { to: "/app/legal", label: "Legal & contracts", note: "Contracts, partners, documents", on: departments.legal },
-    { to: "/app/ops", label: "Management & ops", note: "People, workload and delivery", on: departments.ops },
-    { to: "/app/finance", label: "Finance", note: "Cashbook, requests and payments", on: canSeeFinance || isLeadership },
-    { to: "/app/finance/requests", label: "Ask for money", note: "Raise a cash request", on: !(canSeeFinance || isLeadership) },
-    { to: "/app/site", label: "Site editing", note: "Projects, residents, announcements", on: departments.site },
-    { to: "/app/team", label: "Team & access", note: "Accounts, roles and client logins", on: isLeadership },
-    { to: "/app/events", label: "Events", note: "Ticketing, orders and payouts", on: departments.events },
-    { to: "/app/scan", label: "Gate scanner", note: "Check tickets at the door", on: canScan },
-  ].filter((m) => m.on);
+  /* ---- KPI performance: last 30 days against the 30 before ---- */
+  const windows = useMemo(() => kpiWindows(), []);
+  const [kpiRaw, setKpiRaw] = useState<KpiRaw | null>(null);
+  const [scope, setScope] = useState<KpiScope>("mine");
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    loadKpiRaw(userId, windows).then((raw) => {
+      if (!cancelled) setKpiRaw(raw);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, windows]);
+
+  const kpi = useMemo(
+    () =>
+      kpiRaw
+        ? buildKpi({
+            userId,
+            scope: isLeadership ? scope : "mine",
+            content: kpiRaw.content,
+            crew: kpiRaw.crew,
+            metrics: kpiRaw.metrics,
+            myAccountIds: kpiRaw.myAccountIds,
+            pendingWeeks: pendingWeeks.length,
+            windows,
+          })
+        : null,
+    [kpiRaw, userId, scope, isLeadership, pendingWeeks.length, windows]
+  );
+
 
   const [weekOffset, setWeekOffset] = useState(0);
   const [weekEntries, setWeekEntries] = useState<CalendarEntry[]>([]);
@@ -328,20 +348,65 @@ export default function Dashboard() {
           ))}
         </DeckColumn>
 
-        <DeckColumn title="Your departments" count={modules.length} delay={180}>
-          {modules.map((m) => (
-            <DeckCard
-              key={m.to}
-              to={m.to}
-              title={m.label}
-              note={m.note}
-              right={
-                typeof m.count === "number" && m.count > 0 ? (
-                  <span className="num text-sm text-signal tabular-nums">{m.count}</span>
-                ) : undefined
-              }
-            />
-          ))}
+        <DeckColumn
+          title={scope === "studio" && isLeadership ? "Studio performance" : "Your KPI performance"}
+          delay={180}
+          empty="Nothing to measure yet."
+        >
+          {isLeadership && (
+            <div className="flex items-center rounded-full border border-rule overflow-hidden text-[10px] mb-1">
+              {(["mine", "studio"] as KpiScope[]).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setScope(s)}
+                  className={`flex-1 px-3 py-1.5 eyebrow focus-ring ${
+                    scope === s ? "bg-signal text-paper" : "text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  {s === "mine" ? "Mine" : "Studio"}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!kpi ? (
+            <p className="px-2 py-6 text-center text-xs text-ink-faint">Working out your numbers…</p>
+          ) : kpi.empty && scope === "mine" ? (
+            <p className="px-2 py-6 text-center text-xs text-ink-faint">
+              Nothing posted or logged in the last 30 days yet — your figures show up here as soon as work lands.
+            </p>
+          ) : (
+            <>
+              {kpi.figures.map((f) => (
+                <DeckCard
+                  key={f.key}
+                  to={f.to}
+                  eyebrow={f.label}
+                  title={f.value}
+                  note={f.note}
+                  right={
+                    f.delta === null ? undefined : (
+                      <span
+                        className={`num text-[11px] tabular-nums whitespace-nowrap ${
+                          f.delta > 0 ? "text-acc-lime" : f.delta < 0 ? "text-signal" : "text-ink-faint"
+                        }`}
+                      >
+                        {f.delta > 0 ? "▲" : f.delta < 0 ? "▼" : "="} {Math.abs(f.delta)}
+                        {f.key === "ontime" ? "pts" : "%"}
+                      </span>
+                    )
+                  }
+                />
+              ))}
+              {kpi.best && kpi.worst && kpi.best !== kpi.worst && (
+                <p className="px-2 pt-1 text-[11px] text-ink-soft">
+                  Strongest: <span className="text-ink">{kpi.best}</span> · push on{" "}
+                  <span className="text-signal">{kpi.worst}</span>
+                </p>
+              )}
+            </>
+          )}
         </DeckColumn>
       </div>
 
