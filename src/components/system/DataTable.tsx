@@ -42,15 +42,21 @@ export function DataTable<T>({
 
   if (!rows.length) {
     return (
-      <div className="surface rounded-sm p-10 text-center text-sm text-ink-soft">{empty}</div>
+      <div className="surface rounded-xl p-12 text-center">
+        <div className="mx-auto mb-3 h-10 w-10 rounded-full bg-acc-violet-soft grid place-items-center text-acc-violet text-lg">
+          ✳
+        </div>
+        <p className="text-sm text-ink-soft">{empty}</p>
+      </div>
     );
   }
 
   return (
-    <div className={cn("surface rounded-sm overflow-x-auto", className)}>
+    <div className={cn("surface rounded-xl overflow-hidden", className)}>
+      <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="rule-b">
+          <tr className="rule-b bg-paper-sunken/70">
             {columns.map((c) => (
               <th
                 key={c.key}
@@ -74,14 +80,14 @@ export function DataTable<T>({
               onClick={onRowClick ? () => onRowClick(row) : undefined}
               className={cn(
                 "transition-colors",
-                onRowClick && "cursor-pointer hover:bg-paper-sunken"
+                onRowClick && "cursor-pointer hover:bg-acc-violet-soft/60"
               )}
             >
               {columns.map((c) => (
                 <td
                   key={c.key}
                   className={cn(
-                    "px-4 py-3 align-middle",
+                    "px-4 py-3.5 align-middle",
                     alignClass(c.align),
                     c.hideOnMobile && "hidden md:table-cell"
                   )}
@@ -93,8 +99,10 @@ export function DataTable<T>({
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
+
 
 export default DataTable;
