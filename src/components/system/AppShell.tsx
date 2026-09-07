@@ -202,7 +202,7 @@ export function AppShell({
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-paper text-ink">
+      <div className="deck deck-grid min-h-screen flex w-full bg-paper text-ink">
         {groups.length > 0 && <ShellSidebar groups={groups} />}
 
         <div className="flex-1 flex flex-col min-w-0">
