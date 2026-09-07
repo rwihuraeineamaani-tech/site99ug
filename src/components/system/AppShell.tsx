@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import HeaderClock from "@/components/deck/HeaderClock";
+
 import { useMyRoles } from "@/hooks/useMyRoles";
 import logo from "@/assets/site99-logo.png";
 import {
@@ -65,7 +67,14 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   if (!isStaff) return [];
 
   const groups: ShellNavGroup[] = [
-    { label: "Overview", items: [{ to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard }] },
+    {
+      label: "Overview",
+      items: [
+        { to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard },
+        { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
+      ],
+    },
+
   ];
 
   const dept: ShellNavItem[] = [];
