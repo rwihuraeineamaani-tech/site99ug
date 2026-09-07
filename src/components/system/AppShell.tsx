@@ -6,8 +6,12 @@ import {
   ScanLine,
   PenSquare,
   Users,
-  Briefcase,
+  Handshake,
   Scale,
+  Clapperboard,
+  TrendingUp,
+  Wallet,
+  Settings2,
   LogOut,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,7 +36,7 @@ export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: ty
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
-  const { isStaff, isClient, canManageEvents, canViewEvents, canScan, canEditSite, isLeadership } = useMyRoles();
+  const { isStaff, isClient, departments, canScan, isLeadership } = useMyRoles();
 
   if (nav) return [{ label: "Menu", items: nav }];
 
@@ -51,20 +55,25 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
     { label: "Overview", items: [{ to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard }] },
   ];
 
-  const work: ShellNavItem[] = [];
-  if (canManageEvents || canViewEvents) work.push({ to: "/app/events", label: "Events", icon: CalendarDays });
-  if (canScan) work.push({ to: "/app/scan", label: "Gate scanner", icon: ScanLine });
-  if (canEditSite) work.push({ to: "/app/site", label: "Public site", icon: PenSquare });
-  if (work.length) groups.push({ label: "Work", items: work });
+  const dept: ShellNavItem[] = [];
+  if (departments.content) dept.push({ to: "/app/content", label: "Content & strategy", icon: Clapperboard });
+  if (departments.clients) dept.push({ to: "/app/clients", label: "Client relations", icon: Handshake });
+  if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
+  if (departments.legal) dept.push({ to: "/app/legal", label: "Legal & contracts", icon: Scale });
+  if (departments.ops) dept.push({ to: "/app/ops", label: "Management & ops", icon: Settings2 });
+  if (departments.finance) dept.push({ to: "/app/finance", label: "Finance", icon: Wallet });
+  if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
+  if (isLeadership) dept.push({ to: "/app/team", label: "Team & access", icon: Users });
+  if (dept.length) groups.push({ label: "Departments", items: dept });
 
-  const org: ShellNavItem[] = [];
-  if (isLeadership) org.push({ to: "/app/team", label: "Team & access", icon: Users });
-  org.push({ to: "/services", label: "Services", icon: Briefcase });
-  org.push({ to: "/about", label: "About Site 99", icon: Scale });
-  groups.push({ label: "Organisation", items: org });
+  const winding: ShellNavItem[] = [];
+  if (departments.events) winding.push({ to: "/app/events", label: "Events", icon: CalendarDays });
+  if (canScan) winding.push({ to: "/app/scan", label: "Gate scanner", icon: ScanLine });
+  if (winding.length) groups.push({ label: "Winding down", items: winding });
 
   return groups;
 }
+
 
 function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
   const { state } = useSidebar();
