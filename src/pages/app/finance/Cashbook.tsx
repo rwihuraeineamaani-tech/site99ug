@@ -1,18 +1,27 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import FinancePage from "@/components/finance/FinancePage";
 import { SectionHeading, Money, SearchInput, SelectFilter, StatusChip } from "@/components/system";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import {
-  EXPENSE_CATEGORIES,
-  INCOME_CATEGORIES,
+  CAPEX_CATEGORIES,
   COUNTERPARTY_KINDS,
+  INCOME_CATEGORIES,
+  NON_COST_CATEGORIES,
+  OPEX_CATEGORIES,
+  SOURCE_LABEL,
+  SPEND_LABEL,
+  TAX_DISCLAIMER,
+  TAX_HEADLINES,
   catLabel,
   csv,
   dayLabel,
   download,
   monthBounds,
+  spendKind,
+  taxRule,
   todayISO,
 } from "@/lib/finance";
 
@@ -35,6 +44,17 @@ type Entry = {
   transaction_id: string | null;
   reverses_id: string | null;
 };
+type Txn = {
+  id: string;
+  txn_ref: string;
+  source_kind: string;
+  payee_name: string;
+  amount_ugx: number;
+  method: string | null;
+  method_reference: string | null;
+  invoice_no: string | null;
+  paid_at: string;
+};
 type Resident = { id: string; name: string };
 type Project = { id: string; title: string };
 
@@ -43,6 +63,9 @@ const field =
 const pill = "press rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs font-semibold focus-ring disabled:opacity-50";
 const solid = "press rounded-full border border-signal bg-signal text-paper px-4 py-2 text-xs font-semibold focus-ring disabled:opacity-50";
 
+const spendTone = (k: string) => (k === "capex" ? "violet" : k === "opex" ? "amber" : "neutral") as const;
+const spendChip = (k: string) => (k === "capex" ? "Capital" : k === "opex" ? "Running cost" : "Not a cost");
+
 export default function Cashbook() {
   const { canSeeFinance, has } = useMyRoles();
   const canLog = canSeeFinance || has("admin", "founder");
@@ -50,6 +73,7 @@ export default function Cashbook() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [balances, setBalances] = useState<Balance[]>([]);
   const [rows, setRows] = useState<Entry[]>([]);
+  const [txns, setTxns] = useState<Record<string, Txn>>({});
   const [residents, setResidents] = useState<Resident[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +81,8 @@ export default function Cashbook() {
   const [month, setMonth] = useState(todayISO().slice(0, 7));
   const [walletFilter, setWalletFilter] = useState("all");
   const [dirFilter, setDirFilter] = useState("all");
+  const [kindFilter, setKindFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [q, setQ] = useState("");
 
   const [open, setOpen] = useState<"entry" | "transfer" | null>(null);
@@ -84,7 +110,7 @@ export default function Cashbook() {
 
   const load = useCallback(async () => {
     const { from, to } = monthBounds(month);
-    const [w, b, e, r, p] = await Promise.all([
+    const [w, b, e, r, p, t] = await Promise.all([
       supabase.from("wallets").select("id, name, kind, active, sort").order("sort"),
       supabase.rpc("wallet_balances"),
       supabase
@@ -96,12 +122,20 @@ export default function Cashbook() {
         .order("created_at", { ascending: false }),
       supabase.rpc("resident_options"),
       supabase.from("projects").select("id, title").order("title"),
+      supabase
+        .from("transactions")
+        .select("id, txn_ref, source_kind, payee_name, amount_ugx, method, method_reference, invoice_no, paid_at")
+        .gte("paid_at", `${from}T00:00:00`)
+        .lt("paid_at", `${to}T00:00:00`),
     ]);
     setWallets((w.data as Wallet[]) ?? []);
     setBalances((b.data as Balance[]) ?? []);
     setRows((e.data as Entry[]) ?? []);
     setResidents(((r.data as Resident[]) ?? []).map((x) => ({ id: x.id, name: x.name })));
     setProjects((p.data as Project[]) ?? []);
+    const map: Record<string, Txn> = {};
+    ((t.data as Txn[]) ?? []).forEach((x) => (map[x.id] = x));
+    setTxns(map);
     if (!walletId && w.data?.length) setWalletId((w.data as Wallet[])[0].id);
     setLoading(false);
   }, [month, walletId]);
@@ -117,20 +151,59 @@ export default function Cashbook() {
     return rows.filter((r) => {
       if (walletFilter !== "all" && r.wallet_id !== walletFilter) return false;
       if (dirFilter !== "all" && r.direction !== dirFilter) return false;
+      if (kindFilter !== "all") {
+        if (r.direction !== "out") return false;
+        if (spendKind(r.category) !== kindFilter) return false;
+      }
+      if (sourceFilter === "board" && !r.transaction_id) return false;
+      if (sourceFilter === "manual" && r.transaction_id) return false;
       if (!needle) return true;
-      return [r.counterparty_name, r.note, r.reference, r.category]
+      const txn = r.transaction_id ? txns[r.transaction_id] : undefined;
+      return [r.counterparty_name, r.note, r.reference, r.category, txn?.txn_ref]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(needle));
     });
-  }, [rows, walletFilter, dirFilter, q]);
+  }, [rows, walletFilter, dirFilter, kindFilter, sourceFilter, q, txns]);
 
   const totals = useMemo(() => {
     let inn = 0;
     let out = 0;
-    filtered.forEach((r) => (r.direction === "in" ? (inn += r.amount_ugx) : (out += r.amount_ugx)));
-    return { inn, out, net: inn - out };
+    let capex = 0;
+    let opex = 0;
+    let neither = 0;
+    let taxable = 0;
+    let notTaxable = 0;
+    filtered.forEach((r) => {
+      if (r.direction === "in") {
+        inn += r.amount_ugx;
+        const rule = taxRule(r.category);
+        if (rule.income === "taxable") taxable += r.amount_ugx;
+        else notTaxable += r.amount_ugx;
+      } else {
+        out += r.amount_ugx;
+        const k = spendKind(r.category);
+        if (k === "capex") capex += r.amount_ugx;
+        else if (k === "opex") opex += r.amount_ugx;
+        else neither += r.amount_ugx;
+      }
+    });
+    return { inn, out, net: inn - out, capex, opex, neither, taxable, notTaxable };
   }, [filtered]);
 
+  /** One row per category used this month, with its Uganda tax treatment. */
+  const taxRows = useMemo(() => {
+    const byCat: Record<string, { cat: string; direction: string; total: number; count: number }> = {};
+    filtered.forEach((r) => {
+      const key = `${r.direction}:${r.category}`;
+      byCat[key] ??= { cat: r.category, direction: r.direction, total: 0, count: 0 };
+      byCat[key].total += r.amount_ugx;
+      byCat[key].count += 1;
+    });
+    return Object.values(byCat).sort((a, b) => b.total - a.total);
+  }, [filtered]);
+
+  const fromBoard = filtered.filter((r) => r.transaction_id);
+  const unlinkedTxns = Object.values(txns).filter((t) => !rows.some((r) => r.transaction_id === t.id));
   const total = balances.reduce((s, b) => s + Number(b.balance ?? 0), 0);
 
   const resetEntry = () => {
@@ -145,6 +218,7 @@ export default function Cashbook() {
   const saveEntry = async () => {
     const amt = Math.round(Number(amount));
     if (!walletId || !amt || amt <= 0) return toast.error("Pick a wallet and a real amount.");
+    if (!who.trim()) return toast.error(direction === "in" ? "Who sent the money?" : "Who was paid?");
     setBusy(true);
     let path: string | null = null;
     if (file) {
@@ -217,27 +291,49 @@ export default function Cashbook() {
     download(
       `cashbook-${month}.csv`,
       csv([
-        ["Date", "Wallet", "In/Out", "Amount UGX", "Category", "Who", "Reference", "Note"],
-        ...filtered.map((r) => [
-          r.entry_date,
-          walletName(r.wallet_id),
-          r.direction,
-          r.amount_ugx,
-          r.category,
-          r.counterparty_name,
-          r.reference ?? "",
-          r.note ?? "",
-        ]),
+        [
+          "Date",
+          "Wallet",
+          "In/Out",
+          "Amount UGX",
+          "Category",
+          "Capital or running",
+          "Tax treatment",
+          "VAT",
+          "Withholding tax",
+          "Who",
+          "Reference",
+          "Payment ref",
+          "Note",
+        ],
+        ...filtered.map((r) => {
+          const rule = taxRule(r.category);
+          return [
+            r.entry_date,
+            walletName(r.wallet_id),
+            r.direction,
+            r.amount_ugx,
+            catLabel(r.category),
+            r.direction === "in" ? (rule.income === "taxable" ? "Taxable income" : "Not income") : SPEND_LABEL[rule.spend],
+            rule.treatment,
+            rule.vat,
+            rule.wht,
+            r.counterparty_name,
+            r.reference ?? "",
+            r.transaction_id ? txns[r.transaction_id]?.txn_ref ?? "" : "",
+            r.note ?? "",
+          ];
+        }),
       ])
     );
   };
 
-  const categories = direction === "in" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const activeRule = taxRule(category);
 
   return (
     <FinancePage
       title="Cashbook."
-      lede="Every shilling in and out, wallet by wallet."
+      lede="Every shilling in and out — dated, categorised, tied to the payment board and read against Ugandan tax."
       path="/app/finance/cashbook"
       actions={
         canLog ? (
@@ -270,9 +366,30 @@ export default function Cashbook() {
         </div>
       </section>
 
-      <section>
+      <section className="mb-10">
+        <SectionHeading index="02" title="This month at a glance" hint="Capital, running costs and income" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {[
+            { label: "Money in", value: totals.inn, hint: `${totals.taxable.toLocaleString("en-UG")} taxable` },
+            { label: "Money out", value: totals.out, hint: `${totals.neither.toLocaleString("en-UG")} not a cost` },
+            { label: "Capital spend", value: totals.capex, hint: "Written off over years" },
+            { label: "Running costs", value: totals.opex, hint: "Deducted this year" },
+            { label: "Difference", value: totals.net, hint: "In minus out" },
+          ].map((s) => (
+            <div key={s.label} className="surface card-lift rounded-sm p-4">
+              <div className="eyebrow text-ink-faint">{s.label}</div>
+              <div className="display text-2xl mt-2">
+                <Money amount={s.value} />
+              </div>
+              <div className="mt-1 text-[11px] text-ink-soft">{s.hint}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-10">
         <SectionHeading
-          index="02"
+          index="03"
           title="Entries"
           hint={`In ${totals.inn.toLocaleString("en-UG")} · Out ${totals.out.toLocaleString("en-UG")}`}
         />
@@ -297,8 +414,29 @@ export default function Cashbook() {
               { value: "out", label: "Money out" },
             ]}
           />
+          <SelectFilter
+            label="Kind of spend"
+            value={kindFilter}
+            onChange={setKindFilter}
+            options={[
+              { value: "all", label: "Everything" },
+              { value: "capex", label: "Capital (capex)" },
+              { value: "opex", label: "Running costs (opex)" },
+              { value: "neither", label: "Not a cost" },
+            ]}
+          />
+          <SelectFilter
+            label="Source"
+            value={sourceFilter}
+            onChange={setSourceFilter}
+            options={[
+              { value: "all", label: "Any source" },
+              { value: "board", label: "From the payment board" },
+              { value: "manual", label: "Logged by hand" },
+            ]}
+          />
           <div className="min-w-[200px] flex-1">
-            <SearchInput value={q} onChange={setQ} placeholder="Name, note or reference" />
+            <SearchInput value={q} onChange={setQ} placeholder="Name, note, reference or payment ref" />
           </div>
           <button className={pill} onClick={exportCsv} disabled={!filtered.length}>
             Export
@@ -306,35 +444,144 @@ export default function Cashbook() {
         </div>
 
         <div className="rule-t">
-          {filtered.map((r) => (
-            <div key={r.id} className="rule-b py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="num text-xs text-ink-soft w-24">{dayLabel(r.entry_date)}</span>
-              <span className="text-sm font-medium min-w-[140px]">{r.counterparty_name || "—"}</span>
-              <StatusChip tone={r.direction === "in" ? "teal" : "amber"} value={r.direction === "in" ? "In" : "Out"} />
-              <span className="text-xs text-ink-soft">{catLabel(r.category)}</span>
-              <span className="text-xs text-ink-faint">{walletName(r.wallet_id)}</span>
-              {r.reverses_id && <StatusChip tone="stop" value="Reversal" />}
-              {r.transaction_id && <span className="text-[11px] text-ink-faint">From a payment</span>}
-              <span className="ml-auto flex items-center gap-3">
-                <Money amount={r.direction === "in" ? r.amount_ugx : -r.amount_ugx} signed />
-                {r.attachment_path && (
-                  <button className={pill} onClick={() => openReceipt(r.attachment_path as string)}>
-                    Receipt
-                  </button>
+          {filtered.map((r) => {
+            const rule = taxRule(r.category);
+            const txn = r.transaction_id ? txns[r.transaction_id] : undefined;
+            return (
+              <div key={r.id} className="rule-b py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <span className="num text-xs text-ink-soft w-24">{dayLabel(r.entry_date)}</span>
+                <span className="text-sm font-medium min-w-[140px]">{r.counterparty_name || "—"}</span>
+                <StatusChip tone={r.direction === "in" ? "teal" : "amber"} value={r.direction === "in" ? "In" : "Out"} />
+                <span className="text-xs text-ink-soft">{catLabel(r.category)}</span>
+                {r.direction === "out" ? (
+                  <StatusChip tone={spendTone(rule.spend)} value={spendChip(rule.spend)} />
+                ) : (
+                  <StatusChip
+                    tone={rule.income === "taxable" ? "violet" : "neutral"}
+                    value={rule.income === "taxable" ? "Taxable" : "Not income"}
+                  />
                 )}
-                {canLog && !r.reverses_id && (
-                  <button className={pill} onClick={() => reverse(r)}>
-                    Reverse
-                  </button>
+                <span className="text-xs text-ink-faint">{walletName(r.wallet_id)}</span>
+                {r.reference && <span className="text-[11px] text-ink-faint num">Ref {r.reference}</span>}
+                {r.reverses_id && <StatusChip tone="stop" value="Reversal" />}
+                <span className="ml-auto flex items-center gap-3">
+                  <Money amount={r.direction === "in" ? r.amount_ugx : -r.amount_ugx} signed />
+                  {r.attachment_path && (
+                    <button className={pill} onClick={() => openReceipt(r.attachment_path as string)}>
+                      Receipt
+                    </button>
+                  )}
+                  {canLog && !r.reverses_id && (
+                    <button className={pill} onClick={() => reverse(r)}>
+                      Reverse
+                    </button>
+                  )}
+                </span>
+                {r.transaction_id && (
+                  <p className="w-full text-[11px] text-ink-faint flex flex-wrap items-center gap-2">
+                    <span className="eyebrow text-signal">Payment board</span>
+                    <span className="num">{txn?.txn_ref ?? "Recorded payment"}</span>
+                    {txn?.source_kind && <span>· {SOURCE_LABEL[txn.source_kind] ?? txn.source_kind}</span>}
+                    {txn?.method && <span>· {txn.method}</span>}
+                    {txn?.method_reference && <span className="num">· {txn.method_reference}</span>}
+                    <Link to="/app/finance/payments" className="text-signal focus-ring">
+                      Open the payment →
+                    </Link>
+                  </p>
                 )}
-              </span>
-              {r.note && <p className="w-full text-xs text-ink-soft">{r.note}</p>}
+                {r.note && <p className="w-full text-xs text-ink-soft">{r.note}</p>}
+              </div>
+            );
+          })}
+          {!filtered.length && <p className="py-6 text-sm text-ink-soft">Nothing recorded for this month yet.</p>}
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <SectionHeading
+          index="04"
+          title="Tied to the payment board"
+          hint={`${fromBoard.length} of ${filtered.length} entries`}
+        />
+        <div className="surface rounded-sm p-5 text-sm text-ink-soft">
+          <p>
+            Every payment recorded on the board lands here automatically, carrying its payment reference, method and
+            what it settled — a cash request, a monthly run line or a loan. Anything else on this page was logged by
+            hand.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <span>
+              <strong className="num text-ink">{Object.keys(txns).length}</strong> payments this month
+            </span>
+            <span>
+              <strong className="num text-ink">{unlinkedTxns.length}</strong> not yet showing in the cashbook
+            </span>
+            <Link to="/app/finance/payments" className="eyebrow text-signal focus-ring">
+              Open the payment board →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <SectionHeading index="05" title="The tax view" hint="Uganda — capital, deductible, VAT and withholding" />
+        {!taxRows.length ? (
+          <p className="surface rounded-sm p-5 text-sm text-ink-soft">Log an entry and its tax treatment shows here.</p>
+        ) : (
+          <div className="rule-t">
+            {taxRows.map((t) => {
+              const rule = taxRule(t.cat);
+              return (
+                <div key={`${t.direction}:${t.cat}`} className="rule-b py-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-sm font-medium">{catLabel(t.cat)}</span>
+                    {t.direction === "out" ? (
+                      <StatusChip tone={spendTone(rule.spend)} value={SPEND_LABEL[rule.spend]} />
+                    ) : (
+                      <StatusChip
+                        tone={rule.income === "taxable" ? "violet" : "neutral"}
+                        value={rule.income === "taxable" ? "Taxable income" : "Not taxable"}
+                      />
+                    )}
+                    <span className="text-[11px] text-ink-faint">
+                      {t.count} entr{t.count === 1 ? "y" : "ies"}
+                    </span>
+                    <span className="ml-auto">
+                      <Money amount={t.direction === "in" ? t.total : -t.total} signed />
+                    </span>
+                  </div>
+                  <dl className="mt-2 grid gap-2 sm:grid-cols-3 text-xs text-ink-soft">
+                    <div>
+                      <dt className="eyebrow text-ink-faint">Income tax</dt>
+                      <dd className="mt-1">{rule.treatment}</dd>
+                    </div>
+                    <div>
+                      <dt className="eyebrow text-ink-faint">VAT</dt>
+                      <dd className="mt-1">{rule.vat}</dd>
+                    </div>
+                    <div>
+                      <dt className="eyebrow text-ink-faint">Withholding tax</dt>
+                      <dd className="mt-1">{rule.wht}</dd>
+                    </div>
+                  </dl>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="mb-10">
+        <SectionHeading index="06" title="The rules, in plain English" hint="Why a category matters" />
+        <div className="grid gap-3 md:grid-cols-2">
+          {TAX_HEADLINES.map((h) => (
+            <div key={h.title} className="surface rounded-sm p-5">
+              <h3 className="text-sm font-semibold">{h.title}</h3>
+              <p className="mt-2 text-xs text-ink-soft leading-relaxed">{h.body}</p>
             </div>
           ))}
-          {!filtered.length && (
-            <p className="py-6 text-sm text-ink-soft">Nothing recorded for this month yet.</p>
-          )}
         </div>
+        <p className="mt-4 text-[11px] text-ink-faint">{TAX_DISCLAIMER}</p>
       </section>
 
       {open === "entry" && (
@@ -382,13 +629,55 @@ export default function Cashbook() {
               <label className="text-xs">
                 <span className="eyebrow text-ink-faint">Category</span>
                 <select className={field} value={category} onChange={(e) => setCategory(e.target.value)}>
-                  {categories.map((c) => (
-                    <option key={c} value={c}>
-                      {catLabel(c)}
-                    </option>
-                  ))}
+                  {direction === "in" ? (
+                    INCOME_CATEGORIES.map((c) => (
+                      <option key={c} value={c}>
+                        {catLabel(c)}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <optgroup label="Running costs (opex)">
+                        {OPEX_CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {catLabel(c)}
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Capital spend (capex)">
+                        {CAPEX_CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {catLabel(c)}
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Not a cost">
+                        {NON_COST_CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {catLabel(c)}
+                          </option>
+                        ))}
+                      </optgroup>
+                    </>
+                  )}
                 </select>
               </label>
+              <div className="sm:col-span-2 rounded-sm border border-rule bg-paper-sunken p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  {direction === "out" ? (
+                    <StatusChip tone={spendTone(activeRule.spend)} value={SPEND_LABEL[activeRule.spend]} />
+                  ) : (
+                    <StatusChip
+                      tone={activeRule.income === "taxable" ? "violet" : "neutral"}
+                      value={activeRule.income === "taxable" ? "Taxable income" : "Not taxable income"}
+                    />
+                  )}
+                </div>
+                <p className="mt-2 text-[11px] text-ink-soft leading-relaxed">{activeRule.treatment}</p>
+                <p className="mt-1 text-[11px] text-ink-faint">
+                  VAT: {activeRule.vat} · Withholding: {activeRule.wht}
+                </p>
+              </div>
               <label className="text-xs">
                 <span className="eyebrow text-ink-faint">{direction === "in" ? "Received from" : "Paid to"}</span>
                 <input className={field} value={who} onChange={(e) => setWho(e.target.value)} />
@@ -424,7 +713,7 @@ export default function Cashbook() {
                 </select>
               </label>
               <label className="text-xs">
-                <span className="eyebrow text-ink-faint">Reference (optional)</span>
+                <span className="eyebrow text-ink-faint">Reference — invoice, EFRIS or MoMo ID</span>
                 <input className={field} value={reference} onChange={(e) => setReference(e.target.value)} />
               </label>
               <label className="text-xs">
@@ -436,6 +725,10 @@ export default function Cashbook() {
                 <textarea className={field} rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
               </label>
             </div>
+            <p className="mt-3 text-[11px] text-ink-faint">
+              Paying an approved request, a monthly run line or a loan? Record it on the payment board instead — it
+              writes itself into the cashbook with its reference.
+            </p>
             <div className="mt-5 flex justify-end gap-2">
               <button className={pill} onClick={() => setOpen(null)}>
                 Cancel
@@ -488,6 +781,9 @@ export default function Cashbook() {
                 <input className={field} value={tNote} onChange={(e) => setTNote(e.target.value)} />
               </label>
             </div>
+            <p className="mt-3 text-[11px] text-ink-faint">
+              A transfer is our own money changing hands. It is not income and not a cost, so it never touches tax.
+            </p>
             <div className="mt-5 flex justify-end gap-2">
               <button className={pill} onClick={() => setOpen(null)}>
                 Cancel
