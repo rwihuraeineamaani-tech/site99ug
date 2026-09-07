@@ -34,6 +34,7 @@ import Login from "./pages/Login.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Dashboard from "./pages/app/Dashboard.tsx";
 import StudioCalendar from "./pages/app/Calendar.tsx";
+import AppSettings from "./pages/app/Settings.tsx";
 
 import AppTeam from "./pages/app/Team.tsx";
 import ClientPortal from "./pages/app/ClientPortal.tsx";
@@ -102,6 +103,14 @@ const AnimatedRoutes = () => {
           element={
             <RequireRole gate="staff">
               <StudioCalendar />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/settings"
+          element={
+            <RequireRole gate="staff">
+              <AppSettings />
             </RequireRole>
           }
         />

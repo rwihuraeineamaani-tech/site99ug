@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -26,10 +26,19 @@ import {
   Gauge,
   CalendarClock,
   Megaphone,
+  UserCog,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import HeaderClock from "@/components/deck/HeaderClock";
+import {
+  ThemeMode,
+  readTheme,
+  setTheme,
+  onThemeChange,
+  applyThemeClasses,
+  resolveTheme,
+} from "@/lib/theme";
 
 import { useMyRoles } from "@/hooks/useMyRoles";
 import logo from "@/assets/site99-logo.png";
@@ -72,6 +81,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       items: [
         { to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard },
         { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
+        { to: "/app/settings", label: "My settings", icon: UserCog },
       ],
     },
 
@@ -214,7 +224,7 @@ export function AppShell({
   nav?: ShellNavItem[];
 }) {
   const navigate = useNavigate();
-  const { displayName, email, title } = useMyRoles();
+  const { displayName, email, title, userId } = useMyRoles();
   const groups = useNavGroups(nav);
 
   const signOut = async () => {
@@ -224,16 +234,51 @@ export function AppShell({
 
   const name = displayName || email || "Site 99";
 
-  // Drawers, dialogs and menus render into <body>, outside the shell,
-  // so the dark deck tokens have to live on <body> while the app is open.
+  // Appearance: dark by default, per-person preference remembered on the account.
+  const [theme, setThemeState] = useState<ThemeMode>(readTheme());
+
+  useEffect(() => onThemeChange(setThemeState), []);
+
   useEffect(() => {
-    document.body.classList.add("deck");
-    return () => document.body.classList.remove("deck");
-  }, []);
+    if (theme !== "system" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    const onChange = () => setThemeState("system");
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [theme]);
+
+  // Pull the saved choice once we know who is signed in.
+  useEffect(() => {
+    if (!userId) return;
+    let cancel = false;
+    (async () => {
+      const { data } = await supabase.from("team_members").select("theme").eq("user_id", userId).maybeSingle();
+      const saved = (data as { theme?: string } | null)?.theme;
+      if (cancel) return;
+      if (saved === "dark" || saved === "light" || saved === "system") setTheme(saved);
+    })();
+    return () => {
+      cancel = true;
+    };
+  }, [userId]);
+
+  // Drawers, dialogs and menus render into <body>, outside the shell,
+  // so the deck tokens have to live on <body> while the app is open.
+  useEffect(() => {
+    applyThemeClasses(document.body, theme);
+    return () => document.body.classList.remove("deck", "deck-light");
+  }, [theme]);
+
+  const light = resolveTheme(theme) === "light";
 
   return (
     <SidebarProvider>
-      <div className="deck deck-grid min-h-screen flex w-full bg-paper text-ink">
+      <div
+        className={cn(
+          "deck deck-grid min-h-screen flex w-full bg-paper text-ink",
+          light && "deck-light"
+        )}
+      >
         {groups.length > 0 && <ShellSidebar groups={groups} />}
 
         <div className="flex-1 flex flex-col min-w-0">
@@ -261,6 +306,19 @@ export function AppShell({
               </Link>
               <HeaderClock />
               <span className="hidden md:block h-8 w-px bg-rule" aria-hidden />
+              <Link
+                to="/app/settings"
+                title="My settings"
+                aria-label="My settings"
+                className="h-9 w-9 shrink-0 rounded-full bg-acc-violet-soft text-acc-violet grid place-items-center text-xs font-semibold focus-ring hover:text-signal"
+              >
+                {name
+                  .split(/\s+/)
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .map((p) => p[0]?.toUpperCase() ?? "")
+                  .join("") || "S9"}
+              </Link>
               <button
                 onClick={signOut}
                 className="eyebrow text-ink-soft hover:text-signal px-2 focus-ring inline-flex items-center gap-1"
