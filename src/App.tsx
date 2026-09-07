@@ -73,15 +73,64 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        <Route
+          path="/app/content"
+          element={
+            <RequireRole gate="content">
+              <ContentPipeline />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/clients"
+          element={
+            <RequireRole gate="clients">
+              <ClientRelations />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/sales"
+          element={
+            <RequireRole gate="sales">
+              <Sales />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/legal"
+          element={
+            <RequireRole gate="legal">
+              <LegalContracts />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/ops"
+          element={
+            <RequireRole gate="ops">
+              <ManagementOps />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance"
+          element={
+            <RequireRole gate="finance">
+              <Finance />
+            </RequireRole>
+          }
+        />
         <Route path="/admin" element={<Navigate to="/app/site" replace />} />
         <Route
           path="/app/site"
           element={
-            <RequireRole gate="staff">
+            <RequireRole gate="site">
               <Admin />
             </RequireRole>
           }
         />
+
         <Route
           path="/app/events"
           element={
