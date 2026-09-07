@@ -1,0 +1,1 @@
+ALTER TABLE public.content_items ADD COLUMN IF NOT EXISTS posted_slots jsonb NOT NULL DEFAULT '{}'::jsonb;

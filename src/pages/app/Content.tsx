@@ -20,7 +20,17 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Lock } from "lucide-react";
 
 import { useMyRoles } from "@/hooks/useMyRoles";
-import { STAGES, STAGE_NOTE, CREW_ROLES, PLATFORMS, METRIC_FIELDS, refCode, type Stage } from "@/lib/contentFlow";
+import {
+  STAGES,
+  STAGE_NOTE,
+  CREW_ROLES,
+  PLATFORMS,
+  POST_WINDOWS,
+  postWindowLabel,
+  METRIC_FIELDS,
+  refCode,
+  type Stage,
+} from "@/lib/contentFlow";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +51,9 @@ const TYPES = [
   "Campaign",
   "Strategy",
 ];
+
+/** Per-platform record of where a post went and in which traffic window. */
+export type PostedSlots = Record<string, { url: string; windows: string[] }>;
 
 export type ContentItem = {
   id: string;
@@ -72,6 +85,7 @@ export type ContentItem = {
   platforms: string[] | null;
   caption_suggestions: string | null;
   posted_links: string[] | null;
+  posted_slots: PostedSlots | null;
   posted_from: string | null;
   posted_to: string | null;
   posted_at: string | null;
@@ -171,8 +185,8 @@ export default function ContentPipeline() {
   const [captions, setCaptions] = useState("");
   const [postLinks, setPostLinks] = useState<Record<string, string>>({});
   const [editRemarks, setEditRemarks] = useState("");
-  const [postedFrom, setPostedFrom] = useState("");
-  const [postedTo, setPostedTo] = useState("");
+  const [postWindows, setPostWindows] = useState<Record<string, string[]>>({});
+  const [postedDate, setPostedDate] = useState("");
   const [metrics, setMetrics] = useState<Record<string, string>>({});
   const [metricNote, setMetricNote] = useState("");
 
@@ -275,8 +289,20 @@ export default function ContentPipeline() {
     setCaptions(row.caption_suggestions ?? "");
     setPostLinks(parsePostedLinks(row.posted_links));
     setEditRemarks(row.edit_remarks ?? "");
-    setPostedFrom(row.posted_from ? row.posted_from.slice(0, 16) : "");
-    setPostedTo(row.posted_to ? row.posted_to.slice(0, 16) : "");
+    const slots = (row.posted_slots ?? {}) as PostedSlots;
+    if (Object.keys(slots).length > 0) {
+      const links: Record<string, string> = {};
+      const wins: Record<string, string[]> = {};
+      Object.entries(slots).forEach(([p, v]) => {
+        links[p] = v?.url ?? "";
+        wins[p] = v?.windows ?? [];
+      });
+      setPostLinks(links);
+      setPostWindows(wins);
+    } else {
+      setPostWindows({});
+    }
+    setPostedDate(row.posted_from ? row.posted_from.slice(0, 10) : new Date().toISOString().slice(0, 10));
     const m = (row.metrics ?? {}) as Record<string, string>;
     setMetrics(m);
     setMetricNote(m.note ?? "");
@@ -767,6 +793,30 @@ export default function ContentPipeline() {
         waiting("Waiting on founder sign-off.")
       );
 
+    /** Every platform that has a link must also carry a window, and at least one platform must be filled. */
+    const donePlatforms = (editing.platforms ?? []).filter((p) => (postLinks[p] ?? "").trim());
+    const postedReady =
+      donePlatforms.length > 0 && donePlatforms.every((p) => (postWindows[p] ?? []).length > 0);
+
+    const postedPayload = () => {
+      const slots: PostedSlots = {};
+      donePlatforms.forEach((p) => {
+        slots[p] = { url: postLinks[p].trim(), windows: postWindows[p] ?? [] };
+      });
+      const chosen = POST_WINDOWS.filter((w) => donePlatforms.some((p) => (postWindows[p] ?? []).includes(w.key)));
+      const at = (hour: number) => {
+        const d = new Date(`${postedDate}T00:00:00`);
+        d.setHours(hour);
+        return d.toISOString();
+      };
+      return {
+        posted_slots: slots,
+        posted_links: donePlatforms.map((p) => `${p}: ${postLinks[p].trim()}`),
+        posted_from: at(Math.min(...chosen.map((w) => w.from))),
+        posted_to: at(Math.max(...chosen.map((w) => w.to))),
+      };
+    };
+
     if (s === "Handover")
       return isFounder || isHandler ? (
         <div className={box}>
@@ -777,55 +827,69 @@ export default function ContentPipeline() {
               {editing.caption_suggestions}
             </p>
           )}
+          <label className="mt-3 block text-sm sm:w-56">
+            <span className="eyebrow text-ink-faint">Day it went out</span>
+            <input type="date" className={field} value={postedDate} onChange={(e) => setPostedDate(e.target.value)} />
+          </label>
           <div className="mt-3">
-            <span className="eyebrow text-ink-faint">Post link for each platform</span>
-            <div className="mt-1.5 space-y-2">
-              {(editing.platforms ?? []).map((p) => (
-                <label key={p} className="grid gap-1 sm:grid-cols-[7rem,1fr] sm:items-center sm:gap-3">
-                  <span className="text-sm font-semibold text-ink">{p}</span>
-                  <input
-                    className={`${field} mt-0`}
-                    placeholder={`https://… (${p})`}
-                    value={postLinks[p] ?? ""}
-                    onChange={(e) => setPostLinks({ ...postLinks, [p]: e.target.value })}
-                  />
-                </label>
-              ))}
+            <span className="eyebrow text-ink-faint">Link and traffic window for each platform</span>
+            <div className="mt-1.5 space-y-3">
+              {(editing.platforms ?? []).map((p) => {
+                const wins = postWindows[p] ?? [];
+                return (
+                  <div key={p} className="rounded-xl border border-rule p-3">
+                    <div className="grid gap-1 sm:grid-cols-[7rem,1fr] sm:items-center sm:gap-3">
+                      <span className="text-sm font-semibold text-ink">{p}</span>
+                      <input
+                        className={`${field} mt-0`}
+                        placeholder={`https://… (${p})`}
+                        value={postLinks[p] ?? ""}
+                        onChange={(e) => setPostLinks({ ...postLinks, [p]: e.target.value })}
+                      />
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {POST_WINDOWS.map((w) => {
+                        const on = wins.includes(w.key);
+                        return (
+                          <button
+                            key={w.key}
+                            type="button"
+                            title={w.range}
+                            onClick={() =>
+                              setPostWindows({
+                                ...postWindows,
+                                [p]: on ? wins.filter((x) => x !== w.key) : [...wins, w.key],
+                              })
+                            }
+                            className={`press rounded-full border px-3 py-1 text-xs focus-ring ${
+                              on ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised text-ink-soft"
+                            }`}
+                          >
+                            {w.label} · {w.range}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
               {(editing.platforms ?? []).length === 0 && (
                 <p className="text-xs text-ink-soft">No platforms were chosen at sign-off.</p>
               )}
             </div>
           </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Posted from</span>
-              <input
-                type="datetime-local"
-                className={field}
-                value={postedFrom}
-                onChange={(e) => setPostedFrom(e.target.value)}
-              />
-            </label>
-            <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Posted to</span>
-              <input type="datetime-local" className={field} value={postedTo} onChange={(e) => setPostedTo(e.target.value)} />
-            </label>
-          </div>
           <Button
             className="mt-3"
-            disabled={busy || !Object.values(postLinks).some((v) => v.trim()) || !postedFrom}
-            onClick={() =>
-              advance("Posted", {
-                posted_links: (editing.platforms ?? [])
-                  .filter((p) => (postLinks[p] ?? "").trim())
-                  .map((p) => `${p}: ${postLinks[p].trim()}`),
-                posted_from: new Date(postedFrom).toISOString(),
-                posted_to: postedTo ? new Date(postedTo).toISOString() : null,
-              })
-            }
+            disabled={busy || !postedDate || !postedReady}
+            onClick={() => advance("Posted", postedPayload())}
           >
             Posted
           </Button>
+          {!postedReady && (
+            <p className="mt-1.5 text-xs text-ink-soft">
+              Add a link and pick at least one traffic window for every platform you posted on.
+            </p>
+          )}
         </div>
       ) : (
         waiting("With the handler to post.")
@@ -1198,9 +1262,15 @@ export default function ContentPipeline() {
               <ul className="mt-1.5 space-y-1">
                 {(editing.posted_links ?? []).map((l) => {
                   const { platform, url } = postedLinkParts(l);
+                  const wins = ((editing.posted_slots ?? {}) as PostedSlots)[platform]?.windows ?? [];
                   return (
-                    <li key={l} className="flex flex-wrap gap-1.5">
+                    <li key={l} className="flex flex-wrap items-center gap-1.5">
                       {platform && <span className="font-semibold text-ink">{platform}</span>}
+                      {wins.map((w) => (
+                        <span key={w} className="rounded-full border border-rule px-2 py-0.5 text-[11px] text-ink-soft">
+                          {postWindowLabel(w)}
+                        </span>
+                      ))}
                       <a href={url} target="_blank" rel="noreferrer" className="text-signal break-all">
                         {url}
                       </a>
