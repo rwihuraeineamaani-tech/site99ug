@@ -391,3 +391,61 @@
 
 /* Body-level deck scope: keeps portals (drawers, dialogs, menus) dark too */
 body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
+
+/* ================================================================
+   Light appearance for the signed-in system (per-person preference).
+   ================================================================ */
+.deck.deck-light {
+  --paper: 40 20% 99%;
+  --paper-raised: 0 0% 100%;
+  --paper-sunken: 40 12% 96%;
+  --ink: 240 8% 12%;
+  --ink-soft: 240 5% 38%;
+  --ink-faint: 240 4% 52%;
+  --signal: 5 78% 47%;
+  --rule: 240 8% 88%;
+  --rule-strong: 240 6% 70%;
+
+  --background: 40 20% 99%;
+  --foreground: 240 8% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 8% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 8% 12%;
+  --primary: 5 78% 47%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 40 12% 94%;
+  --secondary-foreground: 240 8% 12%;
+  --muted: 40 12% 94%;
+  --muted-foreground: 240 5% 38%;
+  --accent: 5 78% 47%;
+  --accent-foreground: 0 0% 100%;
+  --border: 240 8% 88%;
+  --input: 240 8% 88%;
+  --ring: 5 78% 47%;
+
+  --acc-violet: 265 60% 46%;
+  --acc-violet-soft: 265 70% 95%;
+  --acc-teal: 172 62% 30%;
+  --acc-teal-soft: 172 55% 93%;
+  --acc-amber: 32 82% 40%;
+  --acc-amber-soft: 40 90% 93%;
+  --acc-blue: 218 74% 46%;
+  --acc-blue-soft: 214 90% 95%;
+  --acc-pink: 335 66% 46%;
+  --acc-pink-soft: 335 80% 95%;
+  --acc-lime: 96 46% 32%;
+  --acc-lime-soft: 92 55% 93%;
+  --acc-slate: 220 12% 40%;
+  --acc-slate-soft: 220 16% 94%;
+
+  color-scheme: light;
+}
+
+.deck.deck-light .surface { box-shadow: 0 1px 2px hsl(240 8% 12% / 0.06); }
+.deck.deck-light.deck-grid {
+  background-image:
+    linear-gradient(to right, hsl(240 8% 12% / 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(240 8% 12% / 0.035) 1px, transparent 1px);
+}
+
