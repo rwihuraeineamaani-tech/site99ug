@@ -224,16 +224,51 @@ export function AppShell({
 
   const name = displayName || email || "Site 99";
 
-  // Drawers, dialogs and menus render into <body>, outside the shell,
-  // so the dark deck tokens have to live on <body> while the app is open.
+  // Appearance: dark by default, per-person preference remembered on the account.
+  const [theme, setThemeState] = useState<ThemeMode>(readTheme());
+
+  useEffect(() => onThemeChange(setThemeState), []);
+
   useEffect(() => {
-    document.body.classList.add("deck");
-    return () => document.body.classList.remove("deck");
-  }, []);
+    if (theme !== "system" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    const onChange = () => setThemeState("system");
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [theme]);
+
+  // Pull the saved choice once we know who is signed in.
+  useEffect(() => {
+    if (!userId) return;
+    let cancel = false;
+    (async () => {
+      const { data } = await supabase.from("team_members").select("theme").eq("user_id", userId).maybeSingle();
+      const saved = (data as { theme?: string } | null)?.theme;
+      if (cancel) return;
+      if (saved === "dark" || saved === "light" || saved === "system") setTheme(saved);
+    })();
+    return () => {
+      cancel = true;
+    };
+  }, [userId]);
+
+  // Drawers, dialogs and menus render into <body>, outside the shell,
+  // so the deck tokens have to live on <body> while the app is open.
+  useEffect(() => {
+    applyThemeClasses(document.body, theme);
+    return () => document.body.classList.remove("deck", "deck-light");
+  }, [theme]);
+
+  const light = resolveTheme(theme) === "light";
 
   return (
     <SidebarProvider>
-      <div className="deck deck-grid min-h-screen flex w-full bg-paper text-ink">
+      <div
+        className={cn(
+          "deck deck-grid min-h-screen flex w-full bg-paper text-ink",
+          light && "deck-light"
+        )}
+      >
         {groups.length > 0 && <ShellSidebar groups={groups} />}
 
         <div className="flex-1 flex flex-col min-w-0">
