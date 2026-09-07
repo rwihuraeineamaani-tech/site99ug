@@ -45,10 +45,9 @@ export type ContentItem = {
 
 type ClientRow = { id: string; name: string };
 
-const btn =
-  "eyebrow border border-rule rounded-sm px-3 py-1.5 hover:border-signal hover:text-signal transition-colors focus-ring";
-const btnSolid = "eyebrow rounded-sm px-4 py-2 bg-ink text-paper hover:bg-signal transition-colors focus-ring";
-const field = "mt-1.5 w-full bg-transparent border-b border-rule focus:border-signal outline-none py-2 text-sm";
+const field =
+  "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
+
 
 const emptyDraft = {
   title: "",
