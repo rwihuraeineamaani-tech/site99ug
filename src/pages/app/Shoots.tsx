@@ -121,6 +121,13 @@ export default function Shoots() {
   const itemsOf = (dayId: string) =>
     dayItems.filter((i) => i.shoot_day_id === dayId).map((i) => items.find((x) => x.id === i.content_id)).filter(Boolean) as Item[];
 
+  /** True when I'm crewed on any idea attached to this day. */
+  const amCrewOn = (dayId: string) =>
+    !!userId && itemsOf(dayId).some((i) => crew.some((c) => c.content_id === i.id && c.user_id === userId));
+  const onCrewToday = open ? amCrewOn(open.id) : false;
+
+
+
   const memberName = (uid: string | null) => {
     if (!uid) return null;
     const m = members.find((x) => x.user_id === uid);
