@@ -403,6 +403,7 @@ export type Database = {
           posted_at: string | null
           posted_from: string | null
           posted_links: string[]
+          posted_slots: Json
           posted_to: string | null
           project_id: string | null
           ref_no: number
@@ -443,6 +444,7 @@ export type Database = {
           posted_at?: string | null
           posted_from?: string | null
           posted_links?: string[]
+          posted_slots?: Json
           posted_to?: string | null
           project_id?: string | null
           ref_no?: number
@@ -483,6 +485,7 @@ export type Database = {
           posted_at?: string | null
           posted_from?: string | null
           posted_links?: string[]
+          posted_slots?: Json
           posted_to?: string | null
           project_id?: string | null
           ref_no?: number
