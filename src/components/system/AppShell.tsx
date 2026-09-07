@@ -56,7 +56,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   const work: ShellNavItem[] = [];
   if (canManageEvents || canViewEvents) work.push({ to: "/app/events", label: "Events", icon: CalendarDays });
   if (canScan) work.push({ to: "/app/scan", label: "Gate scanner", icon: ScanLine });
-  if (canEditSite) work.push({ to: "/admin", label: "Public site", icon: PenSquare });
+  if (canEditSite) work.push({ to: "/app/site", label: "Public site", icon: PenSquare });
   if (work.length) groups.push({ label: "Work", items: work });
 
   if (canSeeFinance) {

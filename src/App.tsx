@@ -52,7 +52,6 @@ const AnimatedRoutes = () => {
         <Route path="/philosophy" element={<Philosophy />} />
         <Route path="/access" element={<Access />} />
         <Route path="/admin/login" element={<Navigate to="/login" replace />} />
-        <Route path="/admin" element={<Admin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route
@@ -68,6 +67,15 @@ const AnimatedRoutes = () => {
           element={
             <RequireRole gate="leadership">
               <AppTeam />
+            </RequireRole>
+          }
+        />
+        <Route path="/admin" element={<Navigate to="/app/site" replace />} />
+        <Route
+          path="/app/site"
+          element={
+            <RequireRole gate="staff">
+              <Admin />
             </RequireRole>
           }
         />
