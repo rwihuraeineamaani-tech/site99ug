@@ -19,6 +19,7 @@ import { toneFor, TONE_SOFT, TONE_SOLID, TONE_TEXT } from "@/components/system/S
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Lock } from "lucide-react";
 
+import { useMyAssignments } from "@/hooks/useMyAssignments";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import {
   STAGES,
@@ -152,6 +153,7 @@ const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_direct
 
 export default function ContentPipeline() {
   const { canEditContent, userId, has } = useMyRoles();
+  const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const navigate = useNavigate();
   const isFounder = has(...FOUNDER_ROLES);
 
@@ -448,8 +450,8 @@ export default function ContentPipeline() {
   /** The buttons a signed-in person may press on a card at its current stage. */
   const quickFor = (i: ContentItem): Quick[] => {
     const r = i.resident_id ? residents.find((x) => x.id === i.resident_id) : null;
-    const contact = !!userId && r?.contact_user_id === userId;
-    const handler = !!userId && r?.handler_user_id === userId;
+    const contact = (!!userId && r?.contact_user_id === userId) || amContact(i.resident_id);
+    const handler = (!!userId && r?.handler_user_id === userId) || amHandler(i.resident_id);
     const rows = crewByItem[i.id] ?? [];
     const itemEditor = !!userId && rows.some((c) => c.user_id === userId && /edit/i.test(c.role));
     const crewFilled = rows.length > 0 && rows.every((c) => c.user_id);
@@ -584,8 +586,8 @@ export default function ContentPipeline() {
 
   /* ---------- who may act on the open item ---------- */
   const res = residentOf(editing);
-  const isContact = !!userId && res?.contact_user_id === userId;
-  const isHandler = !!userId && res?.handler_user_id === userId;
+  const isContact = (!!userId && res?.contact_user_id === userId) || amContact(editing?.resident_id ?? null);
+  const isHandler = (!!userId && res?.handler_user_id === userId) || amHandler(editing?.resident_id ?? null);
   const isItemEditor = !!userId && crew.some((c) => c.user_id === userId && /edit/i.test(c.role));
 
   const stepPanel = () => {
