@@ -16,6 +16,7 @@ import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
 import { refCode } from "@/lib/contentFlow";
 import { weekLabel } from "@/lib/weeks";
 import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
+import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
 
 type FlowRow = {
   id: string;
@@ -212,20 +213,39 @@ export default function Dashboard() {
   const titles = roles.filter((r): r is StaffRole => r in ROLE_LABELS).map((r) => ROLE_LABELS[r]);
   const shareTotal = myShares.reduce((s, r) => s + Number(r.computed_ugx ?? 0), 0);
 
-  const modules = [
-    { to: "/app/content", label: "Content & strategy", note: "Idea to posted, per client", count: live.length, on: departments.content },
-    { to: "/app/shoots", label: "Shoot days", note: "Call sheets, crew and gear", count: shootPrompts.length, on: departments.content },
-    { to: "/app/residents", label: "Residents", note: "Client records and contacts", count: clients ?? undefined, on: departments.clients },
-    { to: "/app/sales", label: "Sales", note: "Leads, proposals and deals", on: departments.sales },
-    { to: "/app/legal", label: "Legal & contracts", note: "Contracts, partners, documents", on: departments.legal },
-    { to: "/app/ops", label: "Management & ops", note: "People, workload and delivery", on: departments.ops },
-    { to: "/app/finance", label: "Finance", note: "Cashbook, requests and payments", on: canSeeFinance || isLeadership },
-    { to: "/app/finance/requests", label: "Ask for money", note: "Raise a cash request", on: !(canSeeFinance || isLeadership) },
-    { to: "/app/site", label: "Site editing", note: "Projects, residents, announcements", on: departments.site },
-    { to: "/app/team", label: "Team & access", note: "Accounts, roles and client logins", on: isLeadership },
-    { to: "/app/events", label: "Events", note: "Ticketing, orders and payouts", on: departments.events },
-    { to: "/app/scan", label: "Gate scanner", note: "Check tickets at the door", on: canScan },
-  ].filter((m) => m.on);
+  /* ---- KPI performance: last 30 days against the 30 before ---- */
+  const windows = useMemo(() => kpiWindows(), []);
+  const [kpiRaw, setKpiRaw] = useState<KpiRaw | null>(null);
+  const [scope, setScope] = useState<KpiScope>("mine");
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    loadKpiRaw(userId, windows).then((raw) => {
+      if (!cancelled) setKpiRaw(raw);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, windows]);
+
+  const kpi = useMemo(
+    () =>
+      kpiRaw
+        ? buildKpi({
+            userId,
+            scope: isLeadership ? scope : "mine",
+            content: kpiRaw.content,
+            crew: kpiRaw.crew,
+            metrics: kpiRaw.metrics,
+            myAccountIds: kpiRaw.myAccountIds,
+            pendingWeeks: pendingWeeks.length,
+            windows,
+          })
+        : null,
+    [kpiRaw, userId, scope, isLeadership, pendingWeeks.length, windows]
+  );
+
 
   const [weekOffset, setWeekOffset] = useState(0);
   const [weekEntries, setWeekEntries] = useState<CalendarEntry[]>([]);
