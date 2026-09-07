@@ -81,6 +81,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       items: [
         { to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard },
         { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
+        { to: "/app/settings", label: "My settings", icon: UserCog },
       ],
     },
 
@@ -223,7 +224,7 @@ export function AppShell({
   nav?: ShellNavItem[];
 }) {
   const navigate = useNavigate();
-  const { displayName, email, title } = useMyRoles();
+  const { displayName, email, title, userId } = useMyRoles();
   const groups = useNavGroups(nav);
 
   const signOut = async () => {
