@@ -288,6 +288,26 @@ export default function Dashboard() {
         </div>
       )}
 
+      {myShares.length > 0 && (
+        <div className="mt-12">
+          <SectionHeading
+            index="00"
+            title="Your monthly retainer share"
+            hint={`${myShares.length} client${myShares.length === 1 ? "" : "s"}`}
+          />
+          <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
+            {myShares.map((s) => (
+              <li key={`${s.resident_name}-${s.kind}`} className="px-4 py-3 flex items-center gap-3">
+                <span className="text-sm font-semibold">{s.resident_name}</span>
+                <span className="eyebrow text-ink-faint">{s.kind}</span>
+                <span className="num ml-auto text-sm">UGX {(s.computed_ugx ?? 0).toLocaleString()}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-ink-faint">Your own line only — client totals stay with leadership and finance.</p>
+        </div>
+      )}
+
       {waiting.length > 0 && (
         <div className="mt-12">
           <SectionHeading index="01" title="Waiting on you" hint={`${waiting.length} to act on`} />
