@@ -437,8 +437,6 @@ export default function EventsAdmin() {
     ...(canManage ? [{ key: "manager", label: "Event Manager", onClick: () => setTab("manager") }] : []),
     { key: "buyers", label: "Buyers Search", onClick: () => setTab("buyers") },
     { key: "trashed", label: "Trashed", onClick: () => { setTab("trashed"); loadTrashed(); } },
-    ...(canManage ? [{ key: "scan", label: "Scanner ↗", to: "/app/scan" }] : []),
-    { key: "site", label: "Site Admin ↗", to: "/admin" },
   ];
 
 

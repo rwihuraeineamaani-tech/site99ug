@@ -32,7 +32,7 @@ export default function Dashboard() {
   const modules = [
     { to: "/app/events", label: "Events", note: "Ticketing, orders and payouts", on: canManageEvents },
     { to: "/app/scan", label: "Gate scanner", note: "Check tickets at the door", on: canScan },
-    { to: "/admin", label: "Public site", note: "Projects, residents, announcements", on: canEditSite },
+    { to: "/app/site", label: "Public site", note: "Projects, residents, announcements", on: canEditSite },
     { to: "/app/team", label: "Team & access", note: "Accounts, roles and client logins", on: isLeadership },
   ].filter((m) => m.on);
 
