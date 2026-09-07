@@ -5,6 +5,7 @@ import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip, DataTable, type Column } from "@/components/system";
 import TeamPanel from "@/components/admin/TeamPanel";
+import { PASSWORD_HINT, suggestPassword } from "@/lib/password";
 
 type Client = { id: string; name: string; contact_person: string | null; status: string; category: string };
 type ClientUser = { id: string; client_id: string; email: string; accepted_at: string | null };
