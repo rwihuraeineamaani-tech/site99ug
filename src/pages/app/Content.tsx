@@ -1196,13 +1196,17 @@ export default function ContentPipeline() {
             <div className="rounded-xl border border-rule p-3 text-xs">
               <span className="eyebrow text-ink-faint">Posted</span>
               <ul className="mt-1.5 space-y-1">
-                {(editing.posted_links ?? []).map((l) => (
-                  <li key={l}>
-                    <a href={l} target="_blank" rel="noreferrer" className="text-signal break-all">
-                      {l}
-                    </a>
-                  </li>
-                ))}
+                {(editing.posted_links ?? []).map((l) => {
+                  const { platform, url } = postedLinkParts(l);
+                  return (
+                    <li key={l} className="flex flex-wrap gap-1.5">
+                      {platform && <span className="font-semibold text-ink">{platform}</span>}
+                      <a href={url} target="_blank" rel="noreferrer" className="text-signal break-all">
+                        {url}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}
