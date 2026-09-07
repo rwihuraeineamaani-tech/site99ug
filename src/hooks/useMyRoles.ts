@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 /** Every role the system understands. Legacy console roles are kept so existing logins keep working. */
@@ -106,12 +106,14 @@ export type RoleState = {
   /** where this person should land after signing in */
   landingPath: string;
   reload: () => void;
+  /** clients this person is on, with their part */
+  assignments: { resident_id: string; kind: "contact" | "handler" }[];
 };
 
 
 const STAFF_ROLES = new Set<string>(TEAM_ROLES);
 
-export function useMyRoles(): RoleState {
+export function useRolesState(): RoleState {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -119,7 +121,10 @@ export function useMyRoles(): RoleState {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [clientId, setClientId] = useState<string | null>(null);
   const [jobTitle, setJobTitle] = useState<string | null>(null);
+  const [assignments, setAssignments] = useState<{ resident_id: string; kind: "contact" | "handler" }[]>([]);
   const [tick, setTick] = useState(0);
+  const firstLoad = useRef(true);
+  const currentUser = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -128,26 +133,32 @@ export function useMyRoles(): RoleState {
       const { data } = await supabase.auth.getUser();
       if (cancelled) return;
       if (!data.user) {
+        currentUser.current = null;
         setUserId(null);
         setEmail(null);
         setDisplayName(null);
         setRoles([]);
         setClientId(null);
         setJobTitle(null);
+        setAssignments([]);
         setLoading(false);
+        firstLoad.current = false;
         return;
       }
+      currentUser.current = data.user.id;
       setUserId(data.user.id);
       setEmail(data.user.email ?? null);
       setDisplayName((data.user.user_metadata?.display_name as string | undefined) ?? null);
 
-      const [{ data: rows }, { data: member }] = await Promise.all([
+      const [{ data: rows }, { data: member }, { data: mine }] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", data.user.id),
         supabase.from("team_members").select("display_name, title").eq("user_id", data.user.id).maybeSingle(),
+        supabase.from("client_assignments").select("resident_id, kind").eq("user_id", data.user.id),
       ]);
       if (cancelled) return;
       const list = ((rows ?? []).map((r) => r.role) as AppRole[]) ?? [];
       setRoles(list);
+      setAssignments((mine as unknown as { resident_id: string; kind: "contact" | "handler" }[]) ?? []);
       if (member?.display_name) setDisplayName(member.display_name);
       setJobTitle((member as { title?: string | null } | null)?.title ?? null);
 
@@ -161,12 +172,19 @@ export function useMyRoles(): RoleState {
       } else {
         setClientId(null);
       }
-      if (!cancelled) setLoading(false);
+      if (!cancelled) {
+        setLoading(false);
+        firstLoad.current = false;
+      }
     };
 
     load();
     // Never call Supabase directly inside the auth callback — defer it.
-    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+    // Background token renewals fire on tab focus — they never change who you are,
+    // so we ignore them instead of refetching the whole session on every tab switch.
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") return;
+      if (event === "SIGNED_IN" && session?.user?.id === currentUser.current) return;
       setTimeout(() => {
         if (!cancelled) load();
       }, 0);
@@ -231,7 +249,18 @@ export function useMyRoles(): RoleState {
     canEditContent,
     departments,
     landingPath,
+    assignments,
     reload: () => setTick((t) => t + 1),
   };
+}
+
+const RolesContext = createContext<RoleState | null>(null);
+export const RolesContextObject = RolesContext;
+
+/** Who you are and what you may see — worked out once for the whole app. */
+export function useMyRoles(): RoleState {
+  const ctx = useContext(RolesContext);
+  if (ctx) return ctx;
+  throw new Error("useMyRoles must be used inside <RolesProvider>");
 }
 
