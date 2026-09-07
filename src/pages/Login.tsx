@@ -147,9 +147,11 @@ export default function Login() {
 
       <section className="flex items-center px-6 md:px-16 py-16">
         <div className="w-full max-w-sm">
-          <div className="eyebrow text-signal mb-4">{mode === "signin" ? "Sign in" : "Reset password"}</div>
+          <div className="eyebrow text-signal mb-4">
+            {mode === "signin" ? "Portal" : mode === "signup" ? "New resident" : "Reset password"}
+          </div>
           <h1 className="display text-4xl md:text-5xl leading-[0.9] mb-10">
-            {mode === "signin" ? "Welcome back." : "Forgot it?"}
+            {mode === "signin" ? "Welcome back." : mode === "signup" ? "Claim your plot." : "Forgot it?"}
           </h1>
 
           <form onSubmit={submit} className="space-y-8">
@@ -168,7 +170,7 @@ export default function Login() {
               />
             </div>
 
-            {mode === "signin" && (
+            {mode !== "forgot" && (
               <div>
                 <label htmlFor="login-password" className="eyebrow text-ink-faint">
                   Password
@@ -177,8 +179,8 @@ export default function Login() {
                   id="login-password"
                   required
                   type="password"
-                  autoComplete="current-password"
-                  minLength={6}
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                  minLength={mode === "signup" ? 8 : 6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-3 w-full bg-transparent border-b border-rule-strong focus:border-signal outline-none py-3 text-lg"
@@ -191,20 +193,29 @@ export default function Login() {
               disabled={loading}
               className="w-full bg-ink text-paper px-8 py-4 rounded-sm eyebrow hover:bg-signal transition-colors disabled:opacity-50 focus-ring"
             >
-              {loading ? "…" : mode === "signin" ? "Sign in →" : "Send reset link →"}
+              {loading ? "…" : mode === "signin" ? "Sign in →" : mode === "signup" ? "Create account →" : "Send reset link →"}
             </button>
 
-            <button
-              type="button"
-              onClick={() => setMode(mode === "signin" ? "forgot" : "signin")}
-              className="eyebrow text-ink-faint hover:text-signal transition-colors"
-            >
-              {mode === "signin" ? "Forgot password?" : "Back to sign in"}
-            </button>
+            <div className="flex flex-wrap gap-6">
+              <button
+                type="button"
+                onClick={() => setMode(mode === "forgot" ? "signin" : "forgot")}
+                className="eyebrow text-ink-faint hover:text-signal transition-colors"
+              >
+                {mode === "forgot" ? "Back to sign in" : "Forgot password?"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
+                className="eyebrow text-ink-faint hover:text-signal transition-colors"
+              >
+                {mode === "signup" ? "Already have an account?" : "New resident? Create an account"}
+              </button>
+            </div>
           </form>
 
           <p className="mt-12 text-xs text-ink-soft">
-            Accounts are created by Site 99. Clients are invited by email and see only their own engagement.
+            One door for the whole studio. Team, clients and residents sign in here — you only see what belongs to you.
           </p>
         </div>
       </section>
