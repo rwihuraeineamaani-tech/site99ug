@@ -65,6 +65,7 @@ export type ContentItem = {
   crew_notes: string | null;
   shoot_at: string | null;
   edit_file_url: string | null;
+  edit_remarks: string | null;
   sent_direct: boolean;
   editor_done_at: string | null;
   founder_approved_at: string | null;
@@ -92,6 +93,21 @@ type Member = { user_id: string; name: string };
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
+
+/** Post links are stored one per platform as "Platform: url". */
+const parsePostedLinks = (rows: string[] | null): Record<string, string> => {
+  const out: Record<string, string> = {};
+  (rows ?? []).forEach((row) => {
+    const at = row.indexOf(": ");
+    if (at > 0) out[row.slice(0, at)] = row.slice(at + 2).trim();
+    else out[""] = row.trim();
+  });
+  return out;
+};
+const postedLinkParts = (row: string) => {
+  const at = row.indexOf(": ");
+  return at > 0 ? { platform: row.slice(0, at), url: row.slice(at + 2).trim() } : { platform: "", url: row.trim() };
+};
 
 /** "Belongs to" is one picker over two record types: r:<id> for a resident, p:<id> for a project. */
 const encodeOwner = (residentId: string | null, projectId: string | null) =>
@@ -153,7 +169,8 @@ export default function ContentPipeline() {
   const [sentDirect, setSentDirect] = useState(false);
   const [platforms, setPlatforms] = useState<string[]>([]);
   const [captions, setCaptions] = useState("");
-  const [postLinks, setPostLinks] = useState("");
+  const [postLinks, setPostLinks] = useState<Record<string, string>>({});
+  const [editRemarks, setEditRemarks] = useState("");
   const [postedFrom, setPostedFrom] = useState("");
   const [postedTo, setPostedTo] = useState("");
   const [metrics, setMetrics] = useState<Record<string, string>>({});
@@ -256,7 +273,8 @@ export default function ContentPipeline() {
     setSentDirect(row.sent_direct ?? false);
     setPlatforms(row.platforms ?? []);
     setCaptions(row.caption_suggestions ?? "");
-    setPostLinks((row.posted_links ?? []).join("\n"));
+    setPostLinks(parsePostedLinks(row.posted_links));
+    setEditRemarks(row.edit_remarks ?? "");
     setPostedFrom(row.posted_from ? row.posted_from.slice(0, 16) : "");
     setPostedTo(row.posted_to ? row.posted_to.slice(0, 16) : "");
     const m = (row.metrics ?? {}) as Record<string, string>;
@@ -635,6 +653,12 @@ export default function ContentPipeline() {
       return isFounder || isItemEditor ? (
         <div className={box}>
           <div className="eyebrow text-ink-faint">Post production</div>
+          {editing.edit_remarks && (
+            <div className="mt-2 rounded-lg border border-signal/40 bg-signal/5 p-3">
+              <span className="eyebrow text-signal">Edit remarks</span>
+              <p className="mt-1 whitespace-pre-wrap text-xs text-ink">{editing.edit_remarks}</p>
+            </div>
+          )}
           <label className="mt-2 block text-sm">
             <span className="eyebrow text-ink-faint">Google Drive link to the cut</span>
             <input
@@ -704,17 +728,40 @@ export default function ContentPipeline() {
             <span className="eyebrow text-ink-faint">Suggested captions</span>
             <textarea rows={3} className={field} value={captions} onChange={(e) => setCaptions(e.target.value)} />
           </label>
+          <label className="mt-3 block text-sm">
+            <span className="eyebrow text-ink-faint">Edit remarks — what needs changing</span>
+            <textarea
+              rows={3}
+              className={field}
+              placeholder="Trim the intro, fix the colour on the second shot…"
+              value={editRemarks}
+              onChange={(e) => setEditRemarks(e.target.value)}
+            />
+          </label>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button
               disabled={busy || platforms.length === 0}
-              onClick={() => advance("Handover", { platforms, caption_suggestions: captions || null })}
+              onClick={() =>
+                advance("Handover", {
+                  platforms,
+                  caption_suggestions: captions || null,
+                  edit_remarks: editRemarks.trim() || null,
+                })
+              }
             >
               Approve — hand to the handler
             </Button>
-            <Button variant="outline" disabled={busy} onClick={() => advance("Editing")}>
+            <Button
+              variant="outline"
+              disabled={busy || !editRemarks.trim()}
+              onClick={() => advance("Editing", { edit_remarks: editRemarks.trim() })}
+            >
               Send back to editing
             </Button>
           </div>
+          {!editRemarks.trim() && (
+            <p className="mt-1.5 text-xs text-ink-soft">Write the remarks first to send it back to the editor.</p>
+          )}
         </div>
       ) : (
         waiting("Waiting on founder sign-off.")
@@ -730,10 +777,25 @@ export default function ContentPipeline() {
               {editing.caption_suggestions}
             </p>
           )}
-          <label className="mt-3 block text-sm">
-            <span className="eyebrow text-ink-faint">Post links — one per line</span>
-            <textarea rows={3} className={field} value={postLinks} onChange={(e) => setPostLinks(e.target.value)} />
-          </label>
+          <div className="mt-3">
+            <span className="eyebrow text-ink-faint">Post link for each platform</span>
+            <div className="mt-1.5 space-y-2">
+              {(editing.platforms ?? []).map((p) => (
+                <label key={p} className="grid gap-1 sm:grid-cols-[7rem,1fr] sm:items-center sm:gap-3">
+                  <span className="text-sm font-semibold text-ink">{p}</span>
+                  <input
+                    className={`${field} mt-0`}
+                    placeholder={`https://… (${p})`}
+                    value={postLinks[p] ?? ""}
+                    onChange={(e) => setPostLinks({ ...postLinks, [p]: e.target.value })}
+                  />
+                </label>
+              ))}
+              {(editing.platforms ?? []).length === 0 && (
+                <p className="text-xs text-ink-soft">No platforms were chosen at sign-off.</p>
+              )}
+            </div>
+          </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="text-sm">
               <span className="eyebrow text-ink-faint">Posted from</span>
@@ -751,10 +813,12 @@ export default function ContentPipeline() {
           </div>
           <Button
             className="mt-3"
-            disabled={busy || !postLinks.trim() || !postedFrom}
+            disabled={busy || !Object.values(postLinks).some((v) => v.trim()) || !postedFrom}
             onClick={() =>
               advance("Posted", {
-                posted_links: postLinks.split("\n").map((l) => l.trim()).filter(Boolean),
+                posted_links: (editing.platforms ?? [])
+                  .filter((p) => (postLinks[p] ?? "").trim())
+                  .map((p) => `${p}: ${postLinks[p].trim()}`),
                 posted_from: new Date(postedFrom).toISOString(),
                 posted_to: postedTo ? new Date(postedTo).toISOString() : null,
               })
@@ -1132,13 +1196,17 @@ export default function ContentPipeline() {
             <div className="rounded-xl border border-rule p-3 text-xs">
               <span className="eyebrow text-ink-faint">Posted</span>
               <ul className="mt-1.5 space-y-1">
-                {(editing.posted_links ?? []).map((l) => (
-                  <li key={l}>
-                    <a href={l} target="_blank" rel="noreferrer" className="text-signal break-all">
-                      {l}
-                    </a>
-                  </li>
-                ))}
+                {(editing.posted_links ?? []).map((l) => {
+                  const { platform, url } = postedLinkParts(l);
+                  return (
+                    <li key={l} className="flex flex-wrap gap-1.5">
+                      {platform && <span className="font-semibold text-ink">{platform}</span>}
+                      <a href={url} target="_blank" rel="noreferrer" className="text-signal break-all">
+                        {url}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}
