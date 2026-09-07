@@ -106,6 +106,32 @@ export default function Dashboard() {
     };
   }, [userId]);
 
+  useEffect(() => {
+    if (!userId || !departments.content) return;
+    let cancelled = false;
+    (async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const [{ data: dd }, { data: rs }] = await Promise.all([
+        supabase.from("shoot_days").select("id, resident_id, status, shoot_date").in("status", ["draft", "confirmed", "shooting"]),
+        supabase.rpc("resident_options"),
+      ]);
+      if (cancelled) return;
+      const names = new Map(((rs as unknown as ResidentLink[]) ?? []).map((r) => [r.id, r.name]));
+      const rows = ((dd as unknown as { id: string; resident_id: string; status: string; shoot_date: string | null }[]) ?? [])
+        .filter((d) => d.status === "draft" || (d.shoot_date ?? "") <= today)
+        .map((d) => ({
+          id: d.id,
+          client: names.get(d.resident_id) ?? "Client",
+          why: d.status === "draft" ? "Needs a date and gear" : d.status === "shooting" ? "On the shoot" : "Shoot day is today",
+        }));
+      setShootPrompts(rows);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, departments.content]);
+
+
   const waiting = useMemo(() => {
     if (!userId) return [] as { item: FlowRow; why: string }[];
     const today = new Date().toISOString().slice(0, 10);
