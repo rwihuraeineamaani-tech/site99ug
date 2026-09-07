@@ -1252,9 +1252,15 @@ export default function ContentPipeline() {
               <ul className="mt-1.5 space-y-1">
                 {(editing.posted_links ?? []).map((l) => {
                   const { platform, url } = postedLinkParts(l);
+                  const wins = ((editing.posted_slots ?? {}) as PostedSlots)[platform]?.windows ?? [];
                   return (
-                    <li key={l} className="flex flex-wrap gap-1.5">
+                    <li key={l} className="flex flex-wrap items-center gap-1.5">
                       {platform && <span className="font-semibold text-ink">{platform}</span>}
+                      {wins.map((w) => (
+                        <span key={w} className="rounded-full border border-rule px-2 py-0.5 text-[11px] text-ink-soft">
+                          {postWindowLabel(w)}
+                        </span>
+                      ))}
                       <a href={url} target="_blank" rel="noreferrer" className="text-signal break-all">
                         {url}
                       </a>
