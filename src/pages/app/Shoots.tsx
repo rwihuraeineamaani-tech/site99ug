@@ -61,8 +61,11 @@ export default function Shoots() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [crew, setCrew] = useState<Crew[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<"planned" | "wrapped" | "all">("planned");
 
   const [date, setDate] = useState("");
   const [callTime, setCallTime] = useState("");
@@ -70,27 +73,30 @@ export default function Shoots() {
   const [notes, setNotes] = useState("");
 
   const load = async () => {
-    const [{ data: d }, { data: di }, { data: it }, { data: g }, { data: b }, { data: rs }, { data: pj }] = await Promise.all([
-      supabase.from("shoot_days").select("*").order("shoot_date", { ascending: true, nullsFirst: true }),
-      supabase.from("shoot_day_items").select("*"),
-      supabase
-        .from("content_items")
-        .select("id, ref_no, title, content_type, stage, resident_id, project_id")
-        .in("stage", ["Crewed", "Scheduled", "Shooting"]),
-      supabase.from("equipment").select("*").order("category").order("name"),
-      supabase.from("shoot_day_equipment").select("*"),
-      supabase.rpc("resident_options"),
-      supabase.from("projects").select("id, title, client").order("display_order"),
-    ]);
+    const [{ data: d }, { data: di }, { data: it }, { data: g }, { data: b }, { data: rs }, { data: pj }, { data: cc }, { data: tm }] =
+      await Promise.all([
+        supabase.from("shoot_days").select("*").order("shoot_date", { ascending: true, nullsFirst: true }),
+        supabase.from("shoot_day_items").select("*"),
+        supabase.from("content_items").select("id, ref_no, title, content_type, stage, resident_id, project_id, posted_links"),
+        supabase.from("equipment").select("*").order("category").order("name"),
+        supabase.from("shoot_day_equipment").select("*"),
+        supabase.rpc("resident_options"),
+        supabase.from("projects").select("id, title, client").order("display_order"),
+        supabase.from("content_crew").select("id, content_id, role, user_id, note"),
+        supabase.from("team_members").select("user_id, display_name, email"),
+      ]);
     setDays((d as ShootDay[]) ?? []);
     setDayItems((di as DayItem[]) ?? []);
     setItems((it as Item[]) ?? []);
     setGear((g as Gear[]) ?? []);
     setBookings((b as Booking[]) ?? []);
-    setResidents(((rs as Resident[]) ?? []).map((r) => ({ id: r.id, name: r.name })));
+    setResidents(((rs as Resident[]) ?? []).map((r) => ({ id: r.id, name: r.name, contact_user_id: r.contact_user_id ?? null })));
     setProjects((pj as Project[]) ?? []);
+    setCrew((cc as Crew[]) ?? []);
+    setMembers((tm as Member[]) ?? []);
     setLoading(false);
   };
+
 
   useEffect(() => {
     load();
