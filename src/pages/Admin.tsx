@@ -382,6 +382,15 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
           </select>
         </div>
 
+        {form.id && (
+          <div className="md:col-span-2">
+            <label className={lbl}>Social accounts we manage</label>
+            <AccountsEditor residentId={form.id} />
+          </div>
+        )}
+
+
+
         <div className="md:col-span-2 flex items-center gap-3">
           <label className="inline-flex items-center gap-3 mono text-xs uppercase tracking-[0.3em]">
             <input type="checkbox" checked={form.visible} onChange={(e) => setForm({ ...form, visible: e.target.checked })} className="w-4 h-4 accent-site-red" />
