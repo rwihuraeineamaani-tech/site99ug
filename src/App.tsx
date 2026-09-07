@@ -40,6 +40,8 @@ import { Sales, LegalContracts, ManagementOps, Finance } from "./pages/app/Depar
 import ClientRelations from "./pages/app/Clients.tsx";
 import Shoots from "./pages/app/Shoots.tsx";
 import EquipmentPage from "./pages/app/Equipment.tsx";
+import Unsubscribe from "./pages/Unsubscribe.tsx";
+
 
 import RequireRole from "./components/system/RequireRole";
 import RolesProvider from "./components/system/RolesProvider";
