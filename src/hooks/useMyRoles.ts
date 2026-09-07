@@ -210,7 +210,7 @@ export function useRolesState(): RoleState {
   const canEditSite = has("admin", "founder", "creative_director", "creative", "site_editor");
 
   const departments: Record<Department, boolean> = {
-    content: canEditContent || has("sales_head", "legal", "viewer"),
+    content: isStaff,
     clients: canManageClients || has("legal", "finance_ops"),
     sales: has("admin", "founder", "managing_director", "sales_head"),
     legal: has("admin", "founder", "managing_director", "legal"),
