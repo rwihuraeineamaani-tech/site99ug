@@ -34,14 +34,14 @@ export default function ResidentPortal() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) {
-        navigate("/residents/login", { replace: true });
+        navigate("/login", { replace: true });
         return;
       }
       setEmail(data.session.user.email ?? null);
       setAuthChecked(true);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session) navigate("/residents/login", { replace: true });
+      if (!session) navigate("/login", { replace: true });
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
@@ -49,7 +49,7 @@ export default function ResidentPortal() {
   const me = useResidentMe();
   const signOut = async () => {
     await supabase.auth.signOut();
-    navigate("/residents/login", { replace: true });
+    navigate("/login", { replace: true });
   };
 
   if (!authChecked || me.isLoading) {
