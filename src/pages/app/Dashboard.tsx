@@ -44,7 +44,7 @@ const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_direct
 const LIVE = ["Idea", "Approved", "Crewed", "Scheduled", "Shooting", "Editing", "Review", "Handover"];
 
 export default function Dashboard() {
-  const { roles, canSeeFinance, departments, canScan, isLeadership, displayName, email, userId, has } = useMyRoles();
+  const { roles, canSeeFinance, departments, isLeadership, displayName, email, userId, has } = useMyRoles();
   const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const isFounder = has(...FOUNDER_ROLES);
 
