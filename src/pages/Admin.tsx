@@ -367,6 +367,21 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
         <div><label className={lbl}>Since *</label><input required className={input} value={form.since} onChange={(e) => setForm({ ...form, since: e.target.value })} /></div>
         <div><label className={lbl}>Status</label><input className={input} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} /></div>
         <div><label className={lbl}>Display order</label><input type="number" className={input} value={form.display_order} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} /></div>
+        <div>
+          <label className={lbl}>Contact person</label>
+          <select className={input} value={form.contact_user_id} onChange={(e) => setForm({ ...form, contact_user_id: e.target.value })}>
+            <option value="">Not set</option>
+            {members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className={lbl}>Handler (posts the work)</label>
+          <select className={input} value={form.handler_user_id} onChange={(e) => setForm({ ...form, handler_user_id: e.target.value })}>
+            <option value="">Not set</option>
+            {members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
+          </select>
+        </div>
+
         <div className="md:col-span-2 flex items-center gap-3">
           <label className="inline-flex items-center gap-3 mono text-xs uppercase tracking-[0.3em]">
             <input type="checkbox" checked={form.visible} onChange={(e) => setForm({ ...form, visible: e.target.checked })} className="w-4 h-4 accent-site-red" />
