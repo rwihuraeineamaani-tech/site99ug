@@ -98,13 +98,24 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
                           to={item.to}
                           end={item.end}
                           className={cn(
-                            "flex items-center gap-2 rounded-sm px-3 py-2 text-sm transition-colors focus-ring",
-                            active ? "bg-ink text-paper" : "text-ink-soft hover:text-ink hover:bg-paper-sunken"
+                            "group relative flex items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring",
+                            active
+                              ? "bg-acc-violet-soft text-acc-violet"
+                              : "text-ink-soft hover:text-ink hover:bg-paper-sunken"
                           )}
                         >
-                          <Icon className="h-4 w-4 shrink-0" />
+                          {active && (
+                            <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-1 rounded-full bg-signal" />
+                          )}
+                          <Icon
+                            className={cn(
+                              "h-4 w-4 shrink-0 transition-transform",
+                              !active && "group-hover:scale-110"
+                            )}
+                          />
                           {!collapsed && <span className="truncate">{item.label}</span>}
                         </NavLink>
+
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

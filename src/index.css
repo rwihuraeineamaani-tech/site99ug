@@ -61,6 +61,23 @@
     --state-warn: 18 85% 45%;
     --state-stop: 0 100% 36%;
     --state-done: 220 30% 40%;
+
+    /* Working accents (internal system) */
+    --acc-violet: 265 72% 55%;
+    --acc-violet-soft: 265 78% 95%;
+    --acc-teal: 172 62% 34%;
+    --acc-teal-soft: 172 55% 93%;
+    --acc-amber: 36 92% 46%;
+    --acc-amber-soft: 40 92% 92%;
+    --acc-blue: 218 78% 52%;
+    --acc-blue-soft: 218 90% 95%;
+    --acc-pink: 335 78% 52%;
+    --acc-pink-soft: 335 85% 95%;
+    --acc-lime: 92 55% 36%;
+    --acc-lime-soft: 92 60% 92%;
+    --acc-slate: 220 12% 42%;
+    --acc-slate-soft: 220 18% 93%;
+
   }
 }
 
@@ -222,4 +239,20 @@
   }
   .shell-x { padding-left: 1.5rem; padding-right: 1.5rem; }
   @media (min-width: 768px) { .shell-x { padding-left: 3rem; padding-right: 3rem; } }
+
+  /* --- Tactile controls ------------------------------------------- */
+  .press {
+    transition: transform 140ms cubic-bezier(.2,.8,.2,1), box-shadow 140ms ease, background-color 140ms ease,
+      border-color 140ms ease, color 140ms ease;
+  }
+  .press:hover { transform: translateY(-1px); }
+  .press:active { transform: translateY(1px) scale(0.985); }
+  @media (prefers-reduced-motion: reduce) {
+    .press:hover, .press:active { transform: none; }
+  }
+  .card-lift {
+    transition: transform 160ms cubic-bezier(.2,.8,.2,1), box-shadow 160ms ease, border-color 160ms ease;
+  }
+  .card-lift:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -12px hsl(var(--ink) / 0.35); }
 }
+

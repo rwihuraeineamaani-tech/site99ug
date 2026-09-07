@@ -14,6 +14,10 @@ import {
   Segmented,
   type Column,
 } from "@/components/system";
+import { toneFor, TONE_SOFT, TONE_SOLID, TONE_TEXT } from "@/components/system/StatusChip";
+import { Button } from "@/components/ui/button";
+import { Plus, Trash2 } from "lucide-react";
+
 import { useMyRoles } from "@/hooks/useMyRoles";
 import {
   Dialog,
@@ -45,10 +49,9 @@ export type ContentItem = {
 
 type ClientRow = { id: string; name: string };
 
-const btn =
-  "eyebrow border border-rule rounded-sm px-3 py-1.5 hover:border-signal hover:text-signal transition-colors focus-ring";
-const btnSolid = "eyebrow rounded-sm px-4 py-2 bg-ink text-paper hover:bg-signal transition-colors focus-ring";
-const field = "mt-1.5 w-full bg-transparent border-b border-rule focus:border-signal outline-none py-2 text-sm";
+const field =
+  "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
+
 
 const emptyDraft = {
   title: "",
@@ -78,6 +81,9 @@ export default function ContentPipeline() {
   const [editing, setEditing] = useState<ContentItem | null>(null);
   const [draft, setDraft] = useState(emptyDraft);
   const [busy, setBusy] = useState(false);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null);
+
 
   const load = async () => {
     setLoading(true);
@@ -219,9 +225,11 @@ export default function ContentPipeline() {
         lede="Every idea from first thought to posted, per client, with the people on it."
         actions={
           canEditContent ? (
-            <button className={btnSolid} onClick={() => openNew()}>
+            <Button onClick={() => openNew()}>
+              <Plus />
               New item
-            </button>
+            </Button>
+
           ) : undefined
         }
       />
@@ -279,47 +287,81 @@ export default function ContentPipeline() {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {STAGES.map((s) => {
             const col = filtered.filter((i) => i.stage === s);
+            const tone = toneFor(s);
+            const over = dragOver === s;
             return (
               <section
                 key={s}
-                onDragOver={(e) => canEditContent && e.preventDefault()}
+                onDragOver={(e) => {
+                  if (!canEditContent) return;
+                  e.preventDefault();
+                  if (dragOver !== s) setDragOver(s);
+                }}
+                onDragLeave={() => setDragOver((cur) => (cur === s ? null : cur))}
                 onDrop={(e) => {
+                  setDragOver(null);
                   if (!canEditContent) return;
                   const id = e.dataTransfer.getData("text/plain");
                   if (id) moveTo(id, s);
                 }}
-                className="surface rounded-sm p-3 min-h-[10rem]"
+                className={`rounded-2xl border p-3 min-h-[12rem] transition-colors ${
+                  over
+                    ? "border-signal bg-acc-violet-soft/60 border-dashed"
+                    : "border-rule bg-paper-raised"
+                }`}
               >
-                <div className="rule-b pb-2 mb-3 flex items-baseline justify-between">
-                  <span className="eyebrow">{s}</span>
-                  <span className="eyebrow text-ink-faint num">{col.length}</span>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 eyebrow text-[10px] tracking-[0.16em] ${TONE_SOFT[tone]}`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-full ${TONE_SOLID[tone]}`} />
+                    {s}
+                  </span>
+                  <span className={`num text-xs font-semibold ${TONE_TEXT[tone]}`}>{col.length}</span>
                 </div>
                 <div className="space-y-2">
                   {col.map((i) => (
                     <article
                       key={i.id}
                       draggable={canEditContent}
-                      onDragStart={(e) => e.dataTransfer.setData("text/plain", i.id)}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", i.id);
+                        setDragging(i.id);
+                      }}
+                      onDragEnd={() => {
+                        setDragging(null);
+                        setDragOver(null);
+                      }}
                       onClick={() => canEditContent && openEdit(i)}
-                      className={`rounded-sm border border-rule bg-paper-raised p-3 ${
-                        canEditContent ? "cursor-pointer hover:border-signal" : ""
-                      } transition-colors`}
+                      className={`card-lift relative overflow-hidden rounded-xl border border-rule bg-paper-raised p-3 pl-4 ${
+                        canEditContent ? "cursor-grab active:cursor-grabbing hover:border-ink" : ""
+                      } ${dragging === i.id ? "opacity-50 rotate-1" : ""}`}
                     >
-                      <div className="text-sm font-medium leading-snug">{i.title}</div>
+                      <span className={`absolute left-0 top-0 bottom-0 w-1.5 ${TONE_SOLID[tone]}`} />
+                      <div className="text-sm font-semibold leading-snug">{i.title}</div>
                       <div className="mt-1.5 text-[11px] text-ink-soft">
-                        {clientName(i.client_id)} · {i.content_type}
+                        {clientName(i.client_id)}
+                        {" · "}
+                        <span className="font-semibold text-ink">{i.content_type}</span>
                       </div>
-                      <div className="mt-2 flex items-center justify-between gap-2">
+                      <div className="mt-2.5 flex items-center justify-between gap-2">
                         <span className="text-[11px] text-ink-faint truncate">
                           {[i.lead, i.shooter, i.editor].filter(Boolean).join(" · ") || "Unassigned"}
                         </span>
-                        {i.planned_at && <span className="num text-[11px] text-ink-faint">{i.planned_at}</span>}
+                        {i.planned_at && (
+                          <span className="num text-[11px] rounded-full bg-paper-sunken px-2 py-0.5 text-ink-soft">
+                            {i.planned_at}
+                          </span>
+                        )}
                       </div>
                     </article>
                   ))}
                   {canEditContent && (
-                    <button className="eyebrow text-ink-faint hover:text-signal w-full text-left px-1 py-2 focus-ring" onClick={() => openNew(s)}>
-                      + Add
+                    <button
+                      className="press w-full rounded-xl border border-dashed border-rule px-3 py-2.5 text-left text-xs font-semibold text-ink-faint hover:border-signal hover:text-signal hover:bg-paper-sunken focus-ring"
+                      onClick={() => openNew(s)}
+                    >
+                      + Add item
                     </button>
                   )}
                 </div>
@@ -327,6 +369,7 @@ export default function ContentPipeline() {
             );
           })}
         </div>
+
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -417,17 +460,19 @@ export default function ContentPipeline() {
 
           <DialogFooter className="mt-2 flex items-center gap-2">
             {editing && (
-              <button className={`${btn} mr-auto text-state-stop`} onClick={remove} disabled={busy}>
+              <Button variant="ghost" className="mr-auto text-signal hover:bg-[hsl(0_100%_96%)]" onClick={remove} disabled={busy}>
+                <Trash2 />
                 Delete
-              </button>
+              </Button>
             )}
-            <button className={btn} onClick={() => setOpen(false)} disabled={busy}>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
               Cancel
-            </button>
-            <button className={btnSolid} onClick={save} disabled={busy}>
+            </Button>
+            <Button onClick={save} disabled={busy}>
               {busy ? "Saving…" : "Save"}
-            </button>
+            </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
 
