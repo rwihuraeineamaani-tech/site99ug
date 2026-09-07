@@ -653,6 +653,12 @@ export default function ContentPipeline() {
       return isFounder || isItemEditor ? (
         <div className={box}>
           <div className="eyebrow text-ink-faint">Post production</div>
+          {editing.edit_remarks && (
+            <div className="mt-2 rounded-lg border border-signal/40 bg-signal/5 p-3">
+              <span className="eyebrow text-signal">Edit remarks</span>
+              <p className="mt-1 whitespace-pre-wrap text-xs text-ink">{editing.edit_remarks}</p>
+            </div>
+          )}
           <label className="mt-2 block text-sm">
             <span className="eyebrow text-ink-faint">Google Drive link to the cut</span>
             <input
