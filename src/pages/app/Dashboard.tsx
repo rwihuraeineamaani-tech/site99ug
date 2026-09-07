@@ -251,83 +251,158 @@ export default function Dashboard() {
     <AppShell>
       <Seo title="Command deck — Site 99" description="Site 99 operating system." path="/app" noindex />
 
-      <DeckHeader name={displayName || email || "there"} titles={titles} tagline={tagline} />
+      <DeckHeader
+        name={displayName || email || "there"}
+        titles={titles}
+        tagline={tagline}
+        actions={
+          <Link
+            to="/app/calendar"
+            className="press rounded-full border border-rule px-3.5 py-2 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"
+          >
+            Open calendar →
+          </Link>
+        }
+      />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <DeckStat
-          label="Waiting on you"
-          value={waiting.length}
-          hint={waiting.length ? "Your move" : "All clear"}
-          tone={waiting.length ? "signal" : "quiet"}
+      <DeckStrip
+        figures={[
+          { label: "Waiting on you", value: waiting.length, tone: waiting.length ? "signal" : "quiet" },
+          { label: "On your plate", value: onMyPlate.length, to: "/app/content" },
+          { label: "In the pipeline", value: live.length, to: "/app/content" },
+          canSeeFinance || myShares.length
+            ? { label: "Your month so far", value: `UGX ${shareTotal.toLocaleString()}` }
+            : { label: "Clients", value: clients ?? "—", to: "/app/residents" },
+        ]}
+      />
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-4 md:grid-cols-2">
+        <DeckColumn
+          title="Waiting on you"
+          count={waiting.length}
+          to="/app/content"
+          empty="Nothing is sitting with you."
           delay={0}
-        />
-        <DeckStat label="On your plate" value={onMyPlate.length} hint="Pieces you are crewed on" to="/app/content" delay={60} />
-        <DeckStat label="In the pipeline" value={live.length} hint="Live across the studio" to="/app/content" delay={120} />
-        {canSeeFinance || myShares.length ? (
-          <DeckStat
-            label="Your month so far"
-            value={`UGX ${shareTotal.toLocaleString()}`}
-            hint={`${myShares.length} client${myShares.length === 1 ? "" : "s"} on retainer`}
-            delay={180}
-          />
-        ) : (
-          <DeckStat label="Clients" value={clients ?? "—"} hint="On the books" to="/app/residents" delay={180} />
-        )}
+        >
+          {waiting.slice(0, 10).map(({ item, why }) => (
+            <DeckCard
+              key={`${item.id}-${why}`}
+              to={`/app/content?ref=${item.ref_no}`}
+              eyebrow={`${refCode(item.ref_no)} · ${item.stage}`}
+              title={item.title}
+              note={why}
+              tone="signal"
+              action={
+                quickStep(item)
+                  ? {
+                      label: quickStep(item)!.label,
+                      busy: moving === item.id,
+                      onClick: () => moveStage(item.id, quickStep(item)!.next),
+                    }
+                  : undefined
+              }
+            />
+          ))}
+        </DeckColumn>
+
+        <DeckColumn title="Today & overdue" count={today.length} to="/app/shoots" empty="Nothing on the clock." delay={60}>
+          {today.map((r) => (
+            <DeckCard key={r.id} to={r.to} eyebrow={r.when} title={r.title} note={r.note} tone={r.late ? "late" : "default"} />
+          ))}
+        </DeckColumn>
+
+        <DeckColumn title="This week" count={thisWeek.length} to="/app/calendar" toLabel="Calendar" empty="A clear week." delay={120}>
+          {thisWeek.map((e) => (
+            <DeckCard
+              key={e.id}
+              to={e.to}
+              eyebrow={`${KIND_LABEL[e.kind]} · ${e.date.slice(8, 10)}/${e.date.slice(5, 7)}`}
+              title={e.title}
+              note={e.note}
+            />
+          ))}
+        </DeckColumn>
+
+        <DeckColumn title="Your departments" count={modules.length} delay={180}>
+          {modules.map((m) => (
+            <DeckCard
+              key={m.to}
+              to={m.to}
+              title={m.label}
+              note={m.note}
+              right={
+                typeof m.count === "number" && m.count > 0 ? (
+                  <span className="num text-sm text-signal tabular-nums">{m.count}</span>
+                ) : undefined
+              }
+            />
+          ))}
+        </DeckColumn>
       </div>
 
-      <DeckPanel
-        index="01"
-        title="Waiting on you"
-        hint={waiting.length ? `${waiting.length} to act on` : undefined}
-        empty="Nothing is sitting with you. Good place to be."
-        delay={120}
-      >
-        {waiting.length > 0 && (
-          <DeckList>
-            {waiting.slice(0, 8).map(({ item, why }) => (
-              <li key={`${item.id}-${why}`} className="px-4 py-3 flex items-center gap-3">
-                <span className="num text-[11px] text-ink-faint w-20 shrink-0">{refCode(item.ref_no)}</span>
-                <Link to={`/app/content?ref=${item.ref_no}`} className="text-sm truncate focus-ring">
-                  {item.title}
-                </Link>
-                <span className="ml-auto text-xs font-semibold text-signal whitespace-nowrap">{why}</span>
-                {quickStep(item) && (
-                  <button
-                    type="button"
-                    disabled={moving === item.id}
-                    onClick={() => moveStage(item.id, quickStep(item)!.next)}
-                    className="press rounded-full border border-signal bg-signal px-2.5 py-1 text-[11px] font-semibold text-paper focus-ring disabled:opacity-50 whitespace-nowrap"
-                  >
-                    {quickStep(item)!.label}
-                  </button>
-                )}
-                <StatusChip value={item.stage} />
-              </li>
-            ))}
-          </DeckList>
-        )}
-      </DeckPanel>
-
-      <DeckPanel index="02" title="Today" hint="Dated and dated soon" empty="Nothing on the clock today." delay={160}>
-        {today.length > 0 && (
-          <DeckList>
-            {today.map((r) => (
-              <li key={r.id} className="px-4 py-3 flex items-center gap-3">
-                <span className={`eyebrow w-28 shrink-0 ${r.late ? "text-signal" : "text-ink-faint"}`}>{r.when}</span>
-                <span className="text-sm truncate">{r.title}</span>
-                <span className="hidden sm:inline text-xs text-ink-soft truncate">{r.note}</span>
-                <Link to={r.to} className="ml-auto eyebrow text-signal focus-ring whitespace-nowrap">
-                  Open →
-                </Link>
-              </li>
-            ))}
-          </DeckList>
-        )}
-      </DeckPanel>
+      <section className="rise mt-8">
+        <div className="rule-b pb-3 mb-3 flex items-center gap-3">
+          <h2 className="display text-lg">Your week</h2>
+          <span className="eyebrow text-[10px] text-ink-faint">{weekFrom} →</span>
+          <div className="ml-auto flex items-center rounded-full border border-rule overflow-hidden">
+            <button onClick={() => setWeekOffset((n) => n - 1)} className="px-2 py-1.5 hover:text-signal focus-ring" aria-label="Previous week">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button onClick={() => setWeekOffset(0)} className="px-3 py-1.5 eyebrow text-[10px] focus-ring">
+              This week
+            </button>
+            <button onClick={() => setWeekOffset((n) => n + 1)} className="px-2 py-1.5 hover:text-signal focus-ring" aria-label="Next week">
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+          <Link to="/app/calendar" className="eyebrow text-[10px] text-signal focus-ring whitespace-nowrap">
+            Full calendar →
+          </Link>
+        </div>
+        <div className="grid gap-2 md:grid-cols-7">
+          {weekDays.map((d) => {
+            const list = weekEntries.filter((e) => e.date === d);
+            const isToday = d === todayISO();
+            return (
+              <div key={d} className={`surface rounded-xl p-2 ${isToday ? "border-signal/50" : ""}`}>
+                <div className="flex items-baseline justify-between px-1 pb-2">
+                  <span className="eyebrow text-[9px] text-ink-faint">{DAY_LABELS[new Date(`${d}T00:00:00Z`).getUTCDay()]}</span>
+                  <span className={`num text-sm tabular-nums ${isToday ? "text-signal font-semibold" : ""}`}>
+                    {Number(d.slice(8, 10))}
+                  </span>
+                </div>
+                <div className="space-y-1.5">
+                  {list.length === 0 && <p className="px-1 py-3 text-[11px] text-ink-faint">Clear</p>}
+                  {list.slice(0, 4).map((e) =>
+                    e.to ? (
+                      <Link
+                        key={e.id}
+                        to={e.to}
+                        className="block rounded border border-rule px-2 py-1.5 text-[11px] hover:border-signal/50 focus-ring"
+                      >
+                        <div className="truncate">{e.title}</div>
+                        <div className="text-[10px] text-ink-faint truncate">{KIND_LABEL[e.kind]}</div>
+                      </Link>
+                    ) : (
+                      <div
+                        key={e.id}
+                        className="rounded border border-dashed border-ink-faint/60 px-2 py-1.5 text-[11px] text-ink-soft"
+                      >
+                        <div className="truncate">{e.title}</div>
+                        <div className="text-[10px] text-ink-faint truncate">{e.note}</div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {pendingWeeks.length > 0 && (
         <DeckPanel
-          index="03"
+          index="01"
           title={`Weekly numbers — ${weekLabel(pendingWeeks[0].week_start)}`}
           hint={`${pendingWeeks.length} account${pendingWeeks.length === 1 ? "" : "s"} to fill`}
           delay={200}
@@ -348,7 +423,7 @@ export default function Dashboard() {
       )}
 
       {myShares.length > 0 && (
-        <DeckPanel index="04" title="Your retainer share" hint="This month, your line only" delay={240}>
+        <DeckPanel index="02" title="Your retainer share" hint="This month, your line only" delay={240}>
           <DeckList>
             {myShares.map((s) => (
               <li key={`${s.resident_name}-${s.kind}`} className="px-4 py-3 flex items-center gap-3">
@@ -361,26 +436,6 @@ export default function Dashboard() {
         </DeckPanel>
       )}
 
-      <DeckPanel index="05" title="Your departments" hint={`${modules.length} open to you`} delay={280}>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {modules.map((m) => (
-            <Link
-              key={m.to}
-              to={m.to}
-              className="surface card-lift rounded-xl p-5 hover:border-signal/40 focus-ring group"
-            >
-              <div className="flex items-baseline gap-3">
-                <div className="display text-lg">{m.label}</div>
-                {typeof m.count === "number" && m.count > 0 && (
-                  <span className="num ml-auto text-sm text-signal">{m.count}</span>
-                )}
-              </div>
-              <div className="mt-2 text-sm text-ink-soft">{m.note}</div>
-              <div className="mt-4 eyebrow text-ink-faint group-hover:text-signal transition-colors">Open →</div>
-            </Link>
-          ))}
-        </div>
-      </DeckPanel>
     </AppShell>
   );
 }
