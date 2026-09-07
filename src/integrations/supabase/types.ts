@@ -1140,6 +1140,8 @@ export type Database = {
       }
       shoot_days: {
         Row: {
+          brief_sent_at: string | null
+          brief_sent_by: string | null
           call_time: string | null
           confirmed_at: string | null
           confirmed_by: string | null
@@ -1155,6 +1157,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          brief_sent_at?: string | null
+          brief_sent_by?: string | null
           call_time?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
@@ -1170,6 +1174,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          brief_sent_at?: string | null
+          brief_sent_by?: string | null
           call_time?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
