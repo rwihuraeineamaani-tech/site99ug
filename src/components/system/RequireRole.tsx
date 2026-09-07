@@ -1,14 +1,14 @@
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useMyRoles } from "@/hooks/useMyRoles";
+import { useMyRoles, type Department } from "@/hooks/useMyRoles";
 
-type Gate = "staff" | "client" | "leadership" | "finance";
+type Gate = "staff" | "client" | "leadership" | "finance" | Department;
 
 /**
  * Route guard. Access is also enforced in the database — this only decides what to render.
  */
 export function RequireRole({ gate, children }: { gate: Gate; children: ReactNode }) {
-  const { loading, userId, isStaff, isClient, isLeadership, canSeeFinance, landingPath } = useMyRoles();
+  const { loading, userId, isStaff, isClient, isLeadership, canSeeFinance, departments, landingPath } = useMyRoles();
   const location = useLocation();
 
   if (loading) {
@@ -24,7 +24,15 @@ export function RequireRole({ gate, children }: { gate: Gate; children: ReactNod
   }
 
   const allowed =
-    gate === "staff" ? isStaff : gate === "client" ? isClient : gate === "leadership" ? isLeadership : canSeeFinance;
+    gate === "staff"
+      ? isStaff
+      : gate === "client"
+        ? isClient
+        : gate === "leadership"
+          ? isLeadership
+          : gate === "finance"
+            ? canSeeFinance
+            : departments[gate];
 
   if (!allowed) {
     return <Navigate to={landingPath === location.pathname ? "/" : landingPath} replace />;

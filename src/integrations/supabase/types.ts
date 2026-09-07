@@ -229,6 +229,68 @@ export type Database = {
         }
         Relationships: []
       }
+      content_items: {
+        Row: {
+          client_id: string | null
+          content_type: string
+          created_at: string
+          created_by: string | null
+          editor: string | null
+          id: string
+          lead: string | null
+          link: string | null
+          notes: string | null
+          planned_at: string | null
+          shooter: string | null
+          sort: number
+          stage: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          editor?: string | null
+          id?: string
+          lead?: string | null
+          link?: string | null
+          notes?: string | null
+          planned_at?: string | null
+          shooter?: string | null
+          sort?: number
+          stage?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          editor?: string | null
+          id?: string
+          lead?: string | null
+          link?: string | null
+          notes?: string | null
+          planned_at?: string | null
+          shooter?: string | null
+          sort?: number
+          stage?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_items_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -926,7 +988,9 @@ export type Database = {
               ticket_count: number
             }[]
           }
+      can_edit_content: { Args: { _user_id: string }; Returns: boolean }
       can_see_finance: { Args: { _user_id: string }; Returns: boolean }
+      can_view_content: { Args: { _user_id: string }; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
