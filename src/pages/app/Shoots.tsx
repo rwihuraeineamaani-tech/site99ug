@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
-import { CalendarDays, Plus, X } from "lucide-react";
+import { CalendarDays, Plus, X, MapPin, Clock, Users, Camera, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { addDays, monthGridRange } from "@/lib/calendarFeed";
 
 type ShootDay = {
   id: string;
@@ -79,6 +80,9 @@ export default function Shoots() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<"planned" | "wrapped" | "all">("planned");
+  const [mode, setMode] = useState<"list" | "calendar">("list");
+  const [monthAnchor, setMonthAnchor] = useState(() => new Date().toISOString().slice(0, 10));
+  const [confirmDelete, setConfirmDelete] = useState<ShootDay | null>(null);
 
   const [date, setDate] = useState("");
   const [callTime, setCallTime] = useState("");
