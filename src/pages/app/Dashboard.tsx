@@ -221,7 +221,7 @@ export default function Dashboard() {
     { to: "/app/sales", label: "Sales", note: "Leads, proposals and deals", on: departments.sales },
     { to: "/app/legal", label: "Legal & contracts", note: "Contracts, partners, documents", on: departments.legal },
     { to: "/app/ops", label: "Management & ops", note: "People, workload and delivery", on: departments.ops },
-    { to: "/app/finance", label: "Finance", note: "Money in, out and payroll", on: departments.finance },
+    { to: "/app/finance", label: "Finance", note: "Ask for cash, approve and pay", on: true },
     { to: "/app/site", label: "Site editing", note: "Projects, residents, announcements", on: departments.site },
     { to: "/app/team", label: "Team & access", note: "Accounts, roles and client logins", on: isLeadership },
     { to: "/app/events", label: "Events", note: "Ticketing, orders and payouts", on: departments.events },

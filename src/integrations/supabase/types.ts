@@ -199,6 +199,91 @@ export type Database = {
           },
         ]
       }
+      cash_requests: {
+        Row: {
+          amount_ugx: number
+          attachment_path: string | null
+          category: string
+          created_at: string
+          decline_reason: string | null
+          declined_by: string | null
+          founder_approved_at: string | null
+          founder_approved_by: string | null
+          id: string
+          md_approved_at: string | null
+          md_approved_by: string | null
+          needed_on: string | null
+          purpose: string
+          requester: string
+          resident_id: string | null
+          shoot_day_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_ugx: number
+          attachment_path?: string | null
+          category?: string
+          created_at?: string
+          decline_reason?: string | null
+          declined_by?: string | null
+          founder_approved_at?: string | null
+          founder_approved_by?: string | null
+          id?: string
+          md_approved_at?: string | null
+          md_approved_by?: string | null
+          needed_on?: string | null
+          purpose: string
+          requester?: string
+          resident_id?: string | null
+          shoot_day_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_ugx?: number
+          attachment_path?: string | null
+          category?: string
+          created_at?: string
+          decline_reason?: string | null
+          declined_by?: string | null
+          founder_approved_at?: string | null
+          founder_approved_by?: string | null
+          id?: string
+          md_approved_at?: string | null
+          md_approved_by?: string | null
+          needed_on?: string | null
+          purpose?: string
+          requester?: string
+          resident_id?: string | null
+          shoot_day_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_requests_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_requests_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_requests_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_accounts: {
         Row: {
           active: boolean
@@ -790,6 +875,156 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_audit: {
+        Row: {
+          action: string
+          actor: string | null
+          after: Json | null
+          before: Json | null
+          created_at: string
+          id: string
+          row_id: string
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          id?: string
+          row_id: string
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          id?: string
+          row_id?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
+      loan_repayments: {
+        Row: {
+          amount_ugx: number
+          created_at: string
+          created_by: string | null
+          due_on: string | null
+          id: string
+          loan_id: string
+          note: string | null
+          paid_on: string | null
+          transaction_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_ugx: number
+          created_at?: string
+          created_by?: string | null
+          due_on?: string | null
+          id?: string
+          loan_id: string
+          note?: string | null
+          paid_on?: string | null
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_ugx?: number
+          created_at?: string
+          created_by?: string | null
+          due_on?: string | null
+          id?: string
+          loan_id?: string
+          note?: string | null
+          paid_on?: string | null
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_repayments_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "loans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loan_repayments_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loans: {
+        Row: {
+          agreed_total_ugx: number | null
+          counterparty_kind: string
+          counterparty_name: string
+          counterparty_user_id: string | null
+          created_at: string
+          created_by: string | null
+          direction: string
+          founder_approved_at: string | null
+          founder_approved_by: string | null
+          id: string
+          md_approved_at: string | null
+          md_approved_by: string | null
+          principal_ugx: number
+          purpose: string | null
+          schedule_note: string | null
+          start_on: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agreed_total_ugx?: number | null
+          counterparty_kind?: string
+          counterparty_name: string
+          counterparty_user_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          founder_approved_at?: string | null
+          founder_approved_by?: string | null
+          id?: string
+          md_approved_at?: string | null
+          md_approved_by?: string | null
+          principal_ugx: number
+          purpose?: string | null
+          schedule_note?: string | null
+          start_on?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agreed_total_ugx?: number | null
+          counterparty_kind?: string
+          counterparty_name?: string
+          counterparty_user_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          founder_approved_at?: string | null
+          founder_approved_by?: string | null
+          id?: string
+          md_approved_at?: string | null
+          md_approved_by?: string | null
+          principal_ugx?: number
+          purpose?: string | null
+          schedule_note?: string | null
+          start_on?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           body: string
@@ -912,6 +1147,105 @@ export type Database = {
           },
         ]
       }
+      payment_run_lines: {
+        Row: {
+          amount_ugx: number
+          category: string
+          created_at: string
+          id: string
+          note: string | null
+          payee_kind: string
+          payee_name: string
+          payee_user_id: string | null
+          recurring_id: string | null
+          run_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_ugx: number
+          category?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          payee_kind?: string
+          payee_name: string
+          payee_user_id?: string | null
+          recurring_id?: string | null
+          run_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_ugx?: number
+          category?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          payee_kind?: string
+          payee_name?: string
+          payee_user_id?: string | null
+          recurring_id?: string | null
+          run_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_run_lines_recurring_id_fkey"
+            columns: ["recurring_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_run_lines_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "payment_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_runs: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          built_at: string
+          created_at: string
+          id: string
+          month: string
+          status: string
+          submitted_at: string | null
+          submitted_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          built_at?: string
+          created_at?: string
+          id?: string
+          month: string
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          built_at?: string
+          created_at?: string
+          id?: string
+          month?: string
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           aspect_ratio: string
@@ -960,6 +1294,51 @@ export type Database = {
           updated_at?: string
           year?: string
           youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      recurring_payments: {
+        Row: {
+          active: boolean
+          amount_ugx: number
+          category: string
+          created_at: string
+          created_by: string | null
+          day_of_month: number
+          id: string
+          notes: string | null
+          payee_kind: string
+          payee_name: string
+          payee_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          amount_ugx: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number
+          id?: string
+          notes?: string | null
+          payee_kind?: string
+          payee_name: string
+          payee_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          amount_ugx?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number
+          id?: string
+          notes?: string | null
+          payee_kind?: string
+          payee_name?: string
+          payee_user_id?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1441,6 +1820,95 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount_ugx: number
+          category: string
+          created_at: string
+          direction: string
+          id: string
+          invoice_no: string | null
+          invoice_path: string | null
+          method: string | null
+          method_reference: string | null
+          note: string | null
+          paid_at: string
+          paid_by: string | null
+          payee_kind: string
+          payee_name: string
+          payee_user_id: string | null
+          reverses_txn_id: string | null
+          source_id: string | null
+          source_kind: string
+          txn_ref: string
+        }
+        Insert: {
+          amount_ugx: number
+          category?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          invoice_no?: string | null
+          invoice_path?: string | null
+          method?: string | null
+          method_reference?: string | null
+          note?: string | null
+          paid_at?: string
+          paid_by?: string | null
+          payee_kind?: string
+          payee_name: string
+          payee_user_id?: string | null
+          reverses_txn_id?: string | null
+          source_id?: string | null
+          source_kind: string
+          txn_ref: string
+        }
+        Update: {
+          amount_ugx?: number
+          category?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          invoice_no?: string | null
+          invoice_path?: string | null
+          method?: string | null
+          method_reference?: string | null
+          note?: string | null
+          paid_at?: string
+          paid_by?: string | null
+          payee_kind?: string
+          payee_name?: string
+          payee_user_id?: string | null
+          reverses_txn_id?: string | null
+          source_id?: string | null
+          source_kind?: string
+          txn_ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_reverses_txn_id_fkey"
+            columns: ["reverses_txn_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      txn_counters: {
+        Row: {
+          n: number
+          period: string
+        }
+        Insert: {
+          n?: number
+          period: string
+        }
+        Update: {
+          n?: number
+          period?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1542,6 +2010,12 @@ export type Database = {
               ticket_count: number
             }[]
           }
+      approve_cash_request: { Args: { _id: string }; Returns: string }
+      approve_payment_run: {
+        Args: { _line_ids?: string[]; _run_id: string }
+        Returns: undefined
+      }
+      build_payment_run: { Args: { _month?: string }; Returns: string }
       can_edit_content: { Args: { _user_id: string }; Returns: boolean }
       can_see_finance: { Args: { _user_id: string }; Returns: boolean }
       can_touch_account: { Args: { _account_id: string }; Returns: boolean }
@@ -1564,6 +2038,10 @@ export type Database = {
         }[]
       }
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
+      decline_cash_request: {
+        Args: { _id: string; _reason: string }
+        Returns: undefined
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1572,6 +2050,25 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      finance_lookup: {
+        Args: { _limit?: number; _q: string }
+        Returns: {
+          amount_ugx: number
+          category: string
+          direction: string
+          id: string
+          invoice_no: string
+          method: string
+          method_reference: string
+          paid_at: string
+          payee_kind: string
+          payee_name: string
+          reverses_txn_id: string
+          source_id: string
+          source_kind: string
+          txn_ref: string
+        }[]
       }
       finish_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       get_order_summary: {
@@ -1614,11 +2111,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      hold_payment_line: { Args: { _line_id: string }; Returns: undefined }
       is_content_crew: {
         Args: { _content_id: string; _user_id: string }
         Returns: boolean
       }
+      is_founder: { Args: { _user_id: string }; Returns: boolean }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
+      is_md: { Args: { _user_id: string }; Returns: boolean }
       is_resident_contact: {
         Args: { _resident_id: string; _user_id: string }
         Returns: boolean
@@ -1670,6 +2170,30 @@ export type Database = {
           read_ct: number
         }[]
       }
+      record_loan_repayment: {
+        Args: {
+          _amount: number
+          _loan_id: string
+          _method?: string
+          _method_reference?: string
+          _note?: string
+          _paid_on?: string
+        }
+        Returns: string
+      }
+      record_payment: {
+        Args: {
+          _invoice_no?: string
+          _invoice_path?: string
+          _method: string
+          _method_reference?: string
+          _note?: string
+          _paid_on?: string
+          _source_id: string
+          _source_kind: string
+        }
+        Returns: string
+      }
       resident_options: {
         Args: never
         Returns: {
@@ -1698,6 +2222,10 @@ export type Database = {
           user_id: string
           visible: boolean
         }[]
+      }
+      reverse_transaction: {
+        Args: { _reason: string; _txn_id: string }
+        Returns: string
       }
       set_client_pay: {
         Args: { _people: Json; _resident_id: string; _retainer_ugx: number }
