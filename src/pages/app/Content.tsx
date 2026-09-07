@@ -227,9 +227,10 @@ export default function ContentPipeline() {
       />
 
       <FilterBar>
-        <Segmented
+        <Segmented<"board" | "list">
           value={view}
-          onChange={setView}
+          onChange={(v) => setView(v)}
+
           options={[
             { value: "board", label: "Board" },
             { value: "list", label: "List" },
