@@ -44,6 +44,62 @@ export type Database = {
         }
         Relationships: []
       }
+      account_metrics: {
+        Row: {
+          account_id: string
+          created_at: string
+          filled_at: string
+          filled_by: string | null
+          followers: number | null
+          id: string
+          impressions: number | null
+          link_clicks: number | null
+          posts: number | null
+          profile_visits: number | null
+          reach: number | null
+          updated_at: string
+          week_start: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          filled_at?: string
+          filled_by?: string | null
+          followers?: number | null
+          id?: string
+          impressions?: number | null
+          link_clicks?: number | null
+          posts?: number | null
+          profile_visits?: number | null
+          reach?: number | null
+          updated_at?: string
+          week_start: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          filled_at?: string
+          filled_by?: string | null
+          followers?: number | null
+          id?: string
+          impressions?: number | null
+          link_clicks?: number | null
+          posts?: number | null
+          profile_visits?: number | null
+          reach?: number | null
+          updated_at?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_metrics_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "client_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_leads: {
         Row: {
           company: string | null
@@ -136,6 +192,54 @@ export type Database = {
           },
           {
             foreignKeyName: "briefs_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_accounts: {
+        Row: {
+          active: boolean
+          created_at: string
+          handle: string
+          id: string
+          platform: string
+          resident_id: string
+          sort: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          handle?: string
+          id?: string
+          platform: string
+          resident_id: string
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          handle?: string
+          id?: string
+          platform?: string
+          resident_id?: string
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_accounts_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_accounts_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
             referencedRelation: "residents"
@@ -1124,6 +1228,11 @@ export type Database = {
           }
       can_edit_content: { Args: { _user_id: string }; Returns: boolean }
       can_see_finance: { Args: { _user_id: string }; Returns: boolean }
+      can_touch_account: { Args: { _account_id: string }; Returns: boolean }
+      can_touch_resident_accounts: {
+        Args: { _resident_id: string }
+        Returns: boolean
+      }
       can_view_content: { Args: { _user_id: string }; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
@@ -1186,6 +1295,17 @@ export type Database = {
         Returns: number
       }
       my_client_id: { Args: never; Returns: string }
+      my_pending_account_weeks: {
+        Args: never
+        Returns: {
+          account_id: string
+          handle: string
+          platform: string
+          resident_id: string
+          resident_name: string
+          week_start: string
+        }[]
+      }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
