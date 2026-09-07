@@ -217,6 +217,23 @@ export default function Dashboard() {
         />
       </div>
 
+      {shootPrompts.length > 0 && (
+        <div className="mt-12">
+          <SectionHeading index="00" title="Shoot days" hint={`${shootPrompts.length} to sort`} />
+          <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
+            {shootPrompts.map((s) => (
+              <li key={s.id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
+                <span className="text-sm font-semibold">{s.client}</span>
+                <StatusChip value={s.why} tone={s.why.startsWith("Needs") ? "amber" : "green"} />
+                <Link to="/app/shoots" className="ml-auto text-xs font-semibold text-signal focus-ring whitespace-nowrap">
+                  Open →
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {pendingWeeks.length > 0 && (
         <div className="mt-12">
           <SectionHeading
