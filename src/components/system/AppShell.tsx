@@ -171,6 +171,7 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
                         <NavLink
                           to={item.to}
                           end={item.end}
+                          onClick={() => isMobile && setOpenMobile(false)}
                           className={cn(
                             "group relative flex items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring",
                             active
@@ -222,6 +223,13 @@ export function AppShell({
   };
 
   const name = displayName || email || "Site 99";
+
+  // Drawers, dialogs and menus render into <body>, outside the shell,
+  // so the dark deck tokens have to live on <body> while the app is open.
+  useEffect(() => {
+    document.body.classList.add("deck");
+    return () => document.body.classList.remove("deck");
+  }, []);
 
   return (
     <SidebarProvider>
