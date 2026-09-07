@@ -16,9 +16,10 @@ import {
 } from "@/components/system";
 import { toneFor, TONE_SOFT, TONE_SOLID, TONE_TEXT } from "@/components/system/StatusChip";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Lock } from "lucide-react";
 
 import { useMyRoles } from "@/hooks/useMyRoles";
+import { STAGES, STAGE_NOTE, CREW_ROLES, PLATFORMS, METRIC_FIELDS, refCode, type Stage } from "@/lib/contentFlow";
 import {
   Dialog,
   DialogContent,
@@ -27,8 +28,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export const STAGES = ["Idea", "Approved", "Scheduled", "Editing", "Posted", "Archived", "Rejected"] as const;
-export type Stage = (typeof STAGES)[number];
+export { STAGES, refCode };
+export type { Stage };
 
 const TYPES = [
   "Vertical short-form video",
@@ -58,15 +59,38 @@ export type ContentItem = {
   link: string | null;
   notes: string | null;
   created_at: string;
+  approved_by: string | null;
+  approved_at: string | null;
+  crew_notes: string | null;
+  shoot_at: string | null;
+  edit_file_url: string | null;
+  sent_direct: boolean;
+  editor_done_at: string | null;
+  founder_approved_at: string | null;
+  platforms: string[] | null;
+  caption_suggestions: string | null;
+  posted_links: string[] | null;
+  posted_from: string | null;
+  posted_to: string | null;
+  posted_at: string | null;
+  metrics: Record<string, string> | null;
+  metrics_due_at: string | null;
+  metrics_filled_at: string | null;
 };
 
-type ResidentRow = { id: string; name: string; territory: string | null };
+type CrewRow = { id: string; content_id: string; role: string; user_id: string | null; note: string | null; sort: number };
+type ResidentRow = {
+  id: string;
+  name: string;
+  territory: string | null;
+  contact_user_id: string | null;
+  handler_user_id: string | null;
+};
 type ProjectRow = { id: string; title: string; client: string };
+type Member = { user_id: string; name: string };
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
-
-export const refCode = (n: number) => `IDEA-${String(n).padStart(4, "0")}`;
 
 /** "Belongs to" is one picker over two record types: r:<id> for a resident, p:<id> for a project. */
 const encodeOwner = (residentId: string | null, projectId: string | null) =>
@@ -88,20 +112,21 @@ const emptyDraft = {
   title: "",
   owner: "",
   content_type: TYPES[0],
-  stage: "Idea" as string,
-  lead: "",
-  shooter: "",
-  editor: "",
   planned_at: "",
   link: "",
   notes: "",
 };
 
+const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_director"] as const;
+
 export default function ContentPipeline() {
-  const { canEditContent } = useMyRoles();
+  const { canEditContent, userId, has } = useMyRoles();
+  const isFounder = has(...FOUNDER_ROLES);
+
   const [items, setItems] = useState<ContentItem[]>([]);
   const [residents, setResidents] = useState<ResidentRow[]>([]);
   const [projects, setProjects] = useState<ProjectRow[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [authors, setAuthors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"board" | "list" | "archive">("board");
@@ -116,8 +141,20 @@ export default function ContentPipeline() {
   const [editing, setEditing] = useState<ContentItem | null>(null);
   const [draft, setDraft] = useState(emptyDraft);
   const [busy, setBusy] = useState(false);
-  const [dragging, setDragging] = useState<string | null>(null);
-  const [dragOver, setDragOver] = useState<string | null>(null);
+
+  // step state inside the detail dialog
+  const [crew, setCrew] = useState<CrewRow[]>([]);
+  const [crewNotes, setCrewNotes] = useState("");
+  const [shootAt, setShootAt] = useState("");
+  const [editUrl, setEditUrl] = useState("");
+  const [sentDirect, setSentDirect] = useState(false);
+  const [platforms, setPlatforms] = useState<string[]>([]);
+  const [captions, setCaptions] = useState("");
+  const [postLinks, setPostLinks] = useState("");
+  const [postedFrom, setPostedFrom] = useState("");
+  const [postedTo, setPostedTo] = useState("");
+  const [metrics, setMetrics] = useState<Record<string, string>>({});
+  const [metricNote, setMetricNote] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -128,14 +165,18 @@ export default function ContentPipeline() {
       supabase.from("team_members").select("user_id, display_name, email"),
     ]);
     if (error) toast.error(error.message);
-    setItems((rows as ContentItem[]) ?? []);
-    setResidents((cs as ResidentRow[]) ?? []);
+    setItems((rows as unknown as ContentItem[]) ?? []);
+    setResidents((cs as unknown as ResidentRow[]) ?? []);
     setProjects((ps as ProjectRow[]) ?? []);
     const map: Record<string, string> = {};
+    const list: Member[] = [];
     (tm ?? []).forEach((m: { user_id: string; display_name: string | null; email: string }) => {
-      map[m.user_id] = m.display_name?.trim() || m.email.split("@")[0];
+      const name = m.display_name?.trim() || m.email.split("@")[0];
+      map[m.user_id] = name;
+      list.push({ user_id: m.user_id, name });
     });
     setAuthors(map);
+    setMembers(list.sort((a, b) => a.name.localeCompare(b.name)));
     setLoading(false);
   };
 
@@ -152,6 +193,9 @@ export default function ContentPipeline() {
     return "—";
   };
   const authorName = (id: string | null) => (id ? authors[id] ?? "—" : "—");
+
+  const residentOf = (i: ContentItem | null) =>
+    i?.resident_id ? residents.find((r) => r.id === i.resident_id) ?? null : null;
 
   const ownerOptions = useMemo(
     () => [
@@ -187,21 +231,31 @@ export default function ContentPipeline() {
 
   const unclaimed = useMemo(() => filtered.filter((i) => !i.resident_id && !i.project_id), [filtered]);
 
-  const openEdit = (row: ContentItem) => {
+  const openEdit = async (row: ContentItem) => {
     setEditing(row);
     setDraft({
       title: row.title,
       owner: encodeOwner(row.resident_id, row.project_id),
       content_type: row.content_type,
-      stage: row.stage,
-      lead: row.lead ?? "",
-      shooter: row.shooter ?? "",
-      editor: row.editor ?? "",
       planned_at: row.planned_at ?? "",
       link: row.link ?? "",
       notes: row.notes ?? "",
     });
+    setCrewNotes(row.crew_notes ?? "");
+    setShootAt(row.shoot_at ?? "");
+    setEditUrl(row.edit_file_url ?? "");
+    setSentDirect(row.sent_direct ?? false);
+    setPlatforms(row.platforms ?? []);
+    setCaptions(row.caption_suggestions ?? "");
+    setPostLinks((row.posted_links ?? []).join("\n"));
+    setPostedFrom(row.posted_from ? row.posted_from.slice(0, 16) : "");
+    setPostedTo(row.posted_to ? row.posted_to.slice(0, 16) : "");
+    const m = (row.metrics ?? {}) as Record<string, string>;
+    setMetrics(m);
+    setMetricNote(m.note ?? "");
     setOpen(true);
+    const { data } = await supabase.from("content_crew").select("*").eq("content_id", row.id).order("sort");
+    setCrew((data as CrewRow[]) ?? []);
   };
 
   const saveNew = async () => {
@@ -233,10 +287,6 @@ export default function ContentPipeline() {
       title: draft.title.trim(),
       ...decodeOwner(draft.owner),
       content_type: draft.content_type,
-      stage: draft.stage,
-      lead: draft.lead.trim() || null,
-      shooter: draft.shooter.trim() || null,
-      editor: draft.editor.trim() || null,
       planned_at: draft.planned_at || null,
       link: draft.link.trim() || null,
       notes: draft.notes.trim() || null,
@@ -260,17 +310,50 @@ export default function ContentPipeline() {
     load();
   };
 
-  const patch = async (id: string, values: Partial<ContentItem>) => {
-    const prev = items;
-    setItems((cur) => cur.map((i) => (i.id === id ? { ...i, ...values } : i)));
+  const patch = async (id: string, values: Record<string, unknown>) => {
     const { error } = await supabase.from("content_items").update(values).eq("id", id);
     if (error) {
-      setItems(prev);
       toast.error(error.message);
+      return false;
+    }
+    await load();
+    return true;
+  };
+
+  /** Move a stage forward, optionally saving fields at the same time. */
+  const advance = async (next: Stage, values: Record<string, unknown> = {}) => {
+    if (!editing) return;
+    setBusy(true);
+    const ok = await patch(editing.id, { ...values, stage: next });
+    setBusy(false);
+    if (ok) {
+      toast.success(`Moved to ${next}.`);
+      setOpen(false);
     }
   };
 
-  const moveTo = (id: string, next: string) => patch(id, { stage: next });
+  /* ---------- crew helpers ---------- */
+  const addCrewSlot = async (role: string) => {
+    if (!editing) return;
+    const { data, error } = await supabase
+      .from("content_crew")
+      .insert({ content_id: editing.id, role, sort: crew.length })
+      .select()
+      .single();
+    if (error) return toast.error(error.message);
+    setCrew((c) => [...c, data as CrewRow]);
+  };
+  const setCrewPerson = async (id: string, user_id: string | null) => {
+    setCrew((c) => c.map((r) => (r.id === id ? { ...r, user_id } : r)));
+    const { error } = await supabase.from("content_crew").update({ user_id }).eq("id", id);
+    if (error) toast.error(error.message);
+  };
+  const removeCrewSlot = async (id: string) => {
+    setCrew((c) => c.filter((r) => r.id !== id));
+    await supabase.from("content_crew").delete().eq("id", id);
+  };
+
+  const crewComplete = crew.length > 0 && crew.every((c) => c.user_id);
 
   const ownerSelect = (value: string, onChange: (v: string) => void, className = field) => (
     <select className={className} value={value} onChange={(e) => onChange(e.target.value)}>
@@ -316,9 +399,9 @@ export default function ContentPipeline() {
     },
     {
       key: "planned",
-      header: "Planned",
+      header: "Shoot / planned",
       align: "right",
-      cell: (r) => <span className="num">{r.planned_at ?? "—"}</span>,
+      cell: (r) => <span className="num">{r.shoot_at ?? r.planned_at ?? "—"}</span>,
     },
   ];
 
@@ -360,6 +443,332 @@ export default function ContentPipeline() {
     },
   ];
 
+  /* ---------- who may act on the open item ---------- */
+  const res = residentOf(editing);
+  const isContact = !!userId && res?.contact_user_id === userId;
+  const isHandler = !!userId && res?.handler_user_id === userId;
+  const isItemEditor = !!userId && crew.some((c) => c.user_id === userId && /edit/i.test(c.role));
+
+  const stepPanel = () => {
+    if (!editing) return null;
+    const s = editing.stage as Stage;
+    const box = "rounded-xl border border-rule bg-paper-sunken p-4";
+
+    if (s === "Idea")
+      return isFounder ? (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">Approve this idea</div>
+          <p className="mt-1 text-xs text-ink-soft">
+            Choose the roles this shoot needs. You can already name people, or leave slots empty for the contact person
+            to fill.
+          </p>
+          {crewEditor()}
+          <label className="mt-3 block text-sm">
+            <span className="eyebrow text-ink-faint">Notes for the crew</span>
+            <textarea rows={2} className={field} value={crewNotes} onChange={(e) => setCrewNotes(e.target.value)} />
+          </label>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              disabled={busy || crew.length === 0}
+              onClick={() => advance(crewComplete ? "Crewed" : "Approved", { crew_notes: crewNotes || null })}
+            >
+              Approve
+            </Button>
+            <Button variant="outline" disabled={busy} onClick={() => advance("Rejected")}>
+              Reject
+            </Button>
+          </div>
+        </div>
+      ) : (
+        waiting("Waiting on the founders to approve this idea.")
+      );
+
+    if (s === "Approved")
+      return isFounder || isContact ? (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">Fill the production team</div>
+          {editing.crew_notes && <p className="mt-1 text-xs text-ink-soft">“{editing.crew_notes}”</p>}
+          {crewEditor()}
+          <Button className="mt-3" disabled={busy || !crewComplete} onClick={() => advance("Crewed")}>
+            {crewComplete ? "Crew is complete" : "Fill every role first"}
+          </Button>
+        </div>
+      ) : (
+        waiting("Waiting on the contact person to fill the production team.")
+      );
+
+    if (s === "Crewed")
+      return isFounder || isContact ? (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">Set the shoot date</div>
+          <input type="date" className={field} value={shootAt} onChange={(e) => setShootAt(e.target.value)} />
+          <Button className="mt-3" disabled={busy || !shootAt} onClick={() => advance("Scheduled", { shoot_at: shootAt })}>
+            Schedule
+          </Button>
+        </div>
+      ) : (
+        waiting("Waiting on the contact person to schedule the shoot.")
+      );
+
+    if (s === "Scheduled")
+      return isFounder || isContact ? (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">Shoot day</div>
+          <p className="mt-1 text-xs text-ink-soft">Shoot set for {editing.shoot_at ?? "—"}.</p>
+          <Button className="mt-3" disabled={busy} onClick={() => advance("Shooting")}>
+            Start the shoot
+          </Button>
+        </div>
+      ) : (
+        waiting(`Shoot set for ${editing.shoot_at ?? "—"}.`)
+      );
+
+    if (s === "Shooting")
+      return isFounder || isContact ? (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">On the shoot</div>
+          <Button className="mt-3" disabled={busy} onClick={() => advance("Editing")}>
+            Shoot done — send to post production
+          </Button>
+        </div>
+      ) : (
+        waiting("The shoot is under way.")
+      );
+
+    if (s === "Editing")
+      return isFounder || isItemEditor ? (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">Post production</div>
+          <label className="mt-2 block text-sm">
+            <span className="eyebrow text-ink-faint">Link to the cut</span>
+            <input className={field} placeholder="https://…" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} />
+          </label>
+          <label className="mt-3 inline-flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-signal"
+              checked={sentDirect}
+              onChange={(e) => setSentDirect(e.target.checked)}
+            />
+            I sent it directly instead
+          </label>
+          <Button
+            className="mt-3 block"
+            disabled={busy || (!editUrl && !sentDirect)}
+            onClick={() => advance("Review", { edit_file_url: editUrl || null, sent_direct: sentDirect })}
+          >
+            Send to the founders
+          </Button>
+        </div>
+      ) : (
+        waiting("With the editor.")
+      );
+
+    if (s === "Review")
+      return isFounder ? (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">Founder sign-off</div>
+          {editing.edit_file_url ? (
+            <a href={editing.edit_file_url} target="_blank" rel="noreferrer" className="mt-1 block text-sm text-signal">
+              Open the cut →
+            </a>
+          ) : (
+            <p className="mt-1 text-xs text-ink-soft">The editor sent it directly.</p>
+          )}
+          <div className="mt-3">
+            <span className="eyebrow text-ink-faint">Platforms to post on</span>
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              {PLATFORMS.map((p) => {
+                const on = platforms.includes(p);
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPlatforms((cur) => (on ? cur.filter((x) => x !== p) : [...cur, p]))}
+                    className={`press rounded-full border px-3 py-1 text-xs focus-ring ${
+                      on ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised text-ink-soft"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <label className="mt-3 block text-sm">
+            <span className="eyebrow text-ink-faint">Suggested captions</span>
+            <textarea rows={3} className={field} value={captions} onChange={(e) => setCaptions(e.target.value)} />
+          </label>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              disabled={busy || platforms.length === 0}
+              onClick={() => advance("Handover", { platforms, caption_suggestions: captions || null })}
+            >
+              Approve — hand to the handler
+            </Button>
+            <Button variant="outline" disabled={busy} onClick={() => advance("Editing")}>
+              Send back to editing
+            </Button>
+          </div>
+        </div>
+      ) : (
+        waiting("Waiting on founder sign-off.")
+      );
+
+    if (s === "Handover")
+      return isFounder || isHandler ? (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">Post it</div>
+          <p className="mt-1 text-xs text-ink-soft">Platforms: {(editing.platforms ?? []).join(", ") || "—"}</p>
+          {editing.caption_suggestions && (
+            <p className="mt-2 whitespace-pre-wrap rounded-lg bg-paper-raised p-3 text-xs text-ink-soft">
+              {editing.caption_suggestions}
+            </p>
+          )}
+          <label className="mt-3 block text-sm">
+            <span className="eyebrow text-ink-faint">Post links — one per line</span>
+            <textarea rows={3} className={field} value={postLinks} onChange={(e) => setPostLinks(e.target.value)} />
+          </label>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label className="text-sm">
+              <span className="eyebrow text-ink-faint">Posted from</span>
+              <input
+                type="datetime-local"
+                className={field}
+                value={postedFrom}
+                onChange={(e) => setPostedFrom(e.target.value)}
+              />
+            </label>
+            <label className="text-sm">
+              <span className="eyebrow text-ink-faint">Posted to</span>
+              <input type="datetime-local" className={field} value={postedTo} onChange={(e) => setPostedTo(e.target.value)} />
+            </label>
+          </div>
+          <Button
+            className="mt-3"
+            disabled={busy || !postLinks.trim() || !postedFrom}
+            onClick={() =>
+              advance("Posted", {
+                posted_links: postLinks.split("\n").map((l) => l.trim()).filter(Boolean),
+                posted_from: new Date(postedFrom).toISOString(),
+                posted_to: postedTo ? new Date(postedTo).toISOString() : null,
+              })
+            }
+          >
+            Posted
+          </Button>
+        </div>
+      ) : (
+        waiting("With the handler to post.")
+      );
+
+    if (s === "Posted") {
+      const due = editing.metrics_due_at;
+      const ready = !!due && due <= new Date().toISOString().slice(0, 10);
+      if (!(isFounder || isHandler)) return waiting(`Live. Numbers due ${due ?? "—"}.`);
+      return (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">Performance — due {due ?? "—"}</div>
+          {!ready && <p className="mt-1 text-xs text-ink-soft">You can fill these in early if you already have them.</p>}
+          <div className="mt-2 grid gap-3 sm:grid-cols-3">
+            {METRIC_FIELDS.map((m) => (
+              <label key={m.key} className="text-sm">
+                <span className="eyebrow text-ink-faint">{m.label}</span>
+                <input
+                  className={field}
+                  value={metrics[m.key] ?? ""}
+                  onChange={(e) => setMetrics({ ...metrics, [m.key]: e.target.value })}
+                />
+              </label>
+            ))}
+          </div>
+          <label className="mt-3 block text-sm">
+            <span className="eyebrow text-ink-faint">Why did it perform, or not?</span>
+            <textarea rows={3} className={field} value={metricNote} onChange={(e) => setMetricNote(e.target.value)} />
+          </label>
+          <Button
+            className="mt-3"
+            disabled={busy || !metricNote.trim()}
+            onClick={() =>
+              advance("Archived", {
+                metrics: { ...metrics, note: metricNote },
+                metrics_filled_at: new Date().toISOString(),
+              })
+            }
+          >
+            Save numbers & archive
+          </Button>
+        </div>
+      );
+    }
+
+    if (s === "Rejected")
+      return isFounder ? (
+        <div className={box}>
+          <div className="eyebrow text-ink-faint">Rejected</div>
+          <Button className="mt-3" variant="outline" disabled={busy} onClick={() => advance("Idea")}>
+            Put it back as an idea
+          </Button>
+        </div>
+      ) : (
+        waiting("This idea is not going ahead.")
+      );
+
+    return waiting("Everything on this item is recorded.");
+  };
+
+  const waiting = (text: string) => (
+    <div className="rounded-xl border border-rule bg-paper-sunken p-4 text-xs text-ink-soft flex items-center gap-2">
+      <Lock className="h-3.5 w-3.5 shrink-0" />
+      {text}
+    </div>
+  );
+
+  const crewEditor = () => (
+    <div className="mt-3 space-y-2">
+      {crew.map((c) => (
+        <div key={c.id} className="flex items-center gap-2">
+          <span className="w-28 shrink-0 text-xs font-semibold">{c.role}</span>
+          <select
+            className="flex-1 rounded-lg border border-rule bg-paper-raised px-3 py-1.5 text-sm press focus:border-signal focus-ring"
+            value={c.user_id ?? ""}
+            onChange={(e) => setCrewPerson(c.id, e.target.value || null)}
+          >
+            <option value="">Not filled yet</option>
+            {members.map((m) => (
+              <option key={m.user_id} value={m.user_id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+          {(isFounder || isContact) && (
+            <button
+              type="button"
+              onClick={() => removeCrewSlot(c.id)}
+              className="press rounded-full border border-rule px-2 py-1 text-[11px] text-ink-faint hover:border-signal hover:text-signal focus-ring"
+            >
+              Remove
+            </button>
+          )}
+        </div>
+      ))}
+      {(isFounder || isContact) && (
+        <select
+          className="mt-1 rounded-full border border-dashed border-rule bg-paper-raised px-3 py-1.5 text-xs press focus:border-signal focus-ring"
+          value=""
+          onChange={(e) => e.target.value && addCrewSlot(e.target.value)}
+        >
+          <option value="">+ Add a role</option>
+          {CREW_ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+      )}
+    </div>
+  );
+
   return (
     <AppShell eyebrow="Content & strategy">
       <Seo
@@ -371,7 +780,7 @@ export default function ContentPipeline() {
       <PageHeader
         eyebrow="Content & strategy"
         title="Pipeline."
-        lede="Every idea from first thought to posted, per resident or project, with the people on it."
+        lede="Every idea from first thought to posted. The stage only moves when the right person takes the next step."
         actions={
           canEditContent ? (
             <Button onClick={() => { setFresh(emptyNew); setNewOpen(true); }}>
@@ -433,7 +842,7 @@ export default function ContentPipeline() {
             columns={archiveColumns}
             rowKey={(r) => r.id}
             loading={loading}
-            onRowClick={canEditContent ? openEdit : undefined}
+            onRowClick={openEdit}
             empty="No ideas waiting for a resident or project."
           />
           <p className="mt-3 text-xs text-ink-faint">
@@ -446,7 +855,7 @@ export default function ContentPipeline() {
           columns={columns}
           rowKey={(r) => r.id}
           loading={loading}
-          onRowClick={canEditContent ? openEdit : undefined}
+          onRowClick={openEdit}
           empty="No content items yet."
         />
       ) : (
@@ -454,29 +863,9 @@ export default function ContentPipeline() {
           {STAGES.map((s) => {
             const col = filtered.filter((i) => i.stage === s);
             const tone = toneFor(s);
-            const over = dragOver === s;
             return (
-              <section
-                key={s}
-                onDragOver={(e) => {
-                  if (!canEditContent) return;
-                  e.preventDefault();
-                  if (dragOver !== s) setDragOver(s);
-                }}
-                onDragLeave={() => setDragOver((cur) => (cur === s ? null : cur))}
-                onDrop={(e) => {
-                  setDragOver(null);
-                  if (!canEditContent) return;
-                  const id = e.dataTransfer.getData("text/plain");
-                  if (id) moveTo(id, s);
-                }}
-                className={`rounded-2xl border p-3 min-h-[12rem] transition-colors ${
-                  over
-                    ? "border-signal bg-acc-violet-soft/60 border-dashed"
-                    : "border-rule bg-paper-raised"
-                }`}
-              >
-                <div className="mb-3 flex items-center justify-between gap-2">
+              <section key={s} className="rounded-2xl border border-rule bg-paper-raised p-3 min-h-[10rem]">
+                <div className="mb-1 flex items-center justify-between gap-2">
                   <span
                     className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 eyebrow text-[10px] tracking-[0.16em] ${TONE_SOFT[tone]}`}
                   >
@@ -485,23 +874,13 @@ export default function ContentPipeline() {
                   </span>
                   <span className={`num text-xs font-semibold ${TONE_TEXT[tone]}`}>{col.length}</span>
                 </div>
+                <div className="mb-3 text-[10px] text-ink-faint">{STAGE_NOTE[s]}</div>
                 <div className="space-y-2">
                   {col.map((i) => (
                     <article
                       key={i.id}
-                      draggable={canEditContent}
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("text/plain", i.id);
-                        setDragging(i.id);
-                      }}
-                      onDragEnd={() => {
-                        setDragging(null);
-                        setDragOver(null);
-                      }}
-                      onClick={() => canEditContent && openEdit(i)}
-                      className={`card-lift relative overflow-hidden rounded-xl border border-rule bg-paper-raised p-3 pl-4 ${
-                        canEditContent ? "cursor-grab active:cursor-grabbing hover:border-ink" : ""
-                      } ${dragging === i.id ? "opacity-50 rotate-1" : ""}`}
+                      onClick={() => openEdit(i)}
+                      className={`card-lift relative cursor-pointer overflow-hidden rounded-xl border border-rule bg-paper-raised p-3 pl-4 hover:border-ink`}
                     >
                       <span className={`absolute left-0 top-0 bottom-0 w-1.5 ${TONE_SOLID[tone]}`} />
                       <div className="num text-[10px] tracking-wider text-ink-faint">{refCode(i.ref_no)}</div>
@@ -512,13 +891,10 @@ export default function ContentPipeline() {
                         <span className="font-semibold text-ink">{i.content_type}</span>
                       </div>
                       <div className="mt-2.5 flex items-center justify-between gap-2">
-                        <span className="text-[11px] text-ink-faint truncate">
-                          {[i.lead, i.shooter, i.editor].filter(Boolean).join(" · ") ||
-                            `Idea by ${authorName(i.added_by)}`}
-                        </span>
-                        {i.planned_at && (
+                        <span className="text-[11px] text-ink-faint truncate">Idea by {authorName(i.added_by)}</span>
+                        {(i.shoot_at || i.planned_at) && (
                           <span className="num text-[11px] rounded-full bg-paper-sunken px-2 py-0.5 text-ink-soft">
-                            {i.planned_at}
+                            {i.shoot_at ?? i.planned_at}
                           </span>
                         )}
                       </div>
@@ -609,20 +985,55 @@ export default function ContentPipeline() {
         </DialogContent>
       </Dialog>
 
-      {/* Full edit */}
+      {/* Detail + next step */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg bg-paper text-ink border-rule">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-paper text-ink border-rule">
           <DialogHeader>
-            <DialogTitle className="display text-xl">Edit item</DialogTitle>
+            <DialogTitle className="display text-xl">{editing?.title}</DialogTitle>
           </DialogHeader>
 
           {editing && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-paper-sunken px-3 py-2 text-[11px] text-ink-soft">
               <span className="num font-semibold text-ink">{refCode(editing.ref_no)}</span>
+              <StatusChip value={editing.stage} />
               <span>
                 Added by <span className="font-semibold text-ink">{authorName(editing.added_by)}</span>
               </span>
               <span className="num">{editing.added_on}</span>
+              <span className="ml-auto">
+                Contact: <span className="text-ink">{authorName(res?.contact_user_id ?? null)}</span> · Handler:{" "}
+                <span className="text-ink">{authorName(res?.handler_user_id ?? null)}</span>
+              </span>
+            </div>
+          )}
+
+          {stepPanel()}
+
+          {editing && crew.length > 0 && editing.stage !== "Idea" && editing.stage !== "Approved" && (
+            <div className="rounded-xl border border-rule p-3 text-xs text-ink-soft">
+              <span className="eyebrow text-ink-faint">Production team</span>
+              <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
+                {crew.map((c) => (
+                  <span key={c.id}>
+                    {c.role}: <span className="font-semibold text-ink">{authorName(c.user_id)}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {editing && (editing.posted_links ?? []).length > 0 && (
+            <div className="rounded-xl border border-rule p-3 text-xs">
+              <span className="eyebrow text-ink-faint">Posted</span>
+              <ul className="mt-1.5 space-y-1">
+                {(editing.posted_links ?? []).map((l) => (
+                  <li key={l}>
+                    <a href={l} target="_blank" rel="noreferrer" className="text-signal break-all">
+                      {l}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -650,16 +1061,6 @@ export default function ContentPipeline() {
               </select>
             </label>
             <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Stage</span>
-              <select className={field} value={draft.stage} onChange={(e) => setDraft({ ...draft, stage: e.target.value })}>
-                {STAGES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm">
               <span className="eyebrow text-ink-faint">Planned date</span>
               <input
                 type="date"
@@ -669,19 +1070,7 @@ export default function ContentPipeline() {
               />
             </label>
             <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Lead</span>
-              <input className={field} value={draft.lead} onChange={(e) => setDraft({ ...draft, lead: e.target.value })} />
-            </label>
-            <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Shooter</span>
-              <input className={field} value={draft.shooter} onChange={(e) => setDraft({ ...draft, shooter: e.target.value })} />
-            </label>
-            <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Editor</span>
-              <input className={field} value={draft.editor} onChange={(e) => setDraft({ ...draft, editor: e.target.value })} />
-            </label>
-            <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Link</span>
+              <span className="eyebrow text-ink-faint">Reference link</span>
               <input className={field} value={draft.link} onChange={(e) => setDraft({ ...draft, link: e.target.value })} />
             </label>
             <label className="text-sm sm:col-span-2">
@@ -695,17 +1084,23 @@ export default function ContentPipeline() {
             </label>
           </div>
 
+          <p className="text-xs text-ink-faint">The stage is set by the steps above — it can never be typed in by hand.</p>
+
           <DialogFooter className="mt-2 flex items-center gap-2">
-            <Button variant="ghost" className="mr-auto text-signal hover:bg-[hsl(0_100%_96%)]" onClick={remove} disabled={busy}>
-              <Trash2 />
-              Delete
-            </Button>
+            {isFounder && (
+              <Button variant="ghost" className="mr-auto text-signal hover:bg-[hsl(0_100%_96%)]" onClick={remove} disabled={busy}>
+                <Trash2 />
+                Delete
+              </Button>
+            )}
             <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-              Cancel
+              Close
             </Button>
-            <Button onClick={save} disabled={busy}>
-              {busy ? "Saving…" : "Save"}
-            </Button>
+            {canEditContent && (
+              <Button onClick={save} disabled={busy}>
+                {busy ? "Saving…" : "Save details"}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
