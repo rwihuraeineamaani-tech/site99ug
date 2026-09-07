@@ -164,12 +164,11 @@ export default function Cashbook() {
       _category: category,
       _counterparty_name: who,
       _counterparty_kind: whoKind,
-      _resident_id: tagged.startsWith("r:") ? tagged.slice(2) : null,
-      _project_id: tagged.startsWith("p:") ? tagged.slice(2) : null,
-      _event_id: null,
-      _note: note || null,
-      _reference: reference || null,
-      _attachment_path: path,
+      _resident_id: tagged.startsWith("r:") ? tagged.slice(2) : undefined,
+      _project_id: tagged.startsWith("p:") ? tagged.slice(2) : undefined,
+      _note: note || undefined,
+      _reference: reference || undefined,
+      _attachment_path: path ?? undefined,
     });
     setBusy(false);
     if (error) return toast.error(error.message);
@@ -188,7 +187,7 @@ export default function Cashbook() {
       _to: toW,
       _amount: amt,
       _entry_date: tDate,
-      _note: tNote || null,
+      _note: tNote || undefined,
     });
     setBusy(false);
     if (error) return toast.error(error.message);
