@@ -415,7 +415,7 @@ export default function ContentPipeline() {
   const crewComplete = crew.length > 0 && crew.every((c) => c.user_id);
 
   /** Once an idea is approved its core details are frozen (also enforced in the database). */
-  const locked = !!editing && editing.stage !== "Idea";
+  const locked = !isFounder || (!!editing && editing.stage !== "Idea");
 
   const ownerSelect = (value: string, onChange: (v: string) => void, className = field, disabled = false) => (
     <select className={className} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)}>
@@ -575,7 +575,7 @@ export default function ContentPipeline() {
       header: "Attach to",
       align: "right",
       cell: (r) =>
-        canEditContent ? (
+        isFounder ? (
           <div onClick={(e) => e.stopPropagation()}>
             {ownerSelect(
               "",
@@ -1037,7 +1037,7 @@ export default function ContentPipeline() {
         title="Pipeline."
         lede="Every idea from first thought to posted. The stage only moves when the right person takes the next step."
         actions={
-          canEditContent ? (
+          isFounder ? (
             <Button onClick={() => { setFresh(emptyNew); setNewOpen(true); }}>
               <Plus />
               New idea
@@ -1156,7 +1156,7 @@ export default function ContentPipeline() {
                       {quickButtons(i, "mt-2.5")}
                     </article>
                   ))}
-                  {canEditContent && s === "Idea" && (
+                  {isFounder && s === "Idea" && (
                     <button
                       className="press w-full rounded-xl border border-dashed border-rule px-3 py-2.5 text-left text-xs font-semibold text-ink-faint hover:border-signal hover:text-signal hover:bg-paper-sunken focus-ring"
                       onClick={() => { setFresh(emptyNew); setNewOpen(true); }}
@@ -1354,12 +1354,16 @@ export default function ContentPipeline() {
           </div>
 
           <p className="text-xs text-ink-faint">The stage is set by the steps above — it can never be typed in by hand.</p>
-          {locked && (
+          {!isFounder ? (
+            <p className="text-xs text-ink-faint">
+              Only a founder can change these details. You can still take your own steps on this idea above.
+            </p>
+          ) : locked ? (
             <p className="text-xs text-ink-faint">
               Title, resident or project, type and reference link were locked when this idea was approved. The date comes from
               its shoot day.
             </p>
-          )}
+          ) : null}
 
           <DialogFooter className="mt-2 flex items-center gap-2">
             {isFounder && (
@@ -1371,7 +1375,7 @@ export default function ContentPipeline() {
             <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
               Close
             </Button>
-            {canEditContent && (
+            {isFounder && (
               <Button onClick={save} disabled={busy}>
                 {busy ? "Saving…" : "Save details"}
               </Button>
