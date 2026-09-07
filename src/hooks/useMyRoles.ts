@@ -129,6 +129,7 @@ export function useMyRoles(): RoleState {
       if (!data.user) {
         setUserId(null);
         setEmail(null);
+        setDisplayName(null);
         setRoles([]);
         setClientId(null);
         setLoading(false);
@@ -136,11 +137,16 @@ export function useMyRoles(): RoleState {
       }
       setUserId(data.user.id);
       setEmail(data.user.email ?? null);
+      setDisplayName((data.user.user_metadata?.display_name as string | undefined) ?? null);
 
-      const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
+      const [{ data: rows }, { data: member }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", data.user.id),
+        supabase.from("team_members").select("display_name").eq("user_id", data.user.id).maybeSingle(),
+      ]);
       if (cancelled) return;
       const list = ((rows ?? []).map((r) => r.role) as AppRole[]) ?? [];
       setRoles(list);
+      if (member?.display_name) setDisplayName(member.display_name);
 
       if (list.includes("client")) {
         const { data: link } = await supabase
