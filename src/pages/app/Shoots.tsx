@@ -116,7 +116,7 @@ export default function Shoots() {
   }, [days]);
 
   /* ---------------- actions ---------------- */
-  const run = async (fn: () => Promise<{ error: { message: string } | null }>, ok: string) => {
+  const run = async (fn: () => PromiseLike<{ error: { message: string } | null }>, ok: string) => {
     setBusy(true);
     const { error } = await fn();
     setBusy(false);
