@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
-import { CalendarDays, Plus, X } from "lucide-react";
+import { CalendarDays, Plus, X, MapPin, Clock, Users, Camera, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { addDays, monthGridRange } from "@/lib/calendarFeed";
 
 type ShootDay = {
   id: string;
@@ -79,6 +80,9 @@ export default function Shoots() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<"planned" | "wrapped" | "all">("planned");
+  const [mode, setMode] = useState<"list" | "calendar">("list");
+  const [monthAnchor, setMonthAnchor] = useState(() => new Date().toISOString().slice(0, 10));
+  const [confirmDelete, setConfirmDelete] = useState<ShootDay | null>(null);
 
   const [date, setDate] = useState("");
   const [callTime, setCallTime] = useState("");
@@ -298,6 +302,53 @@ export default function Shoots() {
     await run(() => supabase.from("shoot_days").insert(payload), "Shoot day created");
   };
 
+  /** Removes a shoot day and everything hung off it. */
+  const deleteDay = async (d: ShootDay) => {
+    setBusy(true);
+    await supabase.from("shoot_day_items").delete().eq("shoot_day_id", d.id);
+    await supabase.from("shoot_day_equipment").delete().eq("shoot_day_id", d.id);
+    const { error } = await supabase.from("shoot_days").delete().eq("id", d.id);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Shoot day deleted");
+    setConfirmDelete(null);
+    if (openId === d.id) setOpenId(null);
+    await load();
+  };
+
+  /** Everyone crewed across the ideas on a day, names only, no repeats. */
+  const crewNamesOf = (dayId: string) => {
+    const names = new Set<string>();
+    itemsOf(dayId).forEach((i) =>
+      crew.filter((c) => c.content_id === i.id).forEach((c) => {
+        const n = memberName(c.user_id) ?? c.note;
+        if (n) names.add(n);
+      })
+    );
+    return [...names];
+  };
+
+  /* month grid for the calendar view */
+  const monthCells = useMemo(() => {
+    const { from } = monthGridRange(monthAnchor);
+    return Array.from({ length: 42 }, (_, n) => addDays(from, n));
+  }, [monthAnchor]);
+  const dated = useMemo(() => {
+    const map: Record<string, ShootDay[]> = {};
+    days.filter((d) => d.shoot_date).forEach((d) => {
+      (map[d.shoot_date as string] ||= []).push(d);
+    });
+    return map;
+  }, [days]);
+  const undated = useMemo(() => days.filter((d) => !d.shoot_date && !["done", "cancelled"].includes(d.status)), [days]);
+  const monthLabel = new Date(`${monthAnchor}T12:00:00`).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+  const shiftMonth = (n: number) => {
+    const d = new Date(`${monthAnchor}T12:00:00`);
+    d.setMonth(d.getMonth() + n);
+    setMonthAnchor(d.toISOString().slice(0, 10));
+  };
+  const todayISO = new Date().toISOString().slice(0, 10);
+
   /** The brief as plain text — used for the copy button and read by everyone on the day. */
   const briefText = (d: ShootDay) => {
     const lines = [
@@ -411,7 +462,7 @@ export default function Shoots() {
           title={tab === "wrapped" ? "Wrapped" : tab === "all" ? "Every shoot day" : "Planned"}
           hint={`${sorted.length} day${sorted.length === 1 ? "" : "s"}`}
         />
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
           {(["planned", "wrapped", "all"] as const).map((t) => (
             <button
               key={t}
@@ -423,9 +474,87 @@ export default function Shoots() {
               {t === "planned" ? "Planned" : t === "wrapped" ? "Wrapped" : "All"}
             </button>
           ))}
+          <div className="ml-auto flex gap-2">
+            {(["list", "calendar"] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`press rounded-full border px-3 py-1 text-xs focus-ring ${
+                  mode === m ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised text-ink-soft"
+                }`}
+              >
+                {m === "list" ? "List" : "Calendar"}
+              </button>
+            ))}
+          </div>
         </div>
         {loading ? (
           <p className="text-sm text-ink-faint">Loading…</p>
+        ) : mode === "calendar" ? (
+          <div className="surface rounded-2xl p-4">
+            <div className="flex items-center gap-2">
+              <button className="press rounded-full border border-rule p-1.5 focus-ring" onClick={() => shiftMonth(-1)} aria-label="Previous month">
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="font-semibold">{monthLabel}</span>
+              <button className="press rounded-full border border-rule p-1.5 focus-ring" onClick={() => shiftMonth(1)} aria-label="Next month">
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              <button className="ml-auto text-xs text-ink-soft underline focus-ring" onClick={() => setMonthAnchor(todayISO)}>
+                Today
+              </button>
+            </div>
+            <div className="mt-4 grid grid-cols-7 gap-px text-[11px] text-ink-faint">
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((w) => (
+                <div key={w} className="px-1 pb-1">{w}</div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl bg-rule">
+              {monthCells.map((iso) => {
+                const inMonth = iso.slice(0, 7) === monthAnchor.slice(0, 7);
+                const list = dated[iso] ?? [];
+                return (
+                  <div
+                    key={iso}
+                    className={`min-h-[92px] bg-paper-raised p-1.5 ${inMonth ? "" : "opacity-45"} ${
+                      iso === todayISO ? "ring-1 ring-inset ring-signal" : ""
+                    }`}
+                  >
+                    <div className="num text-[11px] text-ink-faint">{Number(iso.slice(8, 10))}</div>
+                    <div className="mt-1 space-y-1">
+                      {list.map((d) => (
+                        <button
+                          key={d.id}
+                          onClick={() => setOpenId(d.id)}
+                          className="press w-full truncate rounded-md border border-rule bg-paper-sunken px-1.5 py-1 text-left text-[11px] focus-ring hover:border-signal"
+                          title={`${ownerName(d)} — ${STATUS_LABEL[d.status] ?? d.status}`}
+                        >
+                          {d.call_time ? <span className="num text-ink-faint">{d.call_time.slice(0, 5)} </span> : null}
+                          {ownerName(d)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {undated.length > 0 && (
+              <div className="mt-4">
+                <div className="eyebrow text-ink-faint">Still without a date</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {undated.map((d) => (
+                    <button
+                      key={d.id}
+                      onClick={() => setOpenId(d.id)}
+                      className="press rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs focus-ring hover:border-signal"
+                    >
+                      {ownerName(d)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         ) : sorted.length === 0 ? (
           <p className="text-sm text-ink-soft">
             {tab === "wrapped" ? "No wrapped days yet." : "Nothing yet. As soon as an idea is crewed it shows up here."}
@@ -435,24 +564,67 @@ export default function Shoots() {
             {sorted.map((d) => {
               const list = itemsOf(d.id);
               const wrapped = d.status === "done";
+              const names = crewNamesOf(d.id);
+              const kit = gearOf(d.id);
               return (
-                <li key={d.id}>
+                <li key={d.id} className="relative group">
                   <button
                     onClick={() => setOpenId(d.id)}
-                    className="w-full text-left px-4 py-4 flex flex-wrap items-center gap-3 hover:bg-paper-sunken focus-ring"
+                    className="w-full text-left px-4 py-4 hover:bg-paper-sunken focus-ring"
                   >
-                    <CalendarDays className="h-4 w-4 text-ink-faint shrink-0" />
-                    <span className="font-semibold">{ownerName(d)}</span>
-                    <StatusChip value={STATUS_LABEL[d.status] ?? d.status} tone={d.status === "draft" ? "amber" : wrapped ? "neutral" : "active"} />
-                    <span className="num text-xs text-ink-soft">
-                      {wrapped ? `shot ${d.shoot_date ?? "—"}` : d.shoot_date ?? "no date yet"}
-                    </span>
-                    {d.call_time && !wrapped && <span className="num text-xs text-ink-faint">{d.call_time}</span>}
-                    {d.brief_sent_at && !wrapped && <span className="text-[11px] text-ink-faint">brief sent</span>}
-                    <span className="ml-auto text-xs text-ink-faint">
-                      {list.length} idea{list.length === 1 ? "" : "s"}
-                    </span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <CalendarDays className="h-4 w-4 text-ink-faint shrink-0" />
+                      <span className="font-semibold">{ownerName(d)}</span>
+                      <StatusChip value={STATUS_LABEL[d.status] ?? d.status} tone={d.status === "draft" ? "amber" : wrapped ? "neutral" : "active"} />
+                      <span className="num text-xs text-ink-soft">
+                        {wrapped ? `shot ${d.shoot_date ?? "—"}` : d.shoot_date ?? "no date yet"}
+                      </span>
+                      {amCrewOn(d.id) && (
+                        <span className="rounded-full bg-signal/10 px-2 py-0.5 text-[11px] font-semibold text-signal">You're on this</span>
+                      )}
+                      <span className="ml-auto pr-8 text-xs text-ink-faint">
+                        {list.length} idea{list.length === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-soft">
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5 text-ink-faint" />
+                        {d.call_time ? <span className="num">{d.call_time}</span> : "call time to be set"}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5 text-ink-faint" />
+                        {d.location || "location to be set"}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Users className="h-3.5 w-3.5 text-ink-faint" />
+                        {names.length ? names.slice(0, 3).join(", ") + (names.length > 3 ? ` +${names.length - 3}` : "") : "no crew yet"}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Camera className="h-3.5 w-3.5 text-ink-faint" />
+                        {kit.length ? `${kit.length} item${kit.length === 1 ? "" : "s"} of gear` : "no gear booked"}
+                      </span>
+                      {d.brief_sent_at && <span className="text-ink-faint">brief sent</span>}
+                    </div>
+                    {list.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {list.slice(0, 4).map((i) => (
+                          <span key={i.id} className="rounded-full bg-paper-sunken px-2 py-0.5 text-[11px] text-ink-soft">
+                            {i.title}
+                          </span>
+                        ))}
+                        {list.length > 4 && <span className="text-[11px] text-ink-faint">+{list.length - 4} more</span>}
+                      </div>
+                    )}
                   </button>
+                  {canEditContent && (
+                    <button
+                      onClick={() => setConfirmDelete(d)}
+                      aria-label="Delete this shoot day"
+                      className="absolute right-3 top-4 rounded-full p-1.5 text-ink-faint opacity-0 transition-opacity hover:text-signal focus-ring group-hover:opacity-100 focus:opacity-100"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </li>
               );
             })}
@@ -629,6 +801,19 @@ export default function Shoots() {
               {open.status === "draft" && !open.shoot_date && (
                 <p className="text-xs text-ink-soft">Save the date first, then confirm — confirming schedules every idea on the day.</p>
               )}
+
+              {canEditContent && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="self-start text-signal"
+                  disabled={busy}
+                  onClick={() => setConfirmDelete(open)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete this shoot day
+                </Button>
+              )}
             </>
           )}
         </DialogContent>
@@ -676,6 +861,29 @@ export default function Shoots() {
                 A managing director or founder can override this.
               </span>
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      <Dialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete this shoot day?</DialogTitle>
+          </DialogHeader>
+          {confirmDelete && (
+            <>
+              <p className="text-sm text-ink-soft">
+                {ownerName(confirmDelete)} — {confirmDelete.shoot_date ?? "no date yet"}. The ideas on it go back to the
+                pipeline; the gear is released. This cannot be undone.
+              </p>
+              <div className="mt-3 flex gap-2">
+                <Button disabled={busy} onClick={() => deleteDay(confirmDelete)}>
+                  Delete it
+                </Button>
+                <Button variant="ghost" onClick={() => setConfirmDelete(null)}>
+                  Keep it
+                </Button>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
