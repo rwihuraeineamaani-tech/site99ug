@@ -673,7 +673,8 @@ export default function ContentPipeline() {
 
 
     if (s === "Shooting")
-      return isFounder || isContact ? (
+      return isFounder || isContact || isOnCrew ? (
+
         <div className={box}>
           <div className="eyebrow text-ink-faint">On the shoot</div>
           <Button className="mt-3" disabled={busy} onClick={() => advance("Editing")}>
