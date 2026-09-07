@@ -6,6 +6,11 @@ export const EXPENSE_CATEGORIES = [
   "transport",
   "talent",
   "equipment",
+  "equipment_purchase",
+  "computers_software",
+  "vehicle_purchase",
+  "furniture_fittings",
+  "building_improvement",
   "rent",
   "utilities",
   "subscriptions",
@@ -13,7 +18,11 @@ export const EXPENSE_CATEGORIES = [
   "retainer",
   "marketing",
   "legal",
+  "bank_charges",
+  "taxes_paid",
   "loan",
+  "loan_repayment",
+  "owner_drawings",
   "other",
 ];
 
