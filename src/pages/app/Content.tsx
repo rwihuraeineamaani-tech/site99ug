@@ -783,6 +783,30 @@ export default function ContentPipeline() {
         waiting("Waiting on founder sign-off.")
       );
 
+    /** Every platform that has a link must also carry a window, and at least one platform must be filled. */
+    const donePlatforms = (editing.platforms ?? []).filter((p) => (postLinks[p] ?? "").trim());
+    const postedReady =
+      donePlatforms.length > 0 && donePlatforms.every((p) => (postWindows[p] ?? []).length > 0);
+
+    const postedPayload = () => {
+      const slots: PostedSlots = {};
+      donePlatforms.forEach((p) => {
+        slots[p] = { url: postLinks[p].trim(), windows: postWindows[p] ?? [] };
+      });
+      const chosen = POST_WINDOWS.filter((w) => donePlatforms.some((p) => (postWindows[p] ?? []).includes(w.key)));
+      const at = (hour: number) => {
+        const d = new Date(`${postedDate}T00:00:00`);
+        d.setHours(hour);
+        return d.toISOString();
+      };
+      return {
+        posted_slots: slots,
+        posted_links: donePlatforms.map((p) => `${p}: ${postLinks[p].trim()}`),
+        posted_from: at(Math.min(...chosen.map((w) => w.from))),
+        posted_to: at(Math.max(...chosen.map((w) => w.to))),
+      };
+    };
+
     if (s === "Handover")
       return isFounder || isHandler ? (
         <div className={box}>
