@@ -194,3 +194,32 @@
     40%, 60% { transform: translateX(5px); }
   }
 }
+
+@layer utilities {
+  /* --- Shared design-system utilities (public site + internal system) --- */
+  .eyebrow {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 0.6875rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    letter-spacing: -0.01em;
+  }
+  .rule-t { border-top: 1px solid hsl(var(--rule)); }
+  .rule-b { border-bottom: 1px solid hsl(var(--rule)); }
+  .surface {
+    background: hsl(var(--paper-raised));
+    border: 1px solid hsl(var(--rule));
+  }
+  .surface-sunken { background: hsl(var(--paper-sunken)); }
+  .focus-ring:focus-visible {
+    outline: 2px solid hsl(var(--signal));
+    outline-offset: 2px;
+  }
+  .shell-x { padding-left: 1.5rem; padding-right: 1.5rem; }
+  @media (min-width: 768px) { .shell-x { padding-left: 3rem; padding-right: 3rem; } }
+}
