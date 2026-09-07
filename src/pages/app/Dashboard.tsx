@@ -134,6 +134,23 @@ export default function Dashboard() {
   }, [userId, departments.content]);
 
 
+  /** One-press moves that need no extra typing. */
+  const [moving, setMoving] = useState<string | null>(null);
+  const moveStage = async (id: string, next: string) => {
+    setMoving(id);
+    const { error } = await supabase.from("content_items").update({ stage: next } as never).eq("id", id);
+    setMoving(null);
+    if (error) return toast.error(error.message);
+    toast.success(`Moved to ${next}.`);
+    setFlow((cur) => cur.map((r) => (r.id === id ? { ...r, stage: next } : r)));
+  };
+
+  const quickStep = (i: FlowRow): { label: string; next: string } | null => {
+    if (i.stage === "Idea" && isFounder) return { label: "Approve", next: "Approved" };
+    if (i.stage === "Shooting") return { label: "Shoot done", next: "Editing" };
+    return null;
+  };
+
   const waiting = useMemo(() => {
     if (!userId) return [] as { item: FlowRow; why: string }[];
     const today = new Date().toISOString().slice(0, 10);
@@ -268,6 +285,16 @@ export default function Dashboard() {
                   {item.title}
                 </Link>
                 <span className="ml-auto text-xs font-semibold text-signal whitespace-nowrap">{why}</span>
+                {quickStep(item) && (
+                  <button
+                    type="button"
+                    disabled={moving === item.id}
+                    onClick={() => moveStage(item.id, quickStep(item)!.next)}
+                    className="press rounded-full border border-signal bg-signal px-2.5 py-1 text-[11px] font-semibold text-paper focus-ring disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {quickStep(item)!.label}
+                  </button>
+                )}
                 <StatusChip value={item.stage} />
               </li>
             ))}
