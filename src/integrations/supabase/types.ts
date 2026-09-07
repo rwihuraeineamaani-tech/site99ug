@@ -243,6 +243,7 @@ export type Database = {
           link: string | null
           notes: string | null
           planned_at: string | null
+          project_id: string | null
           ref_no: number
           shooter: string | null
           sort: number
@@ -263,6 +264,7 @@ export type Database = {
           link?: string | null
           notes?: string | null
           planned_at?: string | null
+          project_id?: string | null
           ref_no?: number
           shooter?: string | null
           sort?: number
@@ -283,6 +285,7 @@ export type Database = {
           link?: string | null
           notes?: string | null
           planned_at?: string | null
+          project_id?: string | null
           ref_no?: number
           shooter?: string | null
           sort?: number
@@ -296,6 +299,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
