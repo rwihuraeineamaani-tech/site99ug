@@ -19,16 +19,29 @@ type ShootDay = {
   call_time: string | null;
   location: string | null;
   notes: string | null;
+  brief_sent_at: string | null;
 };
 type DayItem = { id: string; shoot_day_id: string; content_id: string };
-type Item = { id: string; ref_no: number; title: string; content_type: string; stage: string; resident_id: string | null; project_id: string | null };
+type Item = {
+  id: string;
+  ref_no: number;
+  title: string;
+  content_type: string;
+  stage: string;
+  resident_id: string | null;
+  project_id: string | null;
+  posted_links: string[] | null;
+};
+type Crew = { id: string; content_id: string; role: string; user_id: string | null; note: string | null };
+type Member = { user_id: string; display_name: string | null; email: string };
 type Gear = { id: string; name: string; category: string; quantity: number; active: boolean };
 type Booking = { id: string; shoot_day_id: string; equipment_id: string; qty: number };
-type Resident = { id: string; name: string };
+type Resident = { id: string; name: string; contact_user_id?: string | null };
 type Project = { id: string; title: string; client: string };
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
+
 
 const STATUS_LABEL: Record<string, string> = {
   draft: "Needs a date",
