@@ -190,7 +190,30 @@ export default function TeamPanel() {
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 placeholder="min 8 characters"
               />
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className={btn}
+                  onClick={() => setForm({ ...form, password: suggestPassword() })}
+                >
+                  Suggest
+                </button>
+                {form.password && (
+                  <button
+                    type="button"
+                    className={btn}
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(form.password);
+                      toast.success("Password copied");
+                    }}
+                  >
+                    Copy
+                  </button>
+                )}
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">{PASSWORD_HINT}</p>
             </div>
+
           </div>
           <div>
             <div className={`${lbl} mb-3`}>Access levels</div>
