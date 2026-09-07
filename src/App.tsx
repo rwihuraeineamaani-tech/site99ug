@@ -31,6 +31,13 @@ import AIKazi from "./pages/ai/Kazi.tsx";
 import AIAbout from "./pages/ai/About.tsx";
 import AIContact from "./pages/ai/Contact.tsx";
 import { ThemeWipeProvider } from "./components/ThemeWipe";
+import Login from "./pages/Login.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
+import Dashboard from "./pages/app/Dashboard.tsx";
+import AppTeam from "./pages/app/Team.tsx";
+import ClientPortal from "./pages/app/ClientPortal.tsx";
+import RequireRole from "./components/system/RequireRole";
+
 
 const queryClient = new QueryClient();
 
