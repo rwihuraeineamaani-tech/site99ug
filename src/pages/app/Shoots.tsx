@@ -52,7 +52,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function Shoots() {
-  const { canEditContent } = useMyRoles();
+  const { canEditContent, userId } = useMyRoles();
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState<ShootDay[]>([]);
   const [dayItems, setDayItems] = useState<DayItem[]>([]);
