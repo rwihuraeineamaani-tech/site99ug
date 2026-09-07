@@ -222,7 +222,28 @@ export default function Dashboard() {
     { to: "/app/scan", label: "Gate scanner", note: "Check tickets at the door", on: canScan },
   ].filter((m) => m.on);
 
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [weekEntries, setWeekEntries] = useState<CalendarEntry[]>([]);
+  const weekFrom = useMemo(() => addDays(weekStart(todayISO()), weekOffset * 7), [weekOffset]);
+  const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekFrom, i)), [weekFrom]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCalendar(weekFrom, addDays(weekFrom, 6)).then((d) => {
+      if (!cancelled) setWeekEntries(d.entries);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [weekFrom]);
+
+  const thisWeek = useMemo(
+    () => weekEntries.filter((e) => e.kind !== "busy" && e.date >= todayISO()).slice(0, 10),
+    [weekEntries]
+  );
+
   const tagline = waiting.length
+
     ? `${waiting.length} thing${waiting.length === 1 ? "" : "s"} need${waiting.length === 1 ? "s" : ""} you before anything else today.`
     : "Nothing is blocked on you right now. Here is where everything stands.";
 
