@@ -198,7 +198,7 @@ export default function ContentPipeline() {
       supabase.from("content_items").select("*").order("planned_at", { ascending: true, nullsFirst: false }),
       supabase.rpc("resident_options"),
       supabase.from("projects").select("id, title, client").order("display_order"),
-      supabase.from("team_members").select("user_id, display_name, email"),
+      supabase.from("team_members").select("user_id, display_name, email, title"),
       supabase.from("content_crew").select("*"),
     ]);
     if (error) toast.error(error.message);
@@ -207,11 +207,12 @@ export default function ContentPipeline() {
     setProjects((ps as ProjectRow[]) ?? []);
     const map: Record<string, string> = {};
     const list: Member[] = [];
-    (tm ?? []).forEach((m: { user_id: string; display_name: string | null; email: string }) => {
+    (tm ?? []).forEach((m: { user_id: string; display_name: string | null; email: string; title: string | null }) => {
       const name = m.display_name?.trim() || m.email.split("@")[0];
       map[m.user_id] = name;
-      list.push({ user_id: m.user_id, name });
+      list.push({ user_id: m.user_id, name, title: m.title });
     });
+
     const byItem: Record<string, CrewRow[]> = {};
     ((allCrew as CrewRow[]) ?? []).forEach((c) => {
       (byItem[c.content_id] ??= []).push(c);
