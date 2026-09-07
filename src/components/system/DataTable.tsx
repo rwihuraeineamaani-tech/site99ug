@@ -32,7 +32,7 @@ export function DataTable<T>({
 
   if (loading) {
     return (
-      <div className="surface rounded-sm divide-y divide-rule">
+      <div className="surface rounded-xl divide-y divide-rule overflow-hidden">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="h-12 animate-pulse surface-sunken" />
         ))}
