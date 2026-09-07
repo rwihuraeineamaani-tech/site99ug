@@ -161,8 +161,13 @@ export default function Shoots() {
 
   const sorted = useMemo(() => {
     const rank = (s: string) => (s === "draft" ? 0 : s === "confirmed" ? 1 : s === "shooting" ? 2 : 3);
-    return [...days].sort((a, b) => rank(a.status) - rank(b.status) || (a.shoot_date ?? "").localeCompare(b.shoot_date ?? ""));
-  }, [days]);
+    const keep = (s: string) =>
+      tab === "all" ? true : tab === "wrapped" ? ["done", "cancelled"].includes(s) : !["done", "cancelled"].includes(s);
+    return [...days]
+      .filter((d) => keep(d.status))
+      .sort((a, b) => rank(a.status) - rank(b.status) || (a.shoot_date ?? "").localeCompare(b.shoot_date ?? ""));
+  }, [days, tab]);
+
 
   /* ---------------- actions ---------------- */
   const run = async (fn: () => PromiseLike<{ error: { message: string } | null }>, ok: string) => {
