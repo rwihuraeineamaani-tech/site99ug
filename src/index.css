@@ -6,7 +6,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
+    /* Editorial red on off-white ------------------------------------ */
+    --background: 40 12% 97%;
     --foreground: 0 0% 6%;
 
     --card: 0 0% 100%;
@@ -18,11 +19,11 @@
     --primary: 0 100% 36%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 94%;
+    --secondary: 40 10% 93%;
     --secondary-foreground: 0 0% 6%;
 
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 35%;
+    --muted: 40 10% 91%;
+    --muted-foreground: 0 0% 38%;
 
     --accent: 0 100% 36%;
     --accent-foreground: 0 0% 100%;
@@ -30,18 +31,39 @@
     --destructive: 0 100% 36%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
+    --border: 30 8% 86%;
+    --input: 30 8% 86%;
     --ring: 0 100% 36%;
 
-    --radius: 1rem;
+    --radius: 0.375rem;
 
+    /* Brand primitives */
     --site-red: 0 100% 36%;
     --site-black: 0 0% 0%;
     --site-white: 0 0% 100%;
     --ai-accent: 0 0% 100%;
+
+    /* Operating-system surface scale */
+    --paper: 40 12% 97%;
+    --paper-raised: 0 0% 100%;
+    --paper-sunken: 40 10% 94%;
+    --ink: 0 0% 6%;
+    --ink-soft: 0 0% 38%;
+    --ink-faint: 0 0% 62%;
+    --signal: 0 100% 36%;
+    --rule: 30 8% 86%;
+    --rule-strong: 0 0% 20%;
+
+    /* Record states */
+    --state-neutral: 0 0% 45%;
+    --state-active: 152 45% 32%;
+    --state-pending: 38 82% 40%;
+    --state-warn: 18 85% 45%;
+    --state-stop: 0 100% 36%;
+    --state-done: 220 30% 40%;
   }
 }
+
 
 @layer base {
   * {

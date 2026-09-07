@@ -28,6 +28,30 @@ export default {
           black: "hsl(var(--site-black))",
           white: "hsl(var(--site-white))",
         },
+        paper: {
+          DEFAULT: "hsl(var(--paper))",
+          raised: "hsl(var(--paper-raised))",
+          sunken: "hsl(var(--paper-sunken))",
+        },
+        ink: {
+          DEFAULT: "hsl(var(--ink))",
+          soft: "hsl(var(--ink-soft))",
+          faint: "hsl(var(--ink-faint))",
+        },
+        signal: "hsl(var(--signal))",
+        rule: {
+          DEFAULT: "hsl(var(--rule))",
+          strong: "hsl(var(--rule-strong))",
+        },
+        state: {
+          neutral: "hsl(var(--state-neutral))",
+          active: "hsl(var(--state-active))",
+          pending: "hsl(var(--state-pending))",
+          warn: "hsl(var(--state-warn))",
+          stop: "hsl(var(--state-stop))",
+          done: "hsl(var(--state-done))",
+        },
+
       },
       borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 0.25rem)", sm: "calc(var(--radius) - 0.5rem)", xl: "calc(var(--radius) + 0.5rem)", "2xl": "calc(var(--radius) + 1rem)" },
       keyframes: {
