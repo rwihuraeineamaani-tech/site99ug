@@ -87,9 +87,20 @@ Deno.serve(async (req) => {
       const displayName = String(body.display_name ?? "").trim() || null;
       const jobTitle = String(body.title ?? "").trim() || null;
       const roles = sanitizeRoles(body.roles);
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "Valid email required" }, 400);
-      if (password.length < 8) return json({ error: "Password must be at least 8 characters" }, 400);
-      if (!roles.length) return json({ error: "Pick at least one access level" }, 400);
+      // Failures here return 200 with an `error` field so the browser can read the reason.
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "Valid email required" });
+      if (password.length < 8) return json({ error: "Password must be at least 8 characters" });
+      if (!roles.length) return json({ error: "Pick at least one access level" });
+
+      /** Turn auth-service wording into something a person can act on. */
+      const friendly = (msg?: string) => {
+        const m = msg ?? "Could not create the account";
+        if (/weak|known to be|easy to guess|pwned|breach/i.test(m))
+          return "That password is too easy to guess — it appears in known password leaks. Use the suggest button for a strong one.";
+        if (/password/i.test(m) && /short|least|length/i.test(m))
+          return "That password is too short — use at least 8 characters.";
+        return m;
+      };
 
       const { data: created, error: createErr } = await admin.auth.admin.createUser({
         email,
@@ -99,24 +110,26 @@ Deno.serve(async (req) => {
       });
 
       let uid = created?.user?.id ?? "";
+      let reused = false;
 
       // The email may already have an account (an old console login, or a resident).
       // Reuse it: set the new password, name and access instead of failing.
       if (createErr || !uid) {
         const alreadyExists = /already/i.test(createErr?.message ?? "");
-        if (!alreadyExists) return json({ error: createErr?.message ?? "Create failed" }, 400);
+        if (!alreadyExists) return json({ error: friendly(createErr?.message) });
 
         const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
         const existing = (list?.users ?? []).find((u) => (u.email ?? "").toLowerCase() === email);
-        if (!existing) return json({ error: "That email is already registered elsewhere." }, 400);
+        if (!existing) return json({ error: "That email is already registered elsewhere." });
         uid = existing.id;
+        reused = true;
 
         const { error: updErr } = await admin.auth.admin.updateUserById(uid, {
           password,
           email_confirm: true,
           user_metadata: { ...(existing.user_metadata ?? {}), display_name: displayName },
         });
-        if (updErr) return json({ error: updErr.message }, 400);
+        if (updErr) return json({ error: friendly(updErr.message) });
         await admin.from("user_roles").delete().eq("user_id", uid);
       }
 
@@ -132,18 +145,19 @@ Deno.serve(async (req) => {
       // A client login is tied to exactly one client record.
       if (roles.includes("client")) {
         const clientId = String(body.client_id ?? "");
-        if (!clientId) return json({ error: "Pick the client this login belongs to" }, 400);
+        if (!clientId) return json({ error: "Pick the client this login belongs to" });
         const { error: linkErr } = await admin
           .from("client_users")
           .upsert(
             { client_id: clientId, user_id: uid, email, invited_by: callerId, accepted_at: new Date().toISOString() },
             { onConflict: "email" }
           );
-        if (linkErr) return json({ error: linkErr.message }, 400);
+        if (linkErr) return json({ error: linkErr.message });
       }
 
-      return json({ ok: true, user_id: uid });
+      return json({ ok: true, user_id: uid, reused });
     }
+
 
     if (action === "set_profile") {
       const userId = String(body.user_id ?? "");
