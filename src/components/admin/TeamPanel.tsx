@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ROLE_HINTS, ROLE_LABELS, TEAM_ROLES, type StaffRole } from "@/hooks/useMyRoles";
+import { PASSWORD_HINT, suggestPassword } from "@/lib/password";
 
 type Member = {
   id: string;
