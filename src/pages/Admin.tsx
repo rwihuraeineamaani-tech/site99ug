@@ -71,7 +71,7 @@ export default function Admin() {
           <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-4">Access pending</div>
           <p className="text-fluid-md text-muted-foreground">Share this user ID with whoever set up the site:</p>
           <code className="mt-6 block bg-secondary p-4 mono text-xs break-all">{userId}</code>
-          <button onClick={signOut} className="ctl mt-8 mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring">Sign out →</button>
+          <button onClick={signOut} className="ctl mt-8 mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Sign out →</button>
         </div>
       </AdminShell>
     );
