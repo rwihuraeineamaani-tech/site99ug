@@ -189,9 +189,32 @@ export default function Dashboard() {
         />
       </div>
 
+      {pendingWeeks.length > 0 && (
+        <div className="mt-12">
+          <SectionHeading
+            index="00"
+            title={`Weekly numbers — ${weekLabel(pendingWeeks[0].week_start)}`}
+            hint={`${pendingWeeks.length} account${pendingWeeks.length === 1 ? "" : "s"} to fill`}
+          />
+          <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
+            {pendingWeeks.map((p) => (
+              <li key={p.account_id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
+                <span className="text-sm font-semibold">{p.resident_name}</span>
+                <StatusChip value={p.platform} tone="violet" />
+                <span className="text-xs text-ink-faint truncate">{p.handle}</span>
+                <Link to="/app/clients" className="ml-auto text-xs font-semibold text-signal focus-ring whitespace-nowrap">
+                  Add the week →
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {waiting.length > 0 && (
         <div className="mt-12">
-          <SectionHeading index="00" title="Waiting on you" hint={`${waiting.length} to act on`} />
+          <SectionHeading index="01" title="Waiting on you" hint={`${waiting.length} to act on`} />
+
           <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
             {waiting.map(({ item, why }) => (
               <li key={`${item.id}-${why}`} className="px-4 py-3 flex items-center gap-3">
