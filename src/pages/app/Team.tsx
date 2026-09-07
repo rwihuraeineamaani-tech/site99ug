@@ -170,7 +170,26 @@ export default function Team() {
               onChange={(e) => setInvite({ ...invite, password: e.target.value })}
               placeholder="min 8 characters"
             />
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button type="button" className={btn} onClick={() => setInvite({ ...invite, password: suggestPassword() })}>
+                Suggest
+              </button>
+              {invite.password && (
+                <button
+                  type="button"
+                  className={btn}
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(invite.password);
+                    toast.success("Password copied");
+                  }}
+                >
+                  Copy
+                </button>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-ink-soft">{PASSWORD_HINT}</p>
           </div>
+
           <button className={btn} disabled={busy} onClick={inviteClient}>
             Create client login
           </button>
