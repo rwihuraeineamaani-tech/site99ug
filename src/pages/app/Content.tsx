@@ -104,7 +104,7 @@ type ResidentRow = {
   handler_user_id: string | null;
 };
 type ProjectRow = { id: string; title: string; client: string };
-type Member = { user_id: string; name: string };
+type Member = { user_id: string; name: string; title: string | null };
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
