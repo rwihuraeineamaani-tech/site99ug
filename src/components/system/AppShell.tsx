@@ -57,11 +57,14 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
 
   const dept: ShellNavItem[] = [];
   if (departments.content) dept.push({ to: "/app/content", label: "Content & strategy", icon: Clapperboard });
+  if (departments.content) dept.push({ to: "/app/shoots", label: "Shoot days", icon: Camera });
   if (departments.clients) dept.push({ to: "/app/clients", label: "Client relations", icon: Handshake });
   if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
   if (departments.legal) dept.push({ to: "/app/legal", label: "Legal & contracts", icon: Scale });
   if (departments.ops) dept.push({ to: "/app/ops", label: "Management & ops", icon: Settings2 });
+  if (departments.ops) dept.push({ to: "/app/equipment", label: "Equipment", icon: Package });
   if (departments.finance) dept.push({ to: "/app/finance", label: "Finance", icon: Wallet });
+
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
   if (isLeadership) dept.push({ to: "/app/team", label: "Team & access", icon: Users });
   if (dept.length) groups.push({ label: "Departments", items: dept });
