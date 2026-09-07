@@ -171,8 +171,8 @@ export default function ContentPipeline() {
   const [captions, setCaptions] = useState("");
   const [postLinks, setPostLinks] = useState<Record<string, string>>({});
   const [editRemarks, setEditRemarks] = useState("");
-  const [postedFrom, setPostedFrom] = useState("");
-  const [postedTo, setPostedTo] = useState("");
+  const [postWindows, setPostWindows] = useState<Record<string, string[]>>({});
+  const [postedDate, setPostedDate] = useState("");
   const [metrics, setMetrics] = useState<Record<string, string>>({});
   const [metricNote, setMetricNote] = useState("");
 
