@@ -24,8 +24,9 @@ const emptyProj: ProjForm = {
   youtube_url: "", aspect_ratio: "4:5",
 };
 
-type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean };
-const emptyRes: ResForm = { name: "", territory: "", since: "", status: "Active", display_order: 0, email: "", visible: true };
+type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean; contact_user_id: string; handler_user_id: string };
+const emptyRes: ResForm = { name: "", territory: "", since: "", status: "Active", display_order: 0, email: "", visible: true, contact_user_id: "", handler_user_id: "" };
+
 
 type Tab = "projects" | "residents" | "briefs" | "announcements" | "messages" | "requests" | "team";
 
