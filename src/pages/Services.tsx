@@ -87,15 +87,16 @@ export default function Services() {
         path="/services"
       />
       <section className="px-8 md:px-16 pt-24 md:pt-28 pb-12">
-        <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">N° 05 / Services</div>
+        <div className="eyebrow text-signal mb-6">N° 05 / Services</div>
         <h1 className="display text-fluid-hero leading-[0.85]">
           The full <br />
-          <span className="text-site-red">stack</span> of residency.
+          <span className="text-signal">stack</span> of residency.
         </h1>
-        <p className="mt-8 max-w-xl text-fluid-md text-muted-foreground">
-          Seven disciplines under one roof. Pick one or take the whole studio in residence.
+        <p className="mt-8 max-w-xl text-fluid-md text-ink-soft">
+          Nine disciplines under one roof. Pick one or take the whole studio in residence.
         </p>
       </section>
+
 
       <section className="border-t border-border">
         {services.map((s, i) => (
@@ -109,15 +110,16 @@ export default function Services() {
             className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 border-b border-border px-8 md:px-16 py-14 md:py-20 scroll-mt-24"
           >
             <div className="md:col-span-4">
-              <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-4">{s.n}</div>
+              <div className="eyebrow text-signal mb-4">{s.n}</div>
               <h2 className="display text-3xl md:text-5xl leading-[0.95]">{s.title}</h2>
             </div>
             <div className="md:col-span-5 space-y-6">
               <p className="text-fluid-md text-foreground/90 font-medium">{s.lede}</p>
-              <p className="text-muted-foreground">{s.body}</p>
+              <p className="text-ink-soft">{s.body}</p>
             </div>
             <div className="md:col-span-3">
-              <div className="label text-[11px] text-muted-foreground mb-4">Includes</div>
+              <div className="eyebrow text-ink-faint mb-4">Includes</div>
+
               <ul className="space-y-3">
                 {s.deliverables.map((d) => (
                   <li key={d} className="flex items-start gap-3 text-sm">
