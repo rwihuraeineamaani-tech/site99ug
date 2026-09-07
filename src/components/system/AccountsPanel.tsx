@@ -230,58 +230,55 @@ export default function AccountsPanel({
   };
 
   return (
-    <AppShell eyebrow="Client relations">
-      <Seo
-        title="Client relations — Site 99"
-        description="Every account we manage and its weekly numbers."
-        path="/app/clients"
-        noindex
-      />
-      <PageHeader
-        eyebrow="Client relations"
-        title="Accounts."
-        lede="Every social account we manage, with its numbers filled in once a week — so month-end reports write themselves."
-      />
-
+    <>
       {loading ? (
         <p className="text-sm text-ink-soft">Loading…</p>
       ) : (
         <>
-          {pending.length > 0 && (
+          {showPending && pending.filter((a) => !residentId || a.resident_id === residentId).length > 0 && (
             <div className="mb-12">
               <SectionHeading
                 index="00"
                 title={`Numbers for ${weekLabel(week)}`}
-                hint={`${pending.length} still to fill`}
+                hint={`${pending.filter((a) => !residentId || a.resident_id === residentId).length} still to fill`}
               />
               <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
-                {pending.map((a) => (
-                  <li key={a.id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
-                    <span className="text-sm font-semibold">{resById.get(a.resident_id)?.name ?? "—"}</span>
-                    <StatusChip value={a.platform} tone="violet" />
-                    <span className="text-xs text-ink-faint truncate">{a.handle}</span>
-                    <Button size="sm" className="ml-auto" onClick={() => openEntry(a, week)}>
-                      Add the week
-                    </Button>
-                  </li>
-                ))}
+                {pending
+                  .filter((a) => !residentId || a.resident_id === residentId)
+                  .map((a) => (
+                    <li key={a.id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
+                      <span className="text-sm font-semibold">{resById.get(a.resident_id)?.name ?? "—"}</span>
+                      <StatusChip value={a.platform} tone="violet" />
+                      <span className="text-xs text-ink-faint truncate">{a.handle}</span>
+                      <Button size="sm" className="ml-auto" onClick={() => openEntry(a, week)}>
+                        Add the week
+                      </Button>
+                    </li>
+                  ))}
               </ul>
             </div>
           )}
 
-          <SectionHeading index="01" title="Clients" hint={`${groups.length} with accounts`} />
+          <SectionHeading
+            index={index}
+            title="Accounts and numbers"
+            hint={`${groups.reduce((n, g) => n + g.accounts.length, 0)} accounts`}
+          />
           {groups.length === 0 ? (
             <p className="text-sm text-ink-soft">
-              No accounts set up yet. Founders and management add them on the client record in Site editing → Residents.
+              No accounts set up yet. Founders and management add them on the resident record in Site editing.
             </p>
           ) : (
             <div className="space-y-6">
               {groups.map((g) => (
                 <div key={g.id} className="surface rounded-2xl overflow-hidden">
-                  <div className="px-5 py-4 flex items-baseline gap-3 border-b border-rule">
-                    <div className="display text-lg">{g.resident?.name ?? "Unknown client"}</div>
-                    <div className="text-xs text-ink-faint">{g.resident?.territory}</div>
-                  </div>
+                  {showNames && (
+                    <div className="px-5 py-4 flex items-baseline gap-3 border-b border-rule">
+                      <div className="display text-lg">{g.resident?.name ?? "Unknown client"}</div>
+                      <div className="text-xs text-ink-faint">{g.resident?.territory}</div>
+                    </div>
+                  )}
+
                   <ul className="divide-y divide-rule">
                     {g.accounts.map((a) => {
                       const { latest, previous } = latestPair(a.id);
