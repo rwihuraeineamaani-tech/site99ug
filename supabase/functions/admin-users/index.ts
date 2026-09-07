@@ -97,14 +97,37 @@ Deno.serve(async (req) => {
         email_confirm: true,
         user_metadata: { display_name: displayName },
       });
-      if (createErr || !created?.user) return json({ error: createErr?.message ?? "Create failed" }, 400);
-      const uid = created.user.id;
+
+      let uid = created?.user?.id ?? "";
+
+      // The email may already have an account (an old console login, or a resident).
+      // Reuse it: set the new password, name and access instead of failing.
+      if (createErr || !uid) {
+        const alreadyExists = /already/i.test(createErr?.message ?? "");
+        if (!alreadyExists) return json({ error: createErr?.message ?? "Create failed" }, 400);
+
+        const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+        const existing = (list?.users ?? []).find((u) => (u.email ?? "").toLowerCase() === email);
+        if (!existing) return json({ error: "That email is already registered elsewhere." }, 400);
+        uid = existing.id;
+
+        const { error: updErr } = await admin.auth.admin.updateUserById(uid, {
+          password,
+          email_confirm: true,
+          user_metadata: { ...(existing.user_metadata ?? {}), display_name: displayName },
+        });
+        if (updErr) return json({ error: updErr.message }, 400);
+        await admin.from("user_roles").delete().eq("user_id", uid);
+      }
+
 
       await admin.from("team_members").upsert(
         { user_id: uid, email, display_name: displayName, title: jobTitle, created_by: callerId },
         { onConflict: "user_id" }
       );
-      await admin.from("user_roles").insert(roles.map((role) => ({ user_id: uid, role })));
+      await admin
+        .from("user_roles")
+        .upsert(roles.map((role) => ({ user_id: uid, role })), { onConflict: "user_id,role" });
 
       // A client login is tied to exactly one client record.
       if (roles.includes("client")) {
