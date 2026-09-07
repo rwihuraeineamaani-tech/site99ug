@@ -125,7 +125,9 @@ Deno.serve(async (req) => {
         { user_id: uid, email, display_name: displayName, title: jobTitle, created_by: callerId },
         { onConflict: "user_id" }
       );
-      await admin.from("user_roles").insert(roles.map((role) => ({ user_id: uid, role })));
+      await admin
+        .from("user_roles")
+        .upsert(roles.map((role) => ({ user_id: uid, role })), { onConflict: "user_id,role" });
 
       // A client login is tied to exactly one client record.
       if (roles.includes("client")) {
