@@ -306,6 +306,19 @@ export function AppShell({
               </Link>
               <HeaderClock />
               <span className="hidden md:block h-8 w-px bg-rule" aria-hidden />
+              <Link
+                to="/app/settings"
+                title="My settings"
+                aria-label="My settings"
+                className="h-9 w-9 shrink-0 rounded-full bg-acc-violet-soft text-acc-violet grid place-items-center text-xs font-semibold focus-ring hover:text-signal"
+              >
+                {name
+                  .split(/\s+/)
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .map((p) => p[0]?.toUpperCase() ?? "")
+                  .join("") || "S9"}
+              </Link>
               <button
                 onClick={signOut}
                 className="eyebrow text-ink-soft hover:text-signal px-2 focus-ring inline-flex items-center gap-1"
