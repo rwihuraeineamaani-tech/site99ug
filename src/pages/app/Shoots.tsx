@@ -7,7 +7,7 @@ import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMyRoles } from "@/hooks/useMyRoles";
-import { refCode } from "@/lib/contentFlow";
+import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
 import { CalendarDays, Plus, X } from "lucide-react";
 
 type ShootDay = {
