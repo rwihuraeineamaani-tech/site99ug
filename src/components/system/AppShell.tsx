@@ -61,7 +61,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   const dept: ShellNavItem[] = [];
   if (departments.content) dept.push({ to: "/app/content", label: "Content & strategy", icon: Clapperboard });
   if (departments.content) dept.push({ to: "/app/shoots", label: "Shoot days", icon: Camera });
-  if (departments.clients) dept.push({ to: "/app/clients", label: "Client relations", icon: Handshake });
+  if (departments.clients) dept.push({ to: "/app/residents", label: "Residents", icon: Handshake });
   if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
   if (departments.legal) dept.push({ to: "/app/legal", label: "Legal & contracts", icon: Scale });
   if (departments.ops) dept.push({ to: "/app/ops", label: "Management & ops", icon: Settings2 });

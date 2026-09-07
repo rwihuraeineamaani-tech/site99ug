@@ -37,7 +37,9 @@ import AppTeam from "./pages/app/Team.tsx";
 import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
 import { Sales, LegalContracts, ManagementOps, Finance } from "./pages/app/Departments.tsx";
-import ClientRelations from "./pages/app/Clients.tsx";
+import ResidentsHub from "./pages/app/Residents.tsx";
+import ResidentRecordPage from "./pages/app/ResidentRecord.tsx";
+
 import Shoots from "./pages/app/Shoots.tsx";
 import EquipmentPage from "./pages/app/Equipment.tsx";
 import Unsubscribe from "./pages/Unsubscribe.tsx";
@@ -88,14 +90,24 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        <Route path="/app/clients" element={<Navigate to="/app/residents" replace />} />
         <Route
-          path="/app/clients"
+          path="/app/residents"
           element={
             <RequireRole gate="clients">
-              <ClientRelations />
+              <ResidentsHub />
             </RequireRole>
           }
         />
+        <Route
+          path="/app/residents/:id"
+          element={
+            <RequireRole gate="clients">
+              <ResidentRecordPage />
+            </RequireRole>
+          }
+        />
+
         <Route
           path="/app/shoots"
           element={
