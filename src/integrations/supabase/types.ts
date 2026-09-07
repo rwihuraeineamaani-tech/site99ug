@@ -1088,7 +1088,8 @@ export type Database = {
           id: string
           location: string | null
           notes: string | null
-          resident_id: string
+          project_id: string | null
+          resident_id: string | null
           shoot_date: string | null
           status: string
           updated_at: string
@@ -1102,7 +1103,8 @@ export type Database = {
           id?: string
           location?: string | null
           notes?: string | null
-          resident_id: string
+          project_id?: string | null
+          resident_id?: string | null
           shoot_date?: string | null
           status?: string
           updated_at?: string
@@ -1116,12 +1118,20 @@ export type Database = {
           id?: string
           location?: string | null
           notes?: string | null
-          resident_id?: string
+          project_id?: string | null
+          resident_id?: string | null
           shoot_date?: string | null
           status?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "shoot_days_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shoot_days_resident_id_fkey"
             columns: ["resident_id"]
