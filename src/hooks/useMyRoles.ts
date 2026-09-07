@@ -137,7 +137,12 @@ export function useMyRoles(): RoleState {
     };
 
     load();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => load());
+    // Never call Supabase directly inside the auth callback — defer it.
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      setTimeout(() => {
+        if (!cancelled) load();
+      }, 0);
+    });
     return () => {
       cancelled = true;
       sub.subscription.unsubscribe();
