@@ -7,7 +7,7 @@ import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMyRoles } from "@/hooks/useMyRoles";
-import { refCode } from "@/lib/contentFlow";
+import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
 import { CalendarDays, Plus, X } from "lucide-react";
 
 type ShootDay = {
@@ -19,16 +19,29 @@ type ShootDay = {
   call_time: string | null;
   location: string | null;
   notes: string | null;
+  brief_sent_at: string | null;
 };
 type DayItem = { id: string; shoot_day_id: string; content_id: string };
-type Item = { id: string; ref_no: number; title: string; content_type: string; stage: string; resident_id: string | null; project_id: string | null };
+type Item = {
+  id: string;
+  ref_no: number;
+  title: string;
+  content_type: string;
+  stage: string;
+  resident_id: string | null;
+  project_id: string | null;
+  posted_links: string[] | null;
+};
+type Crew = { id: string; content_id: string; role: string; user_id: string | null; note: string | null };
+type Member = { user_id: string; display_name: string | null; email: string };
 type Gear = { id: string; name: string; category: string; quantity: number; active: boolean };
 type Booking = { id: string; shoot_day_id: string; equipment_id: string; qty: number };
-type Resident = { id: string; name: string };
+type Resident = { id: string; name: string; contact_user_id?: string | null };
 type Project = { id: string; title: string; client: string };
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
+
 
 const STATUS_LABEL: Record<string, string> = {
   draft: "Needs a date",
@@ -48,8 +61,11 @@ export default function Shoots() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [crew, setCrew] = useState<Crew[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<"planned" | "wrapped" | "all">("planned");
 
   const [date, setDate] = useState("");
   const [callTime, setCallTime] = useState("");
@@ -57,27 +73,30 @@ export default function Shoots() {
   const [notes, setNotes] = useState("");
 
   const load = async () => {
-    const [{ data: d }, { data: di }, { data: it }, { data: g }, { data: b }, { data: rs }, { data: pj }] = await Promise.all([
-      supabase.from("shoot_days").select("*").order("shoot_date", { ascending: true, nullsFirst: true }),
-      supabase.from("shoot_day_items").select("*"),
-      supabase
-        .from("content_items")
-        .select("id, ref_no, title, content_type, stage, resident_id, project_id")
-        .in("stage", ["Crewed", "Scheduled", "Shooting"]),
-      supabase.from("equipment").select("*").order("category").order("name"),
-      supabase.from("shoot_day_equipment").select("*"),
-      supabase.rpc("resident_options"),
-      supabase.from("projects").select("id, title, client").order("display_order"),
-    ]);
+    const [{ data: d }, { data: di }, { data: it }, { data: g }, { data: b }, { data: rs }, { data: pj }, { data: cc }, { data: tm }] =
+      await Promise.all([
+        supabase.from("shoot_days").select("*").order("shoot_date", { ascending: true, nullsFirst: true }),
+        supabase.from("shoot_day_items").select("*"),
+        supabase.from("content_items").select("id, ref_no, title, content_type, stage, resident_id, project_id, posted_links"),
+        supabase.from("equipment").select("*").order("category").order("name"),
+        supabase.from("shoot_day_equipment").select("*"),
+        supabase.rpc("resident_options"),
+        supabase.from("projects").select("id, title, client").order("display_order"),
+        supabase.from("content_crew").select("id, content_id, role, user_id, note"),
+        supabase.from("team_members").select("user_id, display_name, email"),
+      ]);
     setDays((d as ShootDay[]) ?? []);
     setDayItems((di as DayItem[]) ?? []);
     setItems((it as Item[]) ?? []);
     setGear((g as Gear[]) ?? []);
     setBookings((b as Booking[]) ?? []);
-    setResidents(((rs as Resident[]) ?? []).map((r) => ({ id: r.id, name: r.name })));
+    setResidents(((rs as Resident[]) ?? []).map((r) => ({ id: r.id, name: r.name, contact_user_id: r.contact_user_id ?? null })));
     setProjects((pj as Project[]) ?? []);
+    setCrew((cc as Crew[]) ?? []);
+    setMembers((tm as Member[]) ?? []);
     setLoading(false);
   };
+
 
   useEffect(() => {
     load();
@@ -102,6 +121,23 @@ export default function Shoots() {
   const itemsOf = (dayId: string) =>
     dayItems.filter((i) => i.shoot_day_id === dayId).map((i) => items.find((x) => x.id === i.content_id)).filter(Boolean) as Item[];
 
+  const memberName = (uid: string | null) => {
+    if (!uid) return null;
+    const m = members.find((x) => x.user_id === uid);
+    return m?.display_name || m?.email || null;
+  };
+  /** Everyone crewed on one idea, as "Shooter: Brian" lines. */
+  const crewOf = (contentId: string) =>
+    crew
+      .filter((c) => c.content_id === contentId)
+      .map((c) => `${c.role}: ${memberName(c.user_id) ?? c.note ?? "unassigned"}`);
+  const gearOf = (dayId: string) =>
+    bookings
+      .filter((b) => b.shoot_day_id === dayId)
+      .map((b) => gear.find((g) => g.id === b.equipment_id)?.name)
+      .filter(Boolean) as string[];
+
+
   /** Crewed ideas for this client that aren't on any shoot day yet. */
   const spareFor = (day: ShootDay) =>
     items.filter(
@@ -125,8 +161,13 @@ export default function Shoots() {
 
   const sorted = useMemo(() => {
     const rank = (s: string) => (s === "draft" ? 0 : s === "confirmed" ? 1 : s === "shooting" ? 2 : 3);
-    return [...days].sort((a, b) => rank(a.status) - rank(b.status) || (a.shoot_date ?? "").localeCompare(b.shoot_date ?? ""));
-  }, [days]);
+    const keep = (s: string) =>
+      tab === "all" ? true : tab === "wrapped" ? ["done", "cancelled"].includes(s) : !["done", "cancelled"].includes(s);
+    return [...days]
+      .filter((d) => keep(d.status))
+      .sort((a, b) => rank(a.status) - rank(b.status) || (a.shoot_date ?? "").localeCompare(b.shoot_date ?? ""));
+  }, [days, tab]);
+
 
   /* ---------------- actions ---------------- */
   const run = async (fn: () => PromiseLike<{ error: { message: string } | null }>, ok: string) => {
@@ -179,6 +220,81 @@ export default function Shoots() {
     await run(() => supabase.from("shoot_days").insert(payload), "Shoot day created");
   };
 
+  /** The brief as plain text — used for the copy button and read by everyone on the day. */
+  const briefText = (d: ShootDay) => {
+    const lines = [
+      `SHOOT DAY — ${ownerName(d)}`,
+      `Date: ${d.shoot_date ?? "to be set"}`,
+      `Call time: ${d.call_time ?? "to be set"}`,
+      `Location: ${d.location ?? "to be set"}`,
+    ];
+    if (d.notes) lines.push("", `Notes: ${d.notes}`);
+    lines.push("", "What we are shooting:");
+    itemsOf(d.id).forEach((i) => {
+      lines.push(`- ${refCode(i.ref_no)} ${i.title} (${i.content_type})`);
+      const c = crewOf(i.id);
+      if (c.length) lines.push(`  ${c.join(" · ")}`);
+    });
+    const g = gearOf(d.id);
+    if (g.length) lines.push("", `Gear: ${g.join(", ")}`);
+    return lines.join("\n");
+  };
+
+  /** Emails the brief to everyone crewed on the day plus the client's contact person. */
+  const sendBrief = async (d: ShootDay) => {
+    const list = itemsOf(d.id);
+    const uids = new Set<string>();
+    list.forEach((i) => crew.filter((c) => c.content_id === i.id && c.user_id).forEach((c) => uids.add(c.user_id as string)));
+    const contact = residents.find((r) => r.id === d.resident_id)?.contact_user_id;
+    if (contact) uids.add(contact);
+    const emails = [...uids].map((u) => members.find((m) => m.user_id === u)?.email).filter(Boolean) as string[];
+    if (emails.length === 0) {
+      toast.error("Nobody to send to yet — crew the ideas on this day first.");
+      return;
+    }
+
+    setBusy(true);
+    const sentAt = new Date().toISOString();
+    const templateData = {
+      owner: ownerName(d),
+      date: d.shoot_date ?? "",
+      callTime: d.call_time ?? "",
+      location: d.location ?? "",
+      notes: d.notes ?? "",
+      ideas: list.map((i) => ({
+        ref: refCode(i.ref_no),
+        title: i.title,
+        type: i.content_type,
+        crew: crewOf(i.id).join(" · "),
+      })),
+      gear: gearOf(d.id),
+    };
+
+    let failed = 0;
+    for (const email of emails) {
+      const { error } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "shoot-day-brief",
+          recipientEmail: email,
+          idempotencyKey: `shoot-brief-${d.id}-${sentAt}-${email}`,
+          templateData,
+        },
+      });
+      if (error) failed += 1;
+    }
+    await supabase.from("shoot_days").update({ brief_sent_at: sentAt }).eq("id", d.id);
+    setBusy(false);
+    await load();
+    if (failed === emails.length) toast.error("The brief could not go out — email sending isn't live yet.");
+    else toast.success(`Brief sent to ${emails.length - failed} of the team.`);
+  };
+
+  const copyBrief = async (d: ShootDay) => {
+    await navigator.clipboard.writeText(briefText(d));
+    toast.success("Brief copied — paste it anywhere.");
+  };
+
+
   return (
     <AppShell>
       <Seo title="Shoot days — Site 99" description="Plan shoot days, the ideas on them and the gear booked out." path="/app/shoots" noindex />
@@ -212,15 +328,35 @@ export default function Shoots() {
       )}
 
       <div className="mt-10">
-        <SectionHeading index="01" title="Planned" hint={`${days.length} day${days.length === 1 ? "" : "s"}`} />
+        <SectionHeading
+          index="01"
+          title={tab === "wrapped" ? "Wrapped" : tab === "all" ? "Every shoot day" : "Planned"}
+          hint={`${sorted.length} day${sorted.length === 1 ? "" : "s"}`}
+        />
+        <div className="mb-4 flex flex-wrap gap-2">
+          {(["planned", "wrapped", "all"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`press rounded-full border px-3 py-1 text-xs focus-ring ${
+                tab === t ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised text-ink-soft"
+              }`}
+            >
+              {t === "planned" ? "Planned" : t === "wrapped" ? "Wrapped" : "All"}
+            </button>
+          ))}
+        </div>
         {loading ? (
           <p className="text-sm text-ink-faint">Loading…</p>
         ) : sorted.length === 0 ? (
-          <p className="text-sm text-ink-soft">Nothing yet. As soon as an idea is crewed it shows up here.</p>
+          <p className="text-sm text-ink-soft">
+            {tab === "wrapped" ? "No wrapped days yet." : "Nothing yet. As soon as an idea is crewed it shows up here."}
+          </p>
         ) : (
           <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
             {sorted.map((d) => {
               const list = itemsOf(d.id);
+              const wrapped = d.status === "done";
               return (
                 <li key={d.id}>
                   <button
@@ -229,9 +365,12 @@ export default function Shoots() {
                   >
                     <CalendarDays className="h-4 w-4 text-ink-faint shrink-0" />
                     <span className="font-semibold">{ownerName(d)}</span>
-                    <StatusChip value={STATUS_LABEL[d.status] ?? d.status} tone={d.status === "draft" ? "amber" : d.status === "done" ? "neutral" : "active"} />
-                    <span className="num text-xs text-ink-soft">{d.shoot_date ?? "no date yet"}</span>
-                    {d.call_time && <span className="num text-xs text-ink-faint">{d.call_time}</span>}
+                    <StatusChip value={STATUS_LABEL[d.status] ?? d.status} tone={d.status === "draft" ? "amber" : wrapped ? "neutral" : "active"} />
+                    <span className="num text-xs text-ink-soft">
+                      {wrapped ? `shot ${d.shoot_date ?? "—"}` : d.shoot_date ?? "no date yet"}
+                    </span>
+                    {d.call_time && !wrapped && <span className="num text-xs text-ink-faint">{d.call_time}</span>}
+                    {d.brief_sent_at && !wrapped && <span className="text-[11px] text-ink-faint">brief sent</span>}
                     <span className="ml-auto text-xs text-ink-faint">
                       {list.length} idea{list.length === 1 ? "" : "s"}
                     </span>
@@ -242,6 +381,7 @@ export default function Shoots() {
           </ul>
         )}
       </div>
+
 
       <Dialog open={!!open} onOpenChange={(v) => !v && setOpenId(null)}>
         <DialogContent className="max-w-2xl max-h-[88vh] overflow-y-auto">
@@ -344,6 +484,49 @@ export default function Shoots() {
                   </div>
                 )}
               </div>
+
+              {/* the brief everyone reads */}
+              <div className="rounded-xl border border-rule bg-paper-raised p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="eyebrow text-ink-faint">Shoot day brief</span>
+                  {open.brief_sent_at && (
+                    <span className="text-[11px] text-ink-faint">sent {new Date(open.brief_sent_at).toLocaleString()}</span>
+                  )}
+                  <div className="ml-auto flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => copyBrief(open)}>
+                      Copy
+                    </Button>
+                    {canEditContent && (
+                      <Button size="sm" disabled={busy} onClick={() => sendBrief(open)}>
+                        {open.brief_sent_at ? "Send again" : "Send the brief"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-ink-soft">{briefText(open)}</pre>
+              </div>
+
+              {/* where the content went, once the day is wrapped */}
+              {open.status === "done" && (
+                <div className="rounded-xl border border-rule bg-paper-sunken p-4">
+                  <div className="eyebrow text-ink-faint">Where the content is now</div>
+                  <ul className="mt-2 space-y-1.5">
+                    {itemsOf(open.id).map((i) => (
+                      <li key={i.id} className="flex flex-wrap items-center gap-2 text-sm">
+                        <span className="num text-[11px] text-ink-faint w-20 shrink-0">{refCode(i.ref_no)}</span>
+                        <span className="truncate">{i.title}</span>
+                        <StatusChip value={i.stage} tone={i.stage === "Archived" || i.stage === "Posted" ? "neutral" : "active"} />
+                        <span className="text-xs text-ink-faint">{STAGE_NOTE[i.stage as Stage] ?? ""}</span>
+                        <a className="ml-auto text-xs text-signal underline focus-ring" href={`/app/content?ref=${i.ref_no}`}>
+                          Open
+                        </a>
+                      </li>
+                    ))}
+                    {itemsOf(open.id).length === 0 && <li className="text-xs text-ink-soft">Nothing was attached to this day.</li>}
+                  </ul>
+                </div>
+              )}
+
 
               {canEditContent && (
                 <div className="flex flex-wrap gap-2">

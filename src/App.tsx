@@ -40,6 +40,8 @@ import { Sales, LegalContracts, ManagementOps, Finance } from "./pages/app/Depar
 import ClientRelations from "./pages/app/Clients.tsx";
 import Shoots from "./pages/app/Shoots.tsx";
 import EquipmentPage from "./pages/app/Equipment.tsx";
+import Unsubscribe from "./pages/Unsubscribe.tsx";
+
 
 import RequireRole from "./components/system/RequireRole";
 import RolesProvider from "./components/system/RolesProvider";
@@ -196,6 +198,7 @@ const AnimatedRoutes = () => {
         <Route path="/t/:token" element={<TicketView />} />
         <Route path="/admin/events" element={<Navigate to="/app/events" replace />} />
         <Route path="/admin/scan" element={<Navigate to="/app/scan" replace />} />
+        <Route path="/unsubscribe" element={<Unsubscribe />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
