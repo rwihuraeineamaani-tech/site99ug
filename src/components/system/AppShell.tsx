@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -26,10 +26,19 @@ import {
   Gauge,
   CalendarClock,
   Megaphone,
+  UserCog,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import HeaderClock from "@/components/deck/HeaderClock";
+import {
+  ThemeMode,
+  readTheme,
+  setTheme,
+  onThemeChange,
+  applyThemeClasses,
+  resolveTheme,
+} from "@/lib/theme";
 
 import { useMyRoles } from "@/hooks/useMyRoles";
 import logo from "@/assets/site99-logo.png";
