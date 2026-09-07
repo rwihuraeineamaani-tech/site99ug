@@ -36,7 +36,18 @@ import Dashboard from "./pages/app/Dashboard.tsx";
 import AppTeam from "./pages/app/Team.tsx";
 import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
-import { Sales, LegalContracts, ManagementOps } from "./pages/app/Departments.tsx";
+import { Sales } from "./pages/app/Departments.tsx";
+import LegalOverview from "./pages/app/legal/Overview.tsx";
+import LegalContractsPage from "./pages/app/legal/Contracts.tsx";
+import LegalPartnerships from "./pages/app/legal/Partnerships.tsx";
+import LegalDocuments from "./pages/app/legal/Documents.tsx";
+import LegalCompliance from "./pages/app/legal/Compliance.tsx";
+import OpsOverview from "./pages/app/ops/Overview.tsx";
+import OpsPeople from "./pages/app/ops/People.tsx";
+import OpsWorkload from "./pages/app/ops/Workload.tsx";
+import OpsDeadlines from "./pages/app/ops/Deadlines.tsx";
+import OpsWeeklyReport from "./pages/app/ops/WeeklyReport.tsx";
+import OpsAnnouncements from "./pages/app/ops/Announcements.tsx";
 import FinanceOverview from "./pages/app/finance/Overview.tsx";
 import FinanceCashbook from "./pages/app/finance/Cashbook.tsx";
 import FinanceRequests from "./pages/app/finance/Requests.tsx";
@@ -147,7 +158,39 @@ const AnimatedRoutes = () => {
           path="/app/legal"
           element={
             <RequireRole gate="legal">
-              <LegalContracts />
+              <LegalOverview />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/legal/contracts"
+          element={
+            <RequireRole gate="legal">
+              <LegalContractsPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/legal/partnerships"
+          element={
+            <RequireRole gate="legal">
+              <LegalPartnerships />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/legal/documents"
+          element={
+            <RequireRole gate="legal">
+              <LegalDocuments />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/legal/compliance"
+          element={
+            <RequireRole gate="legal">
+              <LegalCompliance />
             </RequireRole>
           }
         />
@@ -155,7 +198,47 @@ const AnimatedRoutes = () => {
           path="/app/ops"
           element={
             <RequireRole gate="ops">
-              <ManagementOps />
+              <OpsOverview />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/ops/people"
+          element={
+            <RequireRole gate="ops">
+              <OpsPeople />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/ops/workload"
+          element={
+            <RequireRole gate="ops">
+              <OpsWorkload />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/ops/deadlines"
+          element={
+            <RequireRole gate="ops">
+              <OpsDeadlines />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/ops/report"
+          element={
+            <RequireRole gate="ops">
+              <OpsWeeklyReport />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/ops/announcements"
+          element={
+            <RequireRole gate="ops">
+              <OpsAnnouncements />
             </RequireRole>
           }
         />
