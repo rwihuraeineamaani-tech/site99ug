@@ -777,10 +777,25 @@ export default function ContentPipeline() {
               {editing.caption_suggestions}
             </p>
           )}
-          <label className="mt-3 block text-sm">
-            <span className="eyebrow text-ink-faint">Post links — one per line</span>
-            <textarea rows={3} className={field} value={postLinks} onChange={(e) => setPostLinks(e.target.value)} />
-          </label>
+          <div className="mt-3">
+            <span className="eyebrow text-ink-faint">Post link for each platform</span>
+            <div className="mt-1.5 space-y-2">
+              {(editing.platforms ?? []).map((p) => (
+                <label key={p} className="grid gap-1 sm:grid-cols-[7rem,1fr] sm:items-center sm:gap-3">
+                  <span className="text-sm font-semibold text-ink">{p}</span>
+                  <input
+                    className={`${field} mt-0`}
+                    placeholder={`https://… (${p})`}
+                    value={postLinks[p] ?? ""}
+                    onChange={(e) => setPostLinks({ ...postLinks, [p]: e.target.value })}
+                  />
+                </label>
+              ))}
+              {(editing.platforms ?? []).length === 0 && (
+                <p className="text-xs text-ink-soft">No platforms were chosen at sign-off.</p>
+              )}
+            </div>
+          </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="text-sm">
               <span className="eyebrow text-ink-faint">Posted from</span>
