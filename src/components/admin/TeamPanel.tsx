@@ -15,15 +15,14 @@ type Member = {
 const ALL_ROLES: StaffRole[] = TEAM_ROLES;
 
 const lbl = "mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground";
-const input = "mt-2 w-full bg-transparent border-b border-border focus:border-site-red outline-none py-2";
-const btn =
-  "mono text-[10px] uppercase tracking-[0.2em] border border-border rounded-md px-3 py-1.5 hover:border-site-red hover:text-site-red transition-colors";
+const input = "field mt-2 text-sm";
+const btn = "ctl mono text-[10px] uppercase tracking-[0.2em] px-4 py-2 focus-ring";
 
 function RoleChecks({ value, onChange }: { value: StaffRole[]; onChange: (r: StaffRole[]) => void }) {
   return (
     <div className="grid gap-2 sm:grid-cols-2">
       {ALL_ROLES.map((r) => (
-        <label key={r} className="flex items-start gap-3 rounded-md border border-border p-3 cursor-pointer">
+        <label key={r} className="flex items-start gap-3 rounded-xl border border-border p-3 cursor-pointer press hover:border-site-red/50 hover:bg-paper-sunken">
           <input
             type="checkbox"
             checked={value.includes(r)}

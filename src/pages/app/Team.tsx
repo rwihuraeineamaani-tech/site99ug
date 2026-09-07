@@ -9,9 +9,8 @@ import TeamPanel from "@/components/admin/TeamPanel";
 type Client = { id: string; name: string; contact_person: string | null; status: string; category: string };
 type ClientUser = { id: string; client_id: string; email: string; accepted_at: string | null };
 
-const btn =
-  "eyebrow border border-rule rounded-sm px-3 py-1.5 hover:border-signal hover:text-signal transition-colors focus-ring";
-const input = "mt-2 w-full bg-transparent border-b border-rule focus:border-signal outline-none py-2 text-sm";
+const btn = "ctl ctl-solid eyebrow px-4 py-2.5 focus-ring";
+const input = "field mt-2 text-sm";
 
 export default function Team() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -95,7 +94,7 @@ export default function Team() {
 
       <div className="mt-14">
         <SectionHeading index="02" title="Clients" hint={`${clients.length} on record`} />
-        <div className="surface rounded-sm p-5 mb-5 grid gap-4 md:grid-cols-4 items-end">
+        <div className="surface rounded-2xl p-5 mb-5 grid gap-4 md:grid-cols-4 items-end">
           <div>
             <label className="eyebrow text-ink-faint">Client name</label>
             <input
@@ -130,7 +129,7 @@ export default function Team() {
 
       <div className="mt-14">
         <SectionHeading index="03" title="Invite a client" hint="One login, one engagement" />
-        <div className="surface rounded-sm p-5 grid gap-4 md:grid-cols-5 items-end">
+        <div className="surface rounded-2xl p-5 grid gap-4 md:grid-cols-5 items-end">
           <div>
             <label className="eyebrow text-ink-faint">Client</label>
             <select

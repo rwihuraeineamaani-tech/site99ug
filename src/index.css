@@ -254,5 +254,42 @@
     transition: transform 160ms cubic-bezier(.2,.8,.2,1), box-shadow 160ms ease, border-color 160ms ease;
   }
   .card-lift:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -12px hsl(var(--ink) / 0.35); }
+
+  /* Legacy/admin controls: pill buttons + rounded fields */
+  .ctl {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid hsl(var(--rule));
+    background: hsl(var(--paper-raised));
+    box-shadow: 0 1px 0 hsl(var(--ink) / 0.06);
+    transition: transform 140ms cubic-bezier(.2,.8,.2,1), box-shadow 140ms ease, background-color 140ms ease,
+      border-color 140ms ease, color 140ms ease;
+  }
+  .ctl:hover { transform: translateY(-1px); border-color: hsl(var(--signal) / 0.5); color: hsl(var(--signal)); box-shadow: 0 6px 14px -10px hsl(var(--ink) / 0.5); }
+  .ctl:active { transform: translateY(1px) scale(0.985); }
+  .ctl:disabled { opacity: 0.45; transform: none; box-shadow: none; }
+  .ctl-solid {
+    background: hsl(var(--signal));
+    border-color: hsl(var(--signal));
+    color: hsl(var(--paper));
+  }
+  .ctl-solid:hover { background: hsl(var(--signal) / 0.9); color: hsl(var(--paper)); border-color: hsl(var(--signal)); }
+  .field {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid hsl(var(--rule));
+    background: hsl(var(--paper-raised));
+    padding: 0.55rem 0.85rem;
+    transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+  }
+  .field:focus, .field:focus-visible {
+    outline: none;
+    border-color: hsl(var(--signal));
+    box-shadow: 0 0 0 3px hsl(var(--signal) / 0.14);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ctl:hover, .ctl:active { transform: none; }
+  }
 }
+
 

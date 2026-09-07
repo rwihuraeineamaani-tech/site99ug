@@ -90,7 +90,7 @@ export default function Dashboard() {
               </Link>
             </p>
           ) : (
-            <ul className="surface rounded-sm divide-y divide-rule">
+            <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
               {content.slice(0, 6).map((i) => (
                 <li key={i.id} className="px-4 py-3 flex items-center gap-3">
                   <Link to="/app/content" className="text-sm truncate focus-ring">
@@ -109,7 +109,7 @@ export default function Dashboard() {
         <SectionHeading index="02" title="Departments" hint={`${modules.length} open to you`} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {modules.map((m) => (
-            <Link key={m.to} to={m.to} className="surface rounded-sm p-5 hover:bg-paper-sunken transition-colors focus-ring">
+            <Link key={m.to} to={m.to} className="surface rounded-2xl p-5 card-lift hover:bg-paper-sunken hover:border-signal/40 focus-ring">
               <div className="display text-xl">{m.label}</div>
               <div className="mt-2 text-sm text-ink-soft">{m.note}</div>
               <div className="mt-4 eyebrow text-signal">Open →</div>
