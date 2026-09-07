@@ -594,6 +594,8 @@ export default function ContentPipeline() {
   const isContact = (!!userId && res?.contact_user_id === userId) || amContact(editing?.resident_id ?? null);
   const isHandler = (!!userId && res?.handler_user_id === userId) || amHandler(editing?.resident_id ?? null);
   const isItemEditor = !!userId && crew.some((c) => c.user_id === userId && /edit/i.test(c.role));
+  const isOnCrew = !!userId && crew.some((c) => c.user_id === userId);
+
 
   const stepPanel = () => {
     if (!editing) return null;
