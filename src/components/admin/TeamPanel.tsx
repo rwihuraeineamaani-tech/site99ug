@@ -78,8 +78,12 @@ export default function TeamPanel() {
   const create = async () => {
     setBusy(true);
     try {
-      await call({ action: "create", ...form });
-      toast.success("Team member created");
+      const res = await call({ action: "create", ...form });
+      toast.success(
+        res?.reused
+          ? "That email already had an account — it now uses this password and access."
+          : "Team member created"
+      );
       setForm({ email: "", display_name: "", title: "", password: "", roles: [] });
       setShowNew(false);
       load();
@@ -89,6 +93,7 @@ export default function TeamPanel() {
       setBusy(false);
     }
   };
+
 
   const saveRoles = async (m: Member) => {
     setBusy(true);
