@@ -302,6 +302,17 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   const { data: residents = [], refetch } = useResidents();
   const [form, setForm] = useState<ResForm>(emptyRes);
   const [editing, setEditing] = useState(false);
+  const { data: members = [] } = useQuery({
+    queryKey: ["team-members-simple"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("team_members").select("user_id, display_name, email");
+      if (error) throw error;
+      return (data ?? []).map((m) => ({
+        user_id: m.user_id as string,
+        name: (m.display_name as string | null)?.trim() || (m.email as string).split("@")[0],
+      }));
+    },
+  });
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -309,7 +320,10 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
       name: form.name, territory: form.territory, since: form.since, status: form.status,
       display_order: form.display_order, email: form.email.trim().toLowerCase() || null,
       visible: form.visible,
+      contact_user_id: form.contact_user_id || null,
+      handler_user_id: form.handler_user_id || null,
     };
+
     const { error } = form.id
       ? await supabase.from("residents").update(payload).eq("id", form.id)
       : await supabase.from("residents").insert(payload);
