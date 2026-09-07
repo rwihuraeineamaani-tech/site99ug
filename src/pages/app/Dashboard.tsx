@@ -31,7 +31,7 @@ export default function Dashboard() {
           .select("id, title, stage, planned_at, updated_at")
           .not("stage", "in", '("Posted","Archived","Rejected")')
           .order("planned_at", { ascending: true, nullsFirst: false })
-          .limit: undefined as never,
+          .limit(12),
       ]);
       if (cancelled) return;
       setClients(c ?? 0);
