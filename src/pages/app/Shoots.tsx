@@ -801,6 +801,19 @@ export default function Shoots() {
               {open.status === "draft" && !open.shoot_date && (
                 <p className="text-xs text-ink-soft">Save the date first, then confirm — confirming schedules every idea on the day.</p>
               )}
+
+              {canEditContent && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="self-start text-signal"
+                  disabled={busy}
+                  onClick={() => setConfirmDelete(open)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete this shoot day
+                </Button>
+              )}
             </>
           )}
         </DialogContent>
