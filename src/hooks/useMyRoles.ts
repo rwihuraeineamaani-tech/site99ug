@@ -82,6 +82,9 @@ export type RoleState = {
   loading: boolean;
   userId: string | null;
   email: string | null;
+  displayName: string | null;
+  /** best human-readable title for this user (e.g. "Founder") */
+  title: string | null;
   roles: AppRole[];
   has: (...r: AppRole[]) => boolean;
   /** anyone with an internal role */
