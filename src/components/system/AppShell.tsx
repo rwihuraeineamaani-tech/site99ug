@@ -22,6 +22,10 @@ import {
   PieChart,
   FileText,
   Search,
+  ShieldCheck,
+  Gauge,
+  CalendarClock,
+  Megaphone,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -69,12 +73,33 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   if (departments.content) dept.push({ to: "/app/shoots", label: "Shoot days", icon: Camera });
   if (departments.clients) dept.push({ to: "/app/residents", label: "Residents", icon: Handshake });
   if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
-  if (departments.legal) dept.push({ to: "/app/legal", label: "Legal & contracts", icon: Scale });
-  if (departments.ops) dept.push({ to: "/app/ops", label: "Management & ops", icon: Settings2 });
-  if (departments.ops) dept.push({ to: "/app/equipment", label: "Equipment", icon: Package });
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
   if (isLeadership) dept.push({ to: "/app/team", label: "Team & access", icon: Users });
   if (dept.length) groups.push({ label: "Departments", items: dept });
+
+  const legal: ShellNavItem[] = departments.legal
+    ? [
+        { to: "/app/legal", label: "Overview", end: true, icon: Scale },
+        { to: "/app/legal/contracts", label: "Contracts", icon: FileText },
+        { to: "/app/legal/partnerships", label: "Partnerships", icon: Handshake },
+        { to: "/app/legal/documents", label: "Documents", icon: BookOpen },
+        { to: "/app/legal/compliance", label: "Compliance", icon: ShieldCheck },
+      ]
+    : [];
+  if (legal.length) groups.push({ label: "Legal", items: legal });
+
+  const ops: ShellNavItem[] = departments.ops
+    ? [
+        { to: "/app/ops", label: "Overview", end: true, icon: Settings2 },
+        { to: "/app/ops/people", label: "People", icon: Users },
+        { to: "/app/ops/workload", label: "Workload", icon: Gauge },
+        { to: "/app/ops/deadlines", label: "Deadlines", icon: CalendarClock },
+        { to: "/app/ops/report", label: "Weekly report", icon: FileText },
+        { to: "/app/ops/announcements", label: "Announcements", icon: Megaphone },
+        { to: "/app/equipment", label: "Equipment", icon: Package },
+      ]
+    : [];
+  if (ops.length) groups.push({ label: "Management", items: ops });
 
   const winding: ShellNavItem[] = [];
   if (departments.events) winding.push({ to: "/app/events", label: "Events", icon: CalendarDays });

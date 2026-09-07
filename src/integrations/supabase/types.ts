@@ -621,6 +621,48 @@ export type Database = {
         }
         Relationships: []
       }
+      compliance_items: {
+        Row: {
+          authority: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          notes: string | null
+          owner_user_id: string | null
+          reference_no: string | null
+          renews_on: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          authority?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          owner_user_id?: string | null
+          reference_no?: string | null
+          renews_on?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          authority?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          owner_user_id?: string | null
+          reference_no?: string | null
+          renews_on?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_crew: {
         Row: {
           content_id: string
@@ -810,6 +852,88 @@ export type Database = {
           },
           {
             foreignKeyName: "content_items_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          client_id: string | null
+          contract_type: string
+          created_at: string
+          created_by: string | null
+          ends_on: string | null
+          file_path: string | null
+          id: string
+          notes: string | null
+          owner_user_id: string | null
+          party_kind: string
+          party_name: string
+          resident_id: string | null
+          starts_on: string | null
+          status: string
+          title: string
+          updated_at: string
+          value_ugx: number | null
+        }
+        Insert: {
+          client_id?: string | null
+          contract_type?: string
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          owner_user_id?: string | null
+          party_kind?: string
+          party_name: string
+          resident_id?: string | null
+          starts_on?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          value_ugx?: number | null
+        }
+        Update: {
+          client_id?: string | null
+          contract_type?: string
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          owner_user_id?: string | null
+          party_kind?: string
+          party_name?: string
+          resident_id?: string | null
+          starts_on?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          value_ugx?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
             referencedRelation: "residents"
@@ -1060,6 +1184,42 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_documents: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          file_path: string | null
+          id: string
+          notes: string | null
+          title: string
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          title: string
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          title?: string
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: []
+      }
       loan_repayments: {
         Row: {
           amount_ugx: number
@@ -1298,6 +1458,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partnerships: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          ends_on: string | null
+          file_path: string | null
+          id: string
+          name: string
+          notes: string | null
+          owner_user_id: string | null
+          partner_contact: string | null
+          split_kind: string
+          split_value: number | null
+          starts_on: string | null
+          status: string
+          terms: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          file_path?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          owner_user_id?: string | null
+          partner_contact?: string | null
+          split_kind?: string
+          split_value?: number | null
+          starts_on?: string | null
+          status?: string
+          terms?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          file_path?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          owner_user_id?: string | null
+          partner_contact?: string | null
+          split_kind?: string
+          split_value?: number | null
+          starts_on?: string | null
+          status?: string
+          terms?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       payment_run_lines: {
         Row: {
@@ -2112,6 +2326,39 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_reports: {
+        Row: {
+          body: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          metrics: Json
+          published: boolean
+          updated_at: string
+          week_start: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metrics?: Json
+          published?: boolean
+          updated_at?: string
+          week_start: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metrics?: Json
+          published?: boolean
+          updated_at?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       public_residents: {
@@ -2370,6 +2617,7 @@ export type Database = {
           resident_name: string
         }[]
       }
+      ops_overview: { Args: never; Returns: Json }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
