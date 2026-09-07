@@ -967,6 +967,16 @@ export default function ContentPipeline() {
     </div>
   );
 
+  const PRODUCTION_TITLE = /(creativ|content|product|shoot|photo|video|camera|edit|strateg|direct)/i;
+  const productionMembers = members.filter((m) => PRODUCTION_TITLE.test(m.title ?? ""));
+  const otherMembers = members.filter((m) => !PRODUCTION_TITLE.test(m.title ?? ""));
+  const memberOption = (m: Member) => (
+    <option key={m.user_id} value={m.user_id}>
+      {m.name}
+      {m.title ? ` — ${m.title}` : ""}
+    </option>
+  );
+
   const crewEditor = () => (
     <div className="mt-3 space-y-2">
       {crew.map((c) => (
@@ -978,12 +988,14 @@ export default function ContentPipeline() {
             onChange={(e) => setCrewPerson(c.id, e.target.value || null)}
           >
             <option value="">Not filled yet</option>
-            {members.map((m) => (
-              <option key={m.user_id} value={m.user_id}>
-                {m.name}
-              </option>
-            ))}
+            {productionMembers.length > 0 && (
+              <optgroup label="Production">{productionMembers.map(memberOption)}</optgroup>
+            )}
+            {otherMembers.length > 0 && (
+              <optgroup label="Everyone else">{otherMembers.map(memberOption)}</optgroup>
+            )}
           </select>
+
           {(isFounder || isContact) && (
             <button
               type="button"
