@@ -548,9 +548,17 @@ export default function ContentPipeline() {
         <div className={box}>
           <div className="eyebrow text-ink-faint">Post production</div>
           <label className="mt-2 block text-sm">
-            <span className="eyebrow text-ink-faint">Link to the cut</span>
-            <input className={field} placeholder="https://…" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} />
+            <span className="eyebrow text-ink-faint">Google Drive link to the cut</span>
+            <input
+              className={field}
+              placeholder="https://drive.google.com/…"
+              value={editUrl}
+              onChange={(e) => setEditUrl(e.target.value)}
+            />
           </label>
+          <p className="mt-1 text-xs text-ink-soft">
+            Upload the cut to Google Drive, set the link so anyone with it can view, then paste that link here.
+          </p>
           <label className="mt-3 inline-flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -565,8 +573,9 @@ export default function ContentPipeline() {
             disabled={busy || (!editUrl && !sentDirect)}
             onClick={() => advance("Review", { edit_file_url: editUrl || null, sent_direct: sentDirect })}
           >
-            Send to the founders
+            Forward for approval
           </Button>
+
         </div>
       ) : (
         waiting("With the editor.")
