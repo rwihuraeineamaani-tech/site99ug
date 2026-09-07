@@ -447,7 +447,7 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
           <label className={lbl}>Email * (used to invite)</label>
           <input required type="email" className={input} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <p className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-2">
-            Send them <span className="text-site-red">/residents/login</span> — they sign up with this email and access opens automatically.
+            Send them <span className="text-site-red">/login</span> — they sign up with this email and access opens automatically.
           </p>
         </div>
         <div><label className={lbl}>Since *</label><input required className={input} value={form.since} onChange={(e) => setForm({ ...form, since: e.target.value })} /></div>
@@ -506,7 +506,7 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
             <button
               onClick={() => {
                 if (!r.email) return toast.error("Add an email first");
-                const portalUrl = `${window.location.origin}/residents/login`;
+                const portalUrl = `${window.location.origin}/login`;
                 const subject = `You're invited to the Site 99 Resident Portal`;
                 const body =
 `Hi ${r.name},

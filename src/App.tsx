@@ -10,7 +10,7 @@ import Residents from "./pages/Residents.tsx";
 import Philosophy from "./pages/Philosophy.tsx";
 import Access from "./pages/Access.tsx";
 import Admin from "./pages/Admin.tsx";
-import ResidentLogin from "./pages/ResidentLogin.tsx";
+
 import ResidentPortal from "./pages/ResidentPortal.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import TikTokViralEconomicsUganda from "./pages/blog/TikTokViralEconomicsUganda.tsx";
@@ -192,7 +192,7 @@ const AnimatedRoutes = () => {
           }
         />
 
-        <Route path="/residents/login" element={<ResidentLogin />} />
+        <Route path="/residents/login" element={<Navigate to="/login" replace />} />
         <Route path="/residents/portal" element={<ResidentPortal />} />
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />
         <Route path="/services" element={<Services />} />
