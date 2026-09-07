@@ -258,7 +258,8 @@ export default function ContentPipeline() {
     setSentDirect(row.sent_direct ?? false);
     setPlatforms(row.platforms ?? []);
     setCaptions(row.caption_suggestions ?? "");
-    setPostLinks((row.posted_links ?? []).join("\n"));
+    setPostLinks(parsePostedLinks(row.posted_links));
+    setEditRemarks(row.edit_remarks ?? "");
     setPostedFrom(row.posted_from ? row.posted_from.slice(0, 16) : "");
     setPostedTo(row.posted_to ? row.posted_to.slice(0, 16) : "");
     const m = (row.metrics ?? {}) as Record<string, string>;
