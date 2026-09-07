@@ -525,7 +525,7 @@ export default function EventsAdmin() {
                   ["title", "Title"],
                   ["venue", "Venue"],
                 ].map(([k, l]) => (
-                  <input key={k} placeholder={l} value={form[k] || ""} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="w-full bg-transparent border-b border-border py-2" />
+                  <input key={k} placeholder={l} value={form[k] || ""} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="field w-full -b - py-2" />
                 ))}
                 <div className="border border-border rounded p-3 space-y-2">
                   <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Poster (shown clean, no fade — prefer portrait)</label>
@@ -536,7 +536,7 @@ export default function EventsAdmin() {
                       <button type="button" onClick={() => setForm({ ...form, poster_url: "" })} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Clear</button>
                     </div>
                   )}
-                  <input placeholder="…or paste an existing image URL" value={form.poster_url || ""} onChange={(e) => setForm({ ...form, poster_url: e.target.value })} className="w-full bg-transparent border-b border-border py-2 text-xs" />
+                  <input placeholder="…or paste an existing image URL" value={form.poster_url || ""} onChange={(e) => setForm({ ...form, poster_url: e.target.value })} className="field w-full -b - py-2 text-xs" />
                 </div>
                 <div className="border border-border rounded p-3 space-y-2">
                   <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Cover image (atmospheric backdrop with fade, used when no poster)</label>
@@ -547,10 +547,10 @@ export default function EventsAdmin() {
                       <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Clear</button>
                     </div>
                   )}
-                  <input placeholder="…or paste an existing image URL" value={form.cover_url || ""} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} className="w-full bg-transparent border-b border-border py-2 text-xs" />
+                  <input placeholder="…or paste an existing image URL" value={form.cover_url || ""} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} className="field w-full -b - py-2 text-xs" />
                 </div>
-                <textarea placeholder="Description" rows={3} value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full bg-transparent border border-border rounded p-3" />
-                <textarea placeholder="Policy (refunds, entry rules, dress code…)" rows={4} value={form.policy || ""} onChange={(e) => setForm({ ...form, policy: e.target.value })} className="w-full bg-transparent border border-border rounded p-3" />
+                <textarea placeholder="Description" rows={3} value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} className="field w-full - p-3" />
+                <textarea placeholder="Policy (refunds, entry rules, dress code…)" rows={4} value={form.policy || ""} onChange={(e) => setForm({ ...form, policy: e.target.value })} className="field w-full - p-3" />
                 <div className="grid grid-cols-2 gap-3">
                   <label className="text-xs">Starts<input type="datetime-local" value={form.starts_at?.slice(0, 16) || ""} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
                   <label className="text-xs">Ends<input type="datetime-local" value={form.ends_at?.slice(0, 16) || ""} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} className="w-full bg-transparent border-b border-border py-2" /></label>
@@ -599,12 +599,12 @@ export default function EventsAdmin() {
 
                 <div className="border border-border rounded p-3 space-y-2">
                   <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Organizer</label>
-                  <input placeholder="Organizer name" value={form.organizer_name || ""} onChange={(e) => setForm({ ...form, organizer_name: e.target.value })} className="w-full bg-transparent border-b border-border py-2" />
+                  <input placeholder="Organizer name" value={form.organizer_name || ""} onChange={(e) => setForm({ ...form, organizer_name: e.target.value })} className="field w-full -b - py-2" />
                   <div className="space-y-2">
                     {(form.organizer_socials || []).map((s: any, i: number) => (
                       <div key={i} className="flex gap-2">
-                        <input placeholder="Label (Instagram)" value={s.label} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], label: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="flex-1 bg-transparent border-b border-border py-1 text-xs" />
-                        <input placeholder="https://…" value={s.url} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], url: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="flex-[2] bg-transparent border-b border-border py-1 text-xs" />
+                        <input placeholder="Label (Instagram)" value={s.label} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], label: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="field flex-1 -b - py-1 text-xs" />
+                        <input placeholder="https://…" value={s.url} onChange={(e) => { const arr = [...form.organizer_socials]; arr[i] = { ...arr[i], url: e.target.value }; setForm({ ...form, organizer_socials: arr }); }} className="field flex-[2] -b - py-1 text-xs" />
                         <button type="button" onClick={() => setForm({ ...form, organizer_socials: form.organizer_socials.filter((_: any, j: number) => j !== i) })} className="ctl mono text-[10px] text-site-red focus-ring px-3 py-1.5">×</button>
                       </div>
                     ))}
@@ -678,9 +678,9 @@ export default function EventsAdmin() {
                             {editingTierId === t.id ? (
                               <div className="space-y-2">
                                 <div className="grid grid-cols-3 gap-2">
-                                  <input placeholder="Tier name" value={tierEdit.name} onChange={(ev) => setTierEdit({ ...tierEdit, name: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
-                                  <input type="number" placeholder="UGX" value={tierEdit.price_ugx} onChange={(ev) => setTierEdit({ ...tierEdit, price_ugx: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
-                                  <input type="number" placeholder="Capacity" value={tierEdit.capacity} onChange={(ev) => setTierEdit({ ...tierEdit, capacity: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
+                                  <input placeholder="Tier name" value={tierEdit.name} onChange={(ev) => setTierEdit({ ...tierEdit, name: ev.target.value })} className="field -b - py-1 text-sm" />
+                                  <input type="number" placeholder="UGX" value={tierEdit.price_ugx} onChange={(ev) => setTierEdit({ ...tierEdit, price_ugx: ev.target.value })} className="field -b - py-1 text-sm" />
+                                  <input type="number" placeholder="Capacity" value={tierEdit.capacity} onChange={(ev) => setTierEdit({ ...tierEdit, capacity: ev.target.value })} className="field -b - py-1 text-sm" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                   <label className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Sales open<input type="datetime-local" value={tierEdit.sales_start_at} onChange={(ev) => setTierEdit({ ...tierEdit, sales_start_at: ev.target.value })} className="w-full bg-transparent border-b border-border py-1 text-sm" /></label>
@@ -712,9 +712,9 @@ export default function EventsAdmin() {
 
                         <div className="mt-3 space-y-2">
                           <div className="grid grid-cols-3 gap-2">
-                            <input placeholder="Tier name" value={tierForm.name} onChange={(ev) => setTierForm({ ...tierForm, name: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
-                            <input type="number" placeholder="UGX" value={tierForm.price_ugx} onChange={(ev) => setTierForm({ ...tierForm, price_ugx: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
-                            <input type="number" placeholder="Capacity" value={tierForm.capacity} onChange={(ev) => setTierForm({ ...tierForm, capacity: ev.target.value })} className="bg-transparent border-b border-border py-1 text-sm" />
+                            <input placeholder="Tier name" value={tierForm.name} onChange={(ev) => setTierForm({ ...tierForm, name: ev.target.value })} className="field -b - py-1 text-sm" />
+                            <input type="number" placeholder="UGX" value={tierForm.price_ugx} onChange={(ev) => setTierForm({ ...tierForm, price_ugx: ev.target.value })} className="field -b - py-1 text-sm" />
+                            <input type="number" placeholder="Capacity" value={tierForm.capacity} onChange={(ev) => setTierForm({ ...tierForm, capacity: ev.target.value })} className="field -b - py-1 text-sm" />
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <label className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Sales open<input type="datetime-local" value={tierForm.sales_start_at} onChange={(ev) => setTierForm({ ...tierForm, sales_start_at: ev.target.value })} className="w-full bg-transparent border-b border-border py-1 text-sm" /></label>
@@ -745,7 +745,7 @@ export default function EventsAdmin() {
               </label>
               <label>
                 <span className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Event</span>
-                <select value={scopeEventId} onChange={(e) => setScopeEventId(e.target.value)} className="bg-background border border-border rounded px-3 py-2 mt-1">
+                <select value={scopeEventId} onChange={(e) => setScopeEventId(e.target.value)} className="field - px-3 py-2 mt-1">
                   <option value="">All events</option>
                   {events.map((e) => <option key={e.id} value={e.id}>{e.title}</option>)}
                 </select>
