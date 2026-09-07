@@ -460,17 +460,19 @@ export default function ContentPipeline() {
 
           <DialogFooter className="mt-2 flex items-center gap-2">
             {editing && (
-              <button className={`${btn} mr-auto text-state-stop`} onClick={remove} disabled={busy}>
+              <Button variant="ghost" className="mr-auto text-signal hover:bg-[hsl(0_100%_96%)]" onClick={remove} disabled={busy}>
+                <Trash2 />
                 Delete
-              </button>
+              </Button>
             )}
-            <button className={btn} onClick={() => setOpen(false)} disabled={busy}>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
               Cancel
-            </button>
-            <button className={btnSolid} onClick={save} disabled={busy}>
+            </Button>
+            <Button onClick={save} disabled={busy}>
               {busy ? "Saving…" : "Save"}
-            </button>
+            </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
 
