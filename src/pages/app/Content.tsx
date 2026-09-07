@@ -455,6 +455,7 @@ export default function ContentPipeline() {
     const handler = (!!userId && r?.handler_user_id === userId) || amHandler(i.resident_id);
     const rows = crewByItem[i.id] ?? [];
     const itemEditor = !!userId && rows.some((c) => c.user_id === userId && /edit/i.test(c.role));
+    const onCrew = !!userId && rows.some((c) => c.user_id === userId);
     const crewFilled = rows.length > 0 && rows.every((c) => c.user_id);
     const openIt: Quick["run"] = undefined;
 
@@ -470,17 +471,20 @@ export default function ContentPipeline() {
         return isFounder || contact ? [{ label: "Fill the crew", run: openIt }] : [];
       case "Crewed":
       case "Scheduled":
-        return canEditContent ? [{ label: "Open shoot day", run: () => navigate("/app/shoots"), ghost: true }] : [];
+        return canEditContent || onCrew
+          ? [{ label: "Open shoot day", run: () => navigate("/app/shoots"), ghost: true }]
+          : [];
       case "Shooting":
-        return isFounder || contact ? [{ label: "Shoot done", run: () => move(i.id, "Editing") }] : [];
+        return isFounder || contact || onCrew ? [{ label: "Shoot done", run: () => move(i.id, "Editing") }] : [];
       case "Editing":
-        return isFounder || itemEditor ? [{ label: "Add the cut", run: openIt }] : [];
+        return isFounder || itemEditor || onCrew ? [{ label: "Add the cut", run: openIt }] : [];
       case "Review":
         return isFounder ? [{ label: "Review it", run: openIt }] : [];
       case "Handover":
         return isFounder || handler ? [{ label: "Add post links", run: openIt }] : [];
       case "Posted":
         return isFounder || handler ? [{ label: "Add the numbers", run: openIt }] : [];
+
       default:
         return [];
     }
