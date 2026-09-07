@@ -15,7 +15,13 @@ import {
   Camera,
   Package,
   LogOut,
-
+  BookOpen,
+  HandCoins,
+  Banknote,
+  Landmark,
+  PieChart,
+  FileText,
+  Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
