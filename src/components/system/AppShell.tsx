@@ -12,7 +12,10 @@ import {
   TrendingUp,
   Wallet,
   Settings2,
+  Camera,
+  Package,
   LogOut,
+
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
