@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.content_stage_guard() FROM PUBLIC, anon, authenticated;

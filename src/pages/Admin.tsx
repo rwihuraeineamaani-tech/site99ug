@@ -24,8 +24,9 @@ const emptyProj: ProjForm = {
   youtube_url: "", aspect_ratio: "4:5",
 };
 
-type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean };
-const emptyRes: ResForm = { name: "", territory: "", since: "", status: "Active", display_order: 0, email: "", visible: true };
+type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean; contact_user_id: string; handler_user_id: string };
+const emptyRes: ResForm = { name: "", territory: "", since: "", status: "Active", display_order: 0, email: "", visible: true, contact_user_id: "", handler_user_id: "" };
+
 
 type Tab = "projects" | "residents" | "briefs" | "announcements" | "messages" | "requests" | "team";
 
@@ -301,6 +302,17 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   const { data: residents = [], refetch } = useResidents();
   const [form, setForm] = useState<ResForm>(emptyRes);
   const [editing, setEditing] = useState(false);
+  const { data: members = [] } = useQuery({
+    queryKey: ["team-members-simple"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("team_members").select("user_id, display_name, email");
+      if (error) throw error;
+      return (data ?? []).map((m) => ({
+        user_id: m.user_id as string,
+        name: (m.display_name as string | null)?.trim() || (m.email as string).split("@")[0],
+      }));
+    },
+  });
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -308,7 +320,10 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
       name: form.name, territory: form.territory, since: form.since, status: form.status,
       display_order: form.display_order, email: form.email.trim().toLowerCase() || null,
       visible: form.visible,
+      contact_user_id: form.contact_user_id || null,
+      handler_user_id: form.handler_user_id || null,
     };
+
     const { error } = form.id
       ? await supabase.from("residents").update(payload).eq("id", form.id)
       : await supabase.from("residents").insert(payload);
@@ -318,7 +333,9 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   };
   const edit = (r: any) => {
     setForm({ id: r.id, name: r.name, territory: r.territory, since: r.since, status: r.status,
-      display_order: r.display_order, email: r.email || "", visible: r.visible !== false });
+      display_order: r.display_order, email: r.email || "", visible: r.visible !== false,
+      contact_user_id: r.contact_user_id || "", handler_user_id: r.handler_user_id || "" });
+
     setEditing(true); window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const toggleVisible = async (r: any) => {
@@ -350,6 +367,21 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
         <div><label className={lbl}>Since *</label><input required className={input} value={form.since} onChange={(e) => setForm({ ...form, since: e.target.value })} /></div>
         <div><label className={lbl}>Status</label><input className={input} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} /></div>
         <div><label className={lbl}>Display order</label><input type="number" className={input} value={form.display_order} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} /></div>
+        <div>
+          <label className={lbl}>Contact person</label>
+          <select className={input} value={form.contact_user_id} onChange={(e) => setForm({ ...form, contact_user_id: e.target.value })}>
+            <option value="">Not set</option>
+            {members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className={lbl}>Handler (posts the work)</label>
+          <select className={input} value={form.handler_user_id} onChange={(e) => setForm({ ...form, handler_user_id: e.target.value })}>
+            <option value="">Not set</option>
+            {members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
+          </select>
+        </div>
+
         <div className="md:col-span-2 flex items-center gap-3">
           <label className="inline-flex items-center gap-3 mono text-xs uppercase tracking-[0.3em]">
             <input type="checkbox" checked={form.visible} onChange={(e) => setForm({ ...form, visible: e.target.checked })} className="w-4 h-4 accent-site-red" />

@@ -25,11 +25,16 @@ const TONE_MAP: Record<string, StateTone> = {
   // content pipeline
   idea: "violet",
   approved: "teal",
+  crewed: "pink",
   rejected: "stop",
   scheduled: "blue",
+  shooting: "amber",
   editing: "amber",
+  review: "violet",
+  handover: "blue",
   posted: "lime",
   archived: "neutral",
+
   // payroll / finance
   paid: "teal",
   redirected: "amber",
