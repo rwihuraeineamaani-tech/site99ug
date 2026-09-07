@@ -167,6 +167,24 @@ export default function Dashboard() {
         />
       </div>
 
+      {waiting.length > 0 && (
+        <div className="mt-12">
+          <SectionHeading index="00" title="Waiting on you" hint={`${waiting.length} to act on`} />
+          <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
+            {waiting.map(({ item, why }) => (
+              <li key={`${item.id}-${why}`} className="px-4 py-3 flex items-center gap-3">
+                <span className="num text-[11px] text-ink-faint w-20 shrink-0">{refCode(item.ref_no)}</span>
+                <Link to="/app/content" className="text-sm truncate focus-ring">
+                  {item.title}
+                </Link>
+                <span className="ml-auto text-xs font-semibold text-signal whitespace-nowrap">{why}</span>
+                <StatusChip value={item.stage} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {departments.content && (
         <div className="mt-12">
           <SectionHeading index="01" title="Content in flight" hint={`${content.length} open`} />
