@@ -67,6 +67,17 @@ export const ROLE_HINTS: Record<StaffRole, string> = {
 const LEADERSHIP: StaffRole[] = ["admin", "founder", "managing_director"];
 const FINANCE: StaffRole[] = ["admin", "founder", "managing_director", "finance_ops"];
 
+/** Department sections of the internal system. */
+export type Department =
+  | "content"
+  | "clients"
+  | "sales"
+  | "legal"
+  | "ops"
+  | "finance"
+  | "site"
+  | "events";
+
 export type RoleState = {
   loading: boolean;
   userId: string | null;
@@ -86,10 +97,14 @@ export type RoleState = {
   canViewEvents: boolean;
   canScan: boolean;
   canEditSite: boolean;
+  canEditContent: boolean;
+  /** which department sections this person may open */
+  departments: Record<Department, boolean>;
   /** where this person should land after signing in */
   landingPath: string;
   reload: () => void;
 };
+
 
 const STAFF_ROLES = new Set<string>(TEAM_ROLES);
 
