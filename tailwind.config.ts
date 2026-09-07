@@ -51,6 +51,16 @@ export default {
           stop: "hsl(var(--state-stop))",
           done: "hsl(var(--state-done))",
         },
+        acc: {
+          violet: { DEFAULT: "hsl(var(--acc-violet))", soft: "hsl(var(--acc-violet-soft))" },
+          teal: { DEFAULT: "hsl(var(--acc-teal))", soft: "hsl(var(--acc-teal-soft))" },
+          amber: { DEFAULT: "hsl(var(--acc-amber))", soft: "hsl(var(--acc-amber-soft))" },
+          blue: { DEFAULT: "hsl(var(--acc-blue))", soft: "hsl(var(--acc-blue-soft))" },
+          pink: { DEFAULT: "hsl(var(--acc-pink))", soft: "hsl(var(--acc-pink-soft))" },
+          lime: { DEFAULT: "hsl(var(--acc-lime))", soft: "hsl(var(--acc-lime-soft))" },
+          slate: { DEFAULT: "hsl(var(--acc-slate))", soft: "hsl(var(--acc-slate-soft))" },
+        },
+
 
       },
       borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 0.25rem)", sm: "calc(var(--radius) - 0.5rem)", xl: "calc(var(--radius) + 0.5rem)", "2xl": "calc(var(--radius) + 1rem)" },
