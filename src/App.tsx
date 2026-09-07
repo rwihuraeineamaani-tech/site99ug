@@ -42,6 +42,7 @@ import Shoots from "./pages/app/Shoots.tsx";
 import EquipmentPage from "./pages/app/Equipment.tsx";
 
 import RequireRole from "./components/system/RequireRole";
+import RolesProvider from "./components/system/RolesProvider";
 
 
 
@@ -208,8 +209,10 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <RolesProvider>
         <ScrollToTop />
         <AnimatedRoutes />
+        </RolesProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
