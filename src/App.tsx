@@ -54,6 +54,33 @@ const AnimatedRoutes = () => {
         <Route path="/access" element={<Access />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/app"
+          element={
+            <RequireRole gate="staff">
+              <Dashboard />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/team"
+          element={
+            <RequireRole gate="leadership">
+              <AppTeam />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/portal"
+          element={
+            <RequireRole gate="client">
+              <ClientPortal />
+            </RequireRole>
+          }
+        />
+
         <Route path="/residents/login" element={<ResidentLogin />} />
         <Route path="/residents/portal" element={<ResidentPortal />} />
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />
