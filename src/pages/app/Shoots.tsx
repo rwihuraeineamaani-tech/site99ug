@@ -173,7 +173,9 @@ export default function Shoots() {
 
   const newDay = async (owner: string) => {
     if (!owner) return;
-    const payload = owner.startsWith("p:") ? { project_id: owner.slice(2) } : { resident_id: owner.slice(2) };
+    const payload: { resident_id?: string; project_id?: string } = owner.startsWith("p:")
+      ? { project_id: owner.slice(2) }
+      : { resident_id: owner.slice(2) };
     await run(() => supabase.from("shoot_days").insert(payload), "Shoot day created");
   };
 
