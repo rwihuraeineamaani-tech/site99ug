@@ -864,6 +864,29 @@ export default function Shoots() {
           )}
         </DialogContent>
       </Dialog>
+      <Dialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete this shoot day?</DialogTitle>
+          </DialogHeader>
+          {confirmDelete && (
+            <>
+              <p className="text-sm text-ink-soft">
+                {ownerName(confirmDelete)} — {confirmDelete.shoot_date ?? "no date yet"}. The ideas on it go back to the
+                pipeline; the gear is released. This cannot be undone.
+              </p>
+              <div className="mt-3 flex gap-2">
+                <Button disabled={busy} onClick={() => deleteDay(confirmDelete)}>
+                  Delete it
+                </Button>
+                <Button variant="ghost" onClick={() => setConfirmDelete(null)}>
+                  Keep it
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
