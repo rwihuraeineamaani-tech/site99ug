@@ -115,6 +115,7 @@ export function useMyRoles(): RoleState {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [clientId, setClientId] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
