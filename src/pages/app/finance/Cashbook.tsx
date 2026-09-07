@@ -310,10 +310,10 @@ export default function Cashbook() {
             <div key={r.id} className="rule-b py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
               <span className="num text-xs text-ink-soft w-24">{dayLabel(r.entry_date)}</span>
               <span className="text-sm font-medium min-w-[140px]">{r.counterparty_name || "—"}</span>
-              <StatusChip tone={r.direction === "in" ? "teal" : "amber"} label={r.direction === "in" ? "In" : "Out"} />
+              <StatusChip tone={r.direction === "in" ? "teal" : "amber"} value={r.direction === "in" ? "In" : "Out"} />
               <span className="text-xs text-ink-soft">{catLabel(r.category)}</span>
               <span className="text-xs text-ink-faint">{walletName(r.wallet_id)}</span>
-              {r.reverses_id && <StatusChip tone="stop" label="Reversal" />}
+              {r.reverses_id && <StatusChip tone="stop" value="Reversal" />}
               {r.transaction_id && <span className="text-[11px] text-ink-faint">From a payment</span>}
               <span className="ml-auto flex items-center gap-3">
                 <Money amount={r.direction === "in" ? r.amount_ugx : -r.amount_ugx} signed />
