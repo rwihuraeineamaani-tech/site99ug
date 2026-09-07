@@ -925,6 +925,14 @@ export type Database = {
         | "scanner"
         | "viewer"
         | "site_editor"
+        | "founder"
+        | "creative_director"
+        | "managing_director"
+        | "sales_head"
+        | "finance_ops"
+        | "creative"
+        | "legal"
+        | "client"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1060,6 +1068,14 @@ export const Constants = {
         "scanner",
         "viewer",
         "site_editor",
+        "founder",
+        "creative_director",
+        "managing_director",
+        "sales_head",
+        "finance_ops",
+        "creative",
+        "legal",
+        "client",
       ],
     },
   },
