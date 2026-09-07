@@ -5,6 +5,7 @@ import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip, SearchInput, SelectFilter, FilterBar } from "@/components/system";
 import AccountsPanel from "@/components/system/AccountsPanel";
+import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { ChevronRight } from "lucide-react";
 
@@ -22,7 +23,7 @@ export type ResidentRecord = {
 };
 
 export default function ResidentsHub() {
-  const { userId } = useMyRoles();
+  const { userId, canSeeFinance } = useMyRoles();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<ResidentRecord[]>([]);
   const [accountCount, setAccountCount] = useState<Record<string, number>>({});
@@ -93,6 +94,12 @@ export default function ResidentsHub() {
       ) : (
         <>
           <AccountsPanel showNames index="00" />
+
+          {canSeeFinance && (
+            <div className="mt-14">
+              <ClientPayPanel />
+            </div>
+          )}
 
           <div className="mt-14">
             <SectionHeading index="01" title="Everyone we work with" hint={`${list.length} of ${rows.length}`} />
