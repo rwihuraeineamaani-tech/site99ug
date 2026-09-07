@@ -220,6 +220,81 @@ export default function Shoots() {
     await run(() => supabase.from("shoot_days").insert(payload), "Shoot day created");
   };
 
+  /** The brief as plain text — used for the copy button and read by everyone on the day. */
+  const briefText = (d: ShootDay) => {
+    const lines = [
+      `SHOOT DAY — ${ownerName(d)}`,
+      `Date: ${d.shoot_date ?? "to be set"}`,
+      `Call time: ${d.call_time ?? "to be set"}`,
+      `Location: ${d.location ?? "to be set"}`,
+    ];
+    if (d.notes) lines.push("", `Notes: ${d.notes}`);
+    lines.push("", "What we are shooting:");
+    itemsOf(d.id).forEach((i) => {
+      lines.push(`- ${refCode(i.ref_no)} ${i.title} (${i.content_type})`);
+      const c = crewOf(i.id);
+      if (c.length) lines.push(`  ${c.join(" · ")}`);
+    });
+    const g = gearOf(d.id);
+    if (g.length) lines.push("", `Gear: ${g.join(", ")}`);
+    return lines.join("\n");
+  };
+
+  /** Emails the brief to everyone crewed on the day plus the client's contact person. */
+  const sendBrief = async (d: ShootDay) => {
+    const list = itemsOf(d.id);
+    const uids = new Set<string>();
+    list.forEach((i) => crew.filter((c) => c.content_id === i.id && c.user_id).forEach((c) => uids.add(c.user_id as string)));
+    const contact = residents.find((r) => r.id === d.resident_id)?.contact_user_id;
+    if (contact) uids.add(contact);
+    const emails = [...uids].map((u) => members.find((m) => m.user_id === u)?.email).filter(Boolean) as string[];
+    if (emails.length === 0) {
+      toast.error("Nobody to send to yet — crew the ideas on this day first.");
+      return;
+    }
+
+    setBusy(true);
+    const sentAt = new Date().toISOString();
+    const templateData = {
+      owner: ownerName(d),
+      date: d.shoot_date ?? "",
+      callTime: d.call_time ?? "",
+      location: d.location ?? "",
+      notes: d.notes ?? "",
+      ideas: list.map((i) => ({
+        ref: refCode(i.ref_no),
+        title: i.title,
+        type: i.content_type,
+        crew: crewOf(i.id).join(" · "),
+      })),
+      gear: gearOf(d.id),
+    };
+
+    let failed = 0;
+    for (const email of emails) {
+      const { error } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "shoot-day-brief",
+          recipientEmail: email,
+          idempotencyKey: `shoot-brief-${d.id}-${sentAt}-${email}`,
+          templateData,
+        },
+      });
+      if (error) failed += 1;
+    }
+    await supabase.from("shoot_days").update({ brief_sent_at: sentAt }).eq("id", d.id);
+    setBusy(false);
+    await load();
+    if (failed === emails.length) toast.error("The brief could not go out — email sending isn't live yet.");
+    else toast.success(`Brief sent to ${emails.length - failed} of the team.`);
+  };
+
+  const copyBrief = async (d: ShootDay) => {
+    await navigator.clipboard.writeText(briefText(d));
+    toast.success("Brief copied — paste it anywhere.");
+  };
+
+
   return (
     <AppShell>
       <Seo title="Shoot days — Site 99" description="Plan shoot days, the ideas on them and the gear booked out." path="/app/shoots" noindex />
