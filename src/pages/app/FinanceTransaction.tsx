@@ -27,7 +27,7 @@ type Txn = {
   reverses_txn_id: string | null;
 };
 
-type Audit = { id: string; action: string; detail: string | null; actor: string | null; created_at: string };
+type Audit = { id: string; action: string; table_name: string; actor: string | null; created_at: string };
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -50,7 +50,7 @@ export default function FinanceTransaction() {
     const load = async () => {
       const [{ data: t }, { data: a }, { data: team }] = await Promise.all([
         supabase.from("transactions").select("*").eq("id", id).maybeSingle(),
-        supabase.from("finance_audit").select("id, action, detail, actor, created_at").eq("entity_id", id).order("created_at"),
+        supabase.from("finance_audit").select("id, action, table_name, actor, created_at").eq("row_id", id).order("created_at"),
         supabase.from("team_members").select("user_id, display_name, email"),
       ]);
       setTxn((t as Txn) ?? null);
@@ -125,7 +125,7 @@ export default function FinanceTransaction() {
               {audit.map((a) => (
                 <li key={a.id} className="px-4 py-3 flex flex-wrap items-center gap-3 text-sm">
                   <span className="font-medium">{a.action.replace(/_/g, " ")}</span>
-                  {a.detail && <span className="text-ink-soft">{a.detail}</span>}
+                  <span className="text-ink-soft">{a.table_name.replace(/_/g, " ")}</span>
                   <span className="ml-auto text-[11px] text-ink-faint">
                     {a.actor ? names[a.actor] ?? "Team member" : "System"} · {dayLabel(a.created_at)}
                   </span>
