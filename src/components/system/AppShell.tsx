@@ -66,7 +66,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   if (departments.legal) dept.push({ to: "/app/legal", label: "Legal & contracts", icon: Scale });
   if (departments.ops) dept.push({ to: "/app/ops", label: "Management & ops", icon: Settings2 });
   if (departments.ops) dept.push({ to: "/app/equipment", label: "Equipment", icon: Package });
-  if (departments.finance) dept.push({ to: "/app/finance", label: "Finance", icon: Wallet });
+  dept.push({ to: "/app/finance", label: "Finance", icon: Wallet });
 
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
   if (isLeadership) dept.push({ to: "/app/team", label: "Team & access", icon: Users });

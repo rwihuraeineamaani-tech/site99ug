@@ -36,7 +36,9 @@ import Dashboard from "./pages/app/Dashboard.tsx";
 import AppTeam from "./pages/app/Team.tsx";
 import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
-import { Sales, LegalContracts, ManagementOps, Finance } from "./pages/app/Departments.tsx";
+import { Sales, LegalContracts, ManagementOps } from "./pages/app/Departments.tsx";
+import Finance from "./pages/app/Finance.tsx";
+import FinanceTransaction from "./pages/app/FinanceTransaction.tsx";
 import ResidentsHub from "./pages/app/Residents.tsx";
 import ResidentRecordPage from "./pages/app/ResidentRecord.tsx";
 
@@ -152,8 +154,16 @@ const AnimatedRoutes = () => {
         <Route
           path="/app/finance"
           element={
-            <RequireRole gate="finance">
+            <RequireRole gate="staff">
               <Finance />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/t/:id"
+          element={
+            <RequireRole gate="finance">
+              <FinanceTransaction />
             </RequireRole>
           }
         />

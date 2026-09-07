@@ -69,20 +69,3 @@ export function ManagementOps() {
     />
   );
 }
-
-export function Finance() {
-  return (
-    <DepartmentSoon
-      eyebrow="Finance"
-      title="Finance."
-      lede="Money in, money out, payroll and what Site 99 keeps."
-      path="/app/finance"
-      coming={[
-        "Income, expenses and net cash flow",
-        "Client ledger with the handler / contact split per contract",
-        "Operating expenses log (OPEX and CAPEX)",
-        "Payroll and allowance tracker",
-      ]}
-    />
-  );
-}
