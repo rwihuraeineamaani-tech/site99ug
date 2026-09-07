@@ -333,7 +333,9 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   };
   const edit = (r: any) => {
     setForm({ id: r.id, name: r.name, territory: r.territory, since: r.since, status: r.status,
-      display_order: r.display_order, email: r.email || "", visible: r.visible !== false });
+      display_order: r.display_order, email: r.email || "", visible: r.visible !== false,
+      contact_user_id: r.contact_user_id || "", handler_user_id: r.handler_user_id || "" });
+
     setEditing(true); window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const toggleVisible = async (r: any) => {
