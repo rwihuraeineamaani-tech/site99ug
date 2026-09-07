@@ -293,3 +293,98 @@
 }
 
 
+
+/* ================================================================
+   Command deck — dark control-room scope for the signed-in system.
+   Only re-declares semantic tokens, so every existing component
+   themes itself. The public site never gets this class.
+   ================================================================ */
+.deck {
+  --paper: 240 6% 4%;
+  --paper-raised: 240 5% 9%;
+  --paper-sunken: 240 5% 7%;
+  --ink: 0 0% 92%;
+  --ink-soft: 0 0% 64%;
+  --ink-faint: 0 0% 46%;
+  --signal: 5 78% 53%;
+  --rule: 240 4% 17%;
+  --rule-strong: 0 0% 34%;
+
+  --background: 240 6% 4%;
+  --foreground: 0 0% 92%;
+  --card: 240 5% 9%;
+  --card-foreground: 0 0% 92%;
+  --popover: 240 5% 9%;
+  --popover-foreground: 0 0% 92%;
+  --primary: 5 78% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 5% 13%;
+  --secondary-foreground: 0 0% 92%;
+  --muted: 240 5% 13%;
+  --muted-foreground: 0 0% 64%;
+  --accent: 5 78% 53%;
+  --accent-foreground: 0 0% 100%;
+  --border: 240 4% 17%;
+  --input: 240 4% 17%;
+  --ring: 5 78% 53%;
+
+  --acc-violet: 265 90% 76%;
+  --acc-violet-soft: 265 45% 18%;
+  --acc-teal: 168 70% 60%;
+  --acc-teal-soft: 172 40% 14%;
+  --acc-amber: 40 95% 62%;
+  --acc-amber-soft: 38 55% 15%;
+  --acc-blue: 214 92% 70%;
+  --acc-blue-soft: 218 55% 16%;
+  --acc-pink: 335 88% 70%;
+  --acc-pink-soft: 335 50% 16%;
+  --acc-lime: 92 62% 60%;
+  --acc-lime-soft: 92 40% 14%;
+  --acc-slate: 220 16% 68%;
+  --acc-slate-soft: 220 14% 16%;
+
+  color-scheme: dark;
+}
+
+.deck .card-lift:hover { box-shadow: 0 10px 30px -18px hsl(var(--signal) / 0.75); }
+.deck .surface { box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.03); }
+
+@layer utilities {
+  /* Faint engineering grid + a warm glow behind the header */
+  .deck-grid {
+    background-image:
+      linear-gradient(to right, hsl(0 0% 100% / 0.028) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(0 0% 100% / 0.028) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  .deck-glow::before {
+    content: '';
+    position: absolute;
+    inset: -20% 20% auto 20%;
+    height: 340px;
+    pointer-events: none;
+    background: radial-gradient(60% 100% at 50% 0%, hsl(var(--signal) / 0.16), transparent 70%);
+    filter: blur(20px);
+  }
+  .rise {
+    opacity: 0;
+    animation: deck-rise 520ms cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay: var(--d, 0ms);
+  }
+  @keyframes deck-rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  .pulse-dot {
+    box-shadow: 0 0 0 0 hsl(var(--signal) / 0.6);
+    animation: deck-pulse 2.4s ease-out infinite;
+  }
+  @keyframes deck-pulse {
+    70% { box-shadow: 0 0 0 8px hsl(var(--signal) / 0); }
+    100% { box-shadow: 0 0 0 0 hsl(var(--signal) / 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rise { opacity: 1; animation: none; }
+    .pulse-dot { animation: none; }
+  }
+}
