@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -135,14 +135,28 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
 }
 
 
+const SIDEBAR_SCROLL_KEY = "site99:sidebar-scroll";
+
 function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
+  const { state, isMobile, setOpenMobile } = useSidebar();
+  const collapsed = state === "collapsed" && !isMobile;
   const { pathname } = useLocation();
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // The shell remounts on every route change, so keep the menu where it was.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const saved = Number(sessionStorage.getItem(SIDEBAR_SCROLL_KEY) || "0");
+    if (saved > 0) el.scrollTop = saved;
+    const onScroll = () => sessionStorage.setItem(SIDEBAR_SCROLL_KEY, String(el.scrollTop));
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-rule">
-      <SidebarContent className="bg-paper">
+      <SidebarContent ref={scrollRef} className="bg-paper">
         {groups.map((group) => (
           <SidebarGroup key={group.label}>
             {!collapsed && <SidebarGroupLabel className="eyebrow text-ink-faint">{group.label}</SidebarGroupLabel>}
