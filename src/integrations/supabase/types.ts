@@ -1603,6 +1603,10 @@ export type Database = {
           territory: string
         }[]
       }
+      set_client_pay: {
+        Args: { _people: Json; _resident_id: string; _retainer_ugx: number }
+        Returns: undefined
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       start_shoot_day: { Args: { _day_id: string }; Returns: undefined }
