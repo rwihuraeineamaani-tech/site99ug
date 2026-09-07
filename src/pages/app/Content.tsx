@@ -728,17 +728,40 @@ export default function ContentPipeline() {
             <span className="eyebrow text-ink-faint">Suggested captions</span>
             <textarea rows={3} className={field} value={captions} onChange={(e) => setCaptions(e.target.value)} />
           </label>
+          <label className="mt-3 block text-sm">
+            <span className="eyebrow text-ink-faint">Edit remarks — what needs changing</span>
+            <textarea
+              rows={3}
+              className={field}
+              placeholder="Trim the intro, fix the colour on the second shot…"
+              value={editRemarks}
+              onChange={(e) => setEditRemarks(e.target.value)}
+            />
+          </label>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button
               disabled={busy || platforms.length === 0}
-              onClick={() => advance("Handover", { platforms, caption_suggestions: captions || null })}
+              onClick={() =>
+                advance("Handover", {
+                  platforms,
+                  caption_suggestions: captions || null,
+                  edit_remarks: editRemarks.trim() || null,
+                })
+              }
             >
               Approve — hand to the handler
             </Button>
-            <Button variant="outline" disabled={busy} onClick={() => advance("Editing")}>
+            <Button
+              variant="outline"
+              disabled={busy || !editRemarks.trim()}
+              onClick={() => advance("Editing", { edit_remarks: editRemarks.trim() })}
+            >
               Send back to editing
             </Button>
           </div>
+          {!editRemarks.trim() && (
+            <p className="mt-1.5 text-xs text-ink-soft">Write the remarks first to send it back to the editor.</p>
+          )}
         </div>
       ) : (
         waiting("Waiting on founder sign-off.")
