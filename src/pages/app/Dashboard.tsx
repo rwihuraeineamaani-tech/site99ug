@@ -224,7 +224,7 @@ export default function Dashboard() {
             {shootPrompts.map((s) => (
               <li key={s.id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
                 <span className="text-sm font-semibold">{s.client}</span>
-                <StatusChip value={s.why} tone={s.why.startsWith("Needs") ? "amber" : "green"} />
+                <StatusChip value={s.why} tone={s.why.startsWith("Needs") ? "amber" : "active"} />
                 <Link to="/app/shoots" className="ml-auto text-xs font-semibold text-signal focus-ring whitespace-nowrap">
                   Open →
                 </Link>

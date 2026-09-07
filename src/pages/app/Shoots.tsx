@@ -165,7 +165,7 @@ export default function Shoots() {
 
   return (
     <AppShell>
-      <Seo title="Shoot days — Site 99" description="Plan shoot days, the ideas on them and the gear booked out." noIndex />
+      <Seo title="Shoot days — Site 99" description="Plan shoot days, the ideas on them and the gear booked out." noindex />
       <PageHeader
         eyebrow="Content & strategy"
         title="Shoot days."
@@ -204,7 +204,7 @@ export default function Shoots() {
                   >
                     <CalendarDays className="h-4 w-4 text-ink-faint shrink-0" />
                     <span className="font-semibold">{residentName(d.resident_id)}</span>
-                    <StatusChip value={STATUS_LABEL[d.status] ?? d.status} tone={d.status === "draft" ? "amber" : d.status === "done" ? "default" : "green"} />
+                    <StatusChip value={STATUS_LABEL[d.status] ?? d.status} tone={d.status === "draft" ? "amber" : d.status === "done" ? "neutral" : "active"} />
                     <span className="num text-xs text-ink-soft">{d.shoot_date ?? "no date yet"}</span>
                     {d.call_time && <span className="num text-xs text-ink-faint">{d.call_time}</span>}
                     <span className="ml-auto text-xs text-ink-faint">
