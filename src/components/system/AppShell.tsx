@@ -206,23 +206,30 @@ export function AppShell({
         {groups.length > 0 && <ShellSidebar groups={groups} />}
 
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-40 h-14 rule-b bg-paper/95 backdrop-blur flex items-center gap-3 px-3 md:px-6">
+          <header className="sticky top-0 z-40 h-16 rule-b bg-paper/95 backdrop-blur flex items-center gap-3 px-3 md:px-6">
             {groups.length > 0 && <SidebarTrigger className="focus-ring" />}
-            <Link to="/" className="shrink-0">
-              <img src={logo} alt="Site 99" className="h-8 w-auto" />
+            <Link to="/" className="shrink-0 focus-ring rounded-md">
+              <img src={logo} alt="Site 99" className="h-11 md:h-12 w-auto" />
             </Link>
+            <span className="hidden sm:block h-8 w-px bg-rule" aria-hidden />
             <div className="flex flex-col justify-center min-w-0">
-              <span className="text-sm font-semibold leading-tight truncate max-w-[200px] md:max-w-[280px]">
+              <span className="text-sm md:text-base font-semibold leading-tight truncate max-w-[180px] md:max-w-[280px]">
                 {name}
               </span>
-              {title && (
-                <span className="text-[11px] leading-tight text-ink-faint truncate max-w-[200px] md:max-w-[280px]">
-                  {title}
-                </span>
-              )}
+              <span className="text-[11px] leading-tight text-ink-faint truncate max-w-[180px] md:max-w-[280px]">
+                {title || eyebrow}
+              </span>
             </div>
-            <span className="eyebrow text-ink-faint hidden sm:inline ml-auto">{eyebrow}</span>
-            <div className="ml-auto sm:ml-0 flex items-center gap-3 min-w-0">
+            <div className="ml-auto flex items-center gap-3 md:gap-5 min-w-0">
+              <Link
+                to="/app/calendar"
+                className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-rule px-3 py-1.5 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"
+              >
+                <CalendarDays className="h-3.5 w-3.5" />
+                Calendar
+              </Link>
+              <HeaderClock />
+              <span className="hidden md:block h-8 w-px bg-rule" aria-hidden />
               <button
                 onClick={signOut}
                 className="eyebrow text-ink-soft hover:text-signal px-2 focus-ring inline-flex items-center gap-1"
@@ -232,6 +239,7 @@ export function AppShell({
               </button>
             </div>
           </header>
+
 
           <main className="flex-1 px-4 md:px-8 py-8 min-w-0">{children}</main>
         </div>
