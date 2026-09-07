@@ -198,6 +198,7 @@ const AnimatedRoutes = () => {
         <Route path="/t/:token" element={<TicketView />} />
         <Route path="/admin/events" element={<Navigate to="/app/events" replace />} />
         <Route path="/admin/scan" element={<Navigate to="/app/scan" replace />} />
+        <Route path="/unsubscribe" element={<Unsubscribe />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
