@@ -38,6 +38,15 @@ type Gear = { id: string; name: string; category: string; quantity: number; acti
 type Booking = { id: string; shoot_day_id: string; equipment_id: string; qty: number };
 type Resident = { id: string; name: string; contact_user_id?: string | null };
 type Project = { id: string; title: string; client: string };
+type Conflict = {
+  block_id: string;
+  owner_kind: "staff" | "resident";
+  owner_user_id: string | null;
+  resident_id: string | null;
+  title: string;
+  strictness: "warn" | "hard";
+};
+
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
@@ -52,7 +61,11 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function Shoots() {
-  const { canEditContent, userId } = useMyRoles();
+  const { canEditContent, userId, has } = useMyRoles();
+  const canOverride = has("admin", "founder", "managing_director");
+  const [clash, setClash] = useState<Conflict[] | null>(null);
+  const [overrideReason, setOverrideReason] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState<ShootDay[]>([]);
   const [dayItems, setDayItems] = useState<DayItem[]>([]);
