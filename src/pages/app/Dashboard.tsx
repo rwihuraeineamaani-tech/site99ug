@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, Metric, SectionHeading, StatusChip } from "@/components/system";
 import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
+import { refCode } from "@/lib/contentFlow";
 
 type ContentRow = {
   id: string;
@@ -14,11 +15,29 @@ type ContentRow = {
   updated_at: string;
 };
 
+type FlowRow = {
+  id: string;
+  ref_no: number;
+  title: string;
+  stage: string;
+  resident_id: string | null;
+  shoot_at: string | null;
+  metrics_due_at: string | null;
+};
+
+type ResidentLink = { id: string; name: string; contact_user_id: string | null; handler_user_id: string | null };
+
+const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_director"] as const;
+
 export default function Dashboard() {
-  const { roles, canSeeFinance, departments, canScan, isLeadership, email } = useMyRoles();
+  const { roles, canSeeFinance, departments, canScan, isLeadership, email, userId, has } = useMyRoles();
+  const isFounder = has(...FOUNDER_ROLES);
   const [clients, setClients] = useState<number | null>(null);
   const [events, setEvents] = useState<number | null>(null);
   const [content, setContent] = useState<ContentRow[]>([]);
+  const [flow, setFlow] = useState<FlowRow[]>([]);
+  const [resLinks, setResLinks] = useState<ResidentLink[]>([]);
+  const [myCrew, setMyCrew] = useState<{ content_id: string; role: string }[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +61,75 @@ export default function Dashboard() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!userId || !departments.content) return;
+    let cancelled = false;
+    (async () => {
+      const [{ data: rows }, { data: rs }, { data: cw }] = await Promise.all([
+        supabase
+          .from("content_items")
+          .select("id, ref_no, title, stage, resident_id, shoot_at, metrics_due_at")
+          .not("stage", "in", '("Archived","Rejected")'),
+        supabase.rpc("resident_options"),
+        supabase.from("content_crew").select("content_id, role").eq("user_id", userId),
+      ]);
+      if (cancelled) return;
+      setFlow((rows as unknown as FlowRow[]) ?? []);
+      setResLinks((rs as unknown as ResidentLink[]) ?? []);
+      setMyCrew((cw as { content_id: string; role: string }[]) ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, departments.content]);
+
+  const waiting = useMemo(() => {
+    if (!userId) return [] as { item: FlowRow; why: string }[];
+    const today = new Date().toISOString().slice(0, 10);
+    const resById = new Map(resLinks.map((r) => [r.id, r]));
+    const editorOf = new Set(myCrew.filter((c) => /edit/i.test(c.role)).map((c) => c.content_id));
+
+    const out: { item: FlowRow; why: string }[] = [];
+    flow.forEach((i) => {
+      const r = i.resident_id ? resById.get(i.resident_id) : undefined;
+      const contact = r?.contact_user_id === userId;
+      const handler = r?.handler_user_id === userId;
+      const push = (why: string) => out.push({ item: i, why });
+
+      switch (i.stage) {
+        case "Idea":
+          if (isFounder) push("Approve or reject");
+          break;
+        case "Approved":
+          if (contact || isFounder) push("Fill the production team");
+          break;
+        case "Crewed":
+          if (contact || isFounder) push("Set the shoot date");
+          break;
+        case "Scheduled":
+          if ((contact || isFounder) && i.shoot_at && i.shoot_at <= today) push("Shoot day");
+          break;
+        case "Shooting":
+          if (contact || isFounder) push("Send to post production");
+          break;
+        case "Editing":
+          if (editorOf.has(i.id)) push("Edit and deliver");
+          break;
+        case "Review":
+          if (isFounder) push("Sign off the cut");
+          break;
+        case "Handover":
+          if (handler || isFounder) push("Post it");
+          break;
+        case "Posted":
+          if ((handler || isFounder) && i.metrics_due_at && i.metrics_due_at <= today) push("Add the numbers");
+          break;
+      }
+    });
+    return out;
+  }, [flow, resLinks, myCrew, userId, isFounder]);
+
 
   const titles = roles.filter((r): r is StaffRole => r in ROLE_LABELS).map((r) => ROLE_LABELS[r]);
 
