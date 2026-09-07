@@ -48,6 +48,8 @@ export default function Dashboard() {
   const [resLinks, setResLinks] = useState<ResidentLink[]>([]);
   const [myCrew, setMyCrew] = useState<{ content_id: string; role: string }[]>([]);
   const [pendingWeeks, setPendingWeeks] = useState<PendingWeek[]>([]);
+  const [shootPrompts, setShootPrompts] = useState<{ id: string; client: string; why: string }[]>([]);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -105,6 +107,32 @@ export default function Dashboard() {
       cancelled = true;
     };
   }, [userId]);
+
+  useEffect(() => {
+    if (!userId || !departments.content) return;
+    let cancelled = false;
+    (async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const [{ data: dd }, { data: rs }] = await Promise.all([
+        supabase.from("shoot_days").select("id, resident_id, status, shoot_date").in("status", ["draft", "confirmed", "shooting"]),
+        supabase.rpc("resident_options"),
+      ]);
+      if (cancelled) return;
+      const names = new Map(((rs as unknown as ResidentLink[]) ?? []).map((r) => [r.id, r.name]));
+      const rows = ((dd as unknown as { id: string; resident_id: string; status: string; shoot_date: string | null }[]) ?? [])
+        .filter((d) => d.status === "draft" || (d.shoot_date ?? "") <= today)
+        .map((d) => ({
+          id: d.id,
+          client: names.get(d.resident_id) ?? "Client",
+          why: d.status === "draft" ? "Needs a date and gear" : d.status === "shooting" ? "On the shoot" : "Shoot day is today",
+        }));
+      setShootPrompts(rows);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, departments.content]);
+
 
   const waiting = useMemo(() => {
     if (!userId) return [] as { item: FlowRow; why: string }[];
@@ -188,6 +216,23 @@ export default function Dashboard() {
           hint="Payroll, splits and expenses"
         />
       </div>
+
+      {shootPrompts.length > 0 && (
+        <div className="mt-12">
+          <SectionHeading index="00" title="Shoot days" hint={`${shootPrompts.length} to sort`} />
+          <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
+            {shootPrompts.map((s) => (
+              <li key={s.id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
+                <span className="text-sm font-semibold">{s.client}</span>
+                <StatusChip value={s.why} tone={s.why.startsWith("Needs") ? "amber" : "active"} />
+                <Link to="/app/shoots" className="ml-auto text-xs font-semibold text-signal focus-ring whitespace-nowrap">
+                  Open →
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {pendingWeeks.length > 0 && (
         <div className="mt-12">

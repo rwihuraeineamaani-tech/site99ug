@@ -610,6 +610,42 @@ export type Database = {
         }
         Relationships: []
       }
+      equipment: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          notes: string | null
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           age_limit: number | null
@@ -964,6 +1000,144 @@ export type Database = {
         }
         Relationships: []
       }
+      shoot_day_equipment: {
+        Row: {
+          created_at: string
+          equipment_id: string
+          id: string
+          note: string | null
+          qty: number
+          shoot_day_id: string
+        }
+        Insert: {
+          created_at?: string
+          equipment_id: string
+          id?: string
+          note?: string | null
+          qty?: number
+          shoot_day_id: string
+        }
+        Update: {
+          created_at?: string
+          equipment_id?: string
+          id?: string
+          note?: string | null
+          qty?: number
+          shoot_day_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shoot_day_equipment_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shoot_day_equipment_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shoot_day_items: {
+        Row: {
+          content_id: string
+          created_at: string
+          id: string
+          shoot_day_id: string
+        }
+        Insert: {
+          content_id: string
+          created_at?: string
+          id?: string
+          shoot_day_id: string
+        }
+        Update: {
+          content_id?: string
+          created_at?: string
+          id?: string
+          shoot_day_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shoot_day_items_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shoot_day_items_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shoot_days: {
+        Row: {
+          call_time: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          resident_id: string
+          shoot_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          call_time?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          resident_id: string
+          shoot_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          call_time?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          resident_id?: string
+          shoot_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shoot_days_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shoot_days_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -1234,6 +1408,7 @@ export type Database = {
         Returns: boolean
       }
       can_view_content: { Args: { _user_id: string }; Returns: boolean }
+      confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1243,6 +1418,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      finish_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       get_order_summary: {
         Args: { _ref: string }
         Returns: {
@@ -1326,6 +1502,7 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      start_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       tier_available_counts: {
         Args: { _event_id: string }
         Returns: {

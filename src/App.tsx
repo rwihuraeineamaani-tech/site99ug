@@ -38,6 +38,9 @@ import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
 import { Sales, LegalContracts, ManagementOps, Finance } from "./pages/app/Departments.tsx";
 import ClientRelations from "./pages/app/Clients.tsx";
+import Shoots from "./pages/app/Shoots.tsx";
+import EquipmentPage from "./pages/app/Equipment.tsx";
+
 import RequireRole from "./components/system/RequireRole";
 
 
@@ -90,6 +93,23 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        <Route
+          path="/app/shoots"
+          element={
+            <RequireRole gate="content">
+              <Shoots />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/equipment"
+          element={
+            <RequireRole gate="ops">
+              <EquipmentPage />
+            </RequireRole>
+          }
+        />
+
         <Route
           path="/app/sales"
           element={
