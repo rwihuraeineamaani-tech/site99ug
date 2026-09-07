@@ -229,23 +229,81 @@ export type Database = {
         }
         Relationships: []
       }
+      content_crew: {
+        Row: {
+          content_id: string
+          created_at: string
+          id: string
+          note: string | null
+          role: string
+          sort: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          role: string
+          sort?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          role?: string
+          sort?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_crew_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_items: {
         Row: {
           added_by: string | null
           added_on: string
+          approved_at: string | null
+          approved_by: string | null
+          caption_suggestions: string | null
           client_id: string | null
           content_type: string
           created_at: string
           created_by: string | null
+          crew_notes: string | null
+          edit_file_url: string | null
           editor: string | null
+          editor_done_at: string | null
+          founder_approved_at: string | null
           id: string
           lead: string | null
           link: string | null
+          metrics: Json
+          metrics_due_at: string | null
+          metrics_filled_at: string | null
           notes: string | null
           planned_at: string | null
+          platforms: string[]
+          posted_at: string | null
+          posted_from: string | null
+          posted_links: string[]
+          posted_to: string | null
           project_id: string | null
           ref_no: number
           resident_id: string | null
+          sent_direct: boolean
+          shoot_at: string | null
           shooter: string | null
           sort: number
           stage: string
@@ -255,19 +313,36 @@ export type Database = {
         Insert: {
           added_by?: string | null
           added_on?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          caption_suggestions?: string | null
           client_id?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
+          crew_notes?: string | null
+          edit_file_url?: string | null
           editor?: string | null
+          editor_done_at?: string | null
+          founder_approved_at?: string | null
           id?: string
           lead?: string | null
           link?: string | null
+          metrics?: Json
+          metrics_due_at?: string | null
+          metrics_filled_at?: string | null
           notes?: string | null
           planned_at?: string | null
+          platforms?: string[]
+          posted_at?: string | null
+          posted_from?: string | null
+          posted_links?: string[]
+          posted_to?: string | null
           project_id?: string | null
           ref_no?: number
           resident_id?: string | null
+          sent_direct?: boolean
+          shoot_at?: string | null
           shooter?: string | null
           sort?: number
           stage?: string
@@ -277,19 +352,36 @@ export type Database = {
         Update: {
           added_by?: string | null
           added_on?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          caption_suggestions?: string | null
           client_id?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
+          crew_notes?: string | null
+          edit_file_url?: string | null
           editor?: string | null
+          editor_done_at?: string | null
+          founder_approved_at?: string | null
           id?: string
           lead?: string | null
           link?: string | null
+          metrics?: Json
+          metrics_due_at?: string | null
+          metrics_filled_at?: string | null
           notes?: string | null
           planned_at?: string | null
+          platforms?: string[]
+          posted_at?: string | null
+          posted_from?: string | null
+          posted_links?: string[]
+          posted_to?: string | null
           project_id?: string | null
           ref_no?: number
           resident_id?: string | null
+          sent_direct?: boolean
+          shoot_at?: string | null
           shooter?: string | null
           sort?: number
           stage?: string
@@ -717,9 +809,11 @@ export type Database = {
       residents: {
         Row: {
           avatar_url: string | null
+          contact_user_id: string | null
           created_at: string
           display_order: number
           email: string | null
+          handler_user_id: string | null
           id: string
           invited_at: string
           name: string
@@ -732,9 +826,11 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          contact_user_id?: string | null
           created_at?: string
           display_order?: number
           email?: string | null
+          handler_user_id?: string | null
           id?: string
           invited_at?: string
           name: string
@@ -747,9 +843,11 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          contact_user_id?: string | null
           created_at?: string
           display_order?: number
           email?: string | null
+          handler_user_id?: string | null
           id?: string
           invited_at?: string
           name?: string
