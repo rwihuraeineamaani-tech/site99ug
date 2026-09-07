@@ -222,9 +222,11 @@ export default function ContentPipeline() {
         lede="Every idea from first thought to posted, per client, with the people on it."
         actions={
           canEditContent ? (
-            <button className={btnSolid} onClick={() => openNew()}>
+            <Button onClick={() => openNew()}>
+              <Plus />
               New item
-            </button>
+            </Button>
+
           ) : undefined
         }
       />
