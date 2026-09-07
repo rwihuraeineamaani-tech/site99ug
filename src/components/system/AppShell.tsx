@@ -139,18 +139,15 @@ export function AppShell({
   nav?: ShellNavItem[];
 }) {
   const navigate = useNavigate();
-  const { roles, email } = useMyRoles();
+  const { displayName, email, title } = useMyRoles();
   const groups = useNavGroups(nav);
-
-  const roleLine = roles
-    .filter((r): r is StaffRole => r in ROLE_LABELS)
-    .map((r) => ROLE_LABELS[r])
-    .join(" · ");
 
   const signOut = async () => {
     await supabase.auth.signOut();
     navigate("/login", { replace: true });
   };
+
+  const name = displayName || email || "Site 99";
 
   return (
     <SidebarProvider>
@@ -163,12 +160,18 @@ export function AppShell({
             <Link to="/" className="shrink-0">
               <img src={logo} alt="Site 99" className="h-8 w-auto" />
             </Link>
-            <span className="eyebrow text-ink-faint hidden sm:inline">{eyebrow}</span>
-            <div className="ml-auto flex items-center gap-3 min-w-0">
-              <span className="hidden md:block text-right min-w-0">
-                <span className="block text-xs truncate max-w-[220px]">{email}</span>
-                {roleLine && <span className="block eyebrow text-ink-faint truncate max-w-[220px]">{roleLine}</span>}
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-sm font-semibold leading-tight truncate max-w-[200px] md:max-w-[280px]">
+                {name}
               </span>
+              {title && (
+                <span className="text-[11px] leading-tight text-ink-faint truncate max-w-[200px] md:max-w-[280px]">
+                  {title}
+                </span>
+              )}
+            </div>
+            <span className="eyebrow text-ink-faint hidden sm:inline ml-auto">{eyebrow}</span>
+            <div className="ml-auto sm:ml-0 flex items-center gap-3 min-w-0">
               <button
                 onClick={signOut}
                 className="eyebrow text-ink-soft hover:text-signal px-2 focus-ring inline-flex items-center gap-1"
