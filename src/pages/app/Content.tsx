@@ -356,8 +356,8 @@ export default function ContentPipeline() {
 
   const crewComplete = crew.length > 0 && crew.every((c) => c.user_id);
 
-  const ownerSelect = (value: string, onChange: (v: string) => void, className = field) => (
-    <select className={className} value={value} onChange={(e) => onChange(e.target.value)}>
+  const ownerSelect = (value: string, onChange: (v: string) => void, className = field, disabled = false) => (
+    <select className={className} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)}>
       <option value="">No one yet — idea archive</option>
       <optgroup label="Residents">
         {residents.map((r) => (
@@ -1042,17 +1042,23 @@ export default function ContentPipeline() {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="text-sm sm:col-span-2">
               <span className="eyebrow text-ink-faint">Title</span>
-              <input className={field} value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+              <input
+                className={`${field} ${locked ? "opacity-60" : ""}`}
+                value={draft.title}
+                disabled={locked}
+                onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+              />
             </label>
             <label className="text-sm">
               <span className="eyebrow text-ink-faint">Resident or project</span>
-              {ownerSelect(draft.owner, (v) => setDraft({ ...draft, owner: v }))}
+              {ownerSelect(draft.owner, (v) => setDraft({ ...draft, owner: v }), `${field} ${locked ? "opacity-60" : ""}`, locked)}
             </label>
             <label className="text-sm">
               <span className="eyebrow text-ink-faint">Type</span>
               <select
-                className={field}
+                className={`${field} ${locked ? "opacity-60" : ""}`}
                 value={draft.content_type}
+                disabled={locked}
                 onChange={(e) => setDraft({ ...draft, content_type: e.target.value })}
               >
                 {[...new Set([...TYPES, draft.content_type])].map((t) => (
@@ -1063,18 +1069,15 @@ export default function ContentPipeline() {
               </select>
             </label>
             <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Planned date</span>
+              <span className="eyebrow text-ink-faint">Reference link</span>
               <input
-                type="date"
-                className={field}
-                value={draft.planned_at}
-                onChange={(e) => setDraft({ ...draft, planned_at: e.target.value })}
+                className={`${field} ${locked ? "opacity-60" : ""}`}
+                value={draft.link}
+                disabled={locked}
+                onChange={(e) => setDraft({ ...draft, link: e.target.value })}
               />
             </label>
-            <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Reference link</span>
-              <input className={field} value={draft.link} onChange={(e) => setDraft({ ...draft, link: e.target.value })} />
-            </label>
+
             <label className="text-sm sm:col-span-2">
               <span className="eyebrow text-ink-faint">Notes</span>
               <textarea
