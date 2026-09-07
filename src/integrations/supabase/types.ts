@@ -387,6 +387,7 @@ export type Database = {
           created_by: string | null
           crew_notes: string | null
           edit_file_url: string | null
+          edit_remarks: string | null
           editor: string | null
           editor_done_at: string | null
           founder_approved_at: string | null
@@ -426,6 +427,7 @@ export type Database = {
           created_by?: string | null
           crew_notes?: string | null
           edit_file_url?: string | null
+          edit_remarks?: string | null
           editor?: string | null
           editor_done_at?: string | null
           founder_approved_at?: string | null
@@ -465,6 +467,7 @@ export type Database = {
           created_by?: string | null
           crew_notes?: string | null
           edit_file_url?: string | null
+          edit_remarks?: string | null
           editor?: string | null
           editor_done_at?: string | null
           founder_approved_at?: string | null
