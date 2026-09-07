@@ -297,7 +297,92 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
   );
 }
 
+/* ---------- Client social accounts ---------- */
+type AccountRow = { id: string; resident_id: string; platform: string; handle: string; active: boolean; sort: number };
+
+function AccountsEditor({ residentId }: { residentId: string }) {
+  const [rows, setRows] = useState<AccountRow[]>([]);
+  const [platform, setPlatform] = useState(ACCOUNT_PLATFORMS[0]);
+  const [handle, setHandle] = useState("");
+
+  const load = async () => {
+    const { data } = await supabase
+      .from("client_accounts")
+      .select("*")
+      .eq("resident_id", residentId)
+      .order("sort", { ascending: true });
+    setRows((data as unknown as AccountRow[]) ?? []);
+  };
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [residentId]);
+
+  const add = async () => {
+    if (!handle.trim()) return toast.error("Add the @handle");
+    const { error } = await supabase
+      .from("client_accounts")
+      .insert({ resident_id: residentId, platform, handle: handle.trim(), sort: rows.length } as never);
+    if (error) return toast.error(error.message);
+    setHandle("");
+    load();
+  };
+
+  const toggle = async (r: AccountRow) => {
+    const { error } = await supabase.from("client_accounts").update({ active: !r.active } as never).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    load();
+  };
+
+  const remove = async (r: AccountRow) => {
+    if (!confirm(`Remove ${r.platform} ${r.handle}? Its weekly numbers go too.`)) return;
+    const { error } = await supabase.from("client_accounts").delete().eq("id", r.id);
+    if (error) return toast.error(error.message);
+    load();
+  };
+
+  return (
+    <div className="mt-3 space-y-3">
+      {rows.length > 0 && (
+        <ul className="divide-y divide-border border border-border rounded-2xl overflow-hidden">
+          {rows.map((r) => (
+            <li key={r.id} className="px-4 py-3 flex items-center gap-3 text-sm">
+              <span className="mono text-[10px] uppercase tracking-[0.2em] text-site-red w-28 shrink-0">{r.platform}</span>
+              <span className="truncate">{r.handle}</span>
+              {!r.active && <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">paused</span>}
+              <button type="button" onClick={() => toggle(r)} className="ctl mono text-[10px] uppercase tracking-[0.2em] ml-auto px-3 py-1.5 focus-ring">
+                {r.active ? "Stop managing" : "Resume"}
+              </button>
+              <button type="button" onClick={() => remove(r)} className="ctl mono text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 focus-ring">
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="flex flex-wrap items-center gap-3">
+        <select value={platform} onChange={(e) => setPlatform(e.target.value)} className="field text-sm w-auto px-3 py-1.5">
+          {ACCOUNT_PLATFORMS.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+        <input
+          value={handle}
+          onChange={(e) => setHandle(e.target.value)}
+          placeholder="@handle"
+          className="field text-sm w-auto flex-1 min-w-[12rem] px-3 py-1.5"
+        />
+        <button type="button" onClick={add} className="ctl mono text-[10px] uppercase tracking-[0.2em] px-4 py-2 focus-ring">
+          Add account
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Residents ---------- */
+
 function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   const { data: residents = [], refetch } = useResidents();
   const [form, setForm] = useState<ResForm>(emptyRes);
