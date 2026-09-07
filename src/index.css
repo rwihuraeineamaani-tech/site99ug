@@ -388,3 +388,6 @@
     .pulse-dot { animation: none; }
   }
 }
+
+/* Body-level deck scope: keeps portals (drawers, dialogs, menus) dark too */
+body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
