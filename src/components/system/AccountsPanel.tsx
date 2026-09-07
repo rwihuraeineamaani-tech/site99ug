@@ -40,8 +40,19 @@ const emptyDraft = (): Draft =>
 
 const num = (v: number | null | undefined) => (v === null || v === undefined ? "—" : v.toLocaleString());
 
-export default function Clients() {
-  const { userId, isLeadership, canSeeFinance } = useMyRoles();
+export default function AccountsPanel({
+  residentId,
+  showPending = true,
+  showNames = true,
+  index = "01",
+}: {
+  residentId?: string;
+  showPending?: boolean;
+  showNames?: boolean;
+  index?: string;
+} = {}) {
+  const { userId, isLeadership } = useMyRoles();
+
   const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const [loading, setLoading] = useState(true);
   const [residents, setResidents] = useState<ResidentOpt[]>([]);
