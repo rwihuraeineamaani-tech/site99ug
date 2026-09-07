@@ -46,6 +46,7 @@ export type ContentItem = {
   added_by: string | null;
   added_on: string;
   client_id: string | null;
+  resident_id: string | null;
   project_id: string | null;
   title: string;
   content_type: string;
@@ -59,7 +60,7 @@ export type ContentItem = {
   created_at: string;
 };
 
-type ClientRow = { id: string; name: string };
+type ResidentRow = { id: string; name: string; territory: string | null };
 type ProjectRow = { id: string; title: string; client: string };
 
 const field =
@@ -67,11 +68,11 @@ const field =
 
 export const refCode = (n: number) => `IDEA-${String(n).padStart(4, "0")}`;
 
-/** "Belongs to" is one picker over two record types: c:<id> for a client, p:<id> for a project. */
-const encodeOwner = (clientId: string | null, projectId: string | null) =>
-  clientId ? `c:${clientId}` : projectId ? `p:${projectId}` : "";
+/** "Belongs to" is one picker over two record types: r:<id> for a resident, p:<id> for a project. */
+const encodeOwner = (residentId: string | null, projectId: string | null) =>
+  residentId ? `r:${residentId}` : projectId ? `p:${projectId}` : "";
 const decodeOwner = (v: string) => ({
-  client_id: v.startsWith("c:") ? v.slice(2) : null,
+  resident_id: v.startsWith("r:") ? v.slice(2) : null,
   project_id: v.startsWith("p:") ? v.slice(2) : null,
 });
 
@@ -99,7 +100,7 @@ const emptyDraft = {
 export default function ContentPipeline() {
   const { canEditContent } = useMyRoles();
   const [items, setItems] = useState<ContentItem[]>([]);
-  const [clients, setClients] = useState<ClientRow[]>([]);
+  const [residents, setResidents] = useState<ResidentRow[]>([]);
   const [projects, setProjects] = useState<ProjectRow[]>([]);
   const [authors, setAuthors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -122,13 +123,13 @@ export default function ContentPipeline() {
     setLoading(true);
     const [{ data: rows, error }, { data: cs }, { data: ps }, { data: tm }] = await Promise.all([
       supabase.from("content_items").select("*").order("planned_at", { ascending: true, nullsFirst: false }),
-      supabase.from("clients").select("id, name").order("name"),
+      supabase.rpc("resident_options"),
       supabase.from("projects").select("id, title, client").order("display_order"),
       supabase.from("team_members").select("user_id, display_name, email"),
     ]);
     if (error) toast.error(error.message);
     setItems((rows as ContentItem[]) ?? []);
-    setClients((cs as ClientRow[]) ?? []);
+    setResidents((cs as ResidentRow[]) ?? []);
     setProjects((ps as ProjectRow[]) ?? []);
     const map: Record<string, string> = {};
     (tm ?? []).forEach((m: { user_id: string; display_name: string | null; email: string }) => {
@@ -142,8 +143,8 @@ export default function ContentPipeline() {
     load();
   }, []);
 
-  const ownerLabel = (i: Pick<ContentItem, "client_id" | "project_id">) => {
-    if (i.client_id) return clients.find((c) => c.id === i.client_id)?.name ?? "Client";
+  const ownerLabel = (i: Pick<ContentItem, "resident_id" | "project_id">) => {
+    if (i.resident_id) return residents.find((c) => c.id === i.resident_id)?.name ?? "Resident";
     if (i.project_id) {
       const p = projects.find((x) => x.id === i.project_id);
       return p ? `${p.title} (project)` : "Project";
@@ -154,10 +155,10 @@ export default function ContentPipeline() {
 
   const ownerOptions = useMemo(
     () => [
-      ...clients.map((c) => ({ value: `c:${c.id}`, label: c.name })),
+      ...residents.map((r) => ({ value: `r:${r.id}`, label: r.name })),
       ...projects.map((p) => ({ value: `p:${p.id}`, label: `${p.title} — ${p.client} (project)` })),
     ],
-    [clients, projects]
+    [residents, projects]
   );
 
   const people = useMemo(() => {
@@ -175,22 +176,22 @@ export default function ContentPipeline() {
       items.filter((i) => {
         const hay = `${refCode(i.ref_no)} ${i.title} ${i.notes ?? ""} ${ownerLabel(i)}`.toLowerCase();
         if (q && !hay.includes(q.toLowerCase())) return false;
-        if (owner !== "all" && encodeOwner(i.client_id, i.project_id) !== owner) return false;
+        if (owner !== "all" && encodeOwner(i.resident_id, i.project_id) !== owner) return false;
         if (type !== "all" && i.content_type !== type) return false;
         if (stage !== "all" && i.stage !== stage) return false;
         if (person !== "all" && ![i.lead, i.shooter, i.editor, authorName(i.added_by)].includes(person)) return false;
         return true;
       }),
-    [items, q, owner, type, stage, person, clients, projects, authors]
+    [items, q, owner, type, stage, person, residents, projects, authors]
   );
 
-  const unclaimed = useMemo(() => filtered.filter((i) => !i.client_id && !i.project_id), [filtered]);
+  const unclaimed = useMemo(() => filtered.filter((i) => !i.resident_id && !i.project_id), [filtered]);
 
   const openEdit = (row: ContentItem) => {
     setEditing(row);
     setDraft({
       title: row.title,
-      owner: encodeOwner(row.client_id, row.project_id),
+      owner: encodeOwner(row.resident_id, row.project_id),
       content_type: row.content_type,
       stage: row.stage,
       lead: row.lead ?? "",
@@ -273,11 +274,11 @@ export default function ContentPipeline() {
 
   const ownerSelect = (value: string, onChange: (v: string) => void, className = field) => (
     <select className={className} value={value} onChange={(e) => onChange(e.target.value)}>
-      <option value="">No client yet — idea archive</option>
-      <optgroup label="Clients">
-        {clients.map((c) => (
-          <option key={c.id} value={`c:${c.id}`}>
-            {c.name}
+      <option value="">No one yet — idea archive</option>
+      <optgroup label="Residents">
+        {residents.map((r) => (
+          <option key={r.id} value={`r:${r.id}`}>
+            {r.name}
           </option>
         ))}
       </optgroup>
@@ -370,7 +371,7 @@ export default function ContentPipeline() {
       <PageHeader
         eyebrow="Content & strategy"
         title="Pipeline."
-        lede="Every idea from first thought to posted, per client or project, with the people on it."
+        lede="Every idea from first thought to posted, per resident or project, with the people on it."
         actions={
           canEditContent ? (
             <Button onClick={() => { setFresh(emptyNew); setNewOpen(true); }}>
@@ -397,7 +398,7 @@ export default function ContentPipeline() {
             label="Belongs to"
             value={owner}
             onChange={setOwner}
-            options={[{ value: "all", label: "Everything" }, { value: "", label: "No client yet" }, ...ownerOptions]}
+            options={[{ value: "all", label: "Everything" }, { value: "", label: "No one yet" }, ...ownerOptions]}
           />
         )}
         <SelectFilter
@@ -433,10 +434,10 @@ export default function ContentPipeline() {
             rowKey={(r) => r.id}
             loading={loading}
             onRowClick={canEditContent ? openEdit : undefined}
-            empty="No ideas waiting for a client or project."
+            empty="No ideas waiting for a resident or project."
           />
           <p className="mt-3 text-xs text-ink-faint">
-            Ideas with nothing attached yet. Give one a client or a project and it joins the board straight away.
+            Ideas with nothing attached yet. Give one a resident or a project and it joins the board straight away.
           </p>
         </>
       ) : view === "list" ? (
@@ -556,7 +557,7 @@ export default function ContentPipeline() {
               />
             </label>
             <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Client or project</span>
+              <span className="eyebrow text-ink-faint">Resident or project</span>
               {ownerSelect(fresh.owner, (v) => setFresh({ ...fresh, owner: v }))}
             </label>
             <label className="text-sm">
@@ -631,7 +632,7 @@ export default function ContentPipeline() {
               <input className={field} value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
             </label>
             <label className="text-sm">
-              <span className="eyebrow text-ink-faint">Client or project</span>
+              <span className="eyebrow text-ink-faint">Resident or project</span>
               {ownerSelect(draft.owner, (v) => setDraft({ ...draft, owner: v }))}
             </label>
             <label className="text-sm">

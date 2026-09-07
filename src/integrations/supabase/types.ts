@@ -245,6 +245,7 @@ export type Database = {
           planned_at: string | null
           project_id: string | null
           ref_no: number
+          resident_id: string | null
           shooter: string | null
           sort: number
           stage: string
@@ -266,6 +267,7 @@ export type Database = {
           planned_at?: string | null
           project_id?: string | null
           ref_no?: number
+          resident_id?: string | null
           shooter?: string | null
           sort?: number
           stage?: string
@@ -287,6 +289,7 @@ export type Database = {
           planned_at?: string | null
           project_id?: string | null
           ref_no?: number
+          resident_id?: string | null
           shooter?: string | null
           sort?: number
           stage?: string
@@ -306,6 +309,20 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
             referencedColumns: ["id"]
           },
         ]
@@ -1077,6 +1094,14 @@ export type Database = {
           message: Json
           msg_id: number
           read_ct: number
+        }[]
+      }
+      resident_options: {
+        Args: never
+        Returns: {
+          id: string
+          name: string
+          territory: string
         }[]
       }
       show_limit: { Args: never; Returns: number }
