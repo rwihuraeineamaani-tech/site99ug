@@ -348,20 +348,65 @@ export default function Dashboard() {
           ))}
         </DeckColumn>
 
-        <DeckColumn title="Your departments" count={modules.length} delay={180}>
-          {modules.map((m) => (
-            <DeckCard
-              key={m.to}
-              to={m.to}
-              title={m.label}
-              note={m.note}
-              right={
-                typeof m.count === "number" && m.count > 0 ? (
-                  <span className="num text-sm text-signal tabular-nums">{m.count}</span>
-                ) : undefined
-              }
-            />
-          ))}
+        <DeckColumn
+          title={scope === "studio" && isLeadership ? "Studio performance" : "Your KPI performance"}
+          delay={180}
+          empty="Nothing to measure yet."
+        >
+          {isLeadership && (
+            <div className="flex items-center rounded-full border border-rule overflow-hidden text-[10px] mb-1">
+              {(["mine", "studio"] as KpiScope[]).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setScope(s)}
+                  className={`flex-1 px-3 py-1.5 eyebrow focus-ring ${
+                    scope === s ? "bg-signal text-paper" : "text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  {s === "mine" ? "Mine" : "Studio"}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!kpi ? (
+            <p className="px-2 py-6 text-center text-xs text-ink-faint">Working out your numbers…</p>
+          ) : kpi.empty && scope === "mine" ? (
+            <p className="px-2 py-6 text-center text-xs text-ink-faint">
+              Nothing posted or logged in the last 30 days yet — your figures show up here as soon as work lands.
+            </p>
+          ) : (
+            <>
+              {kpi.figures.map((f) => (
+                <DeckCard
+                  key={f.key}
+                  to={f.to}
+                  eyebrow={f.label}
+                  title={f.value}
+                  note={f.note}
+                  right={
+                    f.delta === null ? undefined : (
+                      <span
+                        className={`num text-[11px] tabular-nums whitespace-nowrap ${
+                          f.delta > 0 ? "text-acc-lime" : f.delta < 0 ? "text-signal" : "text-ink-faint"
+                        }`}
+                      >
+                        {f.delta > 0 ? "▲" : f.delta < 0 ? "▼" : "="} {Math.abs(f.delta)}
+                        {f.key === "ontime" ? "pts" : "%"}
+                      </span>
+                    )
+                  }
+                />
+              ))}
+              {kpi.best && kpi.worst && kpi.best !== kpi.worst && (
+                <p className="px-2 pt-1 text-[11px] text-ink-soft">
+                  Strongest: <span className="text-ink">{kpi.best}</span> · push on{" "}
+                  <span className="text-signal">{kpi.worst}</span>
+                </p>
+              )}
+            </>
+          )}
         </DeckColumn>
       </div>
 
