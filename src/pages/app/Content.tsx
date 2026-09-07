@@ -311,7 +311,7 @@ export default function ContentPipeline() {
   };
 
   const patch = async (id: string, values: Record<string, unknown>) => {
-    const { error } = await supabase.from("content_items").update(values).eq("id", id);
+    const { error } = await supabase.from("content_items").update(values as never).eq("id", id);
     if (error) {
       toast.error(error.message);
       return false;
