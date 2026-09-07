@@ -82,6 +82,9 @@ export type RoleState = {
   loading: boolean;
   userId: string | null;
   email: string | null;
+  displayName: string | null;
+  /** best human-readable title for this user (e.g. "Founder") */
+  title: string | null;
   roles: AppRole[];
   has: (...r: AppRole[]) => boolean;
   /** anyone with an internal role */
@@ -112,6 +115,7 @@ export function useMyRoles(): RoleState {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [clientId, setClientId] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
@@ -125,6 +129,7 @@ export function useMyRoles(): RoleState {
       if (!data.user) {
         setUserId(null);
         setEmail(null);
+        setDisplayName(null);
         setRoles([]);
         setClientId(null);
         setLoading(false);
@@ -132,11 +137,16 @@ export function useMyRoles(): RoleState {
       }
       setUserId(data.user.id);
       setEmail(data.user.email ?? null);
+      setDisplayName((data.user.user_metadata?.display_name as string | undefined) ?? null);
 
-      const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
+      const [{ data: rows }, { data: member }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", data.user.id),
+        supabase.from("team_members").select("display_name").eq("user_id", data.user.id).maybeSingle(),
+      ]);
       if (cancelled) return;
       const list = ((rows ?? []).map((r) => r.role) as AppRole[]) ?? [];
       setRoles(list);
+      if (member?.display_name) setDisplayName(member.display_name);
 
       if (list.includes("client")) {
         const { data: link } = await supabase
@@ -191,10 +201,15 @@ export function useMyRoles(): RoleState {
 
   const landingPath = isStaff ? "/app" : isClient ? "/portal" : has("resident") ? "/residents/portal" : "/";
 
+  const primaryRole = TEAM_ROLES.find((r) => roles.includes(r));
+  const title = primaryRole ? ROLE_LABELS[primaryRole] : isClient ? "Client" : has("resident") ? "Resident" : null;
+
   return {
     loading,
     userId,
     email,
+    displayName,
+    title,
     roles,
     has,
     isStaff,
