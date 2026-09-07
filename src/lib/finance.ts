@@ -126,6 +126,17 @@ export const CATEGORY_LABEL: Record<string, string> = {
   project_fee: "Project fee",
   loan_in: "Loan received",
   transfer: "Wallet transfer",
+  equipment: "Equipment hire & repair",
+  equipment_purchase: "Equipment bought",
+  computers_software: "Computers & software",
+  vehicle_purchase: "Vehicle bought",
+  furniture_fittings: "Furniture & fittings",
+  building_improvement: "Building & improvements",
+  bank_charges: "Bank & mobile money charges",
+  taxes_paid: "Tax paid to URA",
+  loan: "Money lent out",
+  loan_repayment: "Loan repayment",
+  owner_drawings: "Owner drawings",
 };
 
 export function catLabel(c?: string | null) {
