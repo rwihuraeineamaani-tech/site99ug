@@ -20,7 +20,17 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Lock } from "lucide-react";
 
 import { useMyRoles } from "@/hooks/useMyRoles";
-import { STAGES, STAGE_NOTE, CREW_ROLES, PLATFORMS, METRIC_FIELDS, refCode, type Stage } from "@/lib/contentFlow";
+import {
+  STAGES,
+  STAGE_NOTE,
+  CREW_ROLES,
+  PLATFORMS,
+  POST_WINDOWS,
+  postWindowLabel,
+  METRIC_FIELDS,
+  refCode,
+  type Stage,
+} from "@/lib/contentFlow";
 import {
   Dialog,
   DialogContent,
