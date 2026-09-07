@@ -48,6 +48,8 @@ export default function Dashboard() {
   const [resLinks, setResLinks] = useState<ResidentLink[]>([]);
   const [myCrew, setMyCrew] = useState<{ content_id: string; role: string }[]>([]);
   const [pendingWeeks, setPendingWeeks] = useState<PendingWeek[]>([]);
+  const [shootPrompts, setShootPrompts] = useState<{ id: string; client: string; why: string }[]>([]);
+
 
   useEffect(() => {
     let cancelled = false;
