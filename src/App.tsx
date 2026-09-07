@@ -37,7 +37,15 @@ import AppTeam from "./pages/app/Team.tsx";
 import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
 import { Sales, LegalContracts, ManagementOps } from "./pages/app/Departments.tsx";
-import Finance from "./pages/app/Finance.tsx";
+import FinanceOverview from "./pages/app/finance/Overview.tsx";
+import FinanceCashbook from "./pages/app/finance/Cashbook.tsx";
+import FinanceRequests from "./pages/app/finance/Requests.tsx";
+import FinancePayments from "./pages/app/finance/Payments.tsx";
+import FinanceMonthly from "./pages/app/finance/MonthlyRun.tsx";
+import FinanceLoans from "./pages/app/finance/Loans.tsx";
+import FinanceBudgets from "./pages/app/finance/Budgets.tsx";
+import FinanceReports from "./pages/app/finance/Reports.tsx";
+import FinanceLookup from "./pages/app/finance/Lookup.tsx";
 import FinanceTransaction from "./pages/app/FinanceTransaction.tsx";
 import ResidentsHub from "./pages/app/Residents.tsx";
 import ResidentRecordPage from "./pages/app/ResidentRecord.tsx";
@@ -154,8 +162,72 @@ const AnimatedRoutes = () => {
         <Route
           path="/app/finance"
           element={
+            <RequireRole gate="finance">
+              <FinanceOverview />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/cashbook"
+          element={
+            <RequireRole gate="finance">
+              <FinanceCashbook />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/requests"
+          element={
             <RequireRole gate="staff">
-              <Finance />
+              <FinanceRequests />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/payments"
+          element={
+            <RequireRole gate="finance">
+              <FinancePayments />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/monthly"
+          element={
+            <RequireRole gate="finance">
+              <FinanceMonthly />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/loans"
+          element={
+            <RequireRole gate="finance">
+              <FinanceLoans />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/budgets"
+          element={
+            <RequireRole gate="finance">
+              <FinanceBudgets />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/reports"
+          element={
+            <RequireRole gate="finance">
+              <FinanceReports />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/lookup"
+          element={
+            <RequireRole gate="finance">
+              <FinanceLookup />
             </RequireRole>
           }
         />

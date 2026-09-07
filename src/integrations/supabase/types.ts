@@ -199,6 +199,39 @@ export type Database = {
           },
         ]
       }
+      budgets: {
+        Row: {
+          cap_ugx: number
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          month: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          cap_ugx: number
+          category: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          month: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cap_ugx?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          month?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cash_requests: {
         Row: {
           amount_ugx: number
@@ -280,6 +313,125 @@ export type Database = {
             columns: ["shoot_day_id"]
             isOneToOne: false
             referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cashbook_entries: {
+        Row: {
+          amount_ugx: number
+          attachment_path: string | null
+          category: string
+          counterparty_kind: string
+          counterparty_name: string
+          created_at: string
+          created_by: string | null
+          direction: string
+          entry_date: string
+          event_id: string | null
+          id: string
+          note: string | null
+          project_id: string | null
+          reference: string | null
+          resident_id: string | null
+          reverses_id: string | null
+          transaction_id: string | null
+          transfer_group_id: string | null
+          updated_at: string
+          wallet_id: string
+        }
+        Insert: {
+          amount_ugx: number
+          attachment_path?: string | null
+          category?: string
+          counterparty_kind?: string
+          counterparty_name?: string
+          created_at?: string
+          created_by?: string | null
+          direction: string
+          entry_date?: string
+          event_id?: string | null
+          id?: string
+          note?: string | null
+          project_id?: string | null
+          reference?: string | null
+          resident_id?: string | null
+          reverses_id?: string | null
+          transaction_id?: string | null
+          transfer_group_id?: string | null
+          updated_at?: string
+          wallet_id: string
+        }
+        Update: {
+          amount_ugx?: number
+          attachment_path?: string | null
+          category?: string
+          counterparty_kind?: string
+          counterparty_name?: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          entry_date?: string
+          event_id?: string | null
+          id?: string
+          note?: string | null
+          project_id?: string | null
+          reference?: string | null
+          resident_id?: string | null
+          reverses_id?: string | null
+          transaction_id?: string | null
+          transfer_group_id?: string | null
+          updated_at?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cashbook_entries_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cashbook_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cashbook_entries_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cashbook_entries_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cashbook_entries_reverses_id_fkey"
+            columns: ["reverses_id"]
+            isOneToOne: false
+            referencedRelation: "cashbook_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cashbook_entries_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cashbook_entries_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
             referencedColumns: ["id"]
           },
         ]
@@ -1930,6 +2082,36 @@ export type Database = {
         }
         Relationships: []
       }
+      wallets: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          sort: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          kind?: string
+          name: string
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       public_residents: {
@@ -2070,6 +2252,14 @@ export type Database = {
           txn_ref: string
         }[]
       }
+      finance_month_summary: {
+        Args: { _month: string }
+        Returns: {
+          category: string
+          money_in: number
+          money_out: number
+        }[]
+      }
       finish_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       get_order_summary: {
         Args: { _ref: string }
@@ -2132,6 +2322,24 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      log_cashbook_entry: {
+        Args: {
+          _amount: number
+          _attachment_path?: string
+          _category: string
+          _counterparty_kind?: string
+          _counterparty_name: string
+          _direction: string
+          _entry_date: string
+          _event_id?: string
+          _note?: string
+          _project_id?: string
+          _reference?: string
+          _resident_id?: string
+          _wallet_id: string
+        }
+        Returns: string
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -2223,6 +2431,10 @@ export type Database = {
           visible: boolean
         }[]
       }
+      reverse_cashbook_entry: {
+        Args: { _id: string; _reason: string }
+        Returns: string
+      }
       reverse_transaction: {
         Args: { _reason: string; _txn_id: string }
         Returns: string
@@ -2246,6 +2458,29 @@ export type Database = {
         }[]
       }
       tier_sold_count: { Args: { _tier_id: string }; Returns: number }
+      transfer_between_wallets: {
+        Args: {
+          _amount: number
+          _entry_date: string
+          _from: string
+          _note?: string
+          _to: string
+        }
+        Returns: string
+      }
+      wallet_balances: {
+        Args: never
+        Returns: {
+          active: boolean
+          balance: number
+          kind: string
+          money_in: number
+          money_out: number
+          sort: number
+          wallet_id: string
+          wallet_name: string
+        }[]
+      }
     }
     Enums: {
       app_role:

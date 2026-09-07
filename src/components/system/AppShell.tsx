@@ -15,7 +15,13 @@ import {
   Camera,
   Package,
   LogOut,
-
+  BookOpen,
+  HandCoins,
+  Banknote,
+  Landmark,
+  PieChart,
+  FileText,
+  Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -39,7 +45,7 @@ export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: ty
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
-  const { isStaff, isClient, departments, canScan, isLeadership } = useMyRoles();
+  const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance } = useMyRoles();
 
   if (nav) return [{ label: "Menu", items: nav }];
 
@@ -66,8 +72,6 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   if (departments.legal) dept.push({ to: "/app/legal", label: "Legal & contracts", icon: Scale });
   if (departments.ops) dept.push({ to: "/app/ops", label: "Management & ops", icon: Settings2 });
   if (departments.ops) dept.push({ to: "/app/equipment", label: "Equipment", icon: Package });
-  dept.push({ to: "/app/finance", label: "Finance", icon: Wallet });
-
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
   if (isLeadership) dept.push({ to: "/app/team", label: "Team & access", icon: Users });
   if (dept.length) groups.push({ label: "Departments", items: dept });
@@ -75,6 +79,22 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   const winding: ShellNavItem[] = [];
   if (departments.events) winding.push({ to: "/app/events", label: "Events", icon: CalendarDays });
   if (canScan) winding.push({ to: "/app/scan", label: "Gate scanner", icon: ScanLine });
+  const money = canSeeFinance || isLeadership;
+  const finance: ShellNavItem[] = money
+    ? [
+        { to: "/app/finance", label: "Overview", end: true, icon: Wallet },
+        { to: "/app/finance/cashbook", label: "Cashbook", icon: BookOpen },
+        { to: "/app/finance/requests", label: "Requests", icon: HandCoins },
+        { to: "/app/finance/payments", label: "Payments", icon: Banknote },
+        { to: "/app/finance/monthly", label: "This month", icon: CalendarDays },
+        { to: "/app/finance/loans", label: "Loans", icon: Landmark },
+        { to: "/app/finance/budgets", label: "Budgets", icon: PieChart },
+        { to: "/app/finance/reports", label: "Reports", icon: FileText },
+        { to: "/app/finance/lookup", label: "Look up", icon: Search },
+      ]
+    : [{ to: "/app/finance/requests", label: "Requests", icon: HandCoins }];
+  groups.push({ label: "Finance", items: finance });
+
   if (winding.length) groups.push({ label: "Winding down", items: winding });
 
   return groups;
