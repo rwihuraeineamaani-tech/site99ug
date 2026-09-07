@@ -302,6 +302,53 @@ export default function Shoots() {
     await run(() => supabase.from("shoot_days").insert(payload), "Shoot day created");
   };
 
+  /** Removes a shoot day and everything hung off it. */
+  const deleteDay = async (d: ShootDay) => {
+    setBusy(true);
+    await supabase.from("shoot_day_items").delete().eq("shoot_day_id", d.id);
+    await supabase.from("shoot_day_equipment").delete().eq("shoot_day_id", d.id);
+    const { error } = await supabase.from("shoot_days").delete().eq("id", d.id);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Shoot day deleted");
+    setConfirmDelete(null);
+    if (openId === d.id) setOpenId(null);
+    await load();
+  };
+
+  /** Everyone crewed across the ideas on a day, names only, no repeats. */
+  const crewNamesOf = (dayId: string) => {
+    const names = new Set<string>();
+    itemsOf(dayId).forEach((i) =>
+      crew.filter((c) => c.content_id === i.id).forEach((c) => {
+        const n = memberName(c.user_id) ?? c.note;
+        if (n) names.add(n);
+      })
+    );
+    return [...names];
+  };
+
+  /* month grid for the calendar view */
+  const monthCells = useMemo(() => {
+    const { from } = monthGridRange(monthAnchor);
+    return Array.from({ length: 42 }, (_, n) => addDays(from, n));
+  }, [monthAnchor]);
+  const dated = useMemo(() => {
+    const map: Record<string, ShootDay[]> = {};
+    days.filter((d) => d.shoot_date).forEach((d) => {
+      (map[d.shoot_date as string] ||= []).push(d);
+    });
+    return map;
+  }, [days]);
+  const undated = useMemo(() => days.filter((d) => !d.shoot_date && !["done", "cancelled"].includes(d.status)), [days]);
+  const monthLabel = new Date(`${monthAnchor}T12:00:00`).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+  const shiftMonth = (n: number) => {
+    const d = new Date(`${monthAnchor}T12:00:00`);
+    d.setMonth(d.getMonth() + n);
+    setMonthAnchor(d.toISOString().slice(0, 10));
+  };
+  const todayISO = new Date().toISOString().slice(0, 10);
+
   /** The brief as plain text — used for the copy button and read by everyone on the day. */
   const briefText = (d: ShootDay) => {
     const lines = [
