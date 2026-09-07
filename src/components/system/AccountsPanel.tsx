@@ -1,14 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import Seo from "@/components/Seo";
-import AppShell from "@/components/system/AppShell";
-import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
+import { SectionHeading, StatusChip } from "@/components/system";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { useMyAssignments } from "@/hooks/useMyAssignments";
-import ClientPayPanel from "@/components/system/ClientPayPanel";
 import {
   METRIC_COLUMNS,
   lastCompletedWeek,
@@ -20,7 +17,7 @@ import {
 } from "@/lib/weeks";
 import { ArrowUpRight, Download, TrendingDown, TrendingUp } from "lucide-react";
 
-type ResidentOpt = { id: string; name: string; territory: string; contact_user_id: string | null; handler_user_id: string | null };
+export type ResidentOpt = { id: string; name: string; territory: string; contact_user_id: string | null; handler_user_id: string | null };
 type Account = { id: string; resident_id: string; platform: string; handle: string; active: boolean; sort: number };
 type MetricRow = {
   id: string;
@@ -328,11 +325,6 @@ export default function AccountsPanel({
               ))}
             </div>
           )}
-          {canSeeFinance && (
-            <div className="mt-14">
-              <ClientPayPanel />
-            </div>
-          )}
         </>
       )}
 
@@ -501,6 +493,6 @@ export default function AccountsPanel({
           )}
         </DialogContent>
       </Dialog>
-    </AppShell>
+    </>
   );
 }
