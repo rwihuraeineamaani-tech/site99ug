@@ -63,7 +63,8 @@ const field =
 const pill = "press rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs font-semibold focus-ring disabled:opacity-50";
 const solid = "press rounded-full border border-signal bg-signal text-paper px-4 py-2 text-xs font-semibold focus-ring disabled:opacity-50";
 
-const spendTone = (k: string) => (k === "capex" ? "violet" : k === "opex" ? "amber" : "neutral") as const;
+const spendTone = (k: string): "violet" | "amber" | "neutral" =>
+  k === "capex" ? "violet" : k === "opex" ? "amber" : "neutral";
 const spendChip = (k: string) => (k === "capex" ? "Capital" : k === "opex" ? "Running cost" : "Not a cost");
 
 export default function Cashbook() {
