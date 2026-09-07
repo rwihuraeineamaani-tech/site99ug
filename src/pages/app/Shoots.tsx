@@ -52,7 +52,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function Shoots() {
-  const { canEditContent } = useMyRoles();
+  const { canEditContent, userId } = useMyRoles();
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState<ShootDay[]>([]);
   const [dayItems, setDayItems] = useState<DayItem[]>([]);
@@ -120,6 +120,13 @@ export default function Shoots() {
   };
   const itemsOf = (dayId: string) =>
     dayItems.filter((i) => i.shoot_day_id === dayId).map((i) => items.find((x) => x.id === i.content_id)).filter(Boolean) as Item[];
+
+  /** True when I'm crewed on any idea attached to this day. */
+  const amCrewOn = (dayId: string) =>
+    !!userId && itemsOf(dayId).some((i) => crew.some((c) => c.content_id === i.id && c.user_id === userId));
+  const onCrewToday = open ? amCrewOn(open.id) : false;
+
+
 
   const memberName = (uid: string | null) => {
     if (!uid) return null;
@@ -528,9 +535,9 @@ export default function Shoots() {
               )}
 
 
-              {canEditContent && (
+              {(canEditContent || onCrewToday) && (
                 <div className="flex flex-wrap gap-2">
-                  {open.status === "draft" && (
+                  {canEditContent && open.status === "draft" && (
                     <Button disabled={busy || !open.shoot_date} onClick={() => call("confirm_shoot_day", "Shoot day confirmed")}>
                       {open.shoot_date ? "Confirm the day" : "Pick a date first"}
                     </Button>
@@ -547,6 +554,7 @@ export default function Shoots() {
                   )}
                 </div>
               )}
+
               {open.status === "draft" && !open.shoot_date && (
                 <p className="text-xs text-ink-soft">Save the date first, then confirm — confirming schedules every idea on the day.</p>
               )}

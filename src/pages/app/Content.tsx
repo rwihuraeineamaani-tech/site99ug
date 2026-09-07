@@ -104,7 +104,7 @@ type ResidentRow = {
   handler_user_id: string | null;
 };
 type ProjectRow = { id: string; title: string; client: string };
-type Member = { user_id: string; name: string };
+type Member = { user_id: string; name: string; title: string | null };
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
@@ -198,7 +198,7 @@ export default function ContentPipeline() {
       supabase.from("content_items").select("*").order("planned_at", { ascending: true, nullsFirst: false }),
       supabase.rpc("resident_options"),
       supabase.from("projects").select("id, title, client").order("display_order"),
-      supabase.from("team_members").select("user_id, display_name, email"),
+      supabase.from("team_members").select("user_id, display_name, email, title"),
       supabase.from("content_crew").select("*"),
     ]);
     if (error) toast.error(error.message);
@@ -207,11 +207,12 @@ export default function ContentPipeline() {
     setProjects((ps as ProjectRow[]) ?? []);
     const map: Record<string, string> = {};
     const list: Member[] = [];
-    (tm ?? []).forEach((m: { user_id: string; display_name: string | null; email: string }) => {
+    (tm ?? []).forEach((m: { user_id: string; display_name: string | null; email: string; title: string | null }) => {
       const name = m.display_name?.trim() || m.email.split("@")[0];
       map[m.user_id] = name;
-      list.push({ user_id: m.user_id, name });
+      list.push({ user_id: m.user_id, name, title: m.title });
     });
+
     const byItem: Record<string, CrewRow[]> = {};
     ((allCrew as CrewRow[]) ?? []).forEach((c) => {
       (byItem[c.content_id] ??= []).push(c);
@@ -454,6 +455,7 @@ export default function ContentPipeline() {
     const handler = (!!userId && r?.handler_user_id === userId) || amHandler(i.resident_id);
     const rows = crewByItem[i.id] ?? [];
     const itemEditor = !!userId && rows.some((c) => c.user_id === userId && /edit/i.test(c.role));
+    const onCrew = !!userId && rows.some((c) => c.user_id === userId);
     const crewFilled = rows.length > 0 && rows.every((c) => c.user_id);
     const openIt: Quick["run"] = undefined;
 
@@ -469,17 +471,20 @@ export default function ContentPipeline() {
         return isFounder || contact ? [{ label: "Fill the crew", run: openIt }] : [];
       case "Crewed":
       case "Scheduled":
-        return canEditContent ? [{ label: "Open shoot day", run: () => navigate("/app/shoots"), ghost: true }] : [];
+        return canEditContent || onCrew
+          ? [{ label: "Open shoot day", run: () => navigate("/app/shoots"), ghost: true }]
+          : [];
       case "Shooting":
-        return isFounder || contact ? [{ label: "Shoot done", run: () => move(i.id, "Editing") }] : [];
+        return isFounder || contact || onCrew ? [{ label: "Shoot done", run: () => move(i.id, "Editing") }] : [];
       case "Editing":
-        return isFounder || itemEditor ? [{ label: "Add the cut", run: openIt }] : [];
+        return isFounder || itemEditor || onCrew ? [{ label: "Add the cut", run: openIt }] : [];
       case "Review":
         return isFounder ? [{ label: "Review it", run: openIt }] : [];
       case "Handover":
         return isFounder || handler ? [{ label: "Add post links", run: openIt }] : [];
       case "Posted":
         return isFounder || handler ? [{ label: "Add the numbers", run: openIt }] : [];
+
       default:
         return [];
     }
@@ -589,6 +594,8 @@ export default function ContentPipeline() {
   const isContact = (!!userId && res?.contact_user_id === userId) || amContact(editing?.resident_id ?? null);
   const isHandler = (!!userId && res?.handler_user_id === userId) || amHandler(editing?.resident_id ?? null);
   const isItemEditor = !!userId && crew.some((c) => c.user_id === userId && /edit/i.test(c.role));
+  const isOnCrew = !!userId && crew.some((c) => c.user_id === userId);
+
 
   const stepPanel = () => {
     if (!editing) return null;
@@ -666,7 +673,8 @@ export default function ContentPipeline() {
 
 
     if (s === "Shooting")
-      return isFounder || isContact ? (
+      return isFounder || isContact || isOnCrew ? (
+
         <div className={box}>
           <div className="eyebrow text-ink-faint">On the shoot</div>
           <Button className="mt-3" disabled={busy} onClick={() => advance("Editing")}>
@@ -678,7 +686,7 @@ export default function ContentPipeline() {
       );
 
     if (s === "Editing")
-      return isFounder || isItemEditor ? (
+      return isFounder || isItemEditor || isOnCrew ? (
         <div className={box}>
           <div className="eyebrow text-ink-faint">Post production</div>
           {editing.edit_remarks && (
@@ -959,6 +967,16 @@ export default function ContentPipeline() {
     </div>
   );
 
+  const PRODUCTION_TITLE = /(creativ|content|product|shoot|photo|video|camera|edit|strateg|direct)/i;
+  const productionMembers = members.filter((m) => PRODUCTION_TITLE.test(m.title ?? ""));
+  const otherMembers = members.filter((m) => !PRODUCTION_TITLE.test(m.title ?? ""));
+  const memberOption = (m: Member) => (
+    <option key={m.user_id} value={m.user_id}>
+      {m.name}
+      {m.title ? ` — ${m.title}` : ""}
+    </option>
+  );
+
   const crewEditor = () => (
     <div className="mt-3 space-y-2">
       {crew.map((c) => (
@@ -970,12 +988,14 @@ export default function ContentPipeline() {
             onChange={(e) => setCrewPerson(c.id, e.target.value || null)}
           >
             <option value="">Not filled yet</option>
-            {members.map((m) => (
-              <option key={m.user_id} value={m.user_id}>
-                {m.name}
-              </option>
-            ))}
+            {productionMembers.length > 0 && (
+              <optgroup label="Production">{productionMembers.map(memberOption)}</optgroup>
+            )}
+            {otherMembers.length > 0 && (
+              <optgroup label="Everyone else">{otherMembers.map(memberOption)}</optgroup>
+            )}
           </select>
+
           {(isFounder || isContact) && (
             <button
               type="button"
