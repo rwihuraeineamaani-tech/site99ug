@@ -61,6 +61,23 @@
     --state-warn: 18 85% 45%;
     --state-stop: 0 100% 36%;
     --state-done: 220 30% 40%;
+
+    /* Working accents (internal system) */
+    --acc-violet: 265 72% 55%;
+    --acc-violet-soft: 265 78% 95%;
+    --acc-teal: 172 62% 34%;
+    --acc-teal-soft: 172 55% 93%;
+    --acc-amber: 36 92% 46%;
+    --acc-amber-soft: 40 92% 92%;
+    --acc-blue: 218 78% 52%;
+    --acc-blue-soft: 218 90% 95%;
+    --acc-pink: 335 78% 52%;
+    --acc-pink-soft: 335 85% 95%;
+    --acc-lime: 92 55% 36%;
+    --acc-lime-soft: 92 60% 92%;
+    --acc-slate: 220 12% 42%;
+    --acc-slate-soft: 220 18% 93%;
+
   }
 }
 
