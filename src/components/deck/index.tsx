@@ -199,3 +199,154 @@ export function DeckList({ children }: { children: ReactNode }) {
 }
 
 export default DeckHeader;
+
+/* ------------------------------------------------------------------ *
+ * Board layout: a slim figures strip and clickable work cards.
+ * ------------------------------------------------------------------ */
+
+export type StripFigure = {
+  label: string;
+  value: number | string;
+  to?: string;
+  tone?: "default" | "signal" | "quiet";
+};
+
+/** One line of small figures — replaces the old wall of big count tiles. */
+export function DeckStrip({ figures }: { figures: StripFigure[] }) {
+  return (
+    <div className="rise surface rounded-xl divide-y sm:divide-y-0 sm:divide-x divide-rule grid grid-cols-2 sm:grid-cols-4 overflow-hidden">
+      {figures.map((f) => {
+        const inner = (
+          <div className="px-4 py-3">
+            <div className="eyebrow text-[9px] text-ink-faint truncate">{f.label}</div>
+            <div
+              className={cn(
+                "num text-xl md:text-2xl font-semibold mt-0.5 tabular-nums",
+                f.tone === "signal" && "text-signal",
+                f.tone === "quiet" && "text-ink-soft"
+              )}
+            >
+              {typeof f.value === "number" ? f.value.toLocaleString() : f.value}
+            </div>
+          </div>
+        );
+        return f.to ? (
+          <Link key={f.label} to={f.to} className="focus-ring hover:bg-paper-sunken transition-colors">
+            {inner}
+          </Link>
+        ) : (
+          <div key={f.label}>{inner}</div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** A column on the work board. */
+export function DeckColumn({
+  title,
+  count,
+  to,
+  toLabel = "Open",
+  empty = "Nothing here.",
+  delay = 0,
+  children,
+}: {
+  title: string;
+  count?: number;
+  to?: string;
+  toLabel?: string;
+  empty?: string;
+  delay?: number;
+  children?: ReactNode;
+}) {
+  const has = Array.isArray(children) ? children.length > 0 : !!children;
+  return (
+    <section
+      className="rise surface rounded-xl flex flex-col min-h-[180px]"
+      style={{ ["--d" as string]: `${delay}ms` }}
+    >
+      <div className="flex items-center gap-2 px-4 py-3 rule-b">
+        <h2 className="eyebrow text-[10px]">{title}</h2>
+        {count !== undefined && count > 0 && (
+          <span className="num rounded-full bg-signal/15 text-signal px-2 py-0.5 text-[10px] font-semibold tabular-nums">
+            {count}
+          </span>
+        )}
+        {to && (
+          <Link to={to} className="ml-auto eyebrow text-[10px] text-signal focus-ring whitespace-nowrap">
+            {toLabel} →
+          </Link>
+        )}
+      </div>
+      <div className="flex-1 p-2 space-y-2 overflow-y-auto max-h-[420px]">
+        {has ? children : <p className="px-2 py-6 text-center text-xs text-ink-faint">{empty}</p>}
+      </div>
+    </section>
+  );
+}
+
+/** One clickable job on the board, with its own one-press action. */
+export function DeckCard({
+  to,
+  eyebrow,
+  title,
+  note,
+  tone = "default",
+  action,
+  right,
+}: {
+  to?: string;
+  eyebrow?: string;
+  title: string;
+  note?: string;
+  tone?: "default" | "signal" | "late";
+  action?: { label: string; onClick: () => void; busy?: boolean };
+  right?: ReactNode;
+}) {
+  const body = (
+    <div
+      className={cn(
+        "rounded-lg border border-rule bg-paper-raised px-3 py-2.5 card-lift",
+        tone === "signal" && "border-signal/45",
+        tone === "late" && "border-signal bg-signal/[0.06]"
+      )}
+    >
+      <div className="flex items-start gap-2">
+        <div className="min-w-0 flex-1">
+          {eyebrow && (
+            <div
+              className={cn("eyebrow text-[9px] mb-1", tone === "late" ? "text-signal" : "text-ink-faint")}
+            >
+              {eyebrow}
+            </div>
+          )}
+          <div className="text-sm leading-snug truncate">{title}</div>
+          {note && <div className="mt-0.5 text-[11px] text-ink-soft truncate">{note}</div>}
+        </div>
+        {right}
+      </div>
+      {action && (
+        <button
+          type="button"
+          disabled={action.busy}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            action.onClick();
+          }}
+          className="press mt-2 w-full rounded-md border border-signal bg-signal px-2.5 py-1 text-[11px] font-semibold text-paper focus-ring disabled:opacity-50"
+        >
+          {action.label}
+        </button>
+      )}
+    </div>
+  );
+  return to ? (
+    <Link to={to} className="block focus-ring rounded-lg">
+      {body}
+    </Link>
+  ) : (
+    body
+  );
+}
