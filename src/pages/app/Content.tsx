@@ -498,30 +498,31 @@ export default function ContentPipeline() {
       );
 
     if (s === "Crewed")
-      return isFounder || isContact ? (
+      return (
         <div className={box}>
-          <div className="eyebrow text-ink-faint">Set the shoot date</div>
-          <input type="date" className={field} value={shootAt} onChange={(e) => setShootAt(e.target.value)} />
-          <Button className="mt-3" disabled={busy || !shootAt} onClick={() => advance("Scheduled", { shoot_at: shootAt })}>
-            Schedule
-          </Button>
+          <div className="eyebrow text-ink-faint">On a shoot day</div>
+          <p className="mt-1 text-xs text-ink-soft">
+            This idea is waiting on its client's shoot day. Management sets the date and the gear there — confirming the
+            day schedules it.
+          </p>
+          <Link to="/app/shoots" className="mt-3 inline-block text-xs font-semibold text-signal focus-ring">
+            Open shoot days →
+          </Link>
         </div>
-      ) : (
-        waiting("Waiting on the contact person to schedule the shoot.")
       );
 
     if (s === "Scheduled")
-      return isFounder || isContact ? (
+      return (
         <div className={box}>
           <div className="eyebrow text-ink-faint">Shoot day</div>
           <p className="mt-1 text-xs text-ink-soft">Shoot set for {editing.shoot_at ?? "—"}.</p>
-          <Button className="mt-3" disabled={busy} onClick={() => advance("Shooting")}>
-            Start the shoot
-          </Button>
+          <Link to="/app/shoots" className="mt-3 inline-block text-xs font-semibold text-signal focus-ring">
+            Open shoot days →
+          </Link>
         </div>
-      ) : (
-        waiting(`Shoot set for ${editing.shoot_at ?? "—"}.`)
       );
+
+
 
     if (s === "Shooting")
       return isFounder || isContact ? (
