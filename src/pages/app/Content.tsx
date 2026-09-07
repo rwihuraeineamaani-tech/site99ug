@@ -813,10 +813,12 @@ export default function ContentPipeline() {
           </div>
           <Button
             className="mt-3"
-            disabled={busy || !postLinks.trim() || !postedFrom}
+            disabled={busy || !Object.values(postLinks).some((v) => v.trim()) || !postedFrom}
             onClick={() =>
               advance("Posted", {
-                posted_links: postLinks.split("\n").map((l) => l.trim()).filter(Boolean),
+                posted_links: (editing.platforms ?? [])
+                  .filter((p) => (postLinks[p] ?? "").trim())
+                  .map((p) => `${p}: ${postLinks[p].trim()}`),
                 posted_from: new Date(postedFrom).toISOString(),
                 posted_to: postedTo ? new Date(postedTo).toISOString() : null,
               })
