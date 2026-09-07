@@ -1197,6 +1197,8 @@ export type Database = {
       resident_options: {
         Args: never
         Returns: {
+          contact_user_id: string
+          handler_user_id: string
           id: string
           name: string
           territory: string
