@@ -38,6 +38,9 @@ import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
 import { Sales, LegalContracts, ManagementOps, Finance } from "./pages/app/Departments.tsx";
 import ClientRelations from "./pages/app/Clients.tsx";
+import Shoots from "./pages/app/Shoots.tsx";
+import EquipmentPage from "./pages/app/Equipment.tsx";
+
 import RequireRole from "./components/system/RequireRole";
 
 
