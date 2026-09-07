@@ -42,6 +42,9 @@ const TYPES = [
   "Strategy",
 ];
 
+/** Per-platform record of where a post went and in which traffic window. */
+export type PostedSlots = Record<string, { url: string; windows: string[] }>;
+
 export type ContentItem = {
   id: string;
   ref_no: number;
