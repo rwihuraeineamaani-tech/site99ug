@@ -121,6 +121,23 @@ export default function Shoots() {
   const itemsOf = (dayId: string) =>
     dayItems.filter((i) => i.shoot_day_id === dayId).map((i) => items.find((x) => x.id === i.content_id)).filter(Boolean) as Item[];
 
+  const memberName = (uid: string | null) => {
+    if (!uid) return null;
+    const m = members.find((x) => x.user_id === uid);
+    return m?.display_name || m?.email || null;
+  };
+  /** Everyone crewed on one idea, as "Shooter: Brian" lines. */
+  const crewOf = (contentId: string) =>
+    crew
+      .filter((c) => c.content_id === contentId)
+      .map((c) => `${c.role}: ${memberName(c.user_id) ?? c.note ?? "unassigned"}`);
+  const gearOf = (dayId: string) =>
+    bookings
+      .filter((b) => b.shoot_day_id === dayId)
+      .map((b) => gear.find((g) => g.id === b.equipment_id)?.name)
+      .filter(Boolean) as string[];
+
+
   /** Crewed ideas for this client that aren't on any shoot day yet. */
   const spareFor = (day: ShootDay) =>
     items.filter(
