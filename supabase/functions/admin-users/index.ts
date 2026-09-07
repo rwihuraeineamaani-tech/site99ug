@@ -85,6 +85,7 @@ Deno.serve(async (req) => {
       const email = String(body.email ?? "").trim().toLowerCase();
       const password = String(body.password ?? "");
       const displayName = String(body.display_name ?? "").trim() || null;
+      const jobTitle = String(body.title ?? "").trim() || null;
       const roles = sanitizeRoles(body.roles);
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "Valid email required" }, 400);
       if (password.length < 8) return json({ error: "Password must be at least 8 characters" }, 400);
@@ -100,7 +101,7 @@ Deno.serve(async (req) => {
       const uid = created.user.id;
 
       await admin.from("team_members").upsert(
-        { user_id: uid, email, display_name: displayName, created_by: callerId },
+        { user_id: uid, email, display_name: displayName, title: jobTitle, created_by: callerId },
         { onConflict: "user_id" }
       );
       await admin.from("user_roles").insert(roles.map((role) => ({ user_id: uid, role })));
@@ -119,6 +120,22 @@ Deno.serve(async (req) => {
       }
 
       return json({ ok: true, user_id: uid });
+    }
+
+    if (action === "set_profile") {
+      const userId = String(body.user_id ?? "");
+      if (!userId) return json({ error: "user_id required" }, 400);
+      const patch: Record<string, unknown> = {};
+      if (body.display_name !== undefined) patch.display_name = String(body.display_name).trim() || null;
+      if (body.title !== undefined) patch.title = String(body.title).trim() || null;
+      if (Object.keys(patch).length) {
+        const { error } = await admin.from("team_members").update(patch).eq("user_id", userId);
+        if (error) return json({ error: error.message }, 400);
+      }
+      if (patch.display_name !== undefined) {
+        await admin.auth.admin.updateUserById(userId, { user_metadata: { display_name: patch.display_name } });
+      }
+      return json({ ok: true });
     }
 
     if (action === "set_roles") {
