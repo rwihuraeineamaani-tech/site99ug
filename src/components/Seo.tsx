@@ -5,17 +5,21 @@ interface SeoProps {
   description: string;
   path: string;
   type?: string;
+  /** Keep private app pages out of search results. */
+  noindex?: boolean;
 }
 
 const BASE = "https://site99ug.com";
 
-export default function Seo({ title, description, path, type = "website" }: SeoProps) {
+export default function Seo({ title, description, path, type = "website", noindex }: SeoProps) {
   const url = `${BASE}${path}`;
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
       <link rel="canonical" href={url} />
+
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />

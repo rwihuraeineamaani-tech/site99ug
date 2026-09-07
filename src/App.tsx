@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,7 +10,6 @@ import Residents from "./pages/Residents.tsx";
 import Philosophy from "./pages/Philosophy.tsx";
 import Access from "./pages/Access.tsx";
 import Admin from "./pages/Admin.tsx";
-import AdminLogin from "./pages/AdminLogin.tsx";
 import ResidentLogin from "./pages/ResidentLogin.tsx";
 import ResidentPortal from "./pages/ResidentPortal.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -31,6 +30,13 @@ import AIKazi from "./pages/ai/Kazi.tsx";
 import AIAbout from "./pages/ai/About.tsx";
 import AIContact from "./pages/ai/Contact.tsx";
 import { ThemeWipeProvider } from "./components/ThemeWipe";
+import Login from "./pages/Login.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
+import Dashboard from "./pages/app/Dashboard.tsx";
+import AppTeam from "./pages/app/Team.tsx";
+import ClientPortal from "./pages/app/ClientPortal.tsx";
+import RequireRole from "./components/system/RequireRole";
+
 
 const queryClient = new QueryClient();
 
@@ -45,8 +51,35 @@ const AnimatedRoutes = () => {
         <Route path="/residents" element={<Residents />} />
         <Route path="/philosophy" element={<Philosophy />} />
         <Route path="/access" element={<Access />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/login" element={<Navigate to="/login" replace />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/app"
+          element={
+            <RequireRole gate="staff">
+              <Dashboard />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/team"
+          element={
+            <RequireRole gate="leadership">
+              <AppTeam />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/portal"
+          element={
+            <RequireRole gate="client">
+              <ClientPortal />
+            </RequireRole>
+          }
+        />
+
         <Route path="/residents/login" element={<ResidentLogin />} />
         <Route path="/residents/portal" element={<ResidentPortal />} />
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />

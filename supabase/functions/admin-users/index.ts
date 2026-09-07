@@ -5,7 +5,21 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-const ALLOWED_ROLES = ["admin", "event_manager", "scanner", "viewer", "site_editor"] as const;
+const ALLOWED_ROLES = [
+  "founder",
+  "creative_director",
+  "managing_director",
+  "sales_head",
+  "finance_ops",
+  "creative",
+  "legal",
+  "admin",
+  "event_manager",
+  "scanner",
+  "viewer",
+  "site_editor",
+  "client",
+] as const;
 type Role = (typeof ALLOWED_ROLES)[number];
 
 const json = (body: unknown, status = 200) =>
@@ -34,9 +48,9 @@ Deno.serve(async (req) => {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    // Caller must be an admin
-    const { data: isAdmin } = await admin.rpc("has_role", { _user_id: callerId, _role: "admin" });
-    if (!isAdmin) return json({ error: "Admins only" }, 403);
+    // Caller must be leadership (admin, founder or managing director)
+    const { data: isLeadership } = await admin.rpc("is_leadership", { _user_id: callerId });
+    if (!isLeadership) return json({ error: "Leadership only" }, 403);
 
     const body = await req.json().catch(() => ({}));
     const action = String(body.action ?? "");
@@ -91,6 +105,19 @@ Deno.serve(async (req) => {
       );
       await admin.from("user_roles").insert(roles.map((role) => ({ user_id: uid, role })));
 
+      // A client login is tied to exactly one client record.
+      if (roles.includes("client")) {
+        const clientId = String(body.client_id ?? "");
+        if (!clientId) return json({ error: "Pick the client this login belongs to" }, 400);
+        const { error: linkErr } = await admin
+          .from("client_users")
+          .upsert(
+            { client_id: clientId, user_id: uid, email, invited_by: callerId, accepted_at: new Date().toISOString() },
+            { onConflict: "email" }
+          );
+        if (linkErr) return json({ error: linkErr.message }, 400);
+      }
+
       return json({ ok: true, user_id: uid });
     }
 
@@ -98,8 +125,9 @@ Deno.serve(async (req) => {
       const userId = String(body.user_id ?? "");
       const roles = sanitizeRoles(body.roles);
       if (!userId) return json({ error: "user_id required" }, 400);
-      if (userId === callerId && !roles.includes("admin"))
-        return json({ error: "You cannot remove your own admin access" }, 400);
+      const keepsLeadership = roles.some((r) => ["admin", "founder", "managing_director"].includes(r));
+      if (userId === callerId && !keepsLeadership)
+        return json({ error: "You cannot remove your own leadership access" }, 400);
 
       await admin.from("user_roles").delete().eq("user_id", userId);
       if (roles.length) {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ROLE_HINTS, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
+import { ROLE_HINTS, ROLE_LABELS, TEAM_ROLES, type StaffRole } from "@/hooks/useMyRoles";
 
 type Member = {
   id: string;
@@ -12,7 +12,7 @@ type Member = {
   roles: StaffRole[];
 };
 
-const ALL_ROLES: StaffRole[] = ["admin", "event_manager", "scanner", "viewer", "site_editor"];
+const ALL_ROLES: StaffRole[] = TEAM_ROLES;
 
 const lbl = "mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground";
 const input = "mt-2 w-full bg-transparent border-b border-border focus:border-site-red outline-none py-2";
