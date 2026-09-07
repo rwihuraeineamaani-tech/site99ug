@@ -58,12 +58,18 @@ export default function Team() {
       body: { action: "create", ...invite, roles: ["client"] },
     });
     setBusy(false);
-    const msg = (data as { error?: string } | null)?.error ?? error?.message;
+    const res = data as { error?: string; reused?: boolean } | null;
+    const msg = res?.error ?? error?.message;
     if (msg) return toast.error(msg);
-    toast.success("Client login created — share the password with them directly.");
+    toast.success(
+      res?.reused
+        ? "That email already had an account — it now opens this client's portal with the password you set."
+        : "Client login created — share the password with them directly."
+    );
     setInvite({ client_id: "", email: "", display_name: "", password: "" });
     load();
   };
+
 
   const cols: Column<Client>[] = [
     { key: "name", header: "Client", cell: (r) => <span className="font-medium">{r.name}</span> },
