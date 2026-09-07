@@ -30,10 +30,21 @@ import {
 export const STAGES = ["Idea", "Approved", "Scheduled", "Editing", "Posted", "Archived", "Rejected"] as const;
 export type Stage = (typeof STAGES)[number];
 
-const TYPES = ["Post", "Reel", "TikTok", "Photo set", "Video", "Campaign", "Strategy"];
+const TYPES = [
+  "Vertical short-form video",
+  "Long-form video",
+  "Carousel",
+  "Poster",
+  "Photo set",
+  "Campaign",
+  "Strategy",
+];
 
 export type ContentItem = {
   id: string;
+  ref_no: number;
+  added_by: string | null;
+  added_on: string;
   client_id: string | null;
   title: string;
   content_type: string;
@@ -52,11 +63,20 @@ type ClientRow = { id: string; name: string };
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
 
+export const refCode = (n: number) => `IDEA-${String(n).padStart(4, "0")}`;
+
+const emptyNew = {
+  title: "",
+  client_id: "",
+  content_type: TYPES[0],
+  link: "",
+  notes: "",
+};
 
 const emptyDraft = {
   title: "",
   client_id: "",
-  content_type: "Post",
+  content_type: TYPES[0],
   stage: "Idea" as string,
   lead: "",
   shooter: "",
@@ -70,30 +90,38 @@ export default function ContentPipeline() {
   const { canEditContent } = useMyRoles();
   const [items, setItems] = useState<ContentItem[]>([]);
   const [clients, setClients] = useState<ClientRow[]>([]);
+  const [authors, setAuthors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"board" | "list">("board");
+  const [view, setView] = useState<"board" | "list" | "archive">("board");
   const [q, setQ] = useState("");
   const [client, setClient] = useState("all");
   const [type, setType] = useState("all");
   const [person, setPerson] = useState("all");
   const [stage, setStage] = useState("all");
   const [open, setOpen] = useState(false);
+  const [newOpen, setNewOpen] = useState(false);
+  const [fresh, setFresh] = useState(emptyNew);
   const [editing, setEditing] = useState<ContentItem | null>(null);
   const [draft, setDraft] = useState(emptyDraft);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null);
 
-
   const load = async () => {
     setLoading(true);
-    const [{ data: rows, error }, { data: cs }] = await Promise.all([
+    const [{ data: rows, error }, { data: cs }, { data: tm }] = await Promise.all([
       supabase.from("content_items").select("*").order("planned_at", { ascending: true, nullsFirst: false }),
       supabase.from("clients").select("id, name").order("name"),
+      supabase.from("team_members").select("user_id, display_name, email"),
     ]);
     if (error) toast.error(error.message);
     setItems((rows as ContentItem[]) ?? []);
     setClients((cs as ClientRow[]) ?? []);
+    const map: Record<string, string> = {};
+    (tm ?? []).forEach((m: { user_id: string; display_name: string | null; email: string }) => {
+      map[m.user_id] = m.display_name?.trim() || m.email.split("@")[0];
+    });
+    setAuthors(map);
     setLoading(false);
   };
 
@@ -102,32 +130,33 @@ export default function ContentPipeline() {
   }, []);
 
   const clientName = (id: string | null) => clients.find((c) => c.id === id)?.name ?? "—";
+  const authorName = (id: string | null) => (id ? authors[id] ?? "—" : "—");
 
   const people = useMemo(() => {
     const set = new Set<string>();
-    items.forEach((i) => [i.lead, i.shooter, i.editor].forEach((p) => p && set.add(p)));
+    items.forEach((i) => {
+      [i.lead, i.shooter, i.editor].forEach((p) => p && set.add(p));
+      const a = authorName(i.added_by);
+      if (a !== "—") set.add(a);
+    });
     return Array.from(set).sort();
-  }, [items]);
+  }, [items, authors]);
 
   const filtered = useMemo(
     () =>
       items.filter((i) => {
-        if (q && !`${i.title} ${i.notes ?? ""} ${clientName(i.client_id)}`.toLowerCase().includes(q.toLowerCase()))
-          return false;
+        const hay = `${refCode(i.ref_no)} ${i.title} ${i.notes ?? ""} ${clientName(i.client_id)}`.toLowerCase();
+        if (q && !hay.includes(q.toLowerCase())) return false;
         if (client !== "all" && i.client_id !== client) return false;
         if (type !== "all" && i.content_type !== type) return false;
         if (stage !== "all" && i.stage !== stage) return false;
-        if (person !== "all" && ![i.lead, i.shooter, i.editor].includes(person)) return false;
+        if (person !== "all" && ![i.lead, i.shooter, i.editor, authorName(i.added_by)].includes(person)) return false;
         return true;
       }),
-    [items, q, client, type, stage, person, clients]
+    [items, q, client, type, stage, person, clients, authors]
   );
 
-  const openNew = (preset?: string) => {
-    setEditing(null);
-    setDraft({ ...emptyDraft, stage: preset ?? "Idea" });
-    setOpen(true);
-  };
+  const unclaimed = useMemo(() => filtered.filter((i) => !i.client_id), [filtered]);
 
   const openEdit = (row: ContentItem) => {
     setEditing(row);
@@ -146,6 +175,28 @@ export default function ContentPipeline() {
     setOpen(true);
   };
 
+  const saveNew = async () => {
+    if (!fresh.title.trim()) return toast.error("Give it a title first.");
+    setBusy(true);
+    const { data: me } = await supabase.auth.getUser();
+    const { error } = await supabase.from("content_items").insert({
+      title: fresh.title.trim(),
+      client_id: fresh.client_id || null,
+      content_type: fresh.content_type,
+      stage: "Idea",
+      link: fresh.link.trim() || null,
+      notes: fresh.notes.trim() || null,
+      added_by: me.user?.id ?? null,
+      created_by: me.user?.id ?? null,
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Idea logged.");
+    setNewOpen(false);
+    setFresh(emptyNew);
+    load();
+  };
+
   const save = async () => {
     if (!draft.title.trim()) return toast.error("Give it a title first.");
     setBusy(true);
@@ -161,12 +212,10 @@ export default function ContentPipeline() {
       link: draft.link.trim() || null,
       notes: draft.notes.trim() || null,
     };
-    const { error } = editing
-      ? await supabase.from("content_items").update(payload).eq("id", editing.id)
-      : await supabase.from("content_items").insert(payload);
+    const { error } = await supabase.from("content_items").update(payload).eq("id", editing!.id);
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success(editing ? "Updated." : "Added to the pipeline.");
+    toast.success("Updated.");
     setOpen(false);
     load();
   };
@@ -182,32 +231,92 @@ export default function ContentPipeline() {
     load();
   };
 
-  const moveTo = async (id: string, next: string) => {
+  const patch = async (id: string, values: Partial<ContentItem>) => {
     const prev = items;
-    setItems((cur) => cur.map((i) => (i.id === id ? { ...i, stage: next } : i)));
-    const { error } = await supabase.from("content_items").update({ stage: next }).eq("id", id);
+    setItems((cur) => cur.map((i) => (i.id === id ? { ...i, ...values } : i)));
+    const { error } = await supabase.from("content_items").update(values).eq("id", id);
     if (error) {
       setItems(prev);
       toast.error(error.message);
     }
   };
 
+  const moveTo = (id: string, next: string) => patch(id, { stage: next });
+
   const columns: Column<ContentItem>[] = [
+    {
+      key: "ref",
+      header: "Code",
+      hideOnMobile: true,
+      cell: (r) => <span className="num text-xs text-ink-faint">{refCode(r.ref_no)}</span>,
+    },
     { key: "title", header: "Item", cell: (r) => <span className="font-medium">{r.title}</span> },
     { key: "client", header: "Client", hideOnMobile: true, cell: (r) => clientName(r.client_id) },
     { key: "type", header: "Type", hideOnMobile: true, cell: (r) => r.content_type },
     { key: "stage", header: "Stage", cell: (r) => <StatusChip value={r.stage} /> },
     {
-      key: "team",
-      header: "Team",
+      key: "author",
+      header: "Added by",
       hideOnMobile: true,
-      cell: (r) => [r.lead, r.shooter, r.editor].filter(Boolean).join(" · ") || "—",
+      cell: (r) => (
+        <span className="text-ink-soft">
+          {authorName(r.added_by)}
+          <span className="num ml-2 text-[11px] text-ink-faint">{r.added_on}</span>
+        </span>
+      ),
     },
     {
       key: "planned",
       header: "Planned",
       align: "right",
       cell: (r) => <span className="num">{r.planned_at ?? "—"}</span>,
+    },
+  ];
+
+  const archiveColumns: Column<ContentItem>[] = [
+    {
+      key: "ref",
+      header: "Code",
+      cell: (r) => <span className="num text-xs text-ink-faint">{refCode(r.ref_no)}</span>,
+    },
+    { key: "title", header: "Idea", cell: (r) => <span className="font-medium">{r.title}</span> },
+    { key: "type", header: "Type", hideOnMobile: true, cell: (r) => r.content_type },
+    {
+      key: "author",
+      header: "Added by",
+      hideOnMobile: true,
+      cell: (r) => (
+        <span className="text-ink-soft">
+          {authorName(r.added_by)}
+          <span className="num ml-2 text-[11px] text-ink-faint">{r.added_on}</span>
+        </span>
+      ),
+    },
+    {
+      key: "assign",
+      header: "Assign client",
+      align: "right",
+      cell: (r) =>
+        canEditContent ? (
+          <select
+            className="rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs press focus:border-signal focus-ring"
+            value=""
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              e.stopPropagation();
+              if (e.target.value) patch(r.id, { client_id: e.target.value });
+            }}
+          >
+            <option value="">Pick a client…</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span className="text-ink-faint">—</span>
+        ),
     },
   ];
 
@@ -225,32 +334,33 @@ export default function ContentPipeline() {
         lede="Every idea from first thought to posted, per client, with the people on it."
         actions={
           canEditContent ? (
-            <Button onClick={() => openNew()}>
+            <Button onClick={() => { setFresh(emptyNew); setNewOpen(true); }}>
               <Plus />
-              New item
+              New idea
             </Button>
-
           ) : undefined
         }
       />
 
       <FilterBar>
-        <Segmented<"board" | "list">
+        <Segmented<"board" | "list" | "archive">
           value={view}
           onChange={(v) => setView(v)}
-
           options={[
             { value: "board", label: "Board" },
             { value: "list", label: "List" },
+            { value: "archive", label: "Idea archive" },
           ]}
         />
         <SearchInput value={q} onChange={setQ} placeholder="Search items…" />
-        <SelectFilter
-          label="Client"
-          value={client}
-          onChange={setClient}
-          options={[{ value: "all", label: "All clients" }, ...clients.map((c) => ({ value: c.id, label: c.name }))]}
-        />
+        {view !== "archive" && (
+          <SelectFilter
+            label="Client"
+            value={client}
+            onChange={setClient}
+            options={[{ value: "all", label: "All clients" }, ...clients.map((c) => ({ value: c.id, label: c.name }))]}
+          />
+        )}
         <SelectFilter
           label="Type"
           value={type}
@@ -271,10 +381,26 @@ export default function ContentPipeline() {
             options={[{ value: "all", label: "All stages" }, ...STAGES.map((s) => ({ value: s, label: s }))]}
           />
         )}
-        <span className="eyebrow text-ink-faint ml-auto">{filtered.length} items</span>
+        <span className="eyebrow text-ink-faint ml-auto">
+          {view === "archive" ? `${unclaimed.length} unclaimed` : `${filtered.length} items`}
+        </span>
       </FilterBar>
 
-      {view === "list" ? (
+      {view === "archive" ? (
+        <>
+          <DataTable
+            rows={unclaimed}
+            columns={archiveColumns}
+            rowKey={(r) => r.id}
+            loading={loading}
+            onRowClick={canEditContent ? openEdit : undefined}
+            empty="No ideas waiting for a client."
+          />
+          <p className="mt-3 text-xs text-ink-faint">
+            Ideas with no client yet. Give one a client and it joins the board straight away.
+          </p>
+        </>
+      ) : view === "list" ? (
         <DataTable
           rows={filtered}
           columns={columns}
@@ -338,6 +464,7 @@ export default function ContentPipeline() {
                       } ${dragging === i.id ? "opacity-50 rotate-1" : ""}`}
                     >
                       <span className={`absolute left-0 top-0 bottom-0 w-1.5 ${TONE_SOLID[tone]}`} />
+                      <div className="num text-[10px] tracking-wider text-ink-faint">{refCode(i.ref_no)}</div>
                       <div className="text-sm font-semibold leading-snug">{i.title}</div>
                       <div className="mt-1.5 text-[11px] text-ink-soft">
                         {clientName(i.client_id)}
@@ -346,7 +473,8 @@ export default function ContentPipeline() {
                       </div>
                       <div className="mt-2.5 flex items-center justify-between gap-2">
                         <span className="text-[11px] text-ink-faint truncate">
-                          {[i.lead, i.shooter, i.editor].filter(Boolean).join(" · ") || "Unassigned"}
+                          {[i.lead, i.shooter, i.editor].filter(Boolean).join(" · ") ||
+                            `Idea by ${authorName(i.added_by)}`}
                         </span>
                         {i.planned_at && (
                           <span className="num text-[11px] rounded-full bg-paper-sunken px-2 py-0.5 text-ink-soft">
@@ -356,12 +484,12 @@ export default function ContentPipeline() {
                       </div>
                     </article>
                   ))}
-                  {canEditContent && (
+                  {canEditContent && s === "Idea" && (
                     <button
                       className="press w-full rounded-xl border border-dashed border-rule px-3 py-2.5 text-left text-xs font-semibold text-ink-faint hover:border-signal hover:text-signal hover:bg-paper-sunken focus-ring"
-                      onClick={() => openNew(s)}
+                      onClick={() => { setFresh(emptyNew); setNewOpen(true); }}
                     >
-                      + Add item
+                      + Add idea
                     </button>
                   )}
                 </div>
@@ -369,14 +497,105 @@ export default function ContentPipeline() {
             );
           })}
         </div>
-
       )}
 
+      {/* New idea — lean form */}
+      <Dialog open={newOpen} onOpenChange={setNewOpen}>
+        <DialogContent className="max-w-lg bg-paper text-ink border-rule">
+          <DialogHeader>
+            <DialogTitle className="display text-xl">New idea</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="text-sm sm:col-span-2">
+              <span className="eyebrow text-ink-faint">Name of the idea</span>
+              <input
+                autoFocus
+                className={field}
+                value={fresh.title}
+                onChange={(e) => setFresh({ ...fresh, title: e.target.value })}
+              />
+            </label>
+            <label className="text-sm">
+              <span className="eyebrow text-ink-faint">Client</span>
+              <select
+                className={field}
+                value={fresh.client_id}
+                onChange={(e) => setFresh({ ...fresh, client_id: e.target.value })}
+              >
+                <option value="">No client yet — idea archive</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm">
+              <span className="eyebrow text-ink-faint">Type</span>
+              <select
+                className={field}
+                value={fresh.content_type}
+                onChange={(e) => setFresh({ ...fresh, content_type: e.target.value })}
+              >
+                {TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm sm:col-span-2">
+              <span className="eyebrow text-ink-faint">Reference link</span>
+              <input
+                className={field}
+                placeholder="https://…"
+                value={fresh.link}
+                onChange={(e) => setFresh({ ...fresh, link: e.target.value })}
+              />
+            </label>
+            <label className="text-sm sm:col-span-2">
+              <span className="eyebrow text-ink-faint">Notes</span>
+              <textarea
+                rows={3}
+                className={field}
+                value={fresh.notes}
+                onChange={(e) => setFresh({ ...fresh, notes: e.target.value })}
+              />
+            </label>
+          </div>
+
+          <p className="text-xs text-ink-faint">
+            Saved as a new Idea, dated today, with its own code and your name on it — none of which can be changed later.
+          </p>
+
+          <DialogFooter className="mt-2 flex items-center gap-2">
+            <Button variant="outline" onClick={() => setNewOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button onClick={saveNew} disabled={busy}>
+              {busy ? "Saving…" : "Log the idea"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Full edit */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg bg-paper text-ink border-rule">
           <DialogHeader>
-            <DialogTitle className="display text-xl">{editing ? "Edit item" : "New item"}</DialogTitle>
+            <DialogTitle className="display text-xl">Edit item</DialogTitle>
           </DialogHeader>
+
+          {editing && (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-paper-sunken px-3 py-2 text-[11px] text-ink-soft">
+              <span className="num font-semibold text-ink">{refCode(editing.ref_no)}</span>
+              <span>
+                Added by <span className="font-semibold text-ink">{authorName(editing.added_by)}</span>
+              </span>
+              <span className="num">{editing.added_on}</span>
+            </div>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="text-sm sm:col-span-2">
@@ -405,7 +624,7 @@ export default function ContentPipeline() {
                 value={draft.content_type}
                 onChange={(e) => setDraft({ ...draft, content_type: e.target.value })}
               >
-                {TYPES.map((t) => (
+                {[...new Set([...TYPES, draft.content_type])].map((t) => (
                   <option key={t} value={t}>
                     {t}
                   </option>
@@ -459,12 +678,10 @@ export default function ContentPipeline() {
           </div>
 
           <DialogFooter className="mt-2 flex items-center gap-2">
-            {editing && (
-              <Button variant="ghost" className="mr-auto text-signal hover:bg-[hsl(0_100%_96%)]" onClick={remove} disabled={busy}>
-                <Trash2 />
-                Delete
-              </Button>
-            )}
+            <Button variant="ghost" className="mr-auto text-signal hover:bg-[hsl(0_100%_96%)]" onClick={remove} disabled={busy}>
+              <Trash2 />
+              Delete
+            </Button>
             <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
               Cancel
             </Button>
@@ -472,7 +689,6 @@ export default function ContentPipeline() {
               {busy ? "Saving…" : "Save"}
             </Button>
           </DialogFooter>
-
         </DialogContent>
       </Dialog>
 

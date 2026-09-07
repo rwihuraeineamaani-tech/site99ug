@@ -231,6 +231,8 @@ export type Database = {
       }
       content_items: {
         Row: {
+          added_by: string | null
+          added_on: string
           client_id: string | null
           content_type: string
           created_at: string
@@ -241,6 +243,7 @@ export type Database = {
           link: string | null
           notes: string | null
           planned_at: string | null
+          ref_no: number
           shooter: string | null
           sort: number
           stage: string
@@ -248,6 +251,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          added_by?: string | null
+          added_on?: string
           client_id?: string | null
           content_type?: string
           created_at?: string
@@ -258,6 +263,7 @@ export type Database = {
           link?: string | null
           notes?: string | null
           planned_at?: string | null
+          ref_no?: number
           shooter?: string | null
           sort?: number
           stage?: string
@@ -265,6 +271,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          added_by?: string | null
+          added_on?: string
           client_id?: string | null
           content_type?: string
           created_at?: string
@@ -275,6 +283,7 @@ export type Database = {
           link?: string | null
           notes?: string | null
           planned_at?: string | null
+          ref_no?: number
           shooter?: string | null
           sort?: number
           stage?: string
