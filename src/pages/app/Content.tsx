@@ -275,8 +275,20 @@ export default function ContentPipeline() {
     setCaptions(row.caption_suggestions ?? "");
     setPostLinks(parsePostedLinks(row.posted_links));
     setEditRemarks(row.edit_remarks ?? "");
-    setPostedFrom(row.posted_from ? row.posted_from.slice(0, 16) : "");
-    setPostedTo(row.posted_to ? row.posted_to.slice(0, 16) : "");
+    const slots = (row.posted_slots ?? {}) as PostedSlots;
+    if (Object.keys(slots).length > 0) {
+      const links: Record<string, string> = {};
+      const wins: Record<string, string[]> = {};
+      Object.entries(slots).forEach(([p, v]) => {
+        links[p] = v?.url ?? "";
+        wins[p] = v?.windows ?? [];
+      });
+      setPostLinks(links);
+      setPostWindows(wins);
+    } else {
+      setPostWindows({});
+    }
+    setPostedDate(row.posted_from ? row.posted_from.slice(0, 10) : new Date().toISOString().slice(0, 10));
     const m = (row.metrics ?? {}) as Record<string, string>;
     setMetrics(m);
     setMetricNote(m.note ?? "");
