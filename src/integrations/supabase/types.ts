@@ -1551,6 +1551,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_content_crew: {
+        Args: { _content_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
       is_resident_contact: {
         Args: { _resident_id: string; _user_id: string }
@@ -1558,6 +1562,10 @@ export type Database = {
       }
       is_resident_handler: {
         Args: { _resident_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_shoot_crew: {
+        Args: { _day_id: string; _user_id: string }
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
