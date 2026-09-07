@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,7 +10,6 @@ import Residents from "./pages/Residents.tsx";
 import Philosophy from "./pages/Philosophy.tsx";
 import Access from "./pages/Access.tsx";
 import Admin from "./pages/Admin.tsx";
-import AdminLogin from "./pages/AdminLogin.tsx";
 import ResidentLogin from "./pages/ResidentLogin.tsx";
 import ResidentPortal from "./pages/ResidentPortal.tsx";
 import NotFound from "./pages/NotFound.tsx";
