@@ -469,7 +469,7 @@ export default function EventsAdmin() {
             <div className="mt-10 border border-site-red rounded-lg p-6">
               <div className="flex items-baseline justify-between">
                 <h2 className="display text-2xl">Manual TID confirmations {pendingCount > 0 && <span className="mono text-xs text-site-red ml-2">({pendingCount} pending)</span>}</h2>
-                <button onClick={loadPending} className="mono text-[10px] uppercase tracking-[0.2em] opacity-60 hover:opacity-100" data-hover>Refresh</button>
+                <button onClick={loadPending} className="ctl mono text-[10px] uppercase tracking-[0.2em] opacity-60 hover:opacity-100 focus-ring" data-hover>Refresh</button>
               </div>
               <div className="mt-4 overflow-x-auto">
                 <table className="w-full text-sm">
@@ -642,7 +642,7 @@ export default function EventsAdmin() {
                   Published
                 </label>
                 <div className="flex gap-3">
-                  <button onClick={save} disabled={uploading} className="bg-site-red text-site-white px-6 py-3 rounded-full mono text-xs uppercase disabled:opacity-50" data-hover>{uploading ? "Uploading…" : "Save"}</button>
+                  <button onClick={save} disabled={uploading} className="ctl ctl-solid px-6 py-3 mono text-xs uppercase disabled:opacity-50 focus-ring" data-hover>{uploading ? "Uploading…" : "Save"}</button>
                   {editingId && <button onClick={() => { setEditingId(null); setForm(empty); }} className="border border-border px-6 py-3 rounded-full mono text-xs uppercase" data-hover>Cancel</button>}
                 </div>
               </div>
@@ -687,7 +687,7 @@ export default function EventsAdmin() {
                                   <label className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Sales close<input type="datetime-local" value={tierEdit.sales_end_at} onChange={(ev) => setTierEdit({ ...tierEdit, sales_end_at: ev.target.value })} className="w-full bg-transparent border-b border-border py-1 text-sm" /></label>
                                 </div>
                                 <div className="flex gap-2">
-                                  <button onClick={saveTier} className="mono text-[10px] uppercase tracking-[0.2em] border border-site-red px-3 py-1 rounded" data-hover>Save</button>
+                                  <button onClick={saveTier} className="ctl mono text-[10px] uppercase tracking-[0.2em] -site-red px-3 py-1 focus-ring" data-hover>Save</button>
                                   <button onClick={() => setEditingTierId(null)} className="mono text-[10px] uppercase tracking-[0.2em] border border-border px-3 py-1 rounded" data-hover>Cancel</button>
                                 </div>
                               </div>
@@ -720,7 +720,7 @@ export default function EventsAdmin() {
                             <label className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Sales open<input type="datetime-local" value={tierForm.sales_start_at} onChange={(ev) => setTierForm({ ...tierForm, sales_start_at: ev.target.value })} className="w-full bg-transparent border-b border-border py-1 text-sm" /></label>
                             <label className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Sales close<input type="datetime-local" value={tierForm.sales_end_at} onChange={(ev) => setTierForm({ ...tierForm, sales_end_at: ev.target.value })} className="w-full bg-transparent border-b border-border py-1 text-sm" /></label>
                           </div>
-                          <button onClick={addTier} className="mt-2 mono text-[10px] uppercase tracking-[0.2em] border border-site-red px-3 py-1 rounded" data-hover>Add tier</button>
+                          <button onClick={addTier} className="ctl mt-2 mono text-[10px] uppercase tracking-[0.2em] -site-red px-3 py-1 focus-ring" data-hover>Add tier</button>
                         </div>
                       </div>
                     )}
@@ -803,7 +803,7 @@ export default function EventsAdmin() {
           <div className="mt-8">
             <div className="flex items-baseline justify-between">
               <h2 className="display text-2xl">Trashed orders</h2>
-              <button onClick={loadTrashed} className="mono text-[10px] uppercase tracking-[0.2em] opacity-60 hover:opacity-100" data-hover>Refresh</button>
+              <button onClick={loadTrashed} className="ctl mono text-[10px] uppercase tracking-[0.2em] opacity-60 hover:opacity-100 focus-ring" data-hover>Refresh</button>
             </div>
             <p className="mono text-[10px] text-muted-foreground mt-2">Trashed orders don't count toward tier sales, don't appear in buyer search, and their tickets fail at the gate. Restore anytime.</p>
             <div className="mt-4 overflow-x-auto">

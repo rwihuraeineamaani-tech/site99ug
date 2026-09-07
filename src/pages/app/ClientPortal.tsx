@@ -56,16 +56,16 @@ export default function ClientPortal() {
       {client && (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="surface rounded-sm p-5">
+            <div className="surface rounded-2xl p-5">
               <div className="eyebrow text-ink-faint">Main contact</div>
               <div className="mt-2">{client.contact_person || "—"}</div>
               <div className="text-sm text-ink-soft">{client.contact_email || ""}</div>
             </div>
-            <div className="surface rounded-sm p-5">
+            <div className="surface rounded-2xl p-5">
               <div className="eyebrow text-ink-faint">Category</div>
               <div className="mt-2 capitalize">{client.category}</div>
             </div>
-            <div className="surface rounded-sm p-5">
+            <div className="surface rounded-2xl p-5">
               <div className="eyebrow text-ink-faint">Status</div>
               <div className="mt-2">
                 <StatusChip value={client.status} />

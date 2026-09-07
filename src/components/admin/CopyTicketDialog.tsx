@@ -97,7 +97,7 @@ export default function CopyTicketDialog({ orderId, onClose }: Props) {
                 <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Email body (plain text)</div>
                 <button onClick={() => copy(composed.body, "Email body copied")} className="mono text-[10px] uppercase bg-site-red text-site-white px-3 py-1 rounded" data-hover>Copy body</button>
               </div>
-              <textarea readOnly value={composed.body} className="w-full h-56 border border-border rounded p-3 mono text-xs bg-background" />
+              <textarea readOnly value={composed.body} className="field w-full h-56 - p-3 mono text-xs" />
             </div>
 
             <div>
@@ -148,7 +148,7 @@ function RowCopy({ label, value }: { label: string; value: string }) {
     <div>
       <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1">{label}</div>
       <div className="flex gap-2 items-stretch">
-        <input readOnly value={value} className="flex-1 border border-border rounded px-2 py-1 mono text-xs bg-background" />
+        <input readOnly value={value} className="field flex-1 - px-2 py-1 mono text-xs" />
         <button onClick={() => copy(value, "Copied")} className="mono text-[10px] uppercase bg-site-red text-site-white px-3 rounded" data-hover>Copy</button>
       </div>
     </div>

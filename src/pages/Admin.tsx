@@ -71,7 +71,7 @@ export default function Admin() {
           <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-4">Access pending</div>
           <p className="text-fluid-md text-muted-foreground">Share this user ID with whoever set up the site:</p>
           <code className="mt-6 block bg-secondary p-4 mono text-xs break-all">{userId}</code>
-          <button onClick={signOut} className="mt-8 mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Sign out →</button>
+          <button onClick={signOut} className="ctl mt-8 mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring">Sign out →</button>
         </div>
       </AdminShell>
     );
@@ -272,7 +272,7 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
           )}
         </div>
         <div className="md:col-span-2 flex gap-3">
-          <button type="submit" disabled={uploading} className="bg-site-red text-site-white px-8 py-4 rounded-full label text-xs disabled:opacity-50">
+          <button type="submit" disabled={uploading} className="ctl ctl-solid px-8 py-4 label text-xs disabled:opacity-50 focus-ring">
             {editing ? "Save changes" : "Create project"}
           </button>
           {editing && <button type="button" onClick={() => { setForm(emptyProj); setEditing(false); }} className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Cancel</button>}
@@ -357,7 +357,7 @@ function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
           </label>
         </div>
         <div className="md:col-span-2 flex gap-3">
-          <button type="submit" className="bg-site-red text-site-white px-8 py-4 rounded-full label text-xs">{editing ? "Save changes" : "Invite resident"}</button>
+          <button type="submit" className="ctl ctl-solid px-8 py-4 label text-xs focus-ring">{editing ? "Save changes" : "Invite resident"}</button>
           {editing && <button type="button" onClick={() => { setForm(emptyRes); setEditing(false); }} className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-site-red">Cancel</button>}
         </div>
       </form>
@@ -478,7 +478,7 @@ function BriefsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<typ
           <input type="file" onChange={onFile} className="mt-2 text-sm block" />
           {form.file_url && <a href={form.file_url} target="_blank" rel="noreferrer" className="mt-2 inline-block mono text-xs text-site-red">Preview file →</a>}
         </div>
-        <button type="submit" disabled={uploading} className="bg-site-red text-site-white px-8 py-4 rounded-full label text-xs disabled:opacity-50 justify-self-start">
+        <button type="submit" disabled={uploading} className="ctl ctl-solid px-8 py-4 label text-xs disabled:opacity-50 justify-self-start focus-ring">
           Post brief
         </button>
       </form>
@@ -541,7 +541,7 @@ function AnnouncementsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
           <input type="checkbox" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} />
           Published
         </label>
-        <button type="submit" className="bg-site-red text-site-white px-8 py-4 rounded-full label text-xs justify-self-start">Post</button>
+        <button type="submit" className="ctl ctl-solid px-8 py-4 label text-xs justify-self-start focus-ring">Post</button>
       </form>
 
       <div className="grid gap-3">
@@ -630,7 +630,7 @@ function MessagesAdmin() {
                 placeholder="Reply…"
                 className="flex-1 bg-transparent border border-border rounded-2xl p-3 text-sm focus:border-site-red outline-none resize-none" />
               <button type="submit" disabled={!body.trim()}
-                className="bg-site-red text-site-white px-6 py-3 rounded-full label text-xs disabled:opacity-50 self-end">
+                className="ctl ctl-solid px-6 py-3 label text-xs disabled:opacity-50 self-end focus-ring">
                 Send →
               </button>
             </form>
