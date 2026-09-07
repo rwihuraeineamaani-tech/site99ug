@@ -88,3 +88,50 @@ export function download(name: string, text: string) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export const WALLET_KINDS = ["mobile_money", "bank", "cash", "other"];
+
+export const WALLET_KIND_LABEL: Record<string, string> = {
+  mobile_money: "Mobile money",
+  bank: "Bank",
+  cash: "Cash",
+  other: "Other",
+};
+
+export const INCOME_CATEGORIES = [
+  "client_payment",
+  "retainer",
+  "event_sales",
+  "project_fee",
+  "refund",
+  "loan_in",
+  "transfer",
+  "other",
+];
+
+export const COUNTERPARTY_KINDS = ["client", "resident", "team", "supplier", "wallet", "other"];
+
+export const CATEGORY_LABEL: Record<string, string> = {
+  client_payment: "Client payment",
+  event_sales: "Event sales",
+  project_fee: "Project fee",
+  loan_in: "Loan received",
+  transfer: "Wallet transfer",
+};
+
+export function catLabel(c?: string | null) {
+  if (!c) return "—";
+  return CATEGORY_LABEL[c] ?? c.charAt(0).toUpperCase() + c.slice(1).replace(/_/g, " ");
+}
+
+export function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function monthBounds(monthISO: string) {
+  const start = new Date(`${monthISO.slice(0, 7)}-01T00:00:00`);
+  const end = new Date(start.getFullYear(), start.getMonth() + 1, 1);
+  const iso = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return { from: iso(start), to: iso(end) };
+}
