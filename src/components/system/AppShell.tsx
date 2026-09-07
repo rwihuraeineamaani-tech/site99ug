@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
+import { useMyRoles } from "@/hooks/useMyRoles";
 import logo from "@/assets/site99-logo.png";
 import {
   Sidebar,
