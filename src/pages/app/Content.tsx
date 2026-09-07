@@ -81,6 +81,9 @@ export default function ContentPipeline() {
   const [editing, setEditing] = useState<ContentItem | null>(null);
   const [draft, setDraft] = useState(emptyDraft);
   const [busy, setBusy] = useState(false);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null);
+
 
   const load = async () => {
     setLoading(true);
