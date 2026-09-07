@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, Metric, SectionHeading, StatusChip } from "@/components/system";
+import { useMyAssignments } from "@/hooks/useMyAssignments";
 import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
 import { refCode } from "@/lib/contentFlow";
 import { weekLabel } from "@/lib/weeks";
@@ -41,6 +42,8 @@ const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_direct
 
 export default function Dashboard() {
   const { roles, canSeeFinance, departments, canScan, isLeadership, email, userId, has } = useMyRoles();
+  const { isContact: amContact, isHandler: amHandler, assignments } = useMyAssignments();
+  const [myShares, setMyShares] = useState<{ resident_name: string; kind: string; computed_ugx: number }[]>([]);
   const isFounder = has(...FOUNDER_ROLES);
   const [clients, setClients] = useState<number | null>(null);
   const [events, setEvents] = useState<number | null>(null);
@@ -152,6 +155,17 @@ export default function Dashboard() {
     return null;
   };
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.rpc("my_retainer_shares");
+      if (!cancelled) setMyShares((data as unknown as { resident_name: string; kind: string; computed_ugx: number }[]) ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
   const waiting = useMemo(() => {
     if (!userId) return [] as { item: FlowRow; why: string }[];
     const today = new Date().toISOString().slice(0, 10);
@@ -161,8 +175,8 @@ export default function Dashboard() {
     const out: { item: FlowRow; why: string }[] = [];
     flow.forEach((i) => {
       const r = i.resident_id ? resById.get(i.resident_id) : undefined;
-      const contact = r?.contact_user_id === userId;
-      const handler = r?.handler_user_id === userId;
+      const contact = r?.contact_user_id === userId || amContact(i.resident_id);
+      const handler = r?.handler_user_id === userId || amHandler(i.resident_id);
       const push = (why: string) => out.push({ item: i, why });
 
       switch (i.stage) {
@@ -271,6 +285,26 @@ export default function Dashboard() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {myShares.length > 0 && (
+        <div className="mt-12">
+          <SectionHeading
+            index="00"
+            title="Your monthly retainer share"
+            hint={`${myShares.length} client${myShares.length === 1 ? "" : "s"}`}
+          />
+          <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
+            {myShares.map((s) => (
+              <li key={`${s.resident_name}-${s.kind}`} className="px-4 py-3 flex items-center gap-3">
+                <span className="text-sm font-semibold">{s.resident_name}</span>
+                <span className="eyebrow text-ink-faint">{s.kind}</span>
+                <span className="num ml-auto text-sm">UGX {(s.computed_ugx ?? 0).toLocaleString()}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-ink-faint">Your own line only — client totals stay with leadership and finance.</p>
         </div>
       )}
 

@@ -247,6 +247,57 @@ export type Database = {
           },
         ]
       }
+      client_assignments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          resident_id: string
+          share_amount_ugx: number | null
+          share_percent: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          resident_id: string
+          share_amount_ugx?: number | null
+          share_percent?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          resident_id?: string
+          share_amount_ugx?: number | null
+          share_percent?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_assignments_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_assignments_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_users: {
         Row: {
           accepted_at: string | null
@@ -963,6 +1014,7 @@ export type Database = {
           id: string
           invited_at: string
           name: string
+          retainer_ugx: number
           since: string
           status: string
           territory: string
@@ -980,6 +1032,7 @@ export type Database = {
           id?: string
           invited_at?: string
           name: string
+          retainer_ugx?: number
           since: string
           status?: string
           territory: string
@@ -997,6 +1050,7 @@ export type Database = {
           id?: string
           invited_at?: string
           name?: string
+          retainer_ugx?: number
           since?: string
           status?: string
           territory?: string
@@ -1185,6 +1239,7 @@ export type Database = {
           display_name: string | null
           email: string
           id: string
+          title: string | null
           updated_at: string
           user_id: string
         }
@@ -1194,6 +1249,7 @@ export type Database = {
           display_name?: string | null
           email: string
           id?: string
+          title?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1203,6 +1259,7 @@ export type Database = {
           display_name?: string | null
           email?: string
           id?: string
+          title?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1424,6 +1481,19 @@ export type Database = {
         Returns: boolean
       }
       can_view_content: { Args: { _user_id: string }; Returns: boolean }
+      client_pay_overview: {
+        Args: never
+        Returns: {
+          computed_ugx: number
+          kind: string
+          resident_id: string
+          resident_name: string
+          retainer_ugx: number
+          share_amount_ugx: number
+          share_percent: number
+          user_id: string
+        }[]
+      }
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       delete_email: {
         Args: { message_id: number; queue_name: string }
@@ -1476,6 +1546,14 @@ export type Database = {
         Returns: boolean
       }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
+      is_resident_contact: {
+        Args: { _resident_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_resident_handler: {
+        Args: { _resident_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
@@ -1498,6 +1576,15 @@ export type Database = {
           week_start: string
         }[]
       }
+      my_retainer_shares: {
+        Args: never
+        Returns: {
+          computed_ugx: number
+          kind: string
+          resident_id: string
+          resident_name: string
+        }[]
+      }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -1515,6 +1602,10 @@ export type Database = {
           name: string
           territory: string
         }[]
+      }
+      set_client_pay: {
+        Args: { _people: Json; _resident_id: string; _retainer_ugx: number }
+        Returns: undefined
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }

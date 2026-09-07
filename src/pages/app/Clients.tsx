@@ -7,6 +7,8 @@ import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMyRoles } from "@/hooks/useMyRoles";
+import { useMyAssignments } from "@/hooks/useMyAssignments";
+import ClientPayPanel from "@/components/system/ClientPayPanel";
 import {
   METRIC_COLUMNS,
   lastCompletedWeek,
@@ -39,7 +41,8 @@ const emptyDraft = (): Draft =>
 const num = (v: number | null | undefined) => (v === null || v === undefined ? "—" : v.toLocaleString());
 
 export default function Clients() {
-  const { userId, isLeadership } = useMyRoles();
+  const { userId, isLeadership, canSeeFinance } = useMyRoles();
+  const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const [loading, setLoading] = useState(true);
   const [residents, setResidents] = useState<ResidentOpt[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -93,7 +96,13 @@ export default function Clients() {
 
   const canFill = (a: Account) => {
     const r = resById.get(a.resident_id);
-    return isLeadership || r?.contact_user_id === userId || r?.handler_user_id === userId;
+    return (
+      isLeadership ||
+      r?.contact_user_id === userId ||
+      r?.handler_user_id === userId ||
+      amContact(a.resident_id) ||
+      amHandler(a.resident_id)
+    );
   };
 
   const pending = useMemo(
@@ -307,6 +316,11 @@ export default function Clients() {
                   </ul>
                 </div>
               ))}
+            </div>
+          )}
+          {canSeeFinance && (
+            <div className="mt-14">
+              <ClientPayPanel />
             </div>
           )}
         </>

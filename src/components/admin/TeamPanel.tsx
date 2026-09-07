@@ -8,6 +8,7 @@ type Member = {
   user_id: string;
   email: string;
   display_name: string | null;
+  title: string | null;
   created_at: string;
   roles: StaffRole[];
 };
@@ -44,7 +45,7 @@ export default function TeamPanel() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [showNew, setShowNew] = useState(false);
-  const [form, setForm] = useState({ email: "", display_name: "", password: "", roles: [] as StaffRole[] });
+  const [form, setForm] = useState({ email: "", display_name: "", title: "", password: "", roles: [] as StaffRole[] });
   const [editing, setEditing] = useState<string | null>(null);
   const [editRoles, setEditRoles] = useState<StaffRole[]>([]);
 
@@ -79,7 +80,7 @@ export default function TeamPanel() {
     try {
       await call({ action: "create", ...form });
       toast.success("Team member created");
-      setForm({ email: "", display_name: "", password: "", roles: [] });
+      setForm({ email: "", display_name: "", title: "", password: "", roles: [] });
       setShowNew(false);
       load();
     } catch (e: any) {
@@ -100,6 +101,18 @@ export default function TeamPanel() {
       toast.error(e.message);
     } finally {
       setBusy(false);
+    }
+  };
+
+  const editTitle = async (m: Member) => {
+    const title = prompt(`Job title for ${m.display_name || m.email}:`, m.title ?? "");
+    if (title === null) return;
+    try {
+      await call({ action: "set_profile", user_id: m.user_id, title });
+      toast.success("Title updated");
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
     }
   };
 
@@ -160,6 +173,15 @@ export default function TeamPanel() {
               />
             </div>
             <div>
+              <div className={lbl}>Job title</div>
+              <input
+                className={input}
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="e.g. Head of Production"
+              />
+            </div>
+            <div>
               <div className={lbl}>Password</div>
               <input
                 className={input}
@@ -199,6 +221,7 @@ export default function TeamPanel() {
             <div className="grid md:grid-cols-[1.4fr_1.6fr_auto] gap-3 px-4 py-4 items-start">
               <div className="min-w-0">
                 <div className="text-sm truncate">{m.display_name || m.email}</div>
+                {m.title && <div className="text-xs text-muted-foreground truncate">{m.title}</div>}
                 <div className="mono text-[11px] text-muted-foreground truncate">{m.email}</div>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -224,6 +247,9 @@ export default function TeamPanel() {
                   }}
                 >
                   {editing === m.user_id ? "Close" : "Edit access"}
+                </button>
+                <button className={btn} onClick={() => editTitle(m)}>
+                  Edit title
                 </button>
                 <button className={btn} onClick={() => resetPassword(m)}>
                   Reset password
