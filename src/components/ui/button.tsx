@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "border border-rule bg-paper-raised text-ink hover:border-signal hover:text-signal hover:shadow-[0_6px_16px_-12px_hsl(var(--ink)/0.6)]",
         secondary: "bg-paper-sunken text-ink hover:bg-acc-slate-soft",
         ghost: "text-ink-soft hover:bg-paper-sunken hover:text-ink",
-        link: "text-primary underline-offset-4 hover:underline press-none",
+        link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-5 py-2",
