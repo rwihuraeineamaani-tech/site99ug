@@ -13,7 +13,9 @@ const links = [
   { to: "/ai-automations", label: "AI & Automations", n: "07" },
   { to: "/events", label: "Events", n: "08" },
   { to: "/access", label: "Access", n: "09" },
+  { to: "/login", label: "Sign in", n: "10" },
 ];
+
 
 const services = [
   { to: "/services#brand-strategy", label: "Brand Strategy & Identity" },
