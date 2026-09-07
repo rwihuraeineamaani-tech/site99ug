@@ -25,7 +25,7 @@ export default function Login() {
 
     const landFor = async (uid: string) => {
       // Let an invited client claim their link on first sign-in.
-      await supabase.rpc("accept_client_invite").catch(() => undefined);
+      await Promise.resolve(supabase.rpc("accept_client_invite")).catch(() => undefined);
       const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", uid);
       const roles = (rows ?? []).map((r) => String(r.role));
       const from = (location.state as { from?: string } | null)?.from;
@@ -76,7 +76,7 @@ export default function Login() {
       const uid = data.user?.id;
       if (!uid) throw new Error("Sign in failed");
 
-      await supabase.rpc("accept_client_invite").catch(() => undefined);
+      await Promise.resolve(supabase.rpc("accept_client_invite")).catch(() => undefined);
       const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", uid);
       const roles = (rows ?? []).map((r) => String(r.role));
       const staff = roles.some((r) =>
