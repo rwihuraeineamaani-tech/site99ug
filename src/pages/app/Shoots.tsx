@@ -528,9 +528,9 @@ export default function Shoots() {
               )}
 
 
-              {canEditContent && (
+              {(canEditContent || onCrewToday) && (
                 <div className="flex flex-wrap gap-2">
-                  {open.status === "draft" && (
+                  {canEditContent && open.status === "draft" && (
                     <Button disabled={busy || !open.shoot_date} onClick={() => call("confirm_shoot_day", "Shoot day confirmed")}>
                       {open.shoot_date ? "Confirm the day" : "Pick a date first"}
                     </Button>
@@ -547,6 +547,7 @@ export default function Shoots() {
                   )}
                 </div>
               )}
+
               {open.status === "draft" && !open.shoot_date && (
                 <p className="text-xs text-ink-soft">Save the date first, then confirm — confirming schedules every idea on the day.</p>
               )}
