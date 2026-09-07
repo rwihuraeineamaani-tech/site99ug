@@ -7,7 +7,6 @@ import {
   PenSquare,
   Users,
   Briefcase,
-  Wallet,
   Scale,
   LogOut,
 } from "lucide-react";
@@ -33,8 +32,7 @@ export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: ty
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
-  const { isStaff, isClient, canSeeFinance, canManageEvents, canViewEvents, canScan, canEditSite, isLeadership } =
-    useMyRoles();
+  const { isStaff, isClient, canManageEvents, canViewEvents, canScan, canEditSite, isLeadership } = useMyRoles();
 
   if (nav) return [{ label: "Menu", items: nav }];
 
@@ -54,17 +52,10 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   ];
 
   const work: ShellNavItem[] = [];
-  if (canManageEvents || canViewEvents) work.push({ to: "/admin/events", label: "Events", icon: CalendarDays });
-  if (canScan) work.push({ to: "/admin/scan", label: "Gate scanner", icon: ScanLine });
-  if (canEditSite) work.push({ to: "/admin", label: "Public site", icon: PenSquare });
+  if (canManageEvents || canViewEvents) work.push({ to: "/app/events", label: "Events", icon: CalendarDays });
+  if (canScan) work.push({ to: "/app/scan", label: "Gate scanner", icon: ScanLine });
+  if (canEditSite) work.push({ to: "/app/site", label: "Public site", icon: PenSquare });
   if (work.length) groups.push({ label: "Work", items: work });
-
-  if (canSeeFinance) {
-    groups.push({
-      label: "Money",
-      items: [{ to: "/admin/events", label: "Ticket revenue", icon: Wallet }],
-    });
-  }
 
   const org: ShellNavItem[] = [];
   if (isLeadership) org.push({ to: "/app/team", label: "Team & access", icon: Users });

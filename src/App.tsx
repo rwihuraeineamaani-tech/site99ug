@@ -52,7 +52,6 @@ const AnimatedRoutes = () => {
         <Route path="/philosophy" element={<Philosophy />} />
         <Route path="/access" element={<Access />} />
         <Route path="/admin/login" element={<Navigate to="/login" replace />} />
-        <Route path="/admin" element={<Admin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route
@@ -68,6 +67,31 @@ const AnimatedRoutes = () => {
           element={
             <RequireRole gate="leadership">
               <AppTeam />
+            </RequireRole>
+          }
+        />
+        <Route path="/admin" element={<Navigate to="/app/site" replace />} />
+        <Route
+          path="/app/site"
+          element={
+            <RequireRole gate="staff">
+              <Admin />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/events"
+          element={
+            <RequireRole gate="staff">
+              <EventsAdmin />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/scan"
+          element={
+            <RequireRole gate="staff">
+              <TicketScanner />
             </RequireRole>
           }
         />
@@ -96,8 +120,8 @@ const AnimatedRoutes = () => {
         <Route path="/events/:slug" element={<EventDetail />} />
         <Route path="/tickets/thank-you" element={<TicketThankYou />} />
         <Route path="/t/:token" element={<TicketView />} />
-        <Route path="/admin/events" element={<EventsAdmin />} />
-        <Route path="/admin/scan" element={<TicketScanner />} />
+        <Route path="/admin/events" element={<Navigate to="/app/events" replace />} />
+        <Route path="/admin/scan" element={<Navigate to="/app/scan" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>

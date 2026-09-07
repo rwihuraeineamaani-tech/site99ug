@@ -44,7 +44,7 @@ export default function Admin() {
   useEffect(() => {
     const init = async () => {
       const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate("/admin/login", { replace: true }); return; }
+      if (!sess.session) { navigate("/login", { replace: true }); return; }
       setUserId(sess.session.user.id);
       const { data: roles } = await supabase
         .from("user_roles").select("role").eq("user_id", sess.session.user.id);
@@ -55,12 +55,12 @@ export default function Admin() {
     };
     init();
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session) navigate("/admin/login", { replace: true });
+      if (!session) navigate("/login", { replace: true });
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
-  const signOut = async () => { await supabase.auth.signOut(); navigate("/admin/login", { replace: true }); };
+  const signOut = async () => { await supabase.auth.signOut(); navigate("/login", { replace: true }); };
 
   if (!authChecked) return <AdminShell title="Admin"><p className="mono text-xs text-muted-foreground">Loading…</p></AdminShell>;
 
@@ -89,7 +89,7 @@ export default function Admin() {
       active={activeTab}
       nav={[
         ...tabs.map((t) => ({ key: t, label: label(t), onClick: () => setTab(t) })),
-        { key: "events", label: "Events ↗", to: "/admin/events" },
+        { key: "events", label: "Events ↗", to: "/app/events" },
       ]}
     >
       {activeTab === "projects" && <ProjectsAdmin userId={userId} qc={qc} />}

@@ -426,7 +426,7 @@ export default function EventsAdmin() {
   if (!isAdmin)
     return (
       <AdminShell title="Events" eyebrow="Events console">
-        <p className="text-sm">You don't have access to the events console. <Link to="/admin/login" className="underline text-site-red">Sign in</Link></p>
+        <p className="text-sm">You don't have access to the events console. <Link to="/login" className="underline text-site-red">Sign in</Link></p>
       </AdminShell>
     );
 
@@ -437,8 +437,6 @@ export default function EventsAdmin() {
     ...(canManage ? [{ key: "manager", label: "Event Manager", onClick: () => setTab("manager") }] : []),
     { key: "buyers", label: "Buyers Search", onClick: () => setTab("buyers") },
     { key: "trashed", label: "Trashed", onClick: () => { setTab("trashed"); loadTrashed(); } },
-    ...(canManage ? [{ key: "scan", label: "Scanner ↗", to: "/admin/scan" }] : []),
-    { key: "site", label: "Site Admin ↗", to: "/admin" },
   ];
 
 
@@ -837,7 +835,7 @@ export default function EventsAdmin() {
           </div>
         )}
       </div>
-      <Seo title="Events Admin — Site 99" description="Manage events" path="/admin/events" />
+      <Seo title="Events Admin — Site 99" description="Manage events" path="/app/events" noindex />
       <CopyTicketDialog orderId={copyOrderId} onClose={() => setCopyOrderId(null)} />
     </AdminShell>
   );
