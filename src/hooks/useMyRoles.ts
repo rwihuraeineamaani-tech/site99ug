@@ -191,6 +191,12 @@ export function useRolesState(): RoleState {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") return;
       if (event === "SIGNED_IN" && session?.user?.id === currentUser.current) return;
+      if (session?.user && session.user.id !== currentUser.current) {
+        // Somebody new signed in: guards must wait, not decide on stale state.
+        setLoading(true);
+        setUserId(session.user.id);
+        setRoles([]);
+      }
       setTimeout(() => {
         if (!cancelled) load();
       }, 0);
