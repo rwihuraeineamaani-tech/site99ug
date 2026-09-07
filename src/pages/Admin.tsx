@@ -89,7 +89,7 @@ export default function Admin() {
       active={activeTab}
       nav={[
         ...tabs.map((t) => ({ key: t, label: label(t), onClick: () => setTab(t) })),
-        { key: "events", label: "Events ↗", to: "/admin/events" },
+        { key: "events", label: "Events ↗", to: "/app/events" },
       ]}
     >
       {activeTab === "projects" && <ProjectsAdmin userId={userId} qc={qc} />}

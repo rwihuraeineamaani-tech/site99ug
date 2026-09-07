@@ -30,8 +30,8 @@ export default function Dashboard() {
   const titles = roles.filter((r): r is StaffRole => r in ROLE_LABELS).map((r) => ROLE_LABELS[r]);
 
   const modules = [
-    { to: "/admin/events", label: "Events", note: "Ticketing, orders and payouts", on: canManageEvents },
-    { to: "/admin/scan", label: "Gate scanner", note: "Check tickets at the door", on: canScan },
+    { to: "/app/events", label: "Events", note: "Ticketing, orders and payouts", on: canManageEvents },
+    { to: "/app/scan", label: "Gate scanner", note: "Check tickets at the door", on: canScan },
     { to: "/admin", label: "Public site", note: "Projects, residents, announcements", on: canEditSite },
     { to: "/app/team", label: "Team & access", note: "Accounts, roles and client logins", on: isLeadership },
   ].filter((m) => m.on);
