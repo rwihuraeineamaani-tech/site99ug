@@ -72,6 +72,7 @@ export type ContentItem = {
   platforms: string[] | null;
   caption_suggestions: string | null;
   posted_links: string[] | null;
+  posted_slots: PostedSlots | null;
   posted_from: string | null;
   posted_to: string | null;
   posted_at: string | null;
