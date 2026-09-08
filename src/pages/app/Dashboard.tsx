@@ -241,6 +241,8 @@ export default function Dashboard() {
             shoots: kpiRaw.shoots,
             shootItems: kpiRaw.shootItems,
             myAccountIds: kpiRaw.myAccountIds,
+            myResidentIds: kpiRaw.myResidentIds,
+            targets: kpiRaw.targets,
             pendingWeeks: pendingWeeks.length,
             windows,
           })
@@ -387,7 +389,21 @@ export default function Dashboard() {
                   to={f.to}
                   eyebrow={f.label}
                   title={f.value}
-                  note={f.note}
+                  note={
+                    f.target
+                      ? `${f.note} · target ${f.target.toLocaleString()}`
+                      : f.note
+                  }
+                  below={
+                    f.progress === null ? undefined : (
+                      <div className="mt-2 h-1 w-full rounded-full bg-paper-sunken overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${f.progress >= 1 ? "bg-acc-lime" : "bg-signal"}`}
+                          style={{ width: `${Math.round(f.progress * 100)}%` }}
+                        />
+                      </div>
+                    )
+                  }
                   right={
                     f.delta === null ? undefined : (
                       <span
@@ -395,8 +411,8 @@ export default function Dashboard() {
                           f.delta > 0 ? "text-acc-lime" : f.delta < 0 ? "text-signal" : "text-ink-faint"
                         }`}
                       >
-                        {f.delta > 0 ? "▲" : f.delta < 0 ? "▼" : "="} {Math.abs(f.delta)}
-                        {f.key === "ontime" ? "pts" : "%"}
+                        {f.delta > 0 ? "▲" : f.delta < 0 ? "▼" : "="} {Math.abs(f.delta).toLocaleString()}
+                        {f.deltaUnit}
                       </span>
                     )
                   }
