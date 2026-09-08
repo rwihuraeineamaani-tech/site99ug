@@ -129,7 +129,11 @@ export default function InboxPage() {
 
   return (
     <AppShell eyebrow="Inbox">
-      <Seo title="Inbox · Site 99" description="Briefs, announcements, client messages and everything waiting on you." />
+      <Seo
+        title="Inbox · Site 99"
+        description="Briefs, announcements, client messages and everything waiting on you."
+        path="/app/inbox"
+      />
 
       <PageHeader
         eyebrow="Inbox"
