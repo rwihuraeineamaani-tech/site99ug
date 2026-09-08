@@ -210,9 +210,10 @@ export default function Invoices() {
   };
 
   const setStatus = async (inv: Invoice, status: InvoiceStatus) => {
-    const patch: Record<string, unknown> = { status };
+    const patch: { status: InvoiceStatus; sent_at?: string; approved_at?: string } = { status };
     if (status === "sent") patch.sent_at = new Date().toISOString();
     if (status === "approved") patch.approved_at = new Date().toISOString();
+
     const { error } = await supabase.from("invoices").update(patch).eq("id", inv.id);
     if (error) return toast.error(error.message);
     toast.success(status === "approved" ? "Approved — it is now on the payment board." : "Updated.");
