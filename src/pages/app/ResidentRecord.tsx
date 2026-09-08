@@ -10,7 +10,9 @@ import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
-import { ArrowLeft, FileText, Target, Upload } from "lucide-react";
+import { ArrowLeft, FileText, Target } from "lucide-react";
+import BrandGuidelines from "@/components/residents/BrandGuidelines";
+import { logoUrl, initials } from "@/lib/logo";
 import type { ResidentRecord } from "./Residents";
 
 type Member = { user_id: string; display_name: string | null; email: string; title: string | null };
@@ -44,12 +46,12 @@ const field = "field text-sm";
 const ugx = (n: number | null) => (n === null ? "—" : `UGX ${n.toLocaleString()}`);
 const day = (d: string | null) => (d ? new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—");
 
-const emptyContract = { title: "", starts_on: "", ends_on: "", value_ugx: "", notes: "" };
 
 export default function ResidentRecordPage() {
   const { id = "" } = useParams();
   const { isLeadership, canSeeFinance, has } = useMyRoles();
   const canManageContracts = isLeadership || canSeeFinance || has("legal");
+  const isAdmin = has("admin");
 
   const [loading, setLoading] = useState(true);
   const [resident, setResident] = useState<ResidentRecord | null>(null);
@@ -60,8 +62,7 @@ export default function ResidentRecordPage() {
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
 
-  const [form, setForm] = useState(emptyContract);
-  const [file, setFile] = useState<File | null>(null);
+  const [logo, setLogo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -83,6 +84,7 @@ export default function ResidentRecordPage() {
     ]);
     const r = ((res as unknown as ResidentRecord[]) ?? []).find((x) => x.id === id) ?? null;
     setResident(r);
+    setLogo(await logoUrl(r?.avatar_url ?? null));
     setNotes(r?.notes ?? "");
     setMembers((team as unknown as Member[]) ?? []);
     setItems((content as unknown as Item[]) ?? []);
@@ -115,43 +117,20 @@ export default function ResidentRecordPage() {
     toast.success("Notes saved");
   };
 
-  const addContract = async () => {
-    if (!form.title.trim()) return toast.error("Give the contract a name.");
+  const uploadLogo = async (f: File) => {
     setBusy(true);
-    let path: string | null = null;
-    if (file) {
-      const clean = file.name.replace(/[^\w.\-]+/g, "-");
-      path = `${id}/${crypto.randomUUID()}-${clean}`;
-      const { error: upErr } = await supabase.storage.from("resident-contracts").upload(path, file);
-      if (upErr) {
-        setBusy(false);
-        return toast.error(upErr.message);
-      }
+    const clean = f.name.replace(/[^\w.\-]+/g, "-");
+    const path = `${id}/${crypto.randomUUID()}-${clean}`;
+    const { error: upErr } = await supabase.storage.from("client-logos").upload(path, f);
+    if (upErr) {
+      setBusy(false);
+      return toast.error(upErr.message);
     }
-    const { data: auth } = await supabase.auth.getUser();
-    const { error } = await supabase.from("resident_contracts").insert({
-      resident_id: id,
-      title: form.title.trim(),
-      file_path: path,
-      starts_on: form.starts_on || null,
-      ends_on: form.ends_on || null,
-      value_ugx: form.value_ugx ? Number(form.value_ugx.replace(/[^\d]/g, "")) : null,
-      notes: form.notes || null,
-      status: "active",
-      created_by: auth.user?.id ?? null,
-    });
+    const { error } = await supabase.rpc("set_resident_logo", { _resident_id: id, _path: path });
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Contract saved");
-    setForm(emptyContract);
-    setFile(null);
     if (fileRef.current) fileRef.current.value = "";
-    load();
-  };
-
-  const setStatus = async (c: Contract, status: string) => {
-    const { error } = await supabase.from("resident_contracts").update({ status }).eq("id", c.id);
     if (error) return toast.error(error.message);
+    toast.success("Logo updated.");
     load();
   };
 
@@ -176,13 +155,9 @@ export default function ResidentRecordPage() {
           Open
         </Button>
       )}
-      {canManageContracts && (
-        <Button size="sm" variant="soft" onClick={() => setStatus(c, c.status === "active" ? "archived" : "active")}>
-          {c.status === "active" ? "Archive" : "Make active"}
-        </Button>
-      )}
     </li>
   );
+
 
   return (
     <AppShell eyebrow="Residents">
@@ -210,7 +185,32 @@ export default function ResidentRecordPage() {
             }`}
           />
 
-          <div className="flex flex-wrap items-center gap-3 mb-8">
+          <div className="flex flex-wrap items-center gap-4 mb-8">
+            <span className="h-16 w-16 rounded-2xl surface-sunken overflow-hidden flex items-center justify-center shrink-0">
+              {logo ? (
+                <img src={logo} alt={`${resident.name} logo`} className="h-full w-full object-contain" />
+              ) : (
+                <span className="display text-base text-ink-soft">{initials(resident.name)}</span>
+              )}
+            </span>
+            {isAdmin && (
+              <label className="text-xs text-ink-soft">
+                <span className="eyebrow text-[10px] text-ink-faint block">
+                  {logo ? "Replace the logo" : "Add a logo"}
+                </span>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  disabled={busy}
+                  className="text-xs mt-1 block"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) uploadLogo(f);
+                  }}
+                />
+              </label>
+            )}
             <Link to={`/app/residents/${id}/strategy`} className="focus-ring rounded-full">
               <Button size="sm" className="gap-2">
                 <Target className="h-4 w-4" /> Strategy, goals & targets
@@ -218,6 +218,7 @@ export default function ResidentRecordPage() {
             </Link>
             <span className="text-[11px] text-ink-faint">Set what we're aiming for and map how the work flows.</span>
           </div>
+
 
           <SectionHeading index="00" title="Overview" />
           <div className="surface rounded-2xl p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
@@ -333,7 +334,7 @@ export default function ResidentRecordPage() {
           </div>
 
           <div className="mt-14">
-            <SectionHeading index="05" title="Contracts" hint={active.length ? "one active" : "none active"} />
+            <SectionHeading index="05" title="Contracts" hint="managed in Legal" />
             <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
               {active.map(contractRow)}
               {active.length === 0 && <li className="px-5 py-4 text-sm text-ink-soft">No active contract on file.</li>}
@@ -346,79 +347,31 @@ export default function ResidentRecordPage() {
               </div>
             )}
 
-            {canManageContracts && (
-              <div className="surface rounded-2xl p-5 mt-6 space-y-4">
-                <div className="eyebrow text-[10px] text-ink-faint">Add a contract</div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="sm:col-span-2">
-                    <label className="eyebrow text-[10px] text-ink-faint">What it is</label>
-                    <input
-                      className={`${field} mt-1`}
-                      value={form.title}
-                      onChange={(e) => setForm({ ...form, title: e.target.value })}
-                      placeholder="Retainer 2026"
-                    />
-                  </div>
-                  <div>
-                    <label className="eyebrow text-[10px] text-ink-faint">Starts</label>
-                    <input
-                      type="date"
-                      className={`${field} mt-1`}
-                      value={form.starts_on}
-                      onChange={(e) => setForm({ ...form, starts_on: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="eyebrow text-[10px] text-ink-faint">Ends</label>
-                    <input
-                      type="date"
-                      className={`${field} mt-1`}
-                      value={form.ends_on}
-                      onChange={(e) => setForm({ ...form, ends_on: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="eyebrow text-[10px] text-ink-faint">Value (UGX)</label>
-                    <input
-                      className={`${field} mt-1 num`}
-                      inputMode="numeric"
-                      value={form.value_ugx}
-                      onChange={(e) => setForm({ ...form, value_ugx: e.target.value })}
-                    />
-                  </div>
-                  <div className="sm:col-span-3">
-                    <label className="eyebrow text-[10px] text-ink-faint">Notes</label>
-                    <input
-                      className={`${field} mt-1`}
-                      value={form.notes}
-                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    className="text-xs"
-                    accept=".pdf,.doc,.docx,image/*"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  />
-                  <Button onClick={addContract} disabled={busy}>
-                    <Upload className="h-4 w-4" /> {busy ? "Saving…" : "Save contract"}
-                  </Button>
-                </div>
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-3 mt-4">
+              <Link to="/app/legal/contracts" className="focus-ring rounded-full">
+                <Button size="sm" variant="soft" className="gap-2">
+                  <FileText className="h-4 w-4" /> Open Legal → Contracts
+                </Button>
+              </Link>
+              <span className="text-[11px] text-ink-faint">
+                Contracts are created, changed and archived in Legal so there is one place for them.
+              </span>
+            </div>
           </div>
+
+          <div className="mt-14">
+            <BrandGuidelines residentId={id} residentName={resident.name} index="06" />
+          </div>
+
 
           {(canSeeFinance || isLeadership) && (
             <div className="mt-14">
-              <ClientPayPanel residentId={id} index="06" />
+              <ClientPayPanel residentId={id} index="07" />
             </div>
           )}
 
           <div className="mt-14">
-            <SectionHeading index="07" title="Notes" hint="Internal only" />
+            <SectionHeading index="08" title="Notes" hint="Internal only" />
             <div className="surface rounded-2xl p-5 space-y-3">
               <textarea
                 rows={4}

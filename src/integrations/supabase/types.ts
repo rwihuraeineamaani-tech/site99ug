@@ -238,6 +238,123 @@ export type Database = {
           },
         ]
       }
+      brand_assets: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_path: string
+          id: string
+          label: string
+          resident_id: string
+          sort: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_path: string
+          id?: string
+          label?: string
+          resident_id: string
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_path?: string
+          id?: string
+          label?: string
+          resident_id?: string
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_assets_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brand_assets_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brand_guidelines: {
+        Row: {
+          colours: Json
+          created_at: string
+          created_by: string | null
+          donts: string | null
+          dos: string | null
+          id: string
+          notes: string | null
+          pdf_path: string | null
+          primary_font: string | null
+          primary_font_use: string | null
+          resident_id: string
+          secondary_font: string | null
+          secondary_font_use: string | null
+          tone: string | null
+          updated_at: string
+        }
+        Insert: {
+          colours?: Json
+          created_at?: string
+          created_by?: string | null
+          donts?: string | null
+          dos?: string | null
+          id?: string
+          notes?: string | null
+          pdf_path?: string | null
+          primary_font?: string | null
+          primary_font_use?: string | null
+          resident_id: string
+          secondary_font?: string | null
+          secondary_font_use?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          colours?: Json
+          created_at?: string
+          created_by?: string | null
+          donts?: string | null
+          dos?: string | null
+          id?: string
+          notes?: string | null
+          pdf_path?: string | null
+          primary_font?: string | null
+          primary_font_use?: string | null
+          resident_id?: string
+          secondary_font?: string | null
+          secondary_font_use?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_guidelines_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: true
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brand_guidelines_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: true
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       briefs: {
         Row: {
           body: string | null
@@ -3436,6 +3553,10 @@ export type Database = {
       }
       set_payment_pin: {
         Args: { _current_pin?: string; _pin: string }
+        Returns: undefined
+      }
+      set_resident_logo: {
+        Args: { _path: string; _resident_id: string }
         Returns: undefined
       }
       set_resident_notes: {
