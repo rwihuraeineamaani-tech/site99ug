@@ -16,7 +16,9 @@ export type KpiFigure = {
   /** Percentage change against the previous window; null when there is no base. */
   delta: number | null;
   /** Suffix shown after the delta figure. */
-  deltaUnit: "%" | "";
+  deltaUnit: string;
+  /** Eight weekly buckets ending today, oldest first — drawn as a sparkline. */
+  series: number[];
   note: string;
   to: string;
   /** Monthly target for this figure, when one is set. */
@@ -72,6 +74,16 @@ export type KpiWindows = { from: string; mid: string; to: string };
 /** [from .. mid) is the previous 30 days, [mid .. to] is the last 30. */
 export function kpiWindows(today = todayISO()): KpiWindows {
   return { from: shiftDays(today, -59), mid: shiftDays(today, -29), to: today };
+}
+
+export type Bucket = { from: string; to: string };
+
+/** Eight seven-day buckets ending today, oldest first. */
+export function weekBuckets(today: string, count = 8): Bucket[] {
+  return Array.from({ length: count }, (_, i) => {
+    const end = shiftDays(today, -7 * (count - 1 - i));
+    return { from: shiftDays(end, -6), to: end };
+  });
 }
 
 const pct = (now: number, before: number): number | null => {
@@ -172,6 +184,23 @@ export function buildKpi(input: KpiInput): KpiData {
 
   const nf = (n: number) => n.toLocaleString();
 
+  /* Weekly shape of each figure over the last eight weeks. */
+  const buckets = weekBuckets(nowB);
+  const postedSeries = buckets.map((b) => rows.filter((c) => inRange(c.posted_at, b.from, b.to)).length);
+  const shootSeries = buckets.map((b) => done.filter((s) => inRange(s.shoot_date, b.from, b.to)).length);
+  const filledSeries = buckets.map(
+    (b) =>
+      metrics.filter(
+        (m) => inRange(m.week_start, b.from, b.to) && (studio ? !!m.filled_by : m.filled_by === userId)
+      ).length
+  );
+  let carry = 0;
+  const followerSeries = buckets.map((b) => {
+    const t = followerTotal(scoped, b.from, b.to);
+    if (t.accounts) carry = t.total;
+    return carry;
+  });
+
   /* Targets for the month: everything in studio scope, only mine otherwise. */
   const targetFor = (metric: string): number | null => {
     const rows = targets.filter(
@@ -190,6 +219,7 @@ export function buildKpi(input: KpiInput): KpiData {
   const figures: KpiFigure[] = [
     {
       key: "posted",
+      series: postedSeries,
       label: "Posted content",
       value: nf(postedNow.length),
       delta: pct(postedNow.length, postedPrev.length),
@@ -202,6 +232,7 @@ export function buildKpi(input: KpiInput): KpiData {
     },
     {
       key: "shoots",
+      series: shootSeries,
       label: "Shoots landed",
       value: nf(shotNow.length),
       delta: pct(shotNow.length, shotPrev.length),
@@ -216,6 +247,7 @@ export function buildKpi(input: KpiInput): KpiData {
     },
     {
       key: "numbers",
+      series: filledSeries,
       label: "Client numbers filled",
       value: nf(filled.length),
       delta: pct(filled.length, filledPrev.length),
@@ -228,10 +260,11 @@ export function buildKpi(input: KpiInput): KpiData {
     },
     {
       key: "followers",
+      series: followerSeries,
       label: "Followers",
       value: nowFollowers.accounts ? nf(nowFollowers.total) : "—",
       delta: nowFollowers.accounts && prevFollowers.accounts ? followerMove : null,
-      deltaUnit: "",
+      deltaUnit: Math.abs(followerMove) === 1 ? " follower" : " followers",
       note: nowFollowers.accounts
         ? `across ${nowFollowers.accounts} account${nowFollowers.accounts === 1 ? "" : "s"}${
             prevFollowers.accounts ? ` · ${followerMove >= 0 ? "+" : ""}${nf(followerMove)} in 30 days` : ""
