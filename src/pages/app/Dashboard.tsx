@@ -293,26 +293,41 @@ export default function Dashboard() {
           empty="Nothing is sitting with you."
           delay={0}
         >
-          {waiting.slice(0, 10).map(({ item, why }) => (
-            <DeckCard
-              key={`${item.id}-${why}`}
-              to={`/app/content?ref=${item.ref_no}`}
-              eyebrow={`${refCode(item.ref_no)} · ${item.stage}`}
-              title={item.title}
-              note={why}
-              tone="signal"
-              action={
-                quickStep(item)
-                  ? {
-                      label: quickStep(item)!.label,
-                      busy: moving === item.id,
-                      onClick: () => moveStage(item.id, quickStep(item)!.next),
-                    }
-                  : undefined
-              }
-            />
+          {waitingGroups.map((g) => (
+            <div key={g.key} className="space-y-2">
+              <div className="flex items-center gap-2 px-1 pt-1">
+                <span className={`eyebrow text-[9px] ${g.key === "late" ? "text-signal" : "text-ink-faint"}`}>
+                  {g.label}
+                </span>
+                <span className="num text-[9px] text-ink-faint">{g.rows.length}</span>
+                <span className="h-px flex-1 bg-rule" />
+              </div>
+              {g.rows.map(({ item, why, due, urgency, client, dueLabel }) => (
+                <WaitingCard
+                  key={`${item.id}-${why}`}
+                  to={`/app/content?ref=${item.ref_no}`}
+                  move={why}
+                  title={item.title}
+                  ref={refCode(item.ref_no)}
+                  stage={item.stage}
+                  client={client}
+                  due={dueLabel}
+                  urgency={urgency}
+                  action={
+                    quickStep(item)
+                      ? {
+                          label: quickStep(item)!.label,
+                          busy: moving === item.id,
+                          onClick: () => moveStage(item.id, quickStep(item)!.next),
+                        }
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
           ))}
         </DeckColumn>
+
 
         <DeckColumn title="Today & overdue" count={today.length} to="/app/shoots" empty="Nothing on the clock." delay={60}>
           {today.map((r) => (
