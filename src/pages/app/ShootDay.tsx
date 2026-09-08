@@ -11,21 +11,26 @@ import { refCode } from "@/lib/contentFlow";
 import {
   OUTCOME_LABEL,
   OUTCOME_TONE,
+  PAY_METHODS,
   SPEND_CATEGORIES,
+  addFunds,
   addSpend,
+  budgetState,
   dayLabel,
   dayTotals,
   loadClientMoney,
+  loadDayFunds,
   loadDayMoney,
   potBalance,
   removeSpend,
   setOutcome,
   todayKampala,
   ugx,
+  type FundLine,
   type Outcome,
   type SpendLine,
 } from "@/lib/clientMoney";
-import { ArrowLeft, Camera, Clock, MapPin, Plus, Trash2, Users } from "lucide-react";
+import { ArrowLeft, Camera, Clock, FileText, MapPin, Plus, Trash2, Users, Wallet } from "lucide-react";
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
@@ -39,7 +44,10 @@ type Day = {
   call_time: string | null;
   location: string | null;
   notes: string | null;
+  budget_ugx: number;
+  budget_note: string | null;
 };
+
 type Piece = {
   rowId: string;
   contentId: string;
