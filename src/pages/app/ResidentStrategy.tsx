@@ -514,7 +514,13 @@ export default function ResidentStrategyPage() {
                 proOptions={{ hideAttribution: true }}
               >
                 <Background gap={22} color="hsl(var(--rule))" />
-                <MiniMap pannable zoomable className="!bg-transparent no-print" />
+                <MiniMap
+                  pannable
+                  zoomable
+                  className="no-print !bg-[hsl(var(--paper-sunken))] !border !border-rule !rounded-lg"
+                  maskColor="hsl(var(--paper) / 0.7)"
+                  nodeColor={(n) => NODE_TONE[((n.data as { kind?: NodeKind }).kind ?? "pillar") as NodeKind]}
+                />
                 <Controls className="no-print" />
               </ReactFlow>
             </div>
