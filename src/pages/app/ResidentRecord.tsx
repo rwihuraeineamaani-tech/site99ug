@@ -115,43 +115,20 @@ export default function ResidentRecordPage() {
     toast.success("Notes saved");
   };
 
-  const addContract = async () => {
-    if (!form.title.trim()) return toast.error("Give the contract a name.");
+  const uploadLogo = async (f: File) => {
     setBusy(true);
-    let path: string | null = null;
-    if (file) {
-      const clean = file.name.replace(/[^\w.\-]+/g, "-");
-      path = `${id}/${crypto.randomUUID()}-${clean}`;
-      const { error: upErr } = await supabase.storage.from("resident-contracts").upload(path, file);
-      if (upErr) {
-        setBusy(false);
-        return toast.error(upErr.message);
-      }
+    const clean = f.name.replace(/[^\w.\-]+/g, "-");
+    const path = `${id}/${crypto.randomUUID()}-${clean}`;
+    const { error: upErr } = await supabase.storage.from("client-logos").upload(path, f);
+    if (upErr) {
+      setBusy(false);
+      return toast.error(upErr.message);
     }
-    const { data: auth } = await supabase.auth.getUser();
-    const { error } = await supabase.from("resident_contracts").insert({
-      resident_id: id,
-      title: form.title.trim(),
-      file_path: path,
-      starts_on: form.starts_on || null,
-      ends_on: form.ends_on || null,
-      value_ugx: form.value_ugx ? Number(form.value_ugx.replace(/[^\d]/g, "")) : null,
-      notes: form.notes || null,
-      status: "active",
-      created_by: auth.user?.id ?? null,
-    });
+    const { error } = await supabase.rpc("set_resident_logo", { _resident_id: id, _path: path });
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Contract saved");
-    setForm(emptyContract);
-    setFile(null);
     if (fileRef.current) fileRef.current.value = "";
-    load();
-  };
-
-  const setStatus = async (c: Contract, status: string) => {
-    const { error } = await supabase.from("resident_contracts").update({ status }).eq("id", c.id);
     if (error) return toast.error(error.message);
+    toast.success("Logo updated.");
     load();
   };
 
@@ -176,13 +153,9 @@ export default function ResidentRecordPage() {
           Open
         </Button>
       )}
-      {canManageContracts && (
-        <Button size="sm" variant="soft" onClick={() => setStatus(c, c.status === "active" ? "archived" : "active")}>
-          {c.status === "active" ? "Archive" : "Make active"}
-        </Button>
-      )}
     </li>
   );
+
 
   return (
     <AppShell eyebrow="Residents">
