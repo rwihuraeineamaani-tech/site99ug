@@ -250,9 +250,64 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
               <input className={field} type="date" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} />
             </label>
             <label className="text-sm">
+              <span className="eyebrow text-ink-faint">Account it left</span>
+              <select className={field} value={walletId} onChange={(e) => setWalletId(e.target.value)}>
+                <option value="">Choose</option>
+                {wallets.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm">
               <span className="eyebrow text-ink-faint">Invoice or receipt</span>
               <input className={field} type="file" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </label>
+            <label className="text-sm sm:col-span-2">
+              <span className="eyebrow text-ink-faint">Comment</span>
+              <input className={field} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Anything the auditor should know" />
+            </label>
+            <label className="text-sm">
+              <span className="eyebrow text-ink-faint">Your payment PIN</span>
+              <input
+                className={field}
+                type="password"
+                inputMode="numeric"
+                maxLength={6}
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+                placeholder="6 digits"
+              />
+            </label>
+            {needsSecond && (
+              <>
+                <label className="text-sm">
+                  <span className="eyebrow text-ink-faint">Second release — Founder or MD</span>
+                  <select className={field} value={secondUser} onChange={(e) => setSecondUser(e.target.value)}>
+                    <option value="">Choose</option>
+                    {approvers.map((a) => (
+                      <option key={a.user_id} value={a.user_id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm">
+                  <span className="eyebrow text-ink-faint">Their PIN</span>
+                  <input
+                    className={field}
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={secondPin}
+                    onChange={(e) => setSecondPin(e.target.value.replace(/\D/g, ""))}
+                    placeholder="6 digits"
+                  />
+                </label>
+              </>
+            )}
+
             <div className="flex items-end gap-2">
               <button className="ctl ctl-solid eyebrow px-4 py-2.5 focus-ring" disabled={busy} onClick={pay}>
                 Record payment
