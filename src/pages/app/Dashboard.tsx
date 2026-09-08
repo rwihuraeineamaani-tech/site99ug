@@ -238,6 +238,8 @@ export default function Dashboard() {
             content: kpiRaw.content,
             crew: kpiRaw.crew,
             metrics: kpiRaw.metrics,
+            shoots: kpiRaw.shoots,
+            shootItems: kpiRaw.shootItems,
             myAccountIds: kpiRaw.myAccountIds,
             pendingWeeks: pendingWeeks.length,
             windows,
@@ -245,6 +247,7 @@ export default function Dashboard() {
         : null,
     [kpiRaw, userId, scope, isLeadership, pendingWeeks.length, windows]
   );
+
 
 
   const [weekOffset, setWeekOffset] = useState(0);
