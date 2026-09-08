@@ -204,9 +204,32 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
     <section className="space-y-10">
       <div>
         <SectionHeading index="01" title="Cleared for payment" hint={`${due.length} waiting`} />
-        <p className="text-sm text-ink-soft mb-4">
-          Total to pay out <Money amount={total} className="font-semibold" />
+        <p className="text-sm text-ink-soft mb-4 flex flex-wrap items-center gap-3">
+          <span>
+            Total to pay out <Money amount={total} className="font-semibold" />
+          </span>
+          <span className="text-xs text-ink-faint">
+            Two PINs from <Money amount={threshold} /> upwards
+          </span>
+          {isFounder && (
+            <button
+              className={`${pill} ml-auto`}
+              onClick={async () => {
+                const v = window.prompt("Payments at or above this amount need a second PIN (UGX):", String(threshold));
+                if (!v) return;
+                const n = Math.round(Number(v));
+                if (!n || n < 0) return toast.error("Enter an amount.");
+                const { error } = await supabase.from("finance_settings").update({ dual_pin_threshold_ugx: n }).eq("id", 1);
+                if (error) return toast.error(error.message);
+                setThreshold(n);
+                toast.success("Limit updated.");
+              }}
+            >
+              Change the two-PIN limit
+            </button>
+          )}
         </p>
+
         <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
           {due.map((d) => (
             <li key={d.key} className="px-4 py-3 flex flex-wrap items-center gap-3">
