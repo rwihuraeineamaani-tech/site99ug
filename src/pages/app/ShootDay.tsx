@@ -339,9 +339,15 @@ export default function ShootDayRun() {
                 <ArrowLeft className="h-4 w-4" /> All shoot days
               </Link>
             </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to={`/app/shoots/${dayId}/report`}>
+                <FileText className="h-4 w-4" /> Day report
+              </Link>
+            </Button>
             <StatusChip value={STATUS_LABEL[day.status] ?? day.status} />
           </>
         }
+
       />
 
       <div className="grid gap-3 sm:grid-cols-4">
