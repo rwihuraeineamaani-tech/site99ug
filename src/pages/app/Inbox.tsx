@@ -142,7 +142,7 @@ export default function InboxPage() {
       />
 
       <DeckStrip
-        items={[
+        figures={[
           { label: "Unread", value: unread, tone: unread ? "signal" : "quiet" },
           { label: "Waiting on you", value: waiting.length, tone: waiting.length ? "signal" : "quiet" },
           { label: "In the inbox", value: messages.filter((m) => !m.parent_id).length, tone: "quiet" },
