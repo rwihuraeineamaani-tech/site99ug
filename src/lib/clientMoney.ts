@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { StateTone } from "@/components/system";
 
 /** Money a client has put in, and money spent on their shoots. */
 
@@ -147,11 +148,11 @@ export const OUTCOME_LABEL: Record<Outcome, string> = {
   missed: "Not shot",
 };
 
-export const OUTCOME_TONE: Record<Outcome, "neutral" | "teal" | "amber" | "signal"> = {
+export const OUTCOME_TONE: Record<Outcome, StateTone> = {
   planned: "neutral",
   shot: "teal",
   partly: "amber",
-  missed: "signal",
+  missed: "stop",
 };
 
 export async function setOutcome(
