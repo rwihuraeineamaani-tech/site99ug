@@ -190,12 +190,10 @@ export default function ResidentStrategyPage() {
     const value = Number(tForm.target_value);
     if (!value) return toast.error("Put in a number to aim for.");
     setBusy(true);
-    const { error } = await supabase
-      .from("client_targets")
-      .upsert(
-        { resident_id: id, month, metric: tForm.metric, target_value: value },
-        { onConflict: "resident_id,month,metric" }
-      );
+    const existing = monthTargets.find((t) => t.metric === tForm.metric);
+    const { error } = existing
+      ? await supabase.from("client_targets").update({ target_value: value }).eq("id", existing.id)
+      : await supabase.from("client_targets").insert({ resident_id: id, month, metric: tForm.metric, target_value: value });
     setBusy(false);
     if (error) return toast.error(error.message);
     setTForm({ metric: "posted", target_value: "" });
