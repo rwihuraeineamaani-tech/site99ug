@@ -59,11 +59,14 @@ export function DeckHeader({
   name,
   titles,
   tagline,
+  headline,
   actions,
 }: {
   name: string;
   titles: string[];
   tagline: string;
+  /** Optional hand-written greeting; falls back to the plain time-of-day one. */
+  headline?: string;
   actions?: ReactNode;
 }) {
   const { greeting } = useKampalaClock();
@@ -78,7 +81,7 @@ export function DeckHeader({
             Command deck
           </div>
           <h1 className="display text-2xl md:text-4xl leading-[0.95] capitalize">
-            {greeting}, {first}.
+            {headline || `${greeting}, ${first}.`}
           </h1>
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
             {titles.map((t) => (
