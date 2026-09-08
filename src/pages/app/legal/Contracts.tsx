@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import SectionPage from "@/components/system/SectionPage";
@@ -30,7 +31,10 @@ type Contract = {
   file_path: string | null;
   notes: string | null;
   resident_id: string | null;
+  source: "legal" | "resident";
 };
+
+const RESIDENT_STATUSES = ["active", "archived"] as const;
 
 type Member = { user_id: string; display_name: string | null; email: string };
 
@@ -63,7 +67,7 @@ export default function Contracts() {
   });
 
   const load = useCallback(async () => {
-    const [c, m] = await Promise.all([
+    const [c, m, rc, res] = await Promise.all([
       supabase
         .from("contracts")
         .select(
@@ -71,8 +75,41 @@ export default function Contracts() {
         )
         .order("ends_on", { ascending: true, nullsFirst: false }),
       supabase.from("team_members").select("user_id, display_name, email"),
+      supabase
+        .from("resident_contracts")
+        .select("id, resident_id, title, file_path, starts_on, ends_on, value_ugx, status, notes")
+        .order("ends_on", { ascending: true, nullsFirst: false }),
+      supabase.from("residents").select("id, name"),
     ]);
-    setRows((c.data as Contract[]) ?? []);
+    const names = new Map(((res.data as { id: string; name: string }[]) ?? []).map((r) => [r.id, r.name]));
+    const legal = ((c.data as Omit<Contract, "source">[]) ?? []).map((r) => ({ ...r, source: "legal" as const }));
+    const resident = ((rc.data as {
+      id: string;
+      resident_id: string;
+      title: string;
+      file_path: string | null;
+      starts_on: string | null;
+      ends_on: string | null;
+      value_ugx: number | null;
+      status: string;
+      notes: string | null;
+    }[]) ?? []).map((r) => ({
+      id: r.id,
+      party_kind: "resident",
+      party_name: names.get(r.resident_id) ?? "Resident",
+      title: r.title,
+      contract_type: "retainer",
+      starts_on: r.starts_on,
+      ends_on: r.ends_on,
+      value_ugx: r.value_ugx,
+      status: r.status,
+      owner_user_id: null,
+      file_path: r.file_path,
+      notes: r.notes,
+      resident_id: r.resident_id,
+      source: "resident" as const,
+    }));
+    setRows([...legal, ...resident]);
     setMembers((m.data as Member[]) ?? []);
     setLoading(false);
   }, []);
@@ -96,6 +133,7 @@ export default function Contracts() {
       return `${r.title} ${r.party_name}`.toLowerCase().includes(needle);
     });
   }, [rows, q, status, kind]);
+
 
   const save = async () => {
     if (!form.title.trim() || !form.party_name.trim()) return toast.error("Give it a title and the other party.");
