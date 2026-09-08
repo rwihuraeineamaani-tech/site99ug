@@ -64,6 +64,7 @@ import FinanceTransaction from "./pages/app/FinanceTransaction.tsx";
 import ResidentsHub from "./pages/app/Residents.tsx";
 import ResidentRecordPage from "./pages/app/ResidentRecord.tsx";
 import ResidentStrategyPage from "./pages/app/ResidentStrategy.tsx";
+import InboxPage from "./pages/app/Inbox.tsx";
 
 import Shoots from "./pages/app/Shoots.tsx";
 import EquipmentPage from "./pages/app/Equipment.tsx";
@@ -133,6 +134,14 @@ const AnimatedRoutes = () => {
           }
         />
         <Route path="/app/clients" element={<Navigate to="/app/residents" replace />} />
+        <Route
+          path="/app/inbox"
+          element={
+            <RequireRole gate="staff">
+              <InboxPage />
+            </RequireRole>
+          }
+        />
         <Route
           path="/app/residents"
           element={

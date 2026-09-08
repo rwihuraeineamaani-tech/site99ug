@@ -1391,6 +1391,128 @@ export type Database = {
         }
         Relationships: []
       }
+      inbox_messages: {
+        Row: {
+          audience: string
+          author: string | null
+          body: string | null
+          content_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          link_path: string | null
+          parent_id: string | null
+          resident_id: string | null
+          shoot_day_id: string | null
+          subject: string
+          target_role: Database["public"]["Enums"]["app_role"] | null
+          target_user: string | null
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          author?: string | null
+          body?: string | null
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link_path?: string | null
+          parent_id?: string | null
+          resident_id?: string | null
+          shoot_day_id?: string | null
+          subject: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          target_user?: string | null
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          author?: string | null
+          body?: string | null
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link_path?: string | null
+          parent_id?: string | null
+          resident_id?: string | null
+          shoot_day_id?: string | null
+          subject?: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          target_user?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_messages_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_messages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "inbox_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_messages_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_messages_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_messages_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inbox_reads: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_reads_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "inbox_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       legal_documents: {
         Row: {
           category: string
