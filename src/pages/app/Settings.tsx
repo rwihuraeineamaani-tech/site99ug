@@ -363,7 +363,59 @@ export default function Settings() {
                 </Button>
               </div>
             </DeckPanel>
+
+            {(canSeeFinance || has("admin", "founder", "managing_director")) && (
+              <DeckPanel index="06" title="Payment PIN">
+                <div className="surface rounded-xl p-5 space-y-4">
+                  <p className="text-sm text-ink-soft">
+                    Money only leaves an account when this six-digit PIN is typed in. Anything at or above the agreed
+                    limit also needs a second PIN from a founder or the managing director. Three wrong tries locks it
+                    for fifteen minutes. {hasPin ? "You already have a PIN set." : "You have not set one yet."}
+                  </p>
+                  {hasPin && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="cpin">Current PIN</Label>
+                      <Input
+                        id="cpin"
+                        type="password"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={currentPin}
+                        onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ""))}
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="npin">New PIN</Label>
+                    <Input
+                      id="npin"
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={newPin}
+                      onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="rpin">Confirm new PIN</Label>
+                    <Input
+                      id="rpin"
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={confirmPin}
+                      onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
+                    />
+                  </div>
+                  <Button onClick={savePin} disabled={savingPin}>
+                    {savingPin ? "Saving…" : hasPin ? "Change PIN" : "Set PIN"}
+                  </Button>
+                  <p className="text-xs text-ink-faint">Never share it. Nobody, including us, can read it back.</p>
+                </div>
+              </DeckPanel>
+            )}
           </>
+
         )}
       </div>
     </AppShell>
