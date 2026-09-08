@@ -19,6 +19,8 @@ import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
 import { buildWaiting, type FlowRow, type ResidentLink } from "@/lib/inbox";
 import { buildGreeting } from "@/lib/greeting";
 import Sparkline from "@/components/deck/Sparkline";
+import WaitingCard from "@/components/deck/WaitingCard";
+
 import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
 
 type PendingWeek = {
