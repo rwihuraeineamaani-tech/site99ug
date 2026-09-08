@@ -29,7 +29,7 @@ function initialsOf(name: string) {
 }
 
 export default function Settings() {
-  const { userId, email, displayName, title, roles, departments, reload } = useMyRoles();
+  const { userId, email, displayName, title, roles, departments, reload, canSeeFinance, has } = useMyRoles();
   const [tab, setTab] = useState<Tab>("profile");
 
   // Profile
@@ -76,6 +76,8 @@ export default function Settings() {
         setThemeState(row.theme);
         setTheme(row.theme);
       }
+      const { data: pinRow } = await supabase.from("payment_pins").select("user_id").eq("user_id", userId).maybeSingle();
+      if (!cancel) setHasPin(!!pinRow);
     })();
     return () => {
       cancel = true;
