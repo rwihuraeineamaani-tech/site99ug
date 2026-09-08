@@ -68,12 +68,13 @@ export const NODE_KINDS = [
 
 export type NodeKind = (typeof NODE_KINDS)[number]["key"];
 
+/** Border colour per node kind, using the internal accent palette. */
 export const NODE_TONE: Record<NodeKind, string> = {
-  pillar: "var(--accent-violet)",
-  format: "var(--accent-blue)",
-  rhythm: "var(--accent-teal)",
-  owner: "var(--accent-amber)",
-  outcome: "var(--accent-lime)",
+  pillar: "hsl(var(--acc-violet))",
+  format: "hsl(var(--acc-blue))",
+  rhythm: "hsl(var(--acc-teal))",
+  owner: "hsl(var(--acc-amber))",
+  outcome: "hsl(var(--acc-lime))",
 };
 
 export const nodeKindLabel = (k: string) => NODE_KINDS.find((n) => n.key === k)?.label ?? k;
