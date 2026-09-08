@@ -19,6 +19,10 @@ export type KpiFigure = {
   deltaUnit: "%" | "";
   note: string;
   to: string;
+  /** Monthly target for this figure, when one is set. */
+  target: number | null;
+  /** 0–1 progress towards that target. */
+  progress: number | null;
   /** 0–1 health used to name the strongest and weakest area. */
   score: number | null;
 };
@@ -41,6 +45,7 @@ type ContentRow = {
 };
 
 type CrewRow = { content_id: string; user_id: string | null };
+type TargetRow = { resident_id: string | null; user_id: string | null; metric: string; target_value: number };
 type MetricRow = {
   account_id: string;
   week_start: string;
@@ -91,6 +96,10 @@ export type KpiInput = {
   shootItems: { shoot_day_id: string; content_id: string }[];
   /** Account ids the person is responsible for; empty in studio scope means all. */
   myAccountIds: Set<string>;
+  /** Clients this person is on, used to pick which targets count as theirs. */
+  myResidentIds: Set<string>;
+  /** Monthly targets for the month in view. */
+  targets: TargetRow[];
   pendingWeeks: number;
   windows: KpiWindows;
 };
@@ -110,7 +119,20 @@ function followerTotal(rows: MetricRow[], a: string, b: string) {
 }
 
 export function buildKpi(input: KpiInput): KpiData {
-  const { scope, userId, content, crew, metrics, shoots, shootItems, myAccountIds, pendingWeeks, windows } = input;
+  const {
+    scope,
+    userId,
+    content,
+    crew,
+    metrics,
+    shoots,
+    shootItems,
+    myAccountIds,
+    myResidentIds,
+    targets,
+    pendingWeeks,
+    windows,
+  } = input;
   const prevA = windows.from;
   const prevB = shiftDays(windows.mid, -1);
   const nowA = windows.mid;
@@ -150,6 +172,21 @@ export function buildKpi(input: KpiInput): KpiData {
 
   const nf = (n: number) => n.toLocaleString();
 
+  /* Targets for the month: everything in studio scope, only mine otherwise. */
+  const targetFor = (metric: string): number | null => {
+    const rows = targets.filter(
+      (t) =>
+        t.metric === metric &&
+        (studio ||
+          (t.resident_id && myResidentIds.has(t.resident_id)) ||
+          (!t.resident_id && t.user_id === userId))
+    );
+    if (!rows.length) return null;
+    return rows.reduce((a, t) => a + Number(t.target_value || 0), 0);
+  };
+  const progressOf = (actual: number, target: number | null) =>
+    target && target > 0 ? Math.min(1, actual / target) : null;
+
   const figures: KpiFigure[] = [
     {
       key: "posted",
@@ -159,7 +196,9 @@ export function buildKpi(input: KpiInput): KpiData {
       deltaUnit: "%",
       note: `${postedNow.length === 1 ? "piece" : "pieces"} live in 30 days · ${postedPrev.length} before`,
       to: "/app/content",
-      score: postedNow.length ? Math.min(1, postedNow.length / 12) : 0,
+      target: targetFor("posted"),
+      progress: progressOf(postedNow.length, targetFor("posted")),
+      score: progressOf(postedNow.length, targetFor("posted")) ?? (postedNow.length ? Math.min(1, postedNow.length / 12) : 0),
     },
     {
       key: "shoots",
@@ -171,7 +210,9 @@ export function buildKpi(input: KpiInput): KpiData {
         ? `${shotNow.length === 1 ? "shoot day" : "shoot days"} wrapped · ${shotPrev.length} before`
         : "no shoot days wrapped yet",
       to: "/app/shoots",
-      score: shotNow.length ? Math.min(1, shotNow.length / 8) : 0,
+      target: targetFor("shoots"),
+      progress: progressOf(shotNow.length, targetFor("shoots")),
+      score: progressOf(shotNow.length, targetFor("shoots")) ?? (shotNow.length ? Math.min(1, shotNow.length / 8) : 0),
     },
     {
       key: "numbers",
@@ -181,6 +222,8 @@ export function buildKpi(input: KpiInput): KpiData {
       deltaUnit: "%",
       note: pendingWeeks ? `${pendingWeeks} still waiting on you` : "nothing outstanding",
       to: "/app/residents",
+      target: targetFor("numbers"),
+      progress: progressOf(filled.length, targetFor("numbers")),
       score: filled.length + pendingWeeks ? filled.length / (filled.length + pendingWeeks) : null,
     },
     {
@@ -195,6 +238,8 @@ export function buildKpi(input: KpiInput): KpiData {
           }`
         : "no follower counts logged yet",
       to: "/app/residents",
+      target: targetFor("followers"),
+      progress: progressOf(nowFollowers.total, targetFor("followers")),
       score: nowFollowers.accounts ? (followerMove > 0 ? 1 : followerMove === 0 ? 0.5 : 0.2) : null,
     },
   ];
@@ -223,11 +268,14 @@ export type KpiRaw = {
   shoots: ShootRow[];
   shootItems: { shoot_day_id: string; content_id: string }[];
   myAccountIds: Set<string>;
+  myResidentIds: Set<string>;
+  targets: TargetRow[];
 };
 
 /** One trip for everything the panel needs; all tables are staff-readable. */
 export async function loadKpiRaw(userId: string, windows: KpiWindows): Promise<KpiRaw> {
-  const [content, crew, metrics, assigns, accounts, shoots, shootItems] = await Promise.all([
+  const monthStart = `${windows.to.slice(0, 7)}-01`;
+  const [content, crew, metrics, assigns, accounts, shoots, shootItems, targets] = await Promise.all([
     supabase
       .from("content_items")
       .select("id, posted_at, planned_at, metrics_due_at, metrics_filled_at, resident_id")
@@ -244,6 +292,7 @@ export async function loadKpiRaw(userId: string, windows: KpiWindows): Promise<K
       .select("id, shoot_date, status, created_by, confirmed_by")
       .gte("shoot_date", windows.from),
     supabase.from("shoot_day_items").select("shoot_day_id, content_id"),
+    supabase.from("client_targets").select("resident_id, user_id, metric, target_value").eq("month", monthStart),
   ]);
 
   const myResidents = new Set(((assigns.data as { resident_id: string }[]) ?? []).map((a) => a.resident_id));
@@ -260,5 +309,7 @@ export async function loadKpiRaw(userId: string, windows: KpiWindows): Promise<K
     shoots: (shoots.data as ShootRow[]) ?? [],
     shootItems: (shootItems.data as { shoot_day_id: string; content_id: string }[]) ?? [],
     myAccountIds,
+    myResidentIds: myResidents,
+    targets: (targets.data as TargetRow[]) ?? [],
   };
 }
