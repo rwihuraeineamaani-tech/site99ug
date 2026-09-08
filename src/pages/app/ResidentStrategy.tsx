@@ -44,6 +44,12 @@ import {
   type NodeKind,
   type StrategyMap,
   type Target,
+  REVIEW_LABEL,
+  REVIEW_TONE,
+  ensurePlan,
+  reviewState,
+  setReview,
+  type ClientPlan,
 } from "@/lib/strategy";
 import { ArrowLeft, Plus, Printer, Save, Trash2 } from "lucide-react";
 
@@ -71,7 +77,8 @@ function Bar({ value, tone = "signal" }: { value: number | null; tone?: string }
 
 export default function ResidentStrategyPage() {
   const { id = "" } = useParams();
-  const { isLeadership, assignments, userId } = useMyRoles();
+  const { isLeadership, assignments, userId, isStrategyTeam, canApproveStrategy } = useMyRoles();
+  const [plan, setPlan] = useState<ClientPlan | null>(null);
   const canManage = isLeadership || assignments.some((a) => a.resident_id === id);
 
   const today = todayISO();
@@ -123,6 +130,7 @@ export default function ResidentStrategyPage() {
     setTargets(s.targets);
     setActuals(a);
     setMap(s.map);
+    setPlan(await loadPlan(id));
     setMapNotes(s.map?.notes ?? "");
     setNodes((s.map?.nodes ?? []).map(toFlow));
     setEdges(
