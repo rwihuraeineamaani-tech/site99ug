@@ -295,6 +295,7 @@ export function DeckCard({
   tone = "default",
   action,
   right,
+  below,
 }: {
   to?: string;
   eyebrow?: string;
@@ -303,6 +304,8 @@ export function DeckCard({
   tone?: "default" | "signal" | "late";
   action?: { label: string; onClick: () => void; busy?: boolean };
   right?: ReactNode;
+  /** Optional strip under the card body, e.g. a progress bar. */
+  below?: ReactNode;
 }) {
   const body = (
     <div
@@ -326,6 +329,7 @@ export function DeckCard({
         </div>
         {right}
       </div>
+      {below}
       {action && (
         <button
           type="button"

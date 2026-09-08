@@ -619,6 +619,129 @@ export type Database = {
           },
         ]
       }
+      client_goals: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          due_on: string | null
+          id: string
+          metric: string
+          notes: string | null
+          owner_user_id: string | null
+          resident_id: string
+          sort: number
+          start_value: number | null
+          status: string
+          target_value: number | null
+          title: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          due_on?: string | null
+          id?: string
+          metric?: string
+          notes?: string | null
+          owner_user_id?: string | null
+          resident_id: string
+          sort?: number
+          start_value?: number | null
+          status?: string
+          target_value?: number | null
+          title: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          due_on?: string | null
+          id?: string
+          metric?: string
+          notes?: string | null
+          owner_user_id?: string | null
+          resident_id?: string
+          sort?: number
+          start_value?: number | null
+          status?: string
+          target_value?: number | null
+          title?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_goals_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_goals_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_targets: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          metric: string
+          month: string
+          notes: string | null
+          resident_id: string | null
+          target_value: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metric: string
+          month: string
+          notes?: string | null
+          resident_id?: string | null
+          target_value: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metric?: string
+          month?: string
+          notes?: string | null
+          resident_id?: string | null
+          target_value?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_targets_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_targets_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_users: {
         Row: {
           accepted_at: string | null
@@ -2154,6 +2277,60 @@ export type Database = {
           },
           {
             foreignKeyName: "shoot_days_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_maps: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          edges: Json
+          id: string
+          nodes: Json
+          notes: string | null
+          resident_id: string
+          title: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          edges?: Json
+          id?: string
+          nodes?: Json
+          notes?: string | null
+          resident_id: string
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          edges?: Json
+          id?: string
+          nodes?: Json
+          notes?: string | null
+          resident_id?: string
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_maps_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_maps_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
             referencedRelation: "residents"

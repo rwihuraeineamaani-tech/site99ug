@@ -10,7 +10,7 @@ import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
-import { ArrowLeft, FileText, Upload } from "lucide-react";
+import { ArrowLeft, FileText, Target, Upload } from "lucide-react";
 import type { ResidentRecord } from "./Residents";
 
 type Member = { user_id: string; display_name: string | null; email: string; title: string | null };
@@ -209,6 +209,15 @@ export default function ResidentRecordPage() {
               active.length ? "contract active" : "no active contract"
             }`}
           />
+
+          <div className="flex flex-wrap items-center gap-3 mb-8">
+            <Link to={`/app/residents/${id}/strategy`} className="focus-ring rounded-full">
+              <Button size="sm" className="gap-2">
+                <Target className="h-4 w-4" /> Strategy, goals & targets
+              </Button>
+            </Link>
+            <span className="text-[11px] text-ink-faint">Set what we're aiming for and map how the work flows.</span>
+          </div>
 
           <SectionHeading index="00" title="Overview" />
           <div className="surface rounded-2xl p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
