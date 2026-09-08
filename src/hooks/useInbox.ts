@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { useMyAssignments } from "@/hooks/useMyAssignments";
 import {
@@ -74,18 +73,6 @@ export function useInbox(messagesOnly = false): InboxState {
     window.addEventListener(CHANGED, onChange);
     return () => window.removeEventListener(CHANGED, onChange);
   }, [reload]);
-
-  // New arrivals appear without a refresh.
-  useEffect(() => {
-    if (!userId || !isStaff) return;
-    const channel = supabase
-      .channel("inbox-feed")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "inbox_messages" }, () => reload())
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId, isStaff, reload]);
 
   const markLocalRead = useCallback((ids: string[]) => {
     setRead((cur) => {
