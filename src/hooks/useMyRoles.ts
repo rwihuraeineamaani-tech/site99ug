@@ -9,6 +9,7 @@ export type StaffRole =
   | "sales_head"
   | "finance_ops"
   | "creative"
+  | "strategist"
   | "legal"
   | "admin"
   | "event_manager"
@@ -26,6 +27,7 @@ export const TEAM_ROLES: StaffRole[] = [
   "sales_head",
   "finance_ops",
   "creative",
+  "strategist",
   "legal",
   "admin",
   "event_manager",
@@ -41,6 +43,7 @@ export const ROLE_LABELS: Record<StaffRole, string> = {
   sales_head: "Head of Sales & Partnerships",
   finance_ops: "Finance / Ops",
   creative: "Creative / Production",
+  strategist: "Strategist",
   legal: "Legal",
   admin: "System admin",
   event_manager: "Event manager",
@@ -56,6 +59,7 @@ export const ROLE_HINTS: Record<StaffRole, string> = {
   sales_head: "Clients, contracts and pipeline — no payroll",
   finance_ops: "Finance, payroll, contract splits and operating expenses",
   creative: "Content pipeline and production — no money",
+  strategist: "Client strategy: plans, goals, monthly targets and strategy maps",
   legal: "Contracts and legal documents",
   admin: "Technical administrator: settings, roles and every module",
   event_manager: "Create & edit events, confirm payments, email tickets",
@@ -66,6 +70,7 @@ export const ROLE_HINTS: Record<StaffRole, string> = {
 
 const LEADERSHIP: StaffRole[] = ["admin", "founder", "managing_director"];
 const FINANCE: StaffRole[] = ["admin", "founder", "managing_director", "finance_ops"];
+const STRATEGY: StaffRole[] = ["admin", "founder", "managing_director", "strategist", "creative_director", "sales_head"];
 
 /** Department sections of the internal system. */
 export type Department =
@@ -101,6 +106,10 @@ export type RoleState = {
   canScan: boolean;
   canEditSite: boolean;
   canEditContent: boolean;
+  /** may create and change client strategy */
+  isStrategyTeam: boolean;
+  /** may approve or send back strategy */
+  canApproveStrategy: boolean;
   /** which department sections this person may open */
   departments: Record<Department, boolean>;
   /** where this person should land after signing in */
@@ -220,6 +229,8 @@ export function useRolesState(): RoleState {
   const canViewEvents = has("admin", "founder", "managing_director", "event_manager", "viewer", "finance_ops");
   const canScan = has("admin", "founder", "managing_director", "event_manager", "scanner");
   const canEditSite = has("admin", "founder", "creative_director", "creative", "site_editor");
+  const isStrategyTeam = has(...STRATEGY);
+  const canApproveStrategy = isLeadership;
 
   const departments: Record<Department, boolean> = {
     content: isStaff,
@@ -259,6 +270,8 @@ export function useRolesState(): RoleState {
     canScan,
     canEditSite,
     canEditContent,
+    isStrategyTeam,
+    canApproveStrategy,
     departments,
     landingPath,
     assignments,

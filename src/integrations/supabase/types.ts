@@ -738,6 +738,8 @@ export type Database = {
       }
       client_goals: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           created_at: string
           created_by: string | null
           due_on: string | null
@@ -746,15 +748,21 @@ export type Database = {
           notes: string | null
           owner_user_id: string | null
           resident_id: string
+          review_note: string | null
+          review_state: string
           sort: number
           start_value: number | null
           status: string
+          submitted_at: string | null
+          submitted_by: string | null
           target_value: number | null
           title: string
           unit: string | null
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           due_on?: string | null
@@ -763,15 +771,21 @@ export type Database = {
           notes?: string | null
           owner_user_id?: string | null
           resident_id: string
+          review_note?: string | null
+          review_state?: string
           sort?: number
           start_value?: number | null
           status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
           target_value?: number | null
           title: string
           unit?: string | null
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           due_on?: string | null
@@ -780,9 +794,13 @@ export type Database = {
           notes?: string | null
           owner_user_id?: string | null
           resident_id?: string
+          review_note?: string | null
+          review_state?: string
           sort?: number
           start_value?: number | null
           status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
           target_value?: number | null
           title?: string
           unit?: string | null
@@ -805,8 +823,73 @@ export type Database = {
           },
         ]
       }
+      client_plans: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          owner_user_id: string | null
+          resident_id: string
+          review_note: string | null
+          review_state: string
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          owner_user_id?: string | null
+          resident_id: string
+          review_note?: string | null
+          review_state?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          owner_user_id?: string | null
+          resident_id?: string
+          review_note?: string | null
+          review_state?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_plans_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: true
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_plans_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: true
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_targets: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -814,11 +897,17 @@ export type Database = {
           month: string
           notes: string | null
           resident_id: string | null
+          review_note: string | null
+          review_state: string
+          submitted_at: string | null
+          submitted_by: string | null
           target_value: number
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -826,11 +915,17 @@ export type Database = {
           month: string
           notes?: string | null
           resident_id?: string | null
+          review_note?: string | null
+          review_state?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
           target_value: number
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -838,6 +933,10 @@ export type Database = {
           month?: string
           notes?: string | null
           resident_id?: string | null
+          review_note?: string | null
+          review_state?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
           target_value?: number
           updated_at?: string
           user_id?: string | null
@@ -2765,8 +2864,92 @@ export type Database = {
           },
         ]
       }
+      strategy_map_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          edges: Json
+          id: string
+          map_id: string | null
+          nodes: Json
+          notes: string | null
+          resident_id: string
+          review_note: string | null
+          review_state: string
+          submitted_at: string | null
+          submitted_by: string | null
+          title: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          edges?: Json
+          id?: string
+          map_id?: string | null
+          nodes?: Json
+          notes?: string | null
+          resident_id: string
+          review_note?: string | null
+          review_state?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          edges?: Json
+          id?: string
+          map_id?: string | null
+          nodes?: Json
+          notes?: string | null
+          resident_id?: string
+          review_note?: string | null
+          review_state?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_map_versions_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_map_versions_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_map_versions_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       strategy_maps: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           created_at: string
           created_by: string | null
           edges: Json
@@ -2774,11 +2957,17 @@ export type Database = {
           nodes: Json
           notes: string | null
           resident_id: string
+          review_note: string | null
+          review_state: string
+          submitted_at: string | null
+          submitted_by: string | null
           title: string
           updated_at: string
           version: number
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           edges?: Json
@@ -2786,11 +2975,17 @@ export type Database = {
           nodes?: Json
           notes?: string | null
           resident_id: string
+          review_note?: string | null
+          review_state?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
           title?: string
           updated_at?: string
           version?: number
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           edges?: Json
@@ -2798,6 +2993,10 @@ export type Database = {
           nodes?: Json
           notes?: string | null
           resident_id?: string
+          review_note?: string | null
+          review_state?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
           title?: string
           updated_at?: string
           version?: number
@@ -3295,6 +3494,7 @@ export type Database = {
         Returns: boolean
       }
       build_payment_run: { Args: { _month?: string }; Returns: string }
+      can_approve_strategy: { Args: { _uid: string }; Returns: boolean }
       can_edit_content: { Args: { _user_id: string }; Returns: boolean }
       can_see_finance: { Args: { _user_id: string }; Returns: boolean }
       can_touch_account: { Args: { _account_id: string }; Returns: boolean }
@@ -3423,6 +3623,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_strategy_team: { Args: { _uid: string }; Returns: boolean }
       log_cashbook_entry: {
         Args: {
           _amount: number
@@ -3626,6 +3827,7 @@ export type Database = {
         | "creative"
         | "legal"
         | "client"
+        | "strategist"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3769,6 +3971,7 @@ export const Constants = {
         "creative",
         "legal",
         "client",
+        "strategist",
       ],
     },
   },
