@@ -302,13 +302,13 @@ export default function Dashboard() {
                 <span className="num text-[9px] text-ink-faint">{g.rows.length}</span>
                 <span className="h-px flex-1 bg-rule" />
               </div>
-              {g.rows.map(({ item, why, due, urgency, client, dueLabel }) => (
+              {g.rows.map(({ item, why, urgency, client, dueLabel }) => (
                 <WaitingCard
                   key={`${item.id}-${why}`}
                   to={`/app/content?ref=${item.ref_no}`}
                   move={why}
                   title={item.title}
-                  ref={refCode(item.ref_no)}
+                  refLabel={refCode(item.ref_no)}
                   stage={item.stage}
                   client={client}
                   due={dueLabel}

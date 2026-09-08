@@ -9,7 +9,7 @@ export default function WaitingCard({
   to,
   move,
   title,
-  ref: refLabel,
+  refLabel,
   stage,
   client,
   due,
@@ -20,7 +20,7 @@ export default function WaitingCard({
   /** The thing they have to do, e.g. "Approve or reject". */
   move: string;
   title: string;
-  ref?: string;
+  refLabel?: string;
   stage?: string;
   client?: string | null;
   /** Human date line, e.g. "today", "2 days late", "Fri 12 Sep". */
