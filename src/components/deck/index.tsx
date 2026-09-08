@@ -80,7 +80,7 @@ export function DeckHeader({
             <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-signal" />
             Command deck
           </div>
-          <h1 className="display text-2xl md:text-4xl leading-[0.95] capitalize">
+          <h1 className="display text-2xl md:text-4xl leading-[0.95]">
             {headline || `${greeting}, ${first}.`}
           </h1>
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
