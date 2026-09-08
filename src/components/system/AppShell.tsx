@@ -47,6 +47,7 @@ import {
 
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { useInbox } from "@/hooks/useInbox";
+import { useStrategyWaiting } from "@/hooks/useStrategyWaiting";
 import logo from "@/assets/site99-logo.png";
 import {
   Sidebar,
