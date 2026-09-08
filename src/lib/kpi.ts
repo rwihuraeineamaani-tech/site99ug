@@ -292,7 +292,7 @@ export async function loadKpiRaw(userId: string, windows: KpiWindows): Promise<K
       .select("id, shoot_date, status, created_by, confirmed_by")
       .gte("shoot_date", windows.from),
     supabase.from("shoot_day_items").select("shoot_day_id, content_id"),
-    supabase.from("client_targets").select("resident_id, user_id, metric, target_value").eq("month", monthStart),
+    supabase.from("client_targets").select("resident_id, user_id, metric, target_value").eq("month", monthStart).eq("review_state", "approved"),
   ]);
 
   const myResidents = new Set(((assigns.data as { resident_id: string }[]) ?? []).map((a) => a.resident_id));

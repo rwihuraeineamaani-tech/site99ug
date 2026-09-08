@@ -32,7 +32,6 @@ import {
   nodeKindLabel,
   reviewState,
   saveMapVersion,
-  setReview,
   type MapEdge,
   type MapNode,
   type MapVersion,

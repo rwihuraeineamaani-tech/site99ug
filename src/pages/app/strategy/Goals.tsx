@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { todayISO } from "@/lib/deck";
 import {
-  GOAL_STATUSES,
   METRICS,
   REVIEW_LABEL,
   REVIEW_TONE,
