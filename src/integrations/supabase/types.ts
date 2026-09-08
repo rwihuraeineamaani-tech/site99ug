@@ -736,6 +736,76 @@ export type Database = {
           },
         ]
       }
+      client_funds: {
+        Row: {
+          added_by: string | null
+          amount_ugx: number
+          attachment_path: string | null
+          created_at: string
+          direction: string
+          id: string
+          method: string | null
+          note: string | null
+          received_on: string
+          reference: string | null
+          resident_id: string
+          shoot_day_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          added_by?: string | null
+          amount_ugx: number
+          attachment_path?: string | null
+          created_at?: string
+          direction?: string
+          id?: string
+          method?: string | null
+          note?: string | null
+          received_on?: string
+          reference?: string | null
+          resident_id: string
+          shoot_day_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          added_by?: string | null
+          amount_ugx?: number
+          attachment_path?: string | null
+          created_at?: string
+          direction?: string
+          id?: string
+          method?: string | null
+          note?: string | null
+          received_on?: string
+          reference?: string | null
+          resident_id?: string
+          shoot_day_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_funds_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_funds_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_funds_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_goals: {
         Row: {
           approved_at: string | null
@@ -2756,19 +2826,34 @@ export type Database = {
         Row: {
           content_id: string
           created_at: string
+          footage_where: string | null
           id: string
+          outcome: string
+          outcome_at: string | null
+          outcome_by: string | null
+          outcome_note: string | null
           shoot_day_id: string
         }
         Insert: {
           content_id: string
           created_at?: string
+          footage_where?: string | null
           id?: string
+          outcome?: string
+          outcome_at?: string | null
+          outcome_by?: string | null
+          outcome_note?: string | null
           shoot_day_id: string
         }
         Update: {
           content_id?: string
           created_at?: string
+          footage_where?: string | null
           id?: string
+          outcome?: string
+          outcome_at?: string | null
+          outcome_by?: string | null
+          outcome_note?: string | null
           shoot_day_id?: string
         }
         Relationships: [
@@ -2860,6 +2945,83 @@ export type Database = {
             columns: ["resident_id"]
             isOneToOne: false
             referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shoot_spend: {
+        Row: {
+          amount_ugx: number
+          attachment_path: string | null
+          cashbook_entry_id: string | null
+          category: string
+          created_at: string
+          id: string
+          note: string | null
+          payer: string
+          resident_id: string | null
+          shoot_day_id: string
+          spent_by: string | null
+          spent_on: string
+          updated_at: string
+        }
+        Insert: {
+          amount_ugx: number
+          attachment_path?: string | null
+          cashbook_entry_id?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          payer?: string
+          resident_id?: string | null
+          shoot_day_id: string
+          spent_by?: string | null
+          spent_on?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_ugx?: number
+          attachment_path?: string | null
+          cashbook_entry_id?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          payer?: string
+          resident_id?: string | null
+          shoot_day_id?: string
+          spent_by?: string | null
+          spent_on?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shoot_spend_cashbook_entry_id_fkey"
+            columns: ["cashbook_entry_id"]
+            isOneToOne: false
+            referencedRelation: "cashbook_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shoot_spend_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shoot_spend_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shoot_spend_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
             referencedColumns: ["id"]
           },
         ]
@@ -3496,6 +3658,10 @@ export type Database = {
       build_payment_run: { Args: { _month?: string }; Returns: string }
       can_approve_strategy: { Args: { _uid: string }; Returns: boolean }
       can_edit_content: { Args: { _user_id: string }; Returns: boolean }
+      can_fund_client: {
+        Args: { _resident_id: string; _user_id: string }
+        Returns: boolean
+      }
       can_see_finance: { Args: { _user_id: string }; Returns: boolean }
       can_touch_account: { Args: { _account_id: string }; Returns: boolean }
       can_touch_resident_accounts: {
@@ -3520,6 +3686,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      client_pot_balance: { Args: { _resident_id: string }; Returns: number }
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       decline_cash_request: {
         Args: { _id: string; _reason: string }
