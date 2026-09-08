@@ -53,7 +53,10 @@ export default function ResidentsHub() {
         supabase.from("content_items").select("resident_id"),
         supabase.from("resident_contracts").select("resident_id, status"),
       ]);
-      setRows((res as unknown as ResidentRecord[]) ?? []);
+      const people = (res as unknown as ResidentRecord[]) ?? [];
+      setRows(people);
+      logoUrls(people.map((p) => ({ id: p.id, avatar_url: p.avatar_url }))).then(setLogos);
+
       const a: Record<string, number> = {};
       ((acc as { resident_id: string; active: boolean }[]) ?? []).forEach((r) => {
         if (r.active) a[r.resident_id] = (a[r.resident_id] ?? 0) + 1;
