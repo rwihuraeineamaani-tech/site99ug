@@ -50,6 +50,14 @@ export default function Settings() {
   const [newEmail, setNewEmail] = useState("");
   const [savingEmail, setSavingEmail] = useState(false);
 
+  // Payment PIN
+  const [hasPin, setHasPin] = useState(false);
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [savingPin, setSavingPin] = useState(false);
+
+
   useEffect(() => {
     if (!userId) return;
     let cancel = false;
