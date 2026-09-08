@@ -7,7 +7,8 @@ import { PageHeader, SectionHeading, StatusChip, SearchInput, SelectFilter, Filt
 import AccountsPanel from "@/components/system/AccountsPanel";
 import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { useMyRoles } from "@/hooks/useMyRoles";
-import { ChevronRight } from "lucide-react";
+import { logoUrls, initials } from "@/lib/logo";
+import { ChevronRight, LayoutGrid, Rows3 } from "lucide-react";
 
 export type ResidentRecord = {
   id: string;
@@ -17,20 +18,32 @@ export type ResidentRecord = {
   status: string | null;
   email: string | null;
   user_id: string | null;
+  avatar_url: string | null;
   contact_user_id: string | null;
   handler_user_id: string | null;
   notes: string | null;
 };
 
+const VIEW_KEY = "site99:residents-view";
+
 export default function ResidentsHub() {
   const { userId, canSeeFinance } = useMyRoles();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<ResidentRecord[]>([]);
+  const [logos, setLogos] = useState<Record<string, string>>({});
   const [accountCount, setAccountCount] = useState<Record<string, number>>({});
   const [contentCount, setContentCount] = useState<Record<string, number>>({});
   const [contracted, setContracted] = useState<Set<string>>(new Set());
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
+  const [view, setView] = useState<"cards" | "list">(
+    () => (localStorage.getItem(VIEW_KEY) === "list" ? "list" : "cards")
+  );
+
+  useEffect(() => {
+    localStorage.setItem(VIEW_KEY, view);
+  }, [view]);
+
 
   useEffect(() => {
     (async () => {
