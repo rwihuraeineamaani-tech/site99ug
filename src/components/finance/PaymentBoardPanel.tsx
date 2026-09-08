@@ -51,17 +51,44 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
   const [paidOn, setPaidOn] = useState(new Date().toISOString().slice(0, 10));
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [walletId, setWalletId] = useState("");
+  const [pin, setPin] = useState("");
+  const [comment, setComment] = useState("");
+  const [approvers, setApprovers] = useState<Approver[]>([]);
+  const [secondUser, setSecondUser] = useState("");
+  const [secondPin, setSecondPin] = useState("");
+  const [threshold, setThreshold] = useState(1_000_000);
 
   const load = useCallback(async () => {
-    const [{ data: reqs }, { data: lines }, { data: loans }, { data: tx }] = await Promise.all([
+    const [{ data: reqs }, { data: lines }, { data: loans }, { data: bills }, { data: tx }] = await Promise.all([
       supabase.from("cash_requests").select("id, amount_ugx, purpose, requester, status").eq("status", "approved"),
       supabase.from("payment_run_lines").select("id, payee_name, amount_ugx, category, status").eq("status", "approved"),
       supabase.from("loans").select("id, counterparty_name, principal_ugx, status, direction").eq("status", "active"),
+      supabase
+        .from("invoices")
+        .select("id, party_name, total_ugx, amount_paid_ugx, category, number, status, direction")
+        .eq("direction", "in")
+        .in("status", ["approved", "part_paid"]),
       supabase.from("transactions").select("*").order("paid_at", { ascending: false }).limit(40),
     ]);
-    const { data: team } = await supabase.from("team_members").select("user_id, display_name, email");
+    const [{ data: team }, { data: wl }, { data: roleRows }, { data: settings }] = await Promise.all([
+      supabase.from("team_members").select("user_id, display_name, email"),
+      supabase.from("wallets").select("id, name, kind").eq("active", true).order("sort"),
+      supabase.from("user_roles").select("user_id, role").in("role", ["admin", "founder", "managing_director"]),
+      supabase.from("finance_settings").select("dual_pin_threshold_ugx").eq("id", 1).maybeSingle(),
+    ]);
     const names: Record<string, string> = {};
     (team ?? []).forEach((t) => (names[t.user_id] = t.display_name || t.email || "Team member"));
+    setWallets(((wl as Wallet[]) ?? []));
+    setWalletId((w) => w || (wl?.[0]?.id ?? ""));
+    const seen = new Set<string>();
+    setApprovers(
+      ((roleRows as { user_id: string }[]) ?? [])
+        .filter((r) => (seen.has(r.user_id) ? false : (seen.add(r.user_id), true)))
+        .map((r) => ({ user_id: r.user_id, name: names[r.user_id] ?? "Leadership" }))
+    );
+    if (settings?.dual_pin_threshold_ugx) setThreshold(settings.dual_pin_threshold_ugx);
 
     const list: Due[] = [
       ...((reqs ?? []) as { id: string; amount_ugx: number; purpose: string; requester: string }[]).map((r) => ({
@@ -90,6 +117,16 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
           amount: l.principal_ugx,
           what: "Loan to pay out",
         })),
+      ...((bills ?? []) as { id: string; party_name: string; total_ugx: number; amount_paid_ugx: number; number: string | null; category: string }[]).map(
+        (b) => ({
+          key: `i-${b.id}`,
+          source_kind: "invoice" as const,
+          source_id: b.id,
+          payee: b.party_name,
+          amount: b.total_ugx - b.amount_paid_ugx,
+          what: `Bill${b.number ? ` ${b.number}` : ""} · ${b.category.replace(/_/g, " ")}`,
+        })
+      ),
     ];
     setDue(list);
     setTxns(((tx as Txn[]) ?? []));
@@ -99,8 +136,15 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
     load();
   }, [load]);
 
+  const needsSecond = !!open && open.amount >= threshold;
+
   const pay = async () => {
     if (!open) return;
+    if (!walletId) return toast.error("Say which account the money left.");
+    if (!/^\d{6}$/.test(pin)) return toast.error("Enter your six-digit payment PIN.");
+    if (!reference.trim()) return toast.error("A transaction ID is required as evidence.");
+    if (needsSecond && (!secondUser || !/^\d{6}$/.test(secondPin)))
+      return toast.error("A second Founder or MD has to release a payment this size.");
     setBusy(true);
     let invoicePath: string | null = null;
     if (file) {
@@ -117,21 +161,31 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
       _source_kind: open.source_kind,
       _source_id: open.source_id,
       _method: method,
-      _method_reference: reference || undefined,
+      _method_reference: reference.trim(),
       _invoice_no: invoiceNo || undefined,
       _invoice_path: invoicePath || undefined,
+      _note: comment || undefined,
       _paid_on: paidOn || undefined,
+      _wallet_id: walletId,
+      _pin: pin,
+      _second_user: needsSecond ? secondUser : undefined,
+      _second_pin: needsSecond ? secondPin : undefined,
     });
     setBusy(false);
+    setPin("");
+    setSecondPin("");
     if (error) return toast.error(error.message);
     toast.success("Payment recorded.");
     setOpen(null);
     setReference("");
     setInvoiceNo("");
+    setComment("");
+    setSecondUser("");
     setFile(null);
     load();
     onChanged?.();
   };
+
 
   const reverse = async (id: string) => {
     const reason = window.prompt("Why is this being reversed?");
