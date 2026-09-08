@@ -15,11 +15,23 @@ export default function LegalOverview() {
 
   useEffect(() => {
     (async () => {
-      const [c, o] = await Promise.all([
+      const [c, o, rc, res] = await Promise.all([
         supabase.from("contracts").select("id, title, party_name, status, ends_on"),
         supabase.from("compliance_items").select("id, name, renews_on, status"),
+        supabase.from("resident_contracts").select("id, title, status, ends_on, resident_id"),
+        supabase.from("residents").select("id, name"),
       ]);
-      setContracts((c.data as Contract[]) ?? []);
+      const names = new Map(((res.data as { id: string; name: string }[]) ?? []).map((r) => [r.id, r.name]));
+      const residentContracts = ((rc.data as { id: string; title: string; status: string; ends_on: string | null; resident_id: string }[]) ?? []).map(
+        (r) => ({
+          id: r.id,
+          title: r.title,
+          party_name: names.get(r.resident_id) ?? "Resident",
+          status: r.status,
+          ends_on: r.ends_on,
+        })
+      );
+      setContracts([...((c.data as Contract[]) ?? []), ...residentContracts]);
       setItems((o.data as Item[]) ?? []);
       setLoading(false);
     })();
