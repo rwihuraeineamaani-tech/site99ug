@@ -3,17 +3,20 @@ import { todayISO } from "@/lib/deck";
 
 /* ------------------------------------------------------------------ *
  * KPI performance — last 30 days against the 30 before that.
- * All maths lives here so the dashboard panel stays declarative.
+ * Four real studio numbers: posted content, shoots landed,
+ * client numbers filled, follower counts.
  * ------------------------------------------------------------------ */
 
 export type KpiScope = "mine" | "studio";
 
 export type KpiFigure = {
-  key: "output" | "ontime" | "numbers" | "results";
+  key: "posted" | "shoots" | "numbers" | "followers";
   label: string;
   value: string;
   /** Percentage change against the previous window; null when there is no base. */
   delta: number | null;
+  /** Suffix shown after the delta figure. */
+  deltaUnit: "%" | "";
   note: string;
   to: string;
   /** 0–1 health used to name the strongest and weakest area. */
@@ -44,6 +47,13 @@ type MetricRow = {
   followers: number | null;
   reach: number | null;
   filled_by: string | null;
+};
+type ShootRow = {
+  id: string;
+  shoot_date: string | null;
+  status: string;
+  created_by: string | null;
+  confirmed_by: string | null;
 };
 
 export function shiftDays(iso: string, n: number) {
@@ -76,108 +86,127 @@ export type KpiInput = {
   content: ContentRow[];
   crew: CrewRow[];
   metrics: MetricRow[];
+  shoots: ShootRow[];
+  /** shoot day id -> content ids on that day, for "was I on it". */
+  shootItems: { shoot_day_id: string; content_id: string }[];
   /** Account ids the person is responsible for; empty in studio scope means all. */
   myAccountIds: Set<string>;
   pendingWeeks: number;
   windows: KpiWindows;
 };
 
+/** Latest followers per account within a window, summed. */
+function followerTotal(rows: MetricRow[], a: string, b: string) {
+  const latest = new Map<string, MetricRow>();
+  rows
+    .filter((m) => m.followers != null && inRange(m.week_start, a, b))
+    .forEach((m) => {
+      const cur = latest.get(m.account_id);
+      if (!cur || m.week_start > cur.week_start) latest.set(m.account_id, m);
+    });
+  let total = 0;
+  latest.forEach((m) => (total += m.followers ?? 0));
+  return { total, accounts: latest.size };
+}
+
 export function buildKpi(input: KpiInput): KpiData {
-  const { scope, userId, content, crew, metrics, myAccountIds, pendingWeeks, windows } = input;
+  const { scope, userId, content, crew, metrics, shoots, shootItems, myAccountIds, pendingWeeks, windows } = input;
   const prevA = windows.from;
   const prevB = shiftDays(windows.mid, -1);
   const nowA = windows.mid;
   const nowB = windows.to;
+  const studio = scope === "studio";
 
   const mineIds = new Set(crew.filter((c) => c.user_id && c.user_id === userId).map((c) => c.content_id));
-  const rows = scope === "studio" ? content : content.filter((c) => mineIds.has(c.id));
+  const rows = studio ? content : content.filter((c) => mineIds.has(c.id));
 
-  /* 1. Output — pieces posted in the window. */
+  /* 1. Posted content — pieces that went live in the window. */
   const postedNow = rows.filter((c) => inRange(c.posted_at, nowA, nowB));
   const postedPrev = rows.filter((c) => inRange(c.posted_at, prevA, prevB));
 
-  /* 2. On time — of the dated pieces posted, how many landed by their date. */
-  const dated = postedNow.filter((c) => c.planned_at);
-  const onTime = dated.filter((c) => (c.posted_at ?? "").slice(0, 10) <= (c.planned_at ?? "").slice(0, 10));
-  const datedPrev = postedPrev.filter((c) => c.planned_at);
-  const onTimePrev = datedPrev.filter((c) => (c.posted_at ?? "").slice(0, 10) <= (c.planned_at ?? "").slice(0, 10));
-  const rate = dated.length ? Math.round((onTime.length / dated.length) * 100) : null;
-  const ratePrev = datedPrev.length ? Math.round((onTimePrev.length / datedPrev.length) * 100) : null;
-  const slipped = dated.length - onTime.length;
+  /* 2. Shoots landed — shoot days wrapped in the window. */
+  const myShootIds = new Set(
+    shootItems.filter((s) => mineIds.has(s.content_id)).map((s) => s.shoot_day_id)
+  );
+  const myShoot = (s: ShootRow) =>
+    studio || myShootIds.has(s.id) || s.created_by === userId || s.confirmed_by === userId;
+  const done = shoots.filter((s) => s.status === "done" && myShoot(s));
+  const shotNow = done.filter((s) => inRange(s.shoot_date, nowA, nowB));
+  const shotPrev = done.filter((s) => inRange(s.shoot_date, prevA, prevB));
 
-  /* 3. Numbers filled — weekly client numbers this person entered. */
+  /* 3. Client numbers filled — weekly account entries logged. */
   const filled = metrics.filter(
-    (m) => inRange(m.week_start, nowA, nowB) && (scope === "studio" ? !!m.filled_by : m.filled_by === userId)
+    (m) => inRange(m.week_start, nowA, nowB) && (studio ? !!m.filled_by : m.filled_by === userId)
   );
   const filledPrev = metrics.filter(
-    (m) => inRange(m.week_start, prevA, prevB) && (scope === "studio" ? !!m.filled_by : m.filled_by === userId)
+    (m) => inRange(m.week_start, prevA, prevB) && (studio ? !!m.filled_by : m.filled_by === userId)
   );
 
-  /* 4. Client results — reach and follower movement on the accounts in view. */
-  const scoped = metrics.filter((m) => scope === "studio" || myAccountIds.has(m.account_id));
-  const reachNow = scoped
-    .filter((m) => inRange(m.week_start, nowA, nowB))
-    .reduce((s, m) => s + (m.reach ?? 0), 0);
-  const reachPrev = scoped
-    .filter((m) => inRange(m.week_start, prevA, prevB))
-    .reduce((s, m) => s + (m.reach ?? 0), 0);
-
-  const byAccount = new Map<string, MetricRow[]>();
-  scoped
-    .filter((m) => inRange(m.week_start, nowA, nowB) && m.followers != null)
-    .forEach((m) => byAccount.set(m.account_id, [...(byAccount.get(m.account_id) ?? []), m]));
-  let followerMove = 0;
-  byAccount.forEach((list) => {
-    const sorted = [...list].sort((a, b) => a.week_start.localeCompare(b.week_start));
-    followerMove += (sorted[sorted.length - 1].followers ?? 0) - (sorted[0].followers ?? 0);
-  });
+  /* 4. Followers — latest count per account, across the accounts in view. */
+  const scoped = metrics.filter((m) => studio || myAccountIds.has(m.account_id));
+  const nowFollowers = followerTotal(scoped, nowA, nowB);
+  const prevFollowers = followerTotal(scoped, prevA, prevB);
+  const followerMove = nowFollowers.total - prevFollowers.total;
 
   const nf = (n: number) => n.toLocaleString();
 
   const figures: KpiFigure[] = [
     {
-      key: "output",
-      label: "My output",
+      key: "posted",
+      label: "Posted content",
       value: nf(postedNow.length),
       delta: pct(postedNow.length, postedPrev.length),
-      note: postedNow.length === 1 ? "piece posted in 30 days" : "pieces posted in 30 days",
+      deltaUnit: "%",
+      note: `${postedNow.length === 1 ? "piece" : "pieces"} live in 30 days · ${postedPrev.length} before`,
       to: "/app/content",
       score: postedNow.length ? Math.min(1, postedNow.length / 12) : 0,
     },
     {
-      key: "ontime",
-      label: "On time",
-      value: rate === null ? "—" : `${rate}%`,
-      delta: rate === null || ratePrev === null ? null : rate - ratePrev,
-      note: rate === null ? "nothing dated yet" : slipped ? `${slipped} slipped past its date` : "all landed on the day",
-      to: "/app/calendar",
-      score: rate === null ? null : rate / 100,
+      key: "shoots",
+      label: "Shoots landed",
+      value: nf(shotNow.length),
+      delta: pct(shotNow.length, shotPrev.length),
+      deltaUnit: "%",
+      note: shotNow.length
+        ? `${shotNow.length === 1 ? "shoot day" : "shoot days"} wrapped · ${shotPrev.length} before`
+        : "no shoot days wrapped yet",
+      to: "/app/shoots",
+      score: shotNow.length ? Math.min(1, shotNow.length / 8) : 0,
     },
     {
       key: "numbers",
-      label: "Numbers filled",
+      label: "Client numbers filled",
       value: nf(filled.length),
       delta: pct(filled.length, filledPrev.length),
+      deltaUnit: "%",
       note: pendingWeeks ? `${pendingWeeks} still waiting on you` : "nothing outstanding",
-      to: "/app/content",
+      to: "/app/residents",
       score: filled.length + pendingWeeks ? filled.length / (filled.length + pendingWeeks) : null,
     },
     {
-      key: "results",
-      label: "Client results",
-      value: reachNow ? nf(reachNow) : "—",
-      delta: pct(reachNow, reachPrev),
-      note: reachNow
-        ? `reach · ${followerMove >= 0 ? "+" : ""}${nf(followerMove)} followers`
-        : "no numbers logged yet",
+      key: "followers",
+      label: "Followers",
+      value: nowFollowers.accounts ? nf(nowFollowers.total) : "—",
+      delta: nowFollowers.accounts && prevFollowers.accounts ? followerMove : null,
+      deltaUnit: "",
+      note: nowFollowers.accounts
+        ? `across ${nowFollowers.accounts} account${nowFollowers.accounts === 1 ? "" : "s"}${
+            prevFollowers.accounts ? ` · ${followerMove >= 0 ? "+" : ""}${nf(followerMove)} in 30 days` : ""
+          }`
+        : "no follower counts logged yet",
       to: "/app/residents",
-      score: reachNow ? (reachPrev ? Math.min(1, reachNow / Math.max(reachPrev, 1) / 2) : 0.6) : null,
+      score: nowFollowers.accounts ? (followerMove > 0 ? 1 : followerMove === 0 ? 0.5 : 0.2) : null,
     },
   ];
 
   const scored = figures.filter((f) => f.score !== null) as (KpiFigure & { score: number })[];
   const sorted = [...scored].sort((a, b) => b.score - a.score);
-  const empty = postedNow.length === 0 && postedPrev.length === 0 && filled.length === 0 && reachNow === 0;
+  const empty =
+    postedNow.length === 0 &&
+    postedPrev.length === 0 &&
+    shotNow.length === 0 &&
+    filled.length === 0 &&
+    nowFollowers.accounts === 0;
 
   return {
     figures,
@@ -191,12 +220,14 @@ export type KpiRaw = {
   content: ContentRow[];
   crew: CrewRow[];
   metrics: MetricRow[];
+  shoots: ShootRow[];
+  shootItems: { shoot_day_id: string; content_id: string }[];
   myAccountIds: Set<string>;
 };
 
 /** One trip for everything the panel needs; all tables are staff-readable. */
 export async function loadKpiRaw(userId: string, windows: KpiWindows): Promise<KpiRaw> {
-  const [content, crew, metrics, assigns, accounts] = await Promise.all([
+  const [content, crew, metrics, assigns, accounts, shoots, shootItems] = await Promise.all([
     supabase
       .from("content_items")
       .select("id, posted_at, planned_at, metrics_due_at, metrics_filled_at, resident_id")
@@ -208,6 +239,11 @@ export async function loadKpiRaw(userId: string, windows: KpiWindows): Promise<K
       .gte("week_start", windows.from),
     supabase.from("client_assignments").select("resident_id").eq("user_id", userId),
     supabase.from("client_accounts").select("id, resident_id"),
+    supabase
+      .from("shoot_days")
+      .select("id, shoot_date, status, created_by, confirmed_by")
+      .gte("shoot_date", windows.from),
+    supabase.from("shoot_day_items").select("shoot_day_id, content_id"),
   ]);
 
   const myResidents = new Set(((assigns.data as { resident_id: string }[]) ?? []).map((a) => a.resident_id));
@@ -221,6 +257,8 @@ export async function loadKpiRaw(userId: string, windows: KpiWindows): Promise<K
     content: (content.data as ContentRow[]) ?? [],
     crew: (crew.data as CrewRow[]) ?? [],
     metrics: (metrics.data as MetricRow[]) ?? [],
+    shoots: (shoots.data as ShootRow[]) ?? [],
+    shootItems: (shootItems.data as { shoot_day_id: string; content_id: string }[]) ?? [],
     myAccountIds,
   };
 }
