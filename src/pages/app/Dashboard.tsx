@@ -130,6 +130,40 @@ export default function Dashboard() {
     [flow, resLinks, myCrew, userId, isFounder, amContact, amHandler]
   );
 
+  /** The same jobs, split into late / today / next, with a client and a due line. */
+  const waitingGroups = useMemo(() => {
+    const t = todayISO();
+    const nameOf = new Map(resLinks.map((r) => [r.id, r.name]));
+    const dayGap = (d: string) =>
+      Math.round((Date.parse(`${d}T00:00:00Z`) - Date.parse(`${t}T00:00:00Z`)) / 86400000);
+
+    const rows = waiting.map(({ item, why, due }) => {
+      const d = due ? due.slice(0, 10) : null;
+      const gap = d ? dayGap(d) : null;
+      const urgency: "late" | "today" | "soon" = gap === null ? "soon" : gap < 0 ? "late" : gap === 0 ? "today" : "soon";
+      const dueLabel =
+        gap === null
+          ? null
+          : gap < 0
+            ? `${Math.abs(gap)} day${Math.abs(gap) === 1 ? "" : "s"} late`
+            : gap === 0
+              ? "today"
+              : gap === 1
+                ? "tomorrow"
+                : `in ${gap} days`;
+      return { item, why, urgency, dueLabel, client: item.resident_id ? nameOf.get(item.resident_id) ?? null : null };
+    });
+
+    return (
+      [
+        { key: "late", label: "Late", rows: rows.filter((r) => r.urgency === "late") },
+        { key: "today", label: "Today", rows: rows.filter((r) => r.urgency === "today") },
+        { key: "soon", label: "Next up", rows: rows.filter((r) => r.urgency === "soon").slice(0, 8) },
+      ] as const
+    ).filter((g) => g.rows.length > 0);
+  }, [waiting, resLinks]);
+
+
   const live = flow.filter((f) => LIVE.includes(f.stage));
   const mine = new Set(myCrew.map((c) => c.content_id));
   const onMyPlate = live.filter((f) => mine.has(f.id));
