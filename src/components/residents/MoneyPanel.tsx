@@ -80,7 +80,7 @@ export default function MoneyPanel({
 
   return (
     <section className="space-y-4">
-      <SectionHeading index={index} title="Client money pot" note="Money the client has put in, and what it has paid for." />
+      <SectionHeading index={index} title="Client money pot" hint="money in, money out" />
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-rule bg-paper-raised p-4">
