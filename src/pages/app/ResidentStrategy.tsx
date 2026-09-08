@@ -80,7 +80,7 @@ export default function ResidentStrategyPage() {
   const { id = "" } = useParams();
   const { isLeadership, assignments, userId, isStrategyTeam, canApproveStrategy } = useMyRoles();
   const [plan, setPlan] = useState<ClientPlan | null>(null);
-  const canManage = isLeadership || assignments.some((a) => a.resident_id === id);
+  const canManage = isLeadership || isStrategyTeam || assignments.some((a) => a.resident_id === id);
 
   const today = todayISO();
   const [month, setMonth] = useState(() => monthOf(today));
