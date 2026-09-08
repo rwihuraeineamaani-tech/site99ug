@@ -47,6 +47,7 @@ import {
   REVIEW_LABEL,
   REVIEW_TONE,
   ensurePlan,
+  loadPlan,
   reviewState,
   setReview,
   type ClientPlan,
@@ -299,6 +300,29 @@ export default function ResidentStrategyPage() {
     return { actual, p, health: goalHealth(g, p, today) };
   };
 
+  const planState = reviewState(plan?.review_state);
+
+  const movePlan = async (next: "submitted" | "approved" | "changes_requested") => {
+    setBusy(true);
+    try {
+      const row = plan ?? (await ensurePlan(id));
+      let note: string | null | undefined;
+      if (next === "changes_requested") {
+        note = window.prompt("What should change?") || null;
+        if (!note) {
+          setBusy(false);
+          return;
+        }
+      }
+      await setReview("client_plans", row.id, next, note);
+      setPlan(await loadPlan(id));
+      toast.success(next === "approved" ? "Plan approved" : next === "submitted" ? "Sent to the founders" : "Sent back");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+    setBusy(false);
+  };
+
   const activeGoals = goals.filter((g) => g.status === "active");
   const otherGoals = goals.filter((g) => g.status !== "active");
 
@@ -316,11 +340,45 @@ export default function ResidentStrategyPage() {
         <div id="strategy-print">
           <PageHeader
             eyebrow="Strategy"
+            actions={
+              <Link to="/app/strategy" className="press focus-ring text-xs text-ink-soft no-print">
+                Strategy section →
+              </Link>
+            }
             title={`${residentName}.`}
             lede={`${activeGoals.length} live goal${activeGoals.length === 1 ? "" : "s"} · ${monthTargets.length} target${
               monthTargets.length === 1 ? "" : "s"
             } for ${monthLabel(month)}`}
           />
+
+          {/* ---------------- sign-off ---------------- */}
+          <div className="surface rounded-2xl p-5 mb-10 flex items-center gap-3 flex-wrap">
+            <span className="text-sm font-semibold">Plan sign-off</span>
+            <StatusChip value={REVIEW_LABEL[planState]} tone={REVIEW_TONE[planState]} />
+            {plan?.review_note && planState === "changes_requested" && (
+              <span className="text-[11px] text-ink-soft">“{plan.review_note}”</span>
+            )}
+            <span className="text-[11px] text-ink-faint">
+              Only approved goals and targets count towards the studio dashboard.
+            </span>
+            <span className="ml-auto flex items-center gap-2 no-print">
+              {isStrategyTeam && planState !== "submitted" && planState !== "approved" && (
+                <Button size="sm" variant="soft" onClick={() => movePlan("submitted")} disabled={busy}>
+                  Send plan for sign-off
+                </Button>
+              )}
+              {canApproveStrategy && planState === "submitted" && (
+                <>
+                  <Button size="sm" onClick={() => movePlan("approved")} disabled={busy}>
+                    Approve plan
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => movePlan("changes_requested")} disabled={busy}>
+                    Send back
+                  </Button>
+                </>
+              )}
+            </span>
+          </div>
 
           {/* ---------------- goals ---------------- */}
           <SectionHeading index="01" title="Goals" hint={`${goals.length} in total`} />
