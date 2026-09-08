@@ -10,7 +10,9 @@ import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
-import { ArrowLeft, FileText, Target, Upload } from "lucide-react";
+import { ArrowLeft, FileText, Target } from "lucide-react";
+import BrandGuidelines from "@/components/residents/BrandGuidelines";
+import { logoUrl, initials } from "@/lib/logo";
 import type { ResidentRecord } from "./Residents";
 
 type Member = { user_id: string; display_name: string | null; email: string; title: string | null };
@@ -44,12 +46,12 @@ const field = "field text-sm";
 const ugx = (n: number | null) => (n === null ? "—" : `UGX ${n.toLocaleString()}`);
 const day = (d: string | null) => (d ? new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—");
 
-const emptyContract = { title: "", starts_on: "", ends_on: "", value_ugx: "", notes: "" };
 
 export default function ResidentRecordPage() {
   const { id = "" } = useParams();
   const { isLeadership, canSeeFinance, has } = useMyRoles();
   const canManageContracts = isLeadership || canSeeFinance || has("legal");
+  const isAdmin = has("admin");
 
   const [loading, setLoading] = useState(true);
   const [resident, setResident] = useState<ResidentRecord | null>(null);
@@ -60,8 +62,7 @@ export default function ResidentRecordPage() {
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
 
-  const [form, setForm] = useState(emptyContract);
-  const [file, setFile] = useState<File | null>(null);
+  const [logo, setLogo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -83,6 +84,7 @@ export default function ResidentRecordPage() {
     ]);
     const r = ((res as unknown as ResidentRecord[]) ?? []).find((x) => x.id === id) ?? null;
     setResident(r);
+    setLogo(await logoUrl(r?.avatar_url ?? null));
     setNotes(r?.notes ?? "");
     setMembers((team as unknown as Member[]) ?? []);
     setItems((content as unknown as Item[]) ?? []);
@@ -364,12 +366,12 @@ export default function ResidentRecordPage() {
 
           {(canSeeFinance || isLeadership) && (
             <div className="mt-14">
-              <ClientPayPanel residentId={id} index="06" />
+              <ClientPayPanel residentId={id} index="07" />
             </div>
           )}
 
           <div className="mt-14">
-            <SectionHeading index="07" title="Notes" hint="Internal only" />
+            <SectionHeading index="08" title="Notes" hint="Internal only" />
             <div className="surface rounded-2xl p-5 space-y-3">
               <textarea
                 rows={4}
