@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.strategy_review_guard() FROM PUBLIC, anon, authenticated;

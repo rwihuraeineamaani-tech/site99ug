@@ -17,6 +17,7 @@ import { refCode } from "@/lib/contentFlow";
 import { weekLabel } from "@/lib/weeks";
 import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
 import { buildWaiting, type FlowRow, type ResidentLink } from "@/lib/inbox";
+import { buildGreeting } from "@/lib/greeting";
 import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
 
 type PendingWeek = {
@@ -216,10 +217,42 @@ export default function Dashboard() {
     [weekEntries]
   );
 
-  const tagline = waiting.length
+  const kampalaNow = useMemo(() => {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Africa/Kampala",
+      hour: "2-digit",
+      hour12: false,
+      weekday: "short",
+      day: "numeric",
+      month: "numeric",
+    }).formatToParts(new Date());
+    const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+    const weekdayIdx = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(get("weekday"));
+    return {
+      hour: Number(get("hour")) || 0,
+      weekday: weekdayIdx < 0 ? new Date().getDay() : weekdayIdx,
+      dayOfMonth: Number(get("day")) || 1,
+      month: (Number(get("month")) || 1) - 1,
+    };
+  }, []);
 
-    ? `${waiting.length} thing${waiting.length === 1 ? "" : "s"} need${waiting.length === 1 ? "s" : ""} you before anything else today.`
-    : "Nothing is blocked on you right now. Here is where everything stands.";
+  const shootsToday = useMemo(
+    () => weekEntries.filter((e) => e.kind === "shoot" && e.date === todayISO()).length,
+    [weekEntries]
+  );
+
+  const { headline, note: tagline } = buildGreeting({
+    name: displayName || email || "there",
+    hour: kampalaNow.hour,
+    weekday: kampalaNow.weekday,
+    dayOfMonth: kampalaNow.dayOfMonth,
+    month: kampalaNow.month,
+    roleLabel: titles[0],
+    waiting: waiting.length,
+    onMyPlate: onMyPlate.length,
+    shootsToday,
+    eventsThisWeek: thisWeek.length,
+  });
 
   return (
     <AppShell>
@@ -229,6 +262,7 @@ export default function Dashboard() {
         name={displayName || email || "there"}
         titles={titles}
         tagline={tagline}
+        headline={headline}
         actions={
           <Link
             to="/app/calendar"

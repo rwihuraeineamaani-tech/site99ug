@@ -28,6 +28,10 @@ import {
   Megaphone,
   UserCog,
   Inbox,
+  Target,
+  Workflow,
+  Compass,
+  BadgeCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -43,6 +47,7 @@ import {
 
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { useInbox } from "@/hooks/useInbox";
+import { useStrategyWaiting } from "@/hooks/useStrategyWaiting";
 import logo from "@/assets/site99-logo.png";
 import {
   Sidebar,
@@ -64,6 +69,7 @@ type ShellNavGroup = { label: string; items: ShellNavItem[] };
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance } = useMyRoles();
   const { unread } = useInbox(true);
+  const strategyWaiting = useStrategyWaiting(isLeadership);
 
   if (nav) return [{ label: "Menu", items: nav }];
 
@@ -110,6 +116,16 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       ]
     : [];
   if (legal.length) groups.push({ label: "Legal", items: legal });
+
+  groups.push({
+    label: "Strategy",
+    items: [
+      { to: "/app/strategy", label: "Overview", end: true, icon: Compass },
+      { to: "/app/strategy/map", label: "Map builder", icon: Workflow },
+      { to: "/app/strategy/goals", label: "Goals & targets", icon: Target },
+      { to: "/app/strategy/approvals", label: "Approvals", icon: BadgeCheck, badge: strategyWaiting },
+    ],
+  });
 
   const ops: ShellNavItem[] = departments.ops
     ? [

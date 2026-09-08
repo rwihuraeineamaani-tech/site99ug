@@ -66,6 +66,10 @@ import FinanceTransaction from "./pages/app/FinanceTransaction.tsx";
 import ResidentsHub from "./pages/app/Residents.tsx";
 import ResidentRecordPage from "./pages/app/ResidentRecord.tsx";
 import ResidentStrategyPage from "./pages/app/ResidentStrategy.tsx";
+import StrategyOverview from "./pages/app/strategy/Overview.tsx";
+import StrategyMapBuilder from "./pages/app/strategy/MapBuilder.tsx";
+import StrategyGoals from "./pages/app/strategy/Goals.tsx";
+import StrategyApprovals from "./pages/app/strategy/Approvals.tsx";
 import InboxPage from "./pages/app/Inbox.tsx";
 
 import Shoots from "./pages/app/Shoots.tsx";
@@ -160,6 +164,10 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        <Route path="/app/strategy" element={<RequireRole gate="staff"><StrategyOverview /></RequireRole>} />
+        <Route path="/app/strategy/map" element={<RequireRole gate="staff"><StrategyMapBuilder /></RequireRole>} />
+        <Route path="/app/strategy/goals" element={<RequireRole gate="staff"><StrategyGoals /></RequireRole>} />
+        <Route path="/app/strategy/approvals" element={<RequireRole gate="staff"><StrategyApprovals /></RequireRole>} />
         <Route
           path="/app/residents/:id/strategy"
           element={
