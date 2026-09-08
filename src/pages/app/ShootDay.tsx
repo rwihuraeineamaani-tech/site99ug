@@ -253,7 +253,7 @@ export default function ShootDayRun() {
 
   return (
     <AppShell>
-      <Seo title={`Shoot day · ${ownerName} · Site 99`} description="Run the shoot day: what was shot, what was spent, and wrap." />
+      <Seo title={`Shoot day · ${ownerName} · Site 99`} description="Run the shoot day: what was shot, what was spent, and wrap." path={`/app/shoots/${dayId}`} />
 
       <PageHeader
         eyebrow="Shoot day"
