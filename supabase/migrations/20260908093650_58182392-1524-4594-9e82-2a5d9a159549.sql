@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.record_payment(text, uuid, text, text, text, text, text, date);
