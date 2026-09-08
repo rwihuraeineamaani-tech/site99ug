@@ -60,6 +60,8 @@ import FinanceLoans from "./pages/app/finance/Loans.tsx";
 import FinanceBudgets from "./pages/app/finance/Budgets.tsx";
 import FinanceReports from "./pages/app/finance/Reports.tsx";
 import FinanceLookup from "./pages/app/finance/Lookup.tsx";
+import FinanceFiling from "./pages/app/finance/Filing.tsx";
+import FinanceInvoices from "./pages/app/finance/Invoices.tsx";
 import FinanceTransaction from "./pages/app/FinanceTransaction.tsx";
 import ResidentsHub from "./pages/app/Residents.tsx";
 import ResidentRecordPage from "./pages/app/ResidentRecord.tsx";
@@ -285,6 +287,22 @@ const AnimatedRoutes = () => {
           element={
             <RequireRole gate="finance">
               <FinanceOverview />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/invoices"
+          element={
+            <RequireRole gate="finance">
+              <FinanceInvoices />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/finance/filing"
+          element={
+            <RequireRole gate="finance">
+              <FinanceFiling />
             </RequireRole>
           }
         />

@@ -66,7 +66,9 @@ export const SOURCE_LABEL: Record<string, string> = {
   run_line: "Monthly payment",
   loan_disbursement: "Loan paid out",
   loan_repayment: "Loan repayment",
+  invoice: "Supplier bill",
   reversal: "Reversal",
+
 };
 
 export function monthKey(d: Date | string) {

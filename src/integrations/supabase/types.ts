@@ -1391,6 +1391,27 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_settings: {
+        Row: {
+          dual_pin_threshold_ugx: number
+          id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          dual_pin_threshold_ugx?: number
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          dual_pin_threshold_ugx?: number
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       inbox_messages: {
         Row: {
           audience: string
@@ -1509,6 +1530,200 @@ export type Database = {
             columns: ["message_id"]
             isOneToOne: false
             referencedRelation: "inbox_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_counters: {
+        Row: {
+          n: number
+          period: string
+        }
+        Insert: {
+          n?: number
+          period: string
+        }
+        Update: {
+          n?: number
+          period?: string
+        }
+        Relationships: []
+      }
+      invoice_lines: {
+        Row: {
+          amount_ugx: number
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string
+          qty: number
+          sort: number
+          unit_price_ugx: number
+          updated_at: string
+        }
+        Insert: {
+          amount_ugx?: number
+          created_at?: string
+          description: string
+          id?: string
+          invoice_id: string
+          qty?: number
+          sort?: number
+          unit_price_ugx?: number
+          updated_at?: string
+        }
+        Update: {
+          amount_ugx?: number
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string
+          qty?: number
+          sort?: number
+          unit_price_ugx?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_lines_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          amount_paid_ugx: number
+          approved_at: string | null
+          approved_by: string | null
+          category: string
+          client_id: string | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          direction: string
+          due_date: string | null
+          file_path: string | null
+          id: string
+          issue_date: string
+          next_run_on: string | null
+          note: string | null
+          number: string | null
+          party_kind: string
+          party_name: string
+          period_label: string | null
+          recur_day: number | null
+          recur_parent_id: string | null
+          recurring: boolean
+          resident_id: string | null
+          sent_at: string | null
+          status: string
+          subtotal_ugx: number
+          total_ugx: number
+          updated_at: string
+          vat_rate: number
+          vat_ugx: number
+        }
+        Insert: {
+          amount_paid_ugx?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string
+          client_id?: string | null
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          direction: string
+          due_date?: string | null
+          file_path?: string | null
+          id?: string
+          issue_date?: string
+          next_run_on?: string | null
+          note?: string | null
+          number?: string | null
+          party_kind?: string
+          party_name: string
+          period_label?: string | null
+          recur_day?: number | null
+          recur_parent_id?: string | null
+          recurring?: boolean
+          resident_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subtotal_ugx?: number
+          total_ugx?: number
+          updated_at?: string
+          vat_rate?: number
+          vat_ugx?: number
+        }
+        Update: {
+          amount_paid_ugx?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string
+          client_id?: string | null
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          due_date?: string | null
+          file_path?: string | null
+          id?: string
+          issue_date?: string
+          next_run_on?: string | null
+          note?: string | null
+          number?: string | null
+          party_kind?: string
+          party_name?: string
+          period_label?: string | null
+          recur_day?: number | null
+          recur_parent_id?: string | null
+          recurring?: boolean
+          resident_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subtotal_ugx?: number
+          total_ugx?: number
+          updated_at?: string
+          vat_rate?: number
+          vat_ugx?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_recur_parent_id_fkey"
+            columns: ["recur_parent_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
             referencedColumns: ["id"]
           },
         ]
@@ -1839,6 +2054,33 @@ export type Database = {
           status?: string
           terms?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_pins: {
+        Row: {
+          created_at: string
+          failed_count: number
+          locked_until: string | null
+          pin_hash: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          failed_count?: number
+          locked_until?: string | null
+          pin_hash: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          failed_count?: number
+          locked_until?: string | null
+          pin_hash?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2634,6 +2876,7 @@ export type Database = {
           created_at: string
           direction: string
           id: string
+          invoice_id: string | null
           invoice_no: string | null
           invoice_path: string | null
           method: string | null
@@ -2644,10 +2887,12 @@ export type Database = {
           payee_kind: string
           payee_name: string
           payee_user_id: string | null
+          released_by_2: string | null
           reverses_txn_id: string | null
           source_id: string | null
           source_kind: string
           txn_ref: string
+          wallet_id: string | null
         }
         Insert: {
           amount_ugx: number
@@ -2655,6 +2900,7 @@ export type Database = {
           created_at?: string
           direction?: string
           id?: string
+          invoice_id?: string | null
           invoice_no?: string | null
           invoice_path?: string | null
           method?: string | null
@@ -2665,10 +2911,12 @@ export type Database = {
           payee_kind?: string
           payee_name: string
           payee_user_id?: string | null
+          released_by_2?: string | null
           reverses_txn_id?: string | null
           source_id?: string | null
           source_kind: string
           txn_ref: string
+          wallet_id?: string | null
         }
         Update: {
           amount_ugx?: number
@@ -2676,6 +2924,7 @@ export type Database = {
           created_at?: string
           direction?: string
           id?: string
+          invoice_id?: string | null
           invoice_no?: string | null
           invoice_path?: string | null
           method?: string | null
@@ -2686,17 +2935,33 @@ export type Database = {
           payee_kind?: string
           payee_name?: string
           payee_user_id?: string | null
+          released_by_2?: string | null
           reverses_txn_id?: string | null
           source_id?: string | null
           source_kind?: string
           txn_ref?: string
+          wallet_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "transactions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "transactions_reverses_txn_id_fkey"
             columns: ["reverses_txn_id"]
             isOneToOne: false
             referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
             referencedColumns: ["id"]
           },
         ]
@@ -2921,6 +3186,10 @@ export type Database = {
         Returns: boolean
       }
       can_view_content: { Args: { _user_id: string }; Returns: boolean }
+      check_payment_pin: {
+        Args: { _pin: string; _user_id: string }
+        Returns: boolean
+      }
       client_pay_overview: {
         Args: never
         Returns: {
@@ -3085,7 +3354,9 @@ export type Database = {
           resident_name: string
         }[]
       }
+      next_invoice_number: { Args: never; Returns: string }
       ops_overview: { Args: never; Returns: Json }
+      raise_recurring_invoices: { Args: never; Returns: number }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -3113,8 +3384,12 @@ export type Database = {
           _method_reference?: string
           _note?: string
           _paid_on?: string
+          _pin?: string
+          _second_pin?: string
+          _second_user?: string
           _source_id: string
           _source_kind: string
+          _wallet_id?: string
         }
         Returns: string
       }
@@ -3159,9 +3434,24 @@ export type Database = {
         Args: { _people: Json; _resident_id: string; _retainer_ugx: number }
         Returns: undefined
       }
+      set_payment_pin: {
+        Args: { _current_pin?: string; _pin: string }
+        Returns: undefined
+      }
       set_resident_notes: {
         Args: { _notes: string; _resident_id: string }
         Returns: undefined
+      }
+      settle_invoice: {
+        Args: {
+          _amount: number
+          _invoice_id: string
+          _note?: string
+          _paid_on?: string
+          _reference: string
+          _wallet_id: string
+        }
+        Returns: string
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }

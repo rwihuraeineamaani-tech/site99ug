@@ -29,7 +29,7 @@ function initialsOf(name: string) {
 }
 
 export default function Settings() {
-  const { userId, email, displayName, title, roles, departments, reload } = useMyRoles();
+  const { userId, email, displayName, title, roles, departments, reload, canSeeFinance, has } = useMyRoles();
   const [tab, setTab] = useState<Tab>("profile");
 
   // Profile
@@ -50,6 +50,14 @@ export default function Settings() {
   const [newEmail, setNewEmail] = useState("");
   const [savingEmail, setSavingEmail] = useState(false);
 
+  // Payment PIN
+  const [hasPin, setHasPin] = useState(false);
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [savingPin, setSavingPin] = useState(false);
+
+
   useEffect(() => {
     if (!userId) return;
     let cancel = false;
@@ -68,6 +76,8 @@ export default function Settings() {
         setThemeState(row.theme);
         setTheme(row.theme);
       }
+      const { data: pinRow } = await supabase.from("payment_pins").select("user_id").eq("user_id", userId).maybeSingle();
+      if (!cancel) setHasPin(!!pinRow);
     })();
     return () => {
       cancel = true;
@@ -103,6 +113,33 @@ export default function Settings() {
     setSavingTheme(false);
     if (error) toast.error("Saved on this device only: " + error.message);
   };
+
+  const savePin = async () => {
+    if (!/^\d{6}$/.test(newPin)) {
+      toast.error("The PIN has to be six digits.");
+      return;
+    }
+    if (newPin !== confirmPin) {
+      toast.error("The two PINs don't match.");
+      return;
+    }
+    setSavingPin(true);
+    const { error } = await supabase.rpc("set_payment_pin", {
+      _pin: newPin,
+      _current_pin: currentPin || undefined,
+    });
+    setSavingPin(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setCurrentPin("");
+    setNewPin("");
+    setConfirmPin("");
+    setHasPin(true);
+    toast.success("Payment PIN saved.");
+  };
+
 
   const changePassword = async () => {
     if (newPw.length < 8) {
@@ -326,7 +363,59 @@ export default function Settings() {
                 </Button>
               </div>
             </DeckPanel>
+
+            {(canSeeFinance || has("admin", "founder", "managing_director")) && (
+              <DeckPanel index="06" title="Payment PIN">
+                <div className="surface rounded-xl p-5 space-y-4">
+                  <p className="text-sm text-ink-soft">
+                    Money only leaves an account when this six-digit PIN is typed in. Anything at or above the agreed
+                    limit also needs a second PIN from a founder or the managing director. Three wrong tries locks it
+                    for fifteen minutes. {hasPin ? "You already have a PIN set." : "You have not set one yet."}
+                  </p>
+                  {hasPin && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="cpin">Current PIN</Label>
+                      <Input
+                        id="cpin"
+                        type="password"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={currentPin}
+                        onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ""))}
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="npin">New PIN</Label>
+                    <Input
+                      id="npin"
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={newPin}
+                      onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="rpin">Confirm new PIN</Label>
+                    <Input
+                      id="rpin"
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={confirmPin}
+                      onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
+                    />
+                  </div>
+                  <Button onClick={savePin} disabled={savingPin}>
+                    {savingPin ? "Saving…" : hasPin ? "Change PIN" : "Set PIN"}
+                  </Button>
+                  <p className="text-xs text-ink-faint">Never share it. Nobody, including us, can read it back.</p>
+                </div>
+              </DeckPanel>
+            )}
           </>
+
         )}
       </div>
     </AppShell>
