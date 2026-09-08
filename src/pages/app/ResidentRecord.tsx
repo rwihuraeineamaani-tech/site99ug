@@ -183,7 +183,32 @@ export default function ResidentRecordPage() {
             }`}
           />
 
-          <div className="flex flex-wrap items-center gap-3 mb-8">
+          <div className="flex flex-wrap items-center gap-4 mb-8">
+            <span className="h-16 w-16 rounded-2xl surface-sunken overflow-hidden flex items-center justify-center shrink-0">
+              {logo ? (
+                <img src={logo} alt={`${resident.name} logo`} className="h-full w-full object-contain" />
+              ) : (
+                <span className="display text-base text-ink-soft">{initials(resident.name)}</span>
+              )}
+            </span>
+            {isAdmin && (
+              <label className="text-xs text-ink-soft">
+                <span className="eyebrow text-[10px] text-ink-faint block">
+                  {logo ? "Replace the logo" : "Add a logo"}
+                </span>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  disabled={busy}
+                  className="text-xs mt-1 block"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) uploadLogo(f);
+                  }}
+                />
+              </label>
+            )}
             <Link to={`/app/residents/${id}/strategy`} className="focus-ring rounded-full">
               <Button size="sm" className="gap-2">
                 <Target className="h-4 w-4" /> Strategy, goals & targets
@@ -191,6 +216,7 @@ export default function ResidentRecordPage() {
             </Link>
             <span className="text-[11px] text-ink-faint">Set what we're aiming for and map how the work flows.</span>
           </div>
+
 
           <SectionHeading index="00" title="Overview" />
           <div className="surface rounded-2xl p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
