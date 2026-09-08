@@ -12,6 +12,7 @@ import { useMyRoles } from "@/hooks/useMyRoles";
 import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
 import { ArrowLeft, FileText, Target } from "lucide-react";
 import BrandGuidelines from "@/components/residents/BrandGuidelines";
+import MoneyPanel from "@/components/residents/MoneyPanel";
 import { logoUrl, initials } from "@/lib/logo";
 import type { ResidentRecord } from "./Residents";
 
@@ -49,7 +50,7 @@ const day = (d: string | null) => (d ? new Date(d).toLocaleDateString(undefined,
 
 export default function ResidentRecordPage() {
   const { id = "" } = useParams();
-  const { isLeadership, canSeeFinance, has } = useMyRoles();
+  const { isLeadership, canSeeFinance, has, userId } = useMyRoles();
   const canManageContracts = isLeadership || canSeeFinance || has("legal");
   const isAdmin = has("admin");
 
@@ -324,8 +325,8 @@ export default function ResidentRecordPage() {
                     <StatusChip value={d.status} />
                     {d.call_time && <span className="text-[11px] text-ink-faint num">call {d.call_time}</span>}
                     <span className="text-xs text-ink-soft truncate">{d.location ?? "—"}</span>
-                    <Link to="/app/shoots" className="press ml-auto text-xs underline underline-offset-4 focus-ring">
-                      Open
+                    <Link to={`/app/shoots/${d.id}`} className="press ml-auto text-xs underline underline-offset-4 focus-ring">
+                      Run the day
                     </Link>
                   </li>
                 ))}
@@ -334,7 +335,15 @@ export default function ResidentRecordPage() {
           </div>
 
           <div className="mt-14">
-            <SectionHeading index="05" title="Contracts" hint="managed in Legal" />
+            <MoneyPanel
+              residentId={id}
+              index="05"
+              canTopUp={isLeadership || canSeeFinance || resident.handler_user_id === userId || resident.contact_user_id === userId}
+            />
+          </div>
+
+          <div className="mt-14">
+            <SectionHeading index="06" title="Contracts" hint="managed in Legal" />
             <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
               {active.map(contractRow)}
               {active.length === 0 && <li className="px-5 py-4 text-sm text-ink-soft">No active contract on file.</li>}
@@ -360,18 +369,18 @@ export default function ResidentRecordPage() {
           </div>
 
           <div className="mt-14">
-            <BrandGuidelines residentId={id} residentName={resident.name} index="06" />
+            <BrandGuidelines residentId={id} residentName={resident.name} index="07" />
           </div>
 
 
           {(canSeeFinance || isLeadership) && (
             <div className="mt-14">
-              <ClientPayPanel residentId={id} index="07" />
+              <ClientPayPanel residentId={id} index="08" />
             </div>
           )}
 
           <div className="mt-14">
-            <SectionHeading index="08" title="Notes" hint="Internal only" />
+            <SectionHeading index="09" title="Notes" hint="Internal only" />
             <div className="surface rounded-2xl p-5 space-y-3">
               <textarea
                 rows={4}

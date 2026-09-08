@@ -641,6 +641,13 @@ export default function Shoots() {
                 <DialogTitle>{ownerName(open)}</DialogTitle>
               </DialogHeader>
 
+              <a
+                href={`/app/shoots/${open.id}`}
+                className="inline-flex w-fit items-center gap-2 rounded-full border border-signal/40 bg-signal/10 px-3 py-1.5 text-xs text-signal press focus-ring"
+              >
+                Run this day — what was shot & what was spent
+              </a>
+
               <div className="grid gap-3 sm:grid-cols-3">
                 <label className="text-sm">
                   <span className="eyebrow text-ink-faint">Date</span>
