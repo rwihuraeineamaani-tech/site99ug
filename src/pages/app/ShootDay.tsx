@@ -194,8 +194,54 @@ export default function ShootDayRun() {
 
   const canRun = canEditContent || amCrew;
   const canLogSpend = canRun || canSeeFinance || isLeadership;
+  const canTakePayment = canSeeFinance || isLeadership || canEditContent;
   const totals = useMemo(() => dayTotals(spend), [spend]);
+  const budget = useMemo(() => budgetState(day?.budget_ugx ?? 0, totals.total), [day?.budget_ugx, totals.total]);
+  const paidInHere = useMemo(
+    () => dayFunds.reduce((a, f) => a + (f.direction === "top_up" ? f.amount_ugx : -f.amount_ugx), 0),
+    [dayFunds]
+  );
   const unmarked = pieces.filter((p) => p.outcome === "planned").length;
+
+  const saveBudget = async () => {
+    setBusy(true);
+    const { error } = await supabase
+      .from("shoot_days")
+      .update({ budget_ugx: Math.round(Number(bd.amount) || 0), budget_note: bd.note || null } as never)
+      .eq("id", dayId);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Budget saved");
+    setBudgetOpen(false);
+    void load();
+  };
+
+  const takePayment = async () => {
+    const amount = Number(pd.amount);
+    if (!day?.resident_id) return toast.error("This day is not tied to a client.");
+    if (!amount || amount <= 0) return toast.error("Put in an amount first.");
+    setBusy(true);
+    try {
+      await addFunds({
+        residentId: day.resident_id,
+        direction: "top_up",
+        amount,
+        receivedOn: pd.received_on,
+        method: pd.method,
+        reference: pd.reference || null,
+        note: pd.note || null,
+        shootDayId: dayId,
+      });
+      toast.success("Client payment recorded");
+      setPayOpen(false);
+      setPd({ ...pd, amount: "", reference: "", note: "" });
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save that.");
+    }
+    setBusy(false);
+  };
+
 
   const mark = async (p: Piece, outcome: Outcome) => {
     setPieces((prev) => prev.map((x) => (x.rowId === p.rowId ? { ...x, outcome } : x)));
