@@ -113,9 +113,9 @@ export function goalHealth(g: Goal, progress: number | null, today: string): Goa
   return "behind";
 }
 
-export const HEALTH_TONE: Record<GoalHealth, "lime" | "amber" | "stop" | "neutral"> = {
+export const HEALTH_TONE: Record<GoalHealth, "lime" | "teal" | "stop" | "neutral"> = {
   ahead: "lime",
-  "on track": "teal" as unknown as "lime",
+  "on track": "teal",
   behind: "stop",
   "no date": "neutral",
 };
