@@ -137,6 +137,8 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/finance/monthly", label: "This month", icon: CalendarDays },
         { to: "/app/finance/loans", label: "Loans", icon: Landmark },
         { to: "/app/finance/budgets", label: "Budgets", icon: PieChart },
+        { to: "/app/finance/invoices", label: "Invoices", icon: FileText },
+        { to: "/app/finance/filing", label: "Filing", icon: FileText },
         { to: "/app/finance/reports", label: "Reports", icon: FileText },
         { to: "/app/finance/lookup", label: "Look up", icon: Search },
       ]
