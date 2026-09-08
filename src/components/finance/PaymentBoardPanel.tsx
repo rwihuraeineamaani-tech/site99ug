@@ -8,12 +8,16 @@ import { PAY_METHODS, SOURCE_LABEL, dayLabel } from "@/lib/finance";
 
 type Due = {
   key: string;
-  source_kind: "cash_request" | "run_line" | "loan_disbursement";
+  source_kind: "cash_request" | "run_line" | "loan_disbursement" | "invoice";
   source_id: string;
   payee: string;
   amount: number;
   what: string;
 };
+
+type Wallet = { id: string; name: string; kind: string };
+type Approver = { user_id: string; name: string };
+
 
 type Txn = {
   id: string;
