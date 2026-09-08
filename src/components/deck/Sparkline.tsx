@@ -18,7 +18,7 @@ export default function Sparkline({
   const xy = points.map((p, i) => [i * step, h - 2 - ((p - min) / span) * (h - 6)] as const);
   const line = xy.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
   const area = `${line} L${w},${h} L0,${h} Z`;
-  const stroke = rising === false ? "hsl(var(--signal))" : "hsl(var(--acc-lime, var(--signal)))";
+  const stroke = rising === false ? "hsl(var(--signal))" : "hsl(var(--acc-lime))";
   const last = xy[xy.length - 1];
 
   return (
