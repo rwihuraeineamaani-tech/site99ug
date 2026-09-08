@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { useMyAssignments } from "@/hooks/useMyAssignments";
 import {
@@ -34,6 +34,12 @@ export function useInbox(messagesOnly = false): InboxState {
   const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const isFounder = has(...FOUNDER_ROLES);
 
+  // These helpers change identity on every render; keep them out of the effect deps.
+  const contactRef = useRef(amContact);
+  const handlerRef = useRef(amHandler);
+  contactRef.current = amContact;
+  handlerRef.current = amHandler;
+
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<InboxMessage[]>([]);
   const [read, setRead] = useState<Set<string>>(new Set());
@@ -55,7 +61,9 @@ export function useInbox(messagesOnly = false): InboxState {
         if (!messagesOnly) {
           const raw = await loadWaitingRaw(userId);
           if (cancelled) return;
-          setWaiting(buildWaiting({ userId, ...raw, isFounder, amContact, amHandler }));
+          setWaiting(
+            buildWaiting({ userId, ...raw, isFounder, amContact: contactRef.current, amHandler: handlerRef.current })
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -64,7 +72,7 @@ export function useInbox(messagesOnly = false): InboxState {
     return () => {
       cancelled = true;
     };
-  }, [userId, isStaff, messagesOnly, isFounder, amContact, amHandler, tick]);
+  }, [userId, isStaff, messagesOnly, isFounder, tick]);
 
   const reload = useCallback(() => setTick((t) => t + 1), []);
 

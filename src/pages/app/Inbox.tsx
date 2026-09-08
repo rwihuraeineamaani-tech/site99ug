@@ -192,7 +192,7 @@ export default function InboxPage() {
                   <div className="text-sm truncate">{item.title}</div>
                   <div className="text-[11px] text-ink-soft">{why}</div>
                 </div>
-                <StatusChip tone="warn" label="Your move" />
+                <StatusChip tone="warn" value="Your move" />
               </div>
             </Link>
           ))}
@@ -224,7 +224,7 @@ export default function InboxPage() {
                     {unopened && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-signal" />}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <StatusChip tone={KIND_TONE[m.kind]} label={KIND_LABEL[m.kind]} />
+                        <StatusChip tone={KIND_TONE[m.kind]} value={KIND_LABEL[m.kind]} />
                         <span className="text-[11px] text-ink-faint">
                           {nameOf(m.author)} · {ago(m.created_at)}
                           {m.audience === "everyone" ? " · everyone" : ""}
