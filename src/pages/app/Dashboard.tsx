@@ -16,18 +16,8 @@ import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
 import { refCode } from "@/lib/contentFlow";
 import { weekLabel } from "@/lib/weeks";
 import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
+import { buildWaiting, type FlowRow, type ResidentLink } from "@/lib/inbox";
 import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
-
-type FlowRow = {
-  id: string;
-  ref_no: number;
-  title: string;
-  stage: string;
-  resident_id: string | null;
-  shoot_at: string | null;
-  planned_at: string | null;
-  metrics_due_at: string | null;
-};
 
 type PendingWeek = {
   account_id: string;
@@ -36,8 +26,6 @@ type PendingWeek = {
   handle: string;
   week_start: string;
 };
-
-type ResidentLink = { id: string; name: string; contact_user_id: string | null; handler_user_id: string | null };
 
 const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_director"] as const;
 
@@ -135,54 +123,10 @@ export default function Dashboard() {
     return null;
   };
 
-  /** Everything that is genuinely this person's move, most urgent first. */
-  const waiting = useMemo(() => {
-    if (!userId) return [] as { item: FlowRow; why: string; weight: number; due: string | null }[];
-    const today = todayISO();
-    const resById = new Map(resLinks.map((r) => [r.id, r]));
-    const editorOf = new Set(myCrew.filter((c) => /edit/i.test(c.role)).map((c) => c.content_id));
-
-    const out: { item: FlowRow; why: string; weight: number; due: string | null }[] = [];
-    flow.forEach((i) => {
-      const r = i.resident_id ? resById.get(i.resident_id) : undefined;
-      const contact = r?.contact_user_id === userId || amContact(i.resident_id);
-      const handler = r?.handler_user_id === userId || amHandler(i.resident_id);
-      const push = (why: string, weight: number, due: string | null = i.planned_at) =>
-        out.push({ item: i, why, weight, due });
-
-      switch (i.stage) {
-        case "Idea":
-          if (isFounder) push("Approve or reject", 3);
-          break;
-        case "Approved":
-          if (contact || isFounder) push("Fill the production team", 3);
-          break;
-        case "Crewed":
-          if (contact || isFounder) push("Set the shoot date", 2);
-          break;
-        case "Scheduled":
-          if ((contact || isFounder) && i.shoot_at && i.shoot_at.slice(0, 10) <= today) push("Shoot day", 0, i.shoot_at);
-          break;
-        case "Shooting":
-          if (contact || isFounder) push("Send to post production", 1);
-          break;
-        case "Editing":
-          if (editorOf.has(i.id)) push("Edit and deliver", 1);
-          break;
-        case "Review":
-          if (isFounder) push("Sign off the cut", 1);
-          break;
-        case "Handover":
-          if (handler || isFounder) push("Post it", 1);
-          break;
-        case "Posted":
-          if ((handler || isFounder) && i.metrics_due_at && i.metrics_due_at.slice(0, 10) <= today)
-            push("Add the numbers", 2, i.metrics_due_at);
-          break;
-      }
-    });
-    return out.sort((a, b) => a.weight - b.weight || (a.due ?? "9").localeCompare(b.due ?? "9"));
-  }, [flow, resLinks, myCrew, userId, isFounder, amContact, amHandler]);
+  const waiting = useMemo(
+    () => buildWaiting({ userId, flow, resLinks, myCrew, isFounder, amContact, amHandler }),
+    [flow, resLinks, myCrew, userId, isFounder, amContact, amHandler]
+  );
 
   const live = flow.filter((f) => LIVE.includes(f.stage));
   const mine = new Set(myCrew.map((c) => c.content_id));
