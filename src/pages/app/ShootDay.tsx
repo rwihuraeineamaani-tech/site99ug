@@ -79,6 +79,7 @@ export default function ShootDayRun() {
   const [crewNames, setCrewNames] = useState<string[]>([]);
   const [gearNames, setGearNames] = useState<string[]>([]);
   const [spend, setSpend] = useState<SpendLine[]>([]);
+  const [dayFunds, setDayFunds] = useState<FundLine[]>([]);
   const [pot, setPot] = useState<{ balance: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [amCrew, setAmCrew] = useState(false);
@@ -92,6 +93,18 @@ export default function ShootDayRun() {
     spent_on: todayKampala(),
   });
 
+  const [budgetOpen, setBudgetOpen] = useState(false);
+  const [bd, setBd] = useState({ amount: "", note: "" });
+
+  const [payOpen, setPayOpen] = useState(false);
+  const [pd, setPd] = useState({
+    amount: "",
+    method: "mobile money" as string,
+    reference: "",
+    note: "",
+    received_on: todayKampala(),
+  });
+
   const load = async () => {
     const { data: d } = await supabase.from("shoot_days").select("*").eq("id", dayId).maybeSingle();
     if (!d) {
@@ -100,13 +113,17 @@ export default function ShootDayRun() {
     }
     const dd = d as unknown as Day;
     setDay(dd);
+    setBd({ amount: dd.budget_ugx ? String(dd.budget_ugx) : "", note: dd.budget_note ?? "" });
 
-    const [{ data: rows }, { data: books }, { data: sp }] = await Promise.all([
+    const [{ data: rows }, { data: books }, { data: sp }, funds] = await Promise.all([
       supabase.from("shoot_day_items").select("*").eq("shoot_day_id", dayId),
       supabase.from("shoot_day_equipment").select("equipment_id, qty").eq("shoot_day_id", dayId),
       loadDayMoney(dayId).then((x) => ({ data: x })),
+      loadDayFunds(dayId),
     ]);
     setSpend(sp as SpendLine[]);
+    setDayFunds(funds);
+
 
     const contentIds = (rows ?? []).map((r) => (r as { content_id: string }).content_id);
     const [{ data: content }, { data: crew }, { data: gear }] = await Promise.all([
