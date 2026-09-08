@@ -18,6 +18,7 @@ import { weekLabel } from "@/lib/weeks";
 import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
 import { buildWaiting, type FlowRow, type ResidentLink } from "@/lib/inbox";
 import { buildGreeting } from "@/lib/greeting";
+import Sparkline from "@/components/deck/Sparkline";
 import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
 
 type PendingWeek = {
@@ -367,20 +368,28 @@ export default function Dashboard() {
                   to={f.to}
                   eyebrow={f.label}
                   title={f.value}
-                  note={
-                    f.target
-                      ? `${f.note} · target ${f.target.toLocaleString()}`
-                      : f.note
-                  }
+                  note={f.note}
                   below={
-                    f.progress === null ? undefined : (
-                      <div className="mt-2 h-1 w-full rounded-full bg-paper-sunken overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${f.progress >= 1 ? "bg-acc-lime" : "bg-signal"}`}
-                          style={{ width: `${Math.round(f.progress * 100)}%` }}
-                        />
-                      </div>
-                    )
+                    <>
+                      <Sparkline
+                        points={f.series}
+                        rising={f.delta === null ? undefined : f.delta >= 0}
+                        title={`${f.label}, last eight weeks`}
+                      />
+                      {f.progress !== null && (
+                        <div className="mt-2 h-1 w-full rounded-full bg-paper-sunken overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${f.progress >= 1 ? "bg-acc-lime" : "bg-signal"}`}
+                            style={{ width: `${Math.round(f.progress * 100)}%` }}
+                          />
+                        </div>
+                      )}
+                      {f.progress !== null && f.target !== null && (
+                        <p className="mt-1 text-[10px] text-ink-faint">
+                          {Math.round(f.progress * 100)}% of this month's target of {f.target.toLocaleString()}
+                        </p>
+                      )}
+                    </>
                   }
                   right={
                     f.delta === null ? undefined : (
