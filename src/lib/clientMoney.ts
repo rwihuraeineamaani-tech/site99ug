@@ -88,6 +88,24 @@ export async function loadDayMoney(dayId: string) {
   return (data ?? []) as SpendLine[];
 }
 
+/** Client money paid in against this shoot day. */
+export async function loadDayFunds(dayId: string) {
+  const { data } = await supabase
+    .from("client_funds")
+    .select("*")
+    .eq("shoot_day_id", dayId)
+    .order("received_on", { ascending: false });
+  return (data ?? []) as FundLine[];
+}
+
+/** How a day is tracking against the money set aside for it. */
+export function budgetState(budget: number, spent: number) {
+  const left = budget - spent;
+  const pct = budget > 0 ? Math.min(200, Math.round((spent / budget) * 100)) : 0;
+  return { budget, spent, left, pct, over: budget > 0 && left < 0 };
+}
+
+
 export async function addFunds(input: {
   residentId: string;
   direction: "top_up" | "refund";

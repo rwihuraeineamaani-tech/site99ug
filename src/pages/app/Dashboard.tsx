@@ -19,6 +19,8 @@ import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
 import { buildWaiting, type FlowRow, type ResidentLink } from "@/lib/inbox";
 import { buildGreeting } from "@/lib/greeting";
 import Sparkline from "@/components/deck/Sparkline";
+import WaitingCard from "@/components/deck/WaitingCard";
+
 import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
 
 type PendingWeek = {
@@ -129,6 +131,40 @@ export default function Dashboard() {
     () => buildWaiting({ userId, flow, resLinks, myCrew, isFounder, amContact, amHandler }),
     [flow, resLinks, myCrew, userId, isFounder, amContact, amHandler]
   );
+
+  /** The same jobs, split into late / today / next, with a client and a due line. */
+  const waitingGroups = useMemo(() => {
+    const t = todayISO();
+    const nameOf = new Map(resLinks.map((r) => [r.id, r.name]));
+    const dayGap = (d: string) =>
+      Math.round((Date.parse(`${d}T00:00:00Z`) - Date.parse(`${t}T00:00:00Z`)) / 86400000);
+
+    const rows = waiting.map(({ item, why, due }) => {
+      const d = due ? due.slice(0, 10) : null;
+      const gap = d ? dayGap(d) : null;
+      const urgency: "late" | "today" | "soon" = gap === null ? "soon" : gap < 0 ? "late" : gap === 0 ? "today" : "soon";
+      const dueLabel =
+        gap === null
+          ? null
+          : gap < 0
+            ? `${Math.abs(gap)} day${Math.abs(gap) === 1 ? "" : "s"} late`
+            : gap === 0
+              ? "today"
+              : gap === 1
+                ? "tomorrow"
+                : `in ${gap} days`;
+      return { item, why, urgency, dueLabel, client: item.resident_id ? nameOf.get(item.resident_id) ?? null : null };
+    });
+
+    return (
+      [
+        { key: "late", label: "Late", rows: rows.filter((r) => r.urgency === "late") },
+        { key: "today", label: "Today", rows: rows.filter((r) => r.urgency === "today") },
+        { key: "soon", label: "Next up", rows: rows.filter((r) => r.urgency === "soon").slice(0, 8) },
+      ] as const
+    ).filter((g) => g.rows.length > 0);
+  }, [waiting, resLinks]);
+
 
   const live = flow.filter((f) => LIVE.includes(f.stage));
   const mine = new Set(myCrew.map((c) => c.content_id));
@@ -293,26 +329,41 @@ export default function Dashboard() {
           empty="Nothing is sitting with you."
           delay={0}
         >
-          {waiting.slice(0, 10).map(({ item, why }) => (
-            <DeckCard
-              key={`${item.id}-${why}`}
-              to={`/app/content?ref=${item.ref_no}`}
-              eyebrow={`${refCode(item.ref_no)} · ${item.stage}`}
-              title={item.title}
-              note={why}
-              tone="signal"
-              action={
-                quickStep(item)
-                  ? {
-                      label: quickStep(item)!.label,
-                      busy: moving === item.id,
-                      onClick: () => moveStage(item.id, quickStep(item)!.next),
-                    }
-                  : undefined
-              }
-            />
+          {waitingGroups.map((g) => (
+            <div key={g.key} className="space-y-2">
+              <div className="flex items-center gap-2 px-1 pt-1">
+                <span className={`eyebrow text-[9px] ${g.key === "late" ? "text-signal" : "text-ink-faint"}`}>
+                  {g.label}
+                </span>
+                <span className="num text-[9px] text-ink-faint">{g.rows.length}</span>
+                <span className="h-px flex-1 bg-rule" />
+              </div>
+              {g.rows.map(({ item, why, urgency, client, dueLabel }) => (
+                <WaitingCard
+                  key={`${item.id}-${why}`}
+                  to={`/app/content?ref=${item.ref_no}`}
+                  move={why}
+                  title={item.title}
+                  refLabel={refCode(item.ref_no)}
+                  stage={item.stage}
+                  client={client}
+                  due={dueLabel}
+                  urgency={urgency}
+                  action={
+                    quickStep(item)
+                      ? {
+                          label: quickStep(item)!.label,
+                          busy: moving === item.id,
+                          onClick: () => moveStage(item.id, quickStep(item)!.next),
+                        }
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
           ))}
         </DeckColumn>
+
 
         <DeckColumn title="Today & overdue" count={today.length} to="/app/shoots" empty="Nothing on the clock." delay={60}>
           {today.map((r) => (

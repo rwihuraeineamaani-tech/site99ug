@@ -2877,6 +2877,8 @@ export type Database = {
         Row: {
           brief_sent_at: string | null
           brief_sent_by: string | null
+          budget_note: string | null
+          budget_ugx: number
           call_time: string | null
           confirmed_at: string | null
           confirmed_by: string | null
@@ -2894,6 +2896,8 @@ export type Database = {
         Insert: {
           brief_sent_at?: string | null
           brief_sent_by?: string | null
+          budget_note?: string | null
+          budget_ugx?: number
           call_time?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
@@ -2911,6 +2915,8 @@ export type Database = {
         Update: {
           brief_sent_at?: string | null
           brief_sent_by?: string | null
+          budget_note?: string | null
+          budget_ugx?: number
           call_time?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null

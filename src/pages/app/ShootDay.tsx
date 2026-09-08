@@ -11,21 +11,26 @@ import { refCode } from "@/lib/contentFlow";
 import {
   OUTCOME_LABEL,
   OUTCOME_TONE,
+  PAY_METHODS,
   SPEND_CATEGORIES,
+  addFunds,
   addSpend,
+  budgetState,
   dayLabel,
   dayTotals,
   loadClientMoney,
+  loadDayFunds,
   loadDayMoney,
   potBalance,
   removeSpend,
   setOutcome,
   todayKampala,
   ugx,
+  type FundLine,
   type Outcome,
   type SpendLine,
 } from "@/lib/clientMoney";
-import { ArrowLeft, Camera, Clock, MapPin, Plus, Trash2, Users } from "lucide-react";
+import { ArrowLeft, Camera, Clock, FileText, MapPin, Plus, Trash2, Users, Wallet } from "lucide-react";
 
 const field =
   "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
@@ -39,7 +44,10 @@ type Day = {
   call_time: string | null;
   location: string | null;
   notes: string | null;
+  budget_ugx: number;
+  budget_note: string | null;
 };
+
 type Piece = {
   rowId: string;
   contentId: string;
@@ -71,6 +79,7 @@ export default function ShootDayRun() {
   const [crewNames, setCrewNames] = useState<string[]>([]);
   const [gearNames, setGearNames] = useState<string[]>([]);
   const [spend, setSpend] = useState<SpendLine[]>([]);
+  const [dayFunds, setDayFunds] = useState<FundLine[]>([]);
   const [pot, setPot] = useState<{ balance: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [amCrew, setAmCrew] = useState(false);
@@ -84,6 +93,18 @@ export default function ShootDayRun() {
     spent_on: todayKampala(),
   });
 
+  const [budgetOpen, setBudgetOpen] = useState(false);
+  const [bd, setBd] = useState({ amount: "", note: "" });
+
+  const [payOpen, setPayOpen] = useState(false);
+  const [pd, setPd] = useState({
+    amount: "",
+    method: "mobile money" as string,
+    reference: "",
+    note: "",
+    received_on: todayKampala(),
+  });
+
   const load = async () => {
     const { data: d } = await supabase.from("shoot_days").select("*").eq("id", dayId).maybeSingle();
     if (!d) {
@@ -92,13 +113,17 @@ export default function ShootDayRun() {
     }
     const dd = d as unknown as Day;
     setDay(dd);
+    setBd({ amount: dd.budget_ugx ? String(dd.budget_ugx) : "", note: dd.budget_note ?? "" });
 
-    const [{ data: rows }, { data: books }, { data: sp }] = await Promise.all([
+    const [{ data: rows }, { data: books }, { data: sp }, funds] = await Promise.all([
       supabase.from("shoot_day_items").select("*").eq("shoot_day_id", dayId),
       supabase.from("shoot_day_equipment").select("equipment_id, qty").eq("shoot_day_id", dayId),
       loadDayMoney(dayId).then((x) => ({ data: x })),
+      loadDayFunds(dayId),
     ]);
     setSpend(sp as SpendLine[]);
+    setDayFunds(funds);
+
 
     const contentIds = (rows ?? []).map((r) => (r as { content_id: string }).content_id);
     const [{ data: content }, { data: crew }, { data: gear }] = await Promise.all([
@@ -169,8 +194,54 @@ export default function ShootDayRun() {
 
   const canRun = canEditContent || amCrew;
   const canLogSpend = canRun || canSeeFinance || isLeadership;
+  const canTakePayment = canSeeFinance || isLeadership || canEditContent;
   const totals = useMemo(() => dayTotals(spend), [spend]);
+  const budget = useMemo(() => budgetState(day?.budget_ugx ?? 0, totals.total), [day?.budget_ugx, totals.total]);
+  const paidInHere = useMemo(
+    () => dayFunds.reduce((a, f) => a + (f.direction === "top_up" ? f.amount_ugx : -f.amount_ugx), 0),
+    [dayFunds]
+  );
   const unmarked = pieces.filter((p) => p.outcome === "planned").length;
+
+  const saveBudget = async () => {
+    setBusy(true);
+    const { error } = await supabase
+      .from("shoot_days")
+      .update({ budget_ugx: Math.round(Number(bd.amount) || 0), budget_note: bd.note || null } as never)
+      .eq("id", dayId);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Budget saved");
+    setBudgetOpen(false);
+    void load();
+  };
+
+  const takePayment = async () => {
+    const amount = Number(pd.amount);
+    if (!day?.resident_id) return toast.error("This day is not tied to a client.");
+    if (!amount || amount <= 0) return toast.error("Put in an amount first.");
+    setBusy(true);
+    try {
+      await addFunds({
+        residentId: day.resident_id,
+        direction: "top_up",
+        amount,
+        receivedOn: pd.received_on,
+        method: pd.method,
+        reference: pd.reference || null,
+        note: pd.note || null,
+        shootDayId: dayId,
+      });
+      toast.success("Client payment recorded");
+      setPayOpen(false);
+      setPd({ ...pd, amount: "", reference: "", note: "" });
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save that.");
+    }
+    setBusy(false);
+  };
+
 
   const mark = async (p: Piece, outcome: Outcome) => {
     setPieces((prev) => prev.map((x) => (x.rowId === p.rowId ? { ...x, outcome } : x)));
@@ -268,9 +339,15 @@ export default function ShootDayRun() {
                 <ArrowLeft className="h-4 w-4" /> All shoot days
               </Link>
             </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to={`/app/shoots/${dayId}/report`}>
+                <FileText className="h-4 w-4" /> Day report
+              </Link>
+            </Button>
             <StatusChip value={STATUS_LABEL[day.status] ?? day.status} />
           </>
         }
+
       />
 
       <div className="grid gap-3 sm:grid-cols-4">
