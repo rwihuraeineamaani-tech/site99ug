@@ -171,15 +171,17 @@ export default function Contracts() {
     load();
   };
 
-  const setStatusOn = async (id: string, value: string) => {
-    const { error } = await supabase.from("contracts").update({ status: value }).eq("id", id);
+  const setStatusOn = async (r: Contract, value: string) => {
+    const table = r.source === "resident" ? "resident_contracts" : "contracts";
+    const { error } = await supabase.from(table).update({ status: value }).eq("id", r.id);
     if (error) return toast.error(error.message);
     load();
   };
 
-  const openFile = async (path: string | null) => {
-    if (!path) return;
-    const { data, error } = await supabase.storage.from("legal-files").createSignedUrl(path, 120);
+  const openFile = async (r: Contract) => {
+    if (!r.file_path) return;
+    const bucket = r.source === "resident" ? "resident-contracts" : "legal-files";
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(r.file_path, 120);
     if (error || !data) return toast.error(error?.message ?? "Could not open that file.");
     window.open(data.signedUrl, "_blank", "noopener");
   };
