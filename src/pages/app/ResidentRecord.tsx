@@ -332,7 +332,7 @@ export default function ResidentRecordPage() {
           </div>
 
           <div className="mt-14">
-            <SectionHeading index="05" title="Contracts" hint={active.length ? "one active" : "none active"} />
+            <SectionHeading index="05" title="Contracts" hint="managed in Legal" />
             <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
               {active.map(contractRow)}
               {active.length === 0 && <li className="px-5 py-4 text-sm text-ink-soft">No active contract on file.</li>}
@@ -345,70 +345,22 @@ export default function ResidentRecordPage() {
               </div>
             )}
 
-            {canManageContracts && (
-              <div className="surface rounded-2xl p-5 mt-6 space-y-4">
-                <div className="eyebrow text-[10px] text-ink-faint">Add a contract</div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="sm:col-span-2">
-                    <label className="eyebrow text-[10px] text-ink-faint">What it is</label>
-                    <input
-                      className={`${field} mt-1`}
-                      value={form.title}
-                      onChange={(e) => setForm({ ...form, title: e.target.value })}
-                      placeholder="Retainer 2026"
-                    />
-                  </div>
-                  <div>
-                    <label className="eyebrow text-[10px] text-ink-faint">Starts</label>
-                    <input
-                      type="date"
-                      className={`${field} mt-1`}
-                      value={form.starts_on}
-                      onChange={(e) => setForm({ ...form, starts_on: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="eyebrow text-[10px] text-ink-faint">Ends</label>
-                    <input
-                      type="date"
-                      className={`${field} mt-1`}
-                      value={form.ends_on}
-                      onChange={(e) => setForm({ ...form, ends_on: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="eyebrow text-[10px] text-ink-faint">Value (UGX)</label>
-                    <input
-                      className={`${field} mt-1 num`}
-                      inputMode="numeric"
-                      value={form.value_ugx}
-                      onChange={(e) => setForm({ ...form, value_ugx: e.target.value })}
-                    />
-                  </div>
-                  <div className="sm:col-span-3">
-                    <label className="eyebrow text-[10px] text-ink-faint">Notes</label>
-                    <input
-                      className={`${field} mt-1`}
-                      value={form.notes}
-                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    className="text-xs"
-                    accept=".pdf,.doc,.docx,image/*"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  />
-                  <Button onClick={addContract} disabled={busy}>
-                    <Upload className="h-4 w-4" /> {busy ? "Saving…" : "Save contract"}
-                  </Button>
-                </div>
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-3 mt-4">
+              <Link to="/app/legal/contracts" className="focus-ring rounded-full">
+                <Button size="sm" variant="soft" className="gap-2">
+                  <FileText className="h-4 w-4" /> Open Legal → Contracts
+                </Button>
+              </Link>
+              <span className="text-[11px] text-ink-faint">
+                Contracts are created, changed and archived in Legal so there is one place for them.
+              </span>
+            </div>
           </div>
+
+          <div className="mt-14">
+            <BrandGuidelines residentId={id} residentName={resident.name} index="06" />
+          </div>
+
 
           {(canSeeFinance || isLeadership) && (
             <div className="mt-14">
