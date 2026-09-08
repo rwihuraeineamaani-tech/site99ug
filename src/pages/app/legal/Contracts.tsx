@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import SectionPage from "@/components/system/SectionPage";
@@ -30,7 +31,10 @@ type Contract = {
   file_path: string | null;
   notes: string | null;
   resident_id: string | null;
+  source: "legal" | "resident";
 };
+
+const RESIDENT_STATUSES = ["active", "archived"] as const;
 
 type Member = { user_id: string; display_name: string | null; email: string };
 
@@ -63,7 +67,7 @@ export default function Contracts() {
   });
 
   const load = useCallback(async () => {
-    const [c, m] = await Promise.all([
+    const [c, m, rc, res] = await Promise.all([
       supabase
         .from("contracts")
         .select(
@@ -71,8 +75,41 @@ export default function Contracts() {
         )
         .order("ends_on", { ascending: true, nullsFirst: false }),
       supabase.from("team_members").select("user_id, display_name, email"),
+      supabase
+        .from("resident_contracts")
+        .select("id, resident_id, title, file_path, starts_on, ends_on, value_ugx, status, notes")
+        .order("ends_on", { ascending: true, nullsFirst: false }),
+      supabase.from("residents").select("id, name"),
     ]);
-    setRows((c.data as Contract[]) ?? []);
+    const names = new Map(((res.data as { id: string; name: string }[]) ?? []).map((r) => [r.id, r.name]));
+    const legal = ((c.data as Omit<Contract, "source">[]) ?? []).map((r) => ({ ...r, source: "legal" as const }));
+    const resident = ((rc.data as {
+      id: string;
+      resident_id: string;
+      title: string;
+      file_path: string | null;
+      starts_on: string | null;
+      ends_on: string | null;
+      value_ugx: number | null;
+      status: string;
+      notes: string | null;
+    }[]) ?? []).map((r) => ({
+      id: r.id,
+      party_kind: "resident",
+      party_name: names.get(r.resident_id) ?? "Resident",
+      title: r.title,
+      contract_type: "retainer",
+      starts_on: r.starts_on,
+      ends_on: r.ends_on,
+      value_ugx: r.value_ugx,
+      status: r.status,
+      owner_user_id: null,
+      file_path: r.file_path,
+      notes: r.notes,
+      resident_id: r.resident_id,
+      source: "resident" as const,
+    }));
+    setRows([...legal, ...resident]);
     setMembers((m.data as Member[]) ?? []);
     setLoading(false);
   }, []);
@@ -96,6 +133,7 @@ export default function Contracts() {
       return `${r.title} ${r.party_name}`.toLowerCase().includes(needle);
     });
   }, [rows, q, status, kind]);
+
 
   const save = async () => {
     if (!form.title.trim() || !form.party_name.trim()) return toast.error("Give it a title and the other party.");
@@ -133,15 +171,17 @@ export default function Contracts() {
     load();
   };
 
-  const setStatusOn = async (id: string, value: string) => {
-    const { error } = await supabase.from("contracts").update({ status: value }).eq("id", id);
+  const setStatusOn = async (r: Contract, value: string) => {
+    const table = r.source === "resident" ? "resident_contracts" : "contracts";
+    const { error } = await supabase.from(table).update({ status: value }).eq("id", r.id);
     if (error) return toast.error(error.message);
     load();
   };
 
-  const openFile = async (path: string | null) => {
-    if (!path) return;
-    const { data, error } = await supabase.storage.from("legal-files").createSignedUrl(path, 120);
+  const openFile = async (r: Contract) => {
+    if (!r.file_path) return;
+    const bucket = r.source === "resident" ? "resident-contracts" : "legal-files";
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(r.file_path, 120);
     if (error || !data) return toast.error(error?.message ?? "Could not open that file.");
     window.open(data.signedUrl, "_blank", "noopener");
   };
@@ -284,11 +324,25 @@ export default function Contracts() {
       ) : (
         <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
           {shown.map((r) => (
-            <li key={r.id} className="px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <li key={`${r.source}-${r.id}`} className="px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
               <div className="min-w-[14rem] flex-1">
-                <div className="font-semibold text-sm">{r.title}</div>
+                <div className="font-semibold text-sm flex items-center gap-2">
+                  {r.title}
+                  {r.source === "resident" && (
+                    <span className="eyebrow rounded-full border border-rule px-2 py-0.5 text-[10px] text-ink-soft">
+                      From resident record
+                    </span>
+                  )}
+                </div>
                 <div className="text-xs text-ink-soft">
-                  {r.party_name} · {r.party_kind} · {r.contract_type}
+                  {r.source === "resident" && r.resident_id ? (
+                    <Link className="underline underline-offset-2" to={`/app/residents/${r.resident_id}`}>
+                      {r.party_name}
+                    </Link>
+                  ) : (
+                    r.party_name
+                  )}{" "}
+                  · {r.party_kind} · {r.contract_type}
                 </div>
               </div>
               <div className="text-xs text-ink-soft w-40">
@@ -301,7 +355,7 @@ export default function Contracts() {
               <div className="text-xs text-ink-soft w-32 truncate">{memberName(r.owner_user_id)}</div>
               <StatusChip value={r.status} />
               {r.file_path && (
-                <button className={ghostBtn} onClick={() => openFile(r.file_path)}>
+                <button className={ghostBtn} onClick={() => openFile(r)}>
                   Open file
                 </button>
               )}
@@ -310,9 +364,9 @@ export default function Contracts() {
                   aria-label="Change status"
                   className="press rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs focus-ring"
                   value={r.status}
-                  onChange={(e) => setStatusOn(r.id, e.target.value)}
+                  onChange={(e) => setStatusOn(r, e.target.value)}
                 >
-                  {CONTRACT_STATUSES.map((s) => (
+                  {(r.source === "resident" ? RESIDENT_STATUSES : CONTRACT_STATUSES).map((s) => (
                     <option key={s} value={s}>
                       {s}
                     </option>
