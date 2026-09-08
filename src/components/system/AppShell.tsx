@@ -27,6 +27,7 @@ import {
   CalendarClock,
   Megaphone,
   UserCog,
+  Inbox,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,7 @@ import {
 } from "@/lib/theme";
 
 import { useMyRoles } from "@/hooks/useMyRoles";
+import { useInbox } from "@/hooks/useInbox";
 import logo from "@/assets/site99-logo.png";
 import {
   Sidebar,
@@ -56,11 +58,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: typeof LayoutDashboard };
+export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: typeof LayoutDashboard; badge?: number };
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance } = useMyRoles();
+  const { unread } = useInbox(true);
 
   if (nav) return [{ label: "Menu", items: nav }];
 
@@ -80,6 +83,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       label: "Overview",
       items: [
         { to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard },
+        { to: "/app/inbox", label: "Inbox", icon: Inbox, badge: unread },
         { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
         { to: "/app/settings", label: "My settings", icon: UserCog },
       ],
@@ -199,6 +203,16 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
                             )}
                           />
                           {!collapsed && <span className="truncate">{item.label}</span>}
+                          {!!item.badge && (
+                            <span
+                              className={cn(
+                                "ml-auto grid h-5 min-w-5 place-items-center rounded-full bg-signal px-1.5 text-[10px] font-bold text-paper",
+                                collapsed && "absolute right-1 top-1 ml-0 h-4 min-w-4 px-1 text-[9px]"
+                              )}
+                            >
+                              {item.badge > 99 ? "99+" : item.badge}
+                            </span>
+                          )}
                         </NavLink>
 
                       </SidebarMenuButton>
