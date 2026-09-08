@@ -324,11 +324,25 @@ export default function Contracts() {
       ) : (
         <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
           {shown.map((r) => (
-            <li key={r.id} className="px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <li key={`${r.source}-${r.id}`} className="px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
               <div className="min-w-[14rem] flex-1">
-                <div className="font-semibold text-sm">{r.title}</div>
+                <div className="font-semibold text-sm flex items-center gap-2">
+                  {r.title}
+                  {r.source === "resident" && (
+                    <span className="eyebrow rounded-full border border-rule px-2 py-0.5 text-[10px] text-ink-soft">
+                      From resident record
+                    </span>
+                  )}
+                </div>
                 <div className="text-xs text-ink-soft">
-                  {r.party_name} · {r.party_kind} · {r.contract_type}
+                  {r.source === "resident" && r.resident_id ? (
+                    <Link className="underline underline-offset-2" to={`/app/residents/${r.resident_id}`}>
+                      {r.party_name}
+                    </Link>
+                  ) : (
+                    r.party_name
+                  )}{" "}
+                  · {r.party_kind} · {r.contract_type}
                 </div>
               </div>
               <div className="text-xs text-ink-soft w-40">
@@ -341,7 +355,7 @@ export default function Contracts() {
               <div className="text-xs text-ink-soft w-32 truncate">{memberName(r.owner_user_id)}</div>
               <StatusChip value={r.status} />
               {r.file_path && (
-                <button className={ghostBtn} onClick={() => openFile(r.file_path)}>
+                <button className={ghostBtn} onClick={() => openFile(r)}>
                   Open file
                 </button>
               )}
@@ -350,9 +364,9 @@ export default function Contracts() {
                   aria-label="Change status"
                   className="press rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs focus-ring"
                   value={r.status}
-                  onChange={(e) => setStatusOn(r.id, e.target.value)}
+                  onChange={(e) => setStatusOn(r, e.target.value)}
                 >
-                  {CONTRACT_STATUSES.map((s) => (
+                  {(r.source === "resident" ? RESIDENT_STATUSES : CONTRACT_STATUSES).map((s) => (
                     <option key={s} value={s}>
                       {s}
                     </option>
