@@ -104,6 +104,33 @@ export default function Settings() {
     if (error) toast.error("Saved on this device only: " + error.message);
   };
 
+  const savePin = async () => {
+    if (!/^\d{6}$/.test(newPin)) {
+      toast.error("The PIN has to be six digits.");
+      return;
+    }
+    if (newPin !== confirmPin) {
+      toast.error("The two PINs don't match.");
+      return;
+    }
+    setSavingPin(true);
+    const { error } = await supabase.rpc("set_payment_pin", {
+      _pin: newPin,
+      _current_pin: currentPin || undefined,
+    });
+    setSavingPin(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setCurrentPin("");
+    setNewPin("");
+    setConfirmPin("");
+    setHasPin(true);
+    toast.success("Payment PIN saved.");
+  };
+
+
   const changePassword = async () => {
     if (newPw.length < 8) {
       toast.error("Use at least 8 characters.");
