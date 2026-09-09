@@ -194,6 +194,15 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        <Route
+          path="/app/shoots/:dayId/report"
+          element={
+            <RequireRole gate="content">
+              <ShootDayReport />
+            </RequireRole>
+          }
+        />
+
 
         <Route
           path="/app/equipment"
