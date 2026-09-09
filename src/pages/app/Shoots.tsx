@@ -641,12 +641,21 @@ export default function Shoots() {
                 <DialogTitle>{ownerName(open)}</DialogTitle>
               </DialogHeader>
 
-              <a
-                href={`/app/shoots/${open.id}`}
-                className="inline-flex w-fit items-center gap-2 rounded-full border border-signal/40 bg-signal/10 px-3 py-1.5 text-xs text-signal press focus-ring"
-              >
-                Run this day — what was shot & what was spent
-              </a>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href={`/app/shoots/${open.id}`}
+                  className="inline-flex w-fit items-center gap-2 rounded-full border border-signal/40 bg-signal/10 px-3 py-1.5 text-xs text-signal press focus-ring"
+                >
+                  Run this day — what was shot & what was spent
+                </a>
+                <a
+                  href={`/app/shoots/${open.id}/report`}
+                  className="inline-flex w-fit items-center gap-2 rounded-full border border-rule bg-paper-sunken px-3 py-1.5 text-xs text-ink-soft press focus-ring"
+                >
+                  Day report
+                </a>
+              </div>
+
 
               <div className="grid gap-3 sm:grid-cols-3">
                 <label className="text-sm">
