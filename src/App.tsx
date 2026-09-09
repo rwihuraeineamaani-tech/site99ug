@@ -74,6 +74,8 @@ import InboxPage from "./pages/app/Inbox.tsx";
 
 import Shoots from "./pages/app/Shoots.tsx";
 import ShootDayRun from "./pages/app/ShootDay.tsx";
+import ShootDayReport from "./pages/app/ShootDayReport.tsx";
+
 import EquipmentPage from "./pages/app/Equipment.tsx";
 import Unsubscribe from "./pages/Unsubscribe.tsx";
 
@@ -194,6 +196,15 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        <Route
+          path="/app/shoots/:dayId/report"
+          element={
+            <RequireRole gate="content">
+              <ShootDayReport />
+            </RequireRole>
+          }
+        />
+
 
         <Route
           path="/app/equipment"
