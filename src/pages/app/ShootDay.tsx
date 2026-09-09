@@ -468,10 +468,87 @@ export default function ShootDayRun() {
         )}
       </section>
 
-      {/* money on the day */}
+      {/* the budget for the day */}
       <section className="mt-10">
         <SectionHeading
           index="02"
+          title="Budget for the day"
+          hint={day.budget_ugx ? (budget.over ? "over budget" : `${ugx(budget.left)} still to use`) : "no budget set"}
+        />
+        <div className="rounded-xl border border-rule bg-paper-raised p-4">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div>
+              <div className="eyebrow text-ink-faint">Set aside</div>
+              <div className="num mt-1 text-2xl">{day.budget_ugx ? ugx(day.budget_ugx) : "—"}</div>
+            </div>
+            <div>
+              <div className="eyebrow text-ink-faint">Spent so far</div>
+              <div className="num mt-1 text-2xl">{ugx(budget.spent)}</div>
+            </div>
+            <div>
+              <div className="eyebrow text-ink-faint">{budget.over ? "Over by" : "Left"}</div>
+              <div className={`num mt-1 text-2xl ${budget.over ? "text-signal" : ""}`}>
+                {day.budget_ugx ? ugx(Math.abs(budget.left)) : "—"}
+              </div>
+            </div>
+          </div>
+
+          {day.budget_ugx > 0 && (
+            <div className="mt-4">
+              <div className="h-2 rounded-full bg-paper-sunken overflow-hidden">
+                <div
+                  className={`h-full ${budget.over ? "bg-signal" : "bg-acc-lime"}`}
+                  style={{ width: `${Math.min(100, budget.pct)}%` }}
+                />
+              </div>
+              <p className="mt-2 text-xs text-ink-soft">{budget.pct}% of the budget used.</p>
+            </div>
+          )}
+
+          {day.budget_note && <p className="mt-3 text-sm text-ink-soft whitespace-pre-wrap">{day.budget_note}</p>}
+
+          {canLogSpend && (
+            <div className="mt-4">
+              {budgetOpen ? (
+                <div className="space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="text-sm">
+                      <span className="eyebrow text-ink-faint">Budget (UGX)</span>
+                      <input
+                        className={field}
+                        inputMode="numeric"
+                        value={bd.amount}
+                        onChange={(e) => setBd({ ...bd, amount: e.target.value.replace(/[^0-9]/g, "") })}
+                      />
+                    </label>
+                    <label className="text-sm">
+                      <span className="eyebrow text-ink-faint">What it covers</span>
+                      <input className={field} value={bd.note} onChange={(e) => setBd({ ...bd, note: e.target.value })} />
+                    </label>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" disabled={busy} onClick={saveBudget}>
+                      Save budget
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setBudgetOpen(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button size="sm" variant="outline" onClick={() => setBudgetOpen(true)}>
+                  {day.budget_ugx ? "Change the budget" : "Set a budget"}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* money on the day */}
+      <section className="mt-10">
+        <SectionHeading
+          index="03"
           title="Spent on the day"
           hint={pot ? `${ugx(pot.balance)} left in the client pot` : "studio spend"}
         />
@@ -489,6 +566,7 @@ export default function ShootDayRun() {
             <div className="num mt-1 text-xl">{ugx(totals.client)}</div>
           </div>
         </div>
+
 
         {canLogSpend && (
           <div className="mt-3">
