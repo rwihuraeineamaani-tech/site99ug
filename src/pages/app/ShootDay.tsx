@@ -647,6 +647,109 @@ export default function ShootDayRun() {
         </ul>
       </section>
 
+      {/* client money paid in for this day */}
+      {day.resident_id && (
+        <section className="mt-10">
+          <SectionHeading
+            index="04"
+            title="Client payments"
+            hint={pot ? `${ugx(pot.balance)} in their pot right now` : "money the client has put in"}
+          />
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-rule bg-paper-raised p-4">
+              <div className="eyebrow text-ink-faint">Paid in for this day</div>
+              <div className="num mt-1 text-2xl">{ugx(paidInHere)}</div>
+            </div>
+            <div className="rounded-xl border border-rule bg-paper-sunken p-4">
+              <div className="eyebrow text-ink-faint">Used from their pot today</div>
+              <div className="num mt-1 text-xl">{ugx(totals.client)}</div>
+            </div>
+            <div className="rounded-xl border border-rule bg-paper-sunken p-4">
+              <div className="eyebrow text-ink-faint">Pot balance</div>
+              <div className={`num mt-1 text-xl ${pot && pot.balance < 0 ? "text-signal" : ""}`}>
+                {pot ? ugx(pot.balance) : "—"}
+              </div>
+            </div>
+          </div>
+
+          {canTakePayment && (
+            <div className="mt-3">
+              {payOpen ? (
+                <div className="rounded-xl border border-rule bg-paper-raised p-4 space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <label className="text-sm">
+                      <span className="eyebrow text-ink-faint">Amount (UGX)</span>
+                      <input
+                        className={field}
+                        inputMode="numeric"
+                        value={pd.amount}
+                        onChange={(e) => setPd({ ...pd, amount: e.target.value.replace(/[^0-9]/g, "") })}
+                      />
+                    </label>
+                    <label className="text-sm">
+                      <span className="eyebrow text-ink-faint">How it came in</span>
+                      <select className={field} value={pd.method} onChange={(e) => setPd({ ...pd, method: e.target.value })}>
+                        {PAY_METHODS.map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="text-sm">
+                      <span className="eyebrow text-ink-faint">Date</span>
+                      <input
+                        type="date"
+                        className={field}
+                        value={pd.received_on}
+                        onChange={(e) => setPd({ ...pd, received_on: e.target.value })}
+                      />
+                    </label>
+                    <label className="text-sm">
+                      <span className="eyebrow text-ink-faint">Reference / TID</span>
+                      <input className={field} value={pd.reference} onChange={(e) => setPd({ ...pd, reference: e.target.value })} />
+                    </label>
+                    <label className="text-sm sm:col-span-2">
+                      <span className="eyebrow text-ink-faint">Note</span>
+                      <input className={field} value={pd.note} onChange={(e) => setPd({ ...pd, note: e.target.value })} />
+                    </label>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" disabled={busy} onClick={takePayment}>
+                      Record payment
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setPayOpen(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button size="sm" variant="outline" onClick={() => setPayOpen(true)}>
+                  <Wallet className="h-4 w-4" /> Record a client payment
+                </Button>
+              )}
+            </div>
+          )}
+
+          <ul className="mt-4 divide-y divide-rule rounded-xl border border-rule bg-paper-sunken px-4">
+            {dayFunds.length === 0 && (
+              <li className="py-3 text-xs text-ink-soft">The client has not paid anything in against this day.</li>
+            )}
+            {dayFunds.map((f) => (
+              <li key={f.id} className="flex flex-wrap items-center gap-2 py-2 text-sm">
+                <StatusChip value={f.direction === "top_up" ? "paid in" : "refunded"} tone={f.direction === "top_up" ? "teal" : "amber"} />
+                <span className="text-xs text-ink-faint">{f.method ?? "—"}</span>
+                {f.reference && <span className="num text-xs text-ink-faint truncate">{f.reference}</span>}
+                {f.note && <span className="text-xs text-ink-faint truncate">{f.note}</span>}
+                <span className="ml-auto text-xs text-ink-faint">{dayLabel(f.received_on)}</span>
+                <span className="num w-32 text-right">{ugx(f.amount_ugx)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+
       {canRun && ["confirmed", "shooting"].includes(day.status) && (
         <div className="mt-10 flex flex-wrap items-center gap-3">
           {day.status === "confirmed" && (
