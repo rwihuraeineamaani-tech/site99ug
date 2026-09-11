@@ -16,7 +16,6 @@ export type Brief = {
 export const useBriefs = (residentId?: string | null) =>
   useQuery({
     queryKey: ["briefs", residentId ?? "all"],
-    enabled: residentId !== undefined,
     queryFn: async (): Promise<Brief[]> => {
       let q = supabase.from("briefs").select("*").order("created_at", { ascending: false });
       if (residentId) q = q.eq("resident_id", residentId);
