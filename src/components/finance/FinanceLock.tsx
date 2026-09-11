@@ -94,6 +94,16 @@ export function FinanceLockProvider({ children }: { children: ReactNode }) {
   const msLeft = Math.max(0, until - now);
   const unlocked = msLeft > 0;
 
+  // Everyone who can open finance is asked for the PIN straight away.
+  const asked = useRef(false);
+  useEffect(() => {
+    if (asked.current || unlocked || hasPin !== true) return;
+    asked.current = true;
+    setPin("");
+    setError(null);
+    setOpen(true);
+  }, [unlocked, hasPin]);
+
   const require = useCallback(async () => {
     if (Date.now() < until) {
       setUntil(Date.now() + WINDOW_MS); // each successful action keeps it open
