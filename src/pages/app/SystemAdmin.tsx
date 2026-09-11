@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ReactFlow, Background, Controls, MiniMap, addEdge, applyEdgeChanges, applyNodeChanges, type Connection, type Edge, type EdgeChange, type Node, type NodeChange } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { toast } from "sonner";
@@ -7,6 +8,7 @@ import Seo from "@/components/Seo";
 import AdminShell from "@/components/admin/AdminShell";
 import TeamPanel from "@/components/admin/TeamPanel";
 import DashboardBuilder from "@/components/admin/DashboardBuilder";
+import ActivityTrail from "@/components/admin/ActivityTrail";
 import StatCard from "@/components/admin/StatCard";
 import { SectionHeading, StatusChip } from "@/components/system";
 import { Button } from "@/components/ui/button";
@@ -14,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ROLE_LABELS, TEAM_ROLES, type AppRole } from "@/hooks/useMyRoles";
 import { DEFAULT_TEMPLATES, WORKFLOW_KINDS, loadAdminWorkflows, validateWorkflow, type Responsibility, type Workflow, type WorkflowEdge, type WorkflowNode, type WorkflowNodeKind, type WorkflowVersion } from "@/lib/adminWorkflows";
 
-const tabs = ["people", "responsibilities", "dashboards", "workflows", "versions", "audit"] as const;
+const tabs = ["people", "activity", "responsibilities", "dashboards", "workflows", "versions", "audit"] as const;
 type Tab = typeof tabs[number];
 type Member = { user_id: string; display_name: string | null; email: string | null; title: string | null };
 const field = "field text-sm";
@@ -23,7 +25,10 @@ const toFlow = (n: WorkflowNode): Node => ({ id: n.id, position: { x: n.x, y: n.
 const fromFlow = (n: Node): WorkflowNode => ({ id: n.id, kind: ((n.data as { kind?: WorkflowNodeKind }).kind ?? "approval"), label: String((n.data as { label?: string }).label ?? "Step"), x: Math.round(n.position.x), y: Math.round(n.position.y), config: (n.data as { config?: WorkflowNode["config"] }).config ?? {} });
 
 export default function SystemAdmin() {
-  const [tab, setTab] = useState<Tab>("people");
+  const [params, setParams] = useSearchParams();
+  const urlTab = params.get("tab");
+  const tab: Tab = (tabs as readonly string[]).includes(urlTab ?? "") ? (urlTab as Tab) : "people";
+  const setTab = (next: Tab) => setParams(next === "people" ? {} : { tab: next }, { replace: true });
   const [loading, setLoading] = useState(true);
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [versions, setVersions] = useState<WorkflowVersion[]>([]);
@@ -123,6 +128,7 @@ export default function SystemAdmin() {
 
   return <AdminShell eyebrow="System administration" title="Control centre." active={tab} nav={[
     { key: "people", label: "People & access", onClick: () => setTab("people") },
+    { key: "activity", label: "Activity trail", onClick: () => setTab("activity") },
     { key: "responsibilities", label: "Responsibilities", badge: gaps, onClick: () => setTab("responsibilities") },
     { key: "dashboards", label: "Dashboards", onClick: () => setTab("dashboards") },
     { key: "workflows", label: "Workflow editor", onClick: () => setTab("workflows") },
@@ -134,6 +140,8 @@ export default function SystemAdmin() {
 
     {loading ? <p className="text-sm text-ink-soft">Loading control centre…</p> : null}
     {!loading && tab === "people" && <><SectionHeading index="01" title="People & access" hint="System admin controlled" /><TeamPanel /></>}
+    {!loading && tab === "activity" && <><SectionHeading index="01" title="Activity trail" hint="Who is on and what they are doing" /><ActivityTrail /></>}
+
 
     {!loading && tab === "responsibilities" && <div className="space-y-8">
       <section><SectionHeading index="01" title="Assign responsibility" hint="Primary owner and authority" /><div className="grid gap-3 md:grid-cols-5 items-end">

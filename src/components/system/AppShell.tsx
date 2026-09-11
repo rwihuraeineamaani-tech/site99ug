@@ -34,12 +34,14 @@ import {
   ListChecks,
   MessageCircle,
   Network,
+  Activity,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import HeaderClock from "@/components/deck/HeaderClock";
 import CalendarReminderBell from "@/components/calendar/CalendarReminderBell";
 import HelpButton from "@/components/system/HelpButton";
+import useActivityTracker from "@/hooks/useActivityTracker";
 import {
   ThemeMode,
   readTheme,
@@ -120,9 +122,22 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   if (departments.clients) dept.push({ to: "/app/residents", label: "Residents", icon: Handshake });
   if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
-  if (has("admin")) dept.push({ to: "/app/team", label: "Team & access", icon: Users });
-  if (has("admin")) dept.push({ to: "/app/system-admin", label: "System administration", icon: Network });
   if (dept.length) groups.push({ label: "Departments", items: dept });
+
+  if (has("admin")) {
+    groups.push({
+      label: "System administration",
+      items: [
+        { to: "/app/system-admin", label: "Overview & people", end: true, icon: Network },
+        { to: "/app/system-admin?tab=activity", label: "Activity trail", icon: Activity },
+        { to: "/app/system-admin?tab=responsibilities", label: "Responsibilities", icon: Users },
+        { to: "/app/system-admin?tab=dashboards", label: "Dashboards", icon: Gauge },
+        { to: "/app/system-admin?tab=workflows", label: "Workflow editor", icon: Workflow },
+        { to: "/app/system-admin?tab=versions", label: "Versions & publishing", icon: BadgeCheck },
+        { to: "/app/system-admin?tab=audit", label: "Audit & health", icon: ShieldCheck },
+      ],
+    });
+  }
 
   const legal: ShellNavItem[] = departments.legal
     ? [
@@ -190,7 +205,7 @@ const SIDEBAR_SCROLL_KEY = "site99:sidebar-scroll";
 function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   // The shell remounts on every route change, so keep the menu where it was.
@@ -213,7 +228,12 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => {
-                  const active = item.end ? pathname === item.to : pathname.startsWith(item.to);
+                  const [itemPath, itemQuery] = item.to.split("?");
+                  const active = itemQuery
+                    ? pathname === itemPath && search.includes(itemQuery)
+                    : item.end
+                    ? pathname === item.to && (!item.to.startsWith("/app/system-admin") || !search)
+                    : pathname.startsWith(item.to);
                   const Icon = item.icon ?? LayoutDashboard;
                   return (
                     <SidebarMenuItem key={`${group.label}-${item.to}-${item.label}`}>
@@ -274,8 +294,9 @@ export function AppShell({
   nav?: ShellNavItem[];
 }) {
   const navigate = useNavigate();
-  const { displayName, email, title, userId } = useMyRoles();
+  const { displayName, email, title, userId, isStaff } = useMyRoles();
   const groups = useNavGroups(nav);
+  useActivityTracker(isStaff ? "staff" : "client");
 
   const signOut = async () => {
     await supabase.auth.signOut();
