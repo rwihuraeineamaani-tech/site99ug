@@ -9,4 +9,4 @@
 - [x] Dedicated Briefs register and detail pages
 - [x] Dedicated Announcements feed and detail pages
 - [x] Unified To-Do with cards, list, filters, badges, and dashboard summary
-- [ ] Verify staff and client communication paths
+- [x] Verify staff and client communication paths

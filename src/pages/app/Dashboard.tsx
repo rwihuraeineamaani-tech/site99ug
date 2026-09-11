@@ -17,6 +17,7 @@ import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
 import { buildWaiting, type FlowRow, type ResidentLink } from "@/lib/inbox";
 import { buildGreeting } from "@/lib/greeting";
 import Sparkline from "@/components/deck/Sparkline";
+import { useTodo } from "@/hooks/useTodo";
 
 import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
 
@@ -34,6 +35,7 @@ const LIVE = ["Idea", "Approved", "Crewed", "Scheduled", "Shooting", "Editing", 
 
 export default function Dashboard() {
   const { roles, canSeeFinance, departments, isLeadership, displayName, email, userId, has } = useMyRoles();
+  const { items: todoItems } = useTodo();
   const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const isFounder = has(...FOUNDER_ROLES);
 
@@ -260,7 +262,7 @@ export default function Dashboard() {
 
       <DeckStrip
         figures={[
-          { label: "To-Do", value: waiting.length, tone: waiting.length ? "signal" : "quiet", to: "/app/todo" },
+          { label: "To-Do", value: todoItems.length, tone: todoItems.length ? "signal" : "quiet", to: "/app/todo" },
           { label: "On your plate", value: onMyPlate.length, to: "/app/content" },
           { label: "In the pipeline", value: live.length, to: "/app/content" },
           canSeeFinance || myShares.length
