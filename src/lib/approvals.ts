@@ -102,11 +102,15 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
 
   const items: ApprovalItem[] = [];
   const decided: DecidedItem[] = [];
+  const runtimeEntities = new Set(runtime.map((t) => {
+    const i = t.approval_instances;
+    return i ? `${i.entity_type}:${i.entity_id}` : "";
+  }));
 
   runtime.forEach((t) => {
     const i = t.approval_instances;
     if (!i) return;
-    const mine = t.assigned_user_id === ctx.userId;
+    const mine = t.assigned_user_id === ctx.userId || Boolean(t.assigned_role && i.requester_id !== ctx.userId);
     items.push({
       id: `workflow-${t.id}`,
       kind: "workflow",
@@ -114,7 +118,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       title: i.title,
       detail: i.detail,
       amount: i.amount,
-      waitingOn: t.assigned_role ? String(t.assigned_role).replaceAll("_", " ") : "assigned person",
+      waitingOn: t.assigned_role ? String(t.assigned_role).replace(/_/g, " ") : "assigned person",
       mine,
       since: t.created_at,
       to: "/app/approvals",
@@ -138,6 +142,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
     resident_id: string | null;
   };
   ((requests.data ?? []) as unknown as Req[]).forEach((r) => {
+    if (runtimeEntities.has(`cash_request:${r.id}`)) return;
     const mineToDecide =
       r.requester !== ctx.userId &&
       ((r.status === "submitted" && ctx.isMd) || (r.status === "md_approved" && ctx.isFounder));
@@ -235,6 +240,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
     direction: string;
   };
   ((loans.data ?? []) as unknown as Loan[]).forEach((l) => {
+    if (runtimeEntities.has(`loan:${l.id}`)) return;
     if (l.status !== "pending_approval") return;
     items.push({
       id: `loan-${l.id}`,
@@ -265,6 +271,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
   /* ---------- content sign-off ---------- */
   type Item = { id: string; ref_no: number; title: string; stage: string; resident_id: string | null; updated_at: string };
   ((content.data ?? []) as unknown as Item[]).forEach((c) => {
+    if (runtimeEntities.has(`content_item:${c.id}`)) return;
     const next = c.stage === "Idea" ? "Approved" : "Handover";
     items.push({
       id: `content-${c.id}`,
@@ -301,6 +308,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
 
   /* ---------- strategy ---------- */
   const pushStrategy = (table: ReviewTable, row: Record<string, unknown>, what: string) => {
+    if (runtimeEntities.has(`${table}:${row.id}`)) return;
     const state = String(row.review_state ?? "draft");
     const rid = (row.resident_id as string) ?? null;
     if (state === "submitted") {

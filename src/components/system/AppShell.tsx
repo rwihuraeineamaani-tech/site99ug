@@ -119,7 +119,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   if (departments.clients) dept.push({ to: "/app/residents", label: "Residents", icon: Handshake });
   if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
-  if (isLeadership) dept.push({ to: "/app/team", label: "Team & access", icon: Users });
+  if (has("admin")) dept.push({ to: "/app/team", label: "Team & access", icon: Users });
   if (has("admin")) dept.push({ to: "/app/system-admin", label: "System administration", icon: Network });
   if (dept.length) groups.push({ label: "Departments", items: dept });
 
