@@ -50,6 +50,7 @@ export function useApprovalsWaiting() {
           (t) => jobs.push(n(supabase.from(t).select("id", { count: "exact", head: true }).eq("review_state", "submitted")))
         );
       }
+      jobs.push(n(supabase.from("approval_tasks").select("id", { count: "exact", head: true }).eq("status", "pending")));
 
       const totals = await Promise.all(jobs);
       if (!cancelled) setCount(totals.reduce((a, b) => a + b, 0));

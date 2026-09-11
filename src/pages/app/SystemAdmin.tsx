@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ReactFlow, Background, Controls, MiniMap, addEdge, applyEdgeChanges, applyNodeChanges, type Connection, type Edge, type EdgeChange, type Node, type NodeChange } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { toast } from "sonner";
-import { Activity, AlertTriangle, GitBranch, History, Plus, Save, Send, ShieldCheck, Users } from "lucide-react";
+import { Activity, AlertTriangle, GitBranch, History, Plus, Save, Send, ShieldCheck } from "lucide-react";
 import Seo from "@/components/Seo";
 import AdminShell from "@/components/admin/AdminShell";
 import TeamPanel from "@/components/admin/TeamPanel";

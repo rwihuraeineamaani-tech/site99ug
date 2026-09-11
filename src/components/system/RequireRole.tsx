@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useMyRoles, type Department } from "@/hooks/useMyRoles";
 
-type Gate = "staff" | "client" | "resident" | "leadership" | "finance" | Department;
+type Gate = "staff" | "client" | "resident" | "admin" | "leadership" | "finance" | Department;
 
 /**
  * Route guard. Access is also enforced in the database — this only decides what to render.
@@ -30,6 +30,8 @@ export function RequireRole({ gate, children }: { gate: Gate; children: ReactNod
         ? isClient
         : gate === "resident"
           ? has("resident")
+        : gate === "admin"
+          ? has("admin")
         : gate === "leadership"
           ? isLeadership
           : gate === "finance"
