@@ -160,6 +160,392 @@ export type Database = {
         }
         Relationships: []
       }
+      approval_audit: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          detail: Json
+          event_type: string
+          id: string
+          instance_id: string | null
+          summary: string
+          workflow_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          detail?: Json
+          event_type: string
+          id?: string
+          instance_id?: string | null
+          summary: string
+          workflow_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          detail?: Json
+          event_type?: string
+          id?: string
+          instance_id?: string | null
+          summary?: string
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_audit_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "approval_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_audit_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "approval_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_decisions: {
+        Row: {
+          actor_id: string
+          created_at: string
+          decision: string
+          evidence_url: string | null
+          id: string
+          instance_id: string
+          note: string | null
+          task_id: string
+        }
+        Insert: {
+          actor_id?: string
+          created_at?: string
+          decision: string
+          evidence_url?: string | null
+          id?: string
+          instance_id: string
+          note?: string | null
+          task_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          decision?: string
+          evidence_url?: string | null
+          id?: string
+          instance_id?: string
+          note?: string | null
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_decisions_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "approval_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_decisions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "approval_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_delegations: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          delegate_id: string
+          delegator_id: string
+          department: string | null
+          ends_at: string
+          id: string
+          reason: string | null
+          starts_at: string
+          updated_at: string
+          workflow_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          delegate_id: string
+          delegator_id: string
+          department?: string | null
+          ends_at: string
+          id?: string
+          reason?: string | null
+          starts_at: string
+          updated_at?: string
+          workflow_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          delegate_id?: string
+          delegator_id?: string
+          department?: string | null
+          ends_at?: string
+          id?: string
+          reason?: string | null
+          starts_at?: string
+          updated_at?: string
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_delegations_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "approval_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_instances: {
+        Row: {
+          amount: number | null
+          completed_at: string | null
+          context: Json
+          created_at: string
+          current_node_ids: string[]
+          detail: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          requester_id: string
+          status: string
+          title: string
+          updated_at: string
+          workflow_id: string
+          workflow_version_id: string
+        }
+        Insert: {
+          amount?: number | null
+          completed_at?: string | null
+          context?: Json
+          created_at?: string
+          current_node_ids?: string[]
+          detail?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          requester_id?: string
+          status?: string
+          title: string
+          updated_at?: string
+          workflow_id: string
+          workflow_version_id: string
+        }
+        Update: {
+          amount?: number | null
+          completed_at?: string | null
+          context?: Json
+          created_at?: string
+          current_node_ids?: string[]
+          detail?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          workflow_id?: string
+          workflow_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_instances_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "approval_workflows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_instances_workflow_version_id_fkey"
+            columns: ["workflow_version_id"]
+            isOneToOne: false
+            referencedRelation: "approval_workflow_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_tasks: {
+        Row: {
+          acted_at: string | null
+          acted_by: string | null
+          assigned_role: Database["public"]["Enums"]["app_role"] | null
+          assigned_user_id: string | null
+          created_at: string
+          due_at: string | null
+          exclude_requester: boolean
+          id: string
+          instance_id: string
+          node_id: string
+          node_label: string
+          reminder_at: string | null
+          require_distinct_actor: boolean
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          acted_at?: string | null
+          acted_by?: string | null
+          assigned_role?: Database["public"]["Enums"]["app_role"] | null
+          assigned_user_id?: string | null
+          created_at?: string
+          due_at?: string | null
+          exclude_requester?: boolean
+          id?: string
+          instance_id: string
+          node_id: string
+          node_label: string
+          reminder_at?: string | null
+          require_distinct_actor?: boolean
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          acted_at?: string | null
+          acted_by?: string | null
+          assigned_role?: Database["public"]["Enums"]["app_role"] | null
+          assigned_user_id?: string | null
+          created_at?: string
+          due_at?: string | null
+          exclude_requester?: boolean
+          id?: string
+          instance_id?: string
+          node_id?: string
+          node_label?: string
+          reminder_at?: string | null
+          require_distinct_actor?: boolean
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_tasks_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "approval_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_workflow_versions: {
+        Row: {
+          created_at: string
+          created_by: string
+          edges: Json
+          id: string
+          nodes: Json
+          notes: string | null
+          published_at: string | null
+          published_by: string | null
+          state: string
+          updated_at: string
+          validation: Json
+          version: number
+          workflow_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          edges?: Json
+          id?: string
+          nodes?: Json
+          notes?: string | null
+          published_at?: string | null
+          published_by?: string | null
+          state?: string
+          updated_at?: string
+          validation?: Json
+          version: number
+          workflow_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          edges?: Json
+          id?: string
+          nodes?: Json
+          notes?: string | null
+          published_at?: string | null
+          published_by?: string | null
+          state?: string
+          updated_at?: string
+          validation?: Json
+          version?: number
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_workflow_versions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "approval_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_workflows: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          current_version_id: string | null
+          department: string
+          description: string | null
+          entity_type: string
+          id: string
+          name: string
+          updated_at: string
+          workflow_key: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          current_version_id?: string | null
+          department: string
+          description?: string | null
+          entity_type: string
+          id?: string
+          name: string
+          updated_at?: string
+          workflow_key: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          current_version_id?: string | null
+          department?: string
+          description?: string | null
+          entity_type?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          workflow_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_workflows_current_version_fk"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "approval_workflow_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       availability_blocks: {
         Row: {
           all_day: boolean
@@ -3050,6 +3436,57 @@ export type Database = {
         }
         Relationships: []
       }
+      responsibility_assignments: {
+        Row: {
+          active: boolean
+          approval_authority: boolean
+          backup_roles: Database["public"]["Enums"]["app_role"][]
+          backup_user_ids: string[]
+          created_at: string
+          created_by: string
+          department: string
+          description: string | null
+          id: string
+          name: string
+          primary_role: Database["public"]["Enums"]["app_role"] | null
+          primary_user_id: string | null
+          updated_at: string
+          work_key: string
+        }
+        Insert: {
+          active?: boolean
+          approval_authority?: boolean
+          backup_roles?: Database["public"]["Enums"]["app_role"][]
+          backup_user_ids?: string[]
+          created_at?: string
+          created_by?: string
+          department: string
+          description?: string | null
+          id?: string
+          name: string
+          primary_role?: Database["public"]["Enums"]["app_role"] | null
+          primary_user_id?: string | null
+          updated_at?: string
+          work_key: string
+        }
+        Update: {
+          active?: boolean
+          approval_authority?: boolean
+          backup_roles?: Database["public"]["Enums"]["app_role"][]
+          backup_user_ids?: string[]
+          created_at?: string
+          created_by?: string
+          department?: string
+          description?: string | null
+          id?: string
+          name?: string
+          primary_role?: Database["public"]["Enums"]["app_role"] | null
+          primary_user_id?: string | null
+          updated_at?: string
+          work_key?: string
+        }
+        Relationships: []
+      }
       schedule_overrides: {
         Row: {
           approved_by: string
@@ -3994,6 +4431,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_act_approval_task: {
+        Args: {
+          _task: Database["public"]["Tables"]["approval_tasks"]["Row"]
+          _user_id?: string
+        }
+        Returns: boolean
+      }
       can_approve_strategy: { Args: { _uid: string }; Returns: boolean }
       can_edit_content: { Args: { _user_id: string }; Returns: boolean }
       can_fund_client: {
@@ -4035,6 +4479,15 @@ export type Database = {
       }
       client_pot_balance: { Args: { _resident_id: string }; Returns: number }
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
+      decide_approval_task: {
+        Args: {
+          _decision: string
+          _evidence_url?: string
+          _note?: string
+          _task_id: string
+        }
+        Returns: undefined
+      }
       decline_cash_request: {
         Args: { _id: string; _reason: string }
         Returns: undefined
@@ -4142,6 +4595,7 @@ export type Database = {
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       is_strategy_team: { Args: { _uid: string }; Returns: boolean }
+      is_system_admin: { Args: { _user_id?: string }; Returns: boolean }
       log_cashbook_entry: {
         Args: {
           _amount: number
@@ -4193,6 +4647,10 @@ export type Database = {
       next_invoice_number: { Args: never; Returns: string }
       open_direct_chat: { Args: { _target_user: string }; Returns: string }
       ops_overview: { Args: never; Returns: Json }
+      publish_approval_workflow: {
+        Args: { _version_id: string; _workflow_id: string }
+        Returns: undefined
+      }
       raise_recurring_invoices: { Args: never; Returns: number }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
@@ -4296,6 +4754,18 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      start_approval: {
+        Args: {
+          _amount?: number
+          _context?: Json
+          _detail?: string
+          _entity_id: string
+          _entity_type: string
+          _title: string
+          _workflow_key: string
+        }
+        Returns: string
+      }
       start_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       tier_available_counts: {
         Args: { _event_id: string }
