@@ -123,6 +123,7 @@ export default function SystemAdmin() {
 
   return <AdminShell eyebrow="System administration" title="Control centre." active={tab} nav={[
     { key: "people", label: "People & access", onClick: () => setTab("people") },
+    { key: "activity", label: "Activity trail", onClick: () => setTab("activity") },
     { key: "responsibilities", label: "Responsibilities", badge: gaps, onClick: () => setTab("responsibilities") },
     { key: "dashboards", label: "Dashboards", onClick: () => setTab("dashboards") },
     { key: "workflows", label: "Workflow editor", onClick: () => setTab("workflows") },
@@ -134,6 +135,8 @@ export default function SystemAdmin() {
 
     {loading ? <p className="text-sm text-ink-soft">Loading control centre…</p> : null}
     {!loading && tab === "people" && <><SectionHeading index="01" title="People & access" hint="System admin controlled" /><TeamPanel /></>}
+    {!loading && tab === "activity" && <><SectionHeading index="01" title="Activity trail" hint="Who is on and what they are doing" /><ActivityTrail /></>}
+
 
     {!loading && tab === "responsibilities" && <div className="space-y-8">
       <section><SectionHeading index="01" title="Assign responsibility" hint="Primary owner and authority" /><div className="grid gap-3 md:grid-cols-5 items-end">
