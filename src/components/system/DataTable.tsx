@@ -53,7 +53,23 @@ export function DataTable<T>({
 
   return (
     <div className={cn("surface rounded-xl overflow-hidden", className)}>
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-rule md:hidden">
+        {rows.map((row) => (
+          <div
+            key={rowKey(row)}
+            onClick={onRowClick ? () => onRowClick(row) : undefined}
+            className={cn("grid gap-3 p-4", onRowClick && "cursor-pointer active:bg-acc-violet-soft/60")}
+          >
+            {columns.map((column, index) => (
+              <div key={column.key} className={cn(index === 0 ? "block" : column.hideOnMobile ? "hidden" : "grid grid-cols-[minmax(5.5rem,0.35fr)_1fr] items-start gap-3")}>
+                {index > 0 && <span className="eyebrow pt-0.5 text-[9px] text-ink-faint">{column.header}</span>}
+                <div className={cn("min-w-0", index > 0 && column.align === "right" && "text-right")}>{column.cell(row)}</div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto md:block">
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="rule-b bg-paper-sunken/70">
