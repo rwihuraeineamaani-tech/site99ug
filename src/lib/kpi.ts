@@ -224,7 +224,7 @@ export function buildKpi(input: KpiInput): KpiData {
       value: nf(postedNow.length),
       delta: pct(postedNow.length, postedPrev.length),
       deltaUnit: "%",
-      note: `${postedNow.length === 1 ? "piece" : "pieces"} live in 30 days · ${postedPrev.length} before`,
+      note: `${postedNow.length === 1 ? "post" : "posts"} in the last 30 days, ${postedPrev.length} before that`,
       to: "/app/content",
       target: targetFor("posted"),
       progress: progressOf(postedNow.length, targetFor("posted")),
@@ -233,13 +233,13 @@ export function buildKpi(input: KpiInput): KpiData {
     {
       key: "shoots",
       series: shootSeries,
-      label: "Shoots landed",
+      label: "Shoots completed",
       value: nf(shotNow.length),
       delta: pct(shotNow.length, shotPrev.length),
       deltaUnit: "%",
       note: shotNow.length
-        ? `${shotNow.length === 1 ? "shoot day" : "shoot days"} wrapped · ${shotPrev.length} before`
-        : "no shoot days wrapped yet",
+        ? `${shotNow.length === 1 ? "shoot day" : "shoot days"} finished, ${shotPrev.length} before that`
+        : "no shoot days finished yet",
       to: "/app/shoots",
       target: targetFor("shoots"),
       progress: progressOf(shotNow.length, targetFor("shoots")),
@@ -248,11 +248,13 @@ export function buildKpi(input: KpiInput): KpiData {
     {
       key: "numbers",
       series: filledSeries,
-      label: "Client numbers filled",
+      label: "Client numbers recorded",
       value: nf(filled.length),
       delta: pct(filled.length, filledPrev.length),
       deltaUnit: "%",
-      note: pendingWeeks ? `${pendingWeeks} still waiting on you` : "nothing outstanding",
+      note: pendingWeeks
+        ? `${pendingWeeks} week${pendingWeeks === 1 ? "" : "s"} still waiting on you`
+        : "nothing outstanding",
       to: "/app/residents",
       target: targetFor("numbers"),
       progress: progressOf(filled.length, targetFor("numbers")),
@@ -267,9 +269,11 @@ export function buildKpi(input: KpiInput): KpiData {
       deltaUnit: Math.abs(followerMove) === 1 ? " follower" : " followers",
       note: nowFollowers.accounts
         ? `across ${nowFollowers.accounts} account${nowFollowers.accounts === 1 ? "" : "s"}${
-            prevFollowers.accounts ? ` · ${followerMove >= 0 ? "+" : ""}${nf(followerMove)} in 30 days` : ""
+            prevFollowers.accounts
+              ? `, ${followerMove >= 0 ? "up" : "down"} ${nf(Math.abs(followerMove))} in the last 30 days`
+              : ""
           }`
-        : "no follower counts logged yet",
+        : "no follower counts recorded yet",
       to: "/app/residents",
       target: targetFor("followers"),
       progress: progressOf(nowFollowers.total, targetFor("followers")),

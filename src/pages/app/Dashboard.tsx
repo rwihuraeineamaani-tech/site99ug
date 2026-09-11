@@ -264,22 +264,22 @@ export default function Dashboard() {
       <DeckStrip
         figures={[
           { label: "To-Do", value: todoItems.length, tone: todoItems.length ? "signal" : "quiet", to: "/app/todo" },
-          { label: "On your plate", value: onMyPlate.length, to: "/app/content" },
-          { label: "In the pipeline", value: live.length, to: "/app/content" },
+          { label: "Work with you", value: onMyPlate.length, to: "/app/content" },
+          { label: "Content in progress", value: live.length, to: "/app/content" },
           canSeeFinance || myShares.length
-            ? { label: "Your month so far", value: `UGX ${shareTotal.toLocaleString()}` }
+            ? { label: "Your earnings this month", value: `UGX ${shareTotal.toLocaleString()}` }
             : { label: "Clients", value: clients ?? "—", to: "/app/residents" },
         ]}
       />
 
       <div className="mt-4 grid gap-3 lg:grid-cols-4 md:grid-cols-2">
-        <DeckColumn title="Today & overdue" count={today.length} to="/app/shoots" empty="Nothing on the clock." delay={0}>
+        <DeckColumn title="Today and late" count={today.length} to="/app/shoots" empty="Nothing due today." delay={0}>
           {today.map((r) => (
             <DeckCard key={r.id} to={r.to} eyebrow={r.when} title={r.title} note={r.note} tone={r.late ? "late" : "default"} />
           ))}
         </DeckColumn>
 
-        <DeckColumn title="This week" count={thisWeek.length} to="/app/calendar" toLabel="Calendar" empty="A clear week." delay={60}>
+        <DeckColumn title="This week" count={thisWeek.length} to="/app/calendar" toLabel="Calendar" empty="Nothing else this week." delay={60}>
           {thisWeek.map((e) => (
             <DeckCard
               key={e.id}
@@ -292,9 +292,9 @@ export default function Dashboard() {
         </DeckColumn>
 
         <DeckColumn
-          title={scope === "studio" && isLeadership ? "Studio performance" : "Your KPI performance"}
+          title={scope === "studio" && isLeadership ? "How the studio is doing" : "How you are doing"}
           delay={120}
-          empty="Nothing to measure yet."
+          empty="No figures yet."
         >
           {isLeadership && (
             <div className="flex items-center rounded-full border border-rule overflow-hidden text-[10px] mb-1">
@@ -314,10 +314,10 @@ export default function Dashboard() {
           )}
 
           {!kpi ? (
-            <p className="px-2 py-6 text-center text-xs text-ink-faint">Working out your numbers…</p>
+            <p className="px-2 py-6 text-center text-xs text-ink-faint">Adding up your numbers…</p>
           ) : kpi.empty && scope === "mine" ? (
             <p className="px-2 py-6 text-center text-xs text-ink-faint">
-              Nothing posted or logged in the last 30 days yet — your figures show up here as soon as work lands.
+              Nothing posted or recorded in the last 30 days — your figures appear here as soon as work is done.
             </p>
           ) : (
             <>
