@@ -72,6 +72,7 @@ import StrategyApprovals from "./pages/app/strategy/Approvals.tsx";
 import ApprovalsPage from "./pages/app/Approvals.tsx";
 import ChatPage from "./pages/app/Chat.tsx";
 import TodoPage from "./pages/app/Todo.tsx";
+import WorkPage from "./pages/app/Work.tsx";
 import LeadershipTaskPage from "./pages/app/LeadershipTask.tsx";
 import BriefsPage from "./pages/app/Briefs.tsx";
 import BriefDetailPage from "./pages/app/BriefDetail.tsx";
