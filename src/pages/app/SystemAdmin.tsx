@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ROLE_LABELS, TEAM_ROLES, type AppRole } from "@/hooks/useMyRoles";
 import { DEFAULT_TEMPLATES, WORKFLOW_KINDS, loadAdminWorkflows, validateWorkflow, type Responsibility, type Workflow, type WorkflowEdge, type WorkflowNode, type WorkflowNodeKind, type WorkflowVersion } from "@/lib/adminWorkflows";
 
-const tabs = ["people", "responsibilities", "dashboards", "workflows", "versions", "audit"] as const;
+const tabs = ["people", "activity", "responsibilities", "dashboards", "workflows", "versions", "audit"] as const;
 type Tab = typeof tabs[number];
 type Member = { user_id: string; display_name: string | null; email: string | null; title: string | null };
 const field = "field text-sm";
