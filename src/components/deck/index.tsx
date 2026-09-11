@@ -78,7 +78,7 @@ export function DeckHeader({
         <div className="min-w-0 rise">
           <div className="eyebrow text-signal mb-2 flex items-center gap-2">
             <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-signal" />
-            Command deck
+            Your day
           </div>
           <h1 className="display text-2xl md:text-4xl leading-[0.95]">
             {headline || `${greeting}, ${first}.`}
