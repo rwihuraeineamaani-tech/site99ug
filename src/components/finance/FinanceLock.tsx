@@ -15,6 +15,10 @@ type LockState = {
   msLeft: number;
   unlocked: boolean;
   lock: () => void;
+  /** null while we are still checking whether this person has set a PIN. */
+  hasPin: boolean | null;
+  /** Opens the PIN box straight away. */
+  openPin: () => void;
 };
 
 const Ctx = createContext<LockState | null>(null);
