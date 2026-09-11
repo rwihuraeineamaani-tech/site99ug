@@ -167,14 +167,23 @@ export function FinanceLockProvider({ children }: { children: ReactNode }) {
 
 /** Small countdown shown in the finance page header. */
 export function FinanceLockChip() {
-  const { msLeft, unlocked, lock } = useFinanceLock();
+  const { msLeft, unlocked, lock, hasPin, openPin } = useFinanceLock();
   const secs = Math.ceil(msLeft / 1000);
   const label = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
 
   if (!unlocked)
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-rule bg-paper-sunken px-2.5 py-1 text-[11px] text-ink-faint">
-        <Lock className="h-3 w-3" /> Finance edits locked
+      <span className="inline-flex items-center gap-2 rounded-full border border-rule bg-paper-sunken px-2.5 py-1 text-[11px] text-ink-faint">
+        <Lock className="h-3 w-3" /> Finance buttons locked
+        {hasPin === false ? (
+          <Link to="/app/settings?tab=security" className="press underline underline-offset-2" data-finance-allow>
+            Set up your PIN
+          </Link>
+        ) : (
+          <button type="button" onClick={openPin} className="press underline underline-offset-2" data-finance-allow>
+            Unlock with PIN
+          </button>
+        )}
       </span>
     );
 
