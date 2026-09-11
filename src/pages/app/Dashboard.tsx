@@ -314,10 +314,10 @@ export default function Dashboard() {
           )}
 
           {!kpi ? (
-            <p className="px-2 py-6 text-center text-xs text-ink-faint">Working out your numbers…</p>
+            <p className="px-2 py-6 text-center text-xs text-ink-faint">Adding up your numbers…</p>
           ) : kpi.empty && scope === "mine" ? (
             <p className="px-2 py-6 text-center text-xs text-ink-faint">
-              Nothing posted or logged in the last 30 days yet — your figures show up here as soon as work lands.
+              Nothing posted or recorded in the last 30 days — your figures appear here as soon as work is done.
             </p>
           ) : (
             <>
