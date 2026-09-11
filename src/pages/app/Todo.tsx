@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle2, LayoutGrid, List } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, Segmented, StatusChip } from "@/components/system";
