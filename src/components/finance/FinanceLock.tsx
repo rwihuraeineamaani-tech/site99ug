@@ -112,8 +112,19 @@ export function FinanceLockProvider({ children }: { children: ReactNode }) {
   };
 
   const value = useMemo<LockState>(
-    () => ({ require, msLeft, unlocked, lock: () => setUntil(0) }),
-    [require, msLeft, unlocked]
+    () => ({
+      require,
+      msLeft,
+      unlocked,
+      lock: () => setUntil(0),
+      hasPin,
+      openPin: () => {
+        setPin("");
+        setError(null);
+        setOpen(true);
+      },
+    }),
+    [require, msLeft, unlocked, hasPin]
   );
 
   return (
