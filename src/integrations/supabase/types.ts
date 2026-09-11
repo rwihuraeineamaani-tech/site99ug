@@ -614,6 +614,35 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_reminder_reads: {
+        Row: {
+          calendar_item_id: string
+          dismissed_at: string
+          occurrence_date: string
+          owner_user_id: string
+        }
+        Insert: {
+          calendar_item_id: string
+          dismissed_at?: string
+          occurrence_date: string
+          owner_user_id?: string
+        }
+        Update: {
+          calendar_item_id?: string
+          dismissed_at?: string
+          occurrence_date?: string
+          owner_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_reminder_reads_calendar_item_id_fkey"
+            columns: ["calendar_item_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cash_requests: {
         Row: {
           amount_ugx: number
