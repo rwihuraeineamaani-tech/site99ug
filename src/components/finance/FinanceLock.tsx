@@ -8,6 +8,27 @@ import { Lock, ShieldCheck } from "lucide-react";
 
 /** How long one PIN entry keeps finance edits open. */
 const WINDOW_MS = 5 * 60 * 1000;
+/** The open window follows the person across every finance page in this tab. */
+const STORE_KEY = "site99:finance-unlock-until";
+
+function readUntil() {
+  try {
+    const raw = sessionStorage.getItem(STORE_KEY);
+    const n = raw ? Number(raw) : 0;
+    return Number.isFinite(n) ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeUntil(value: number) {
+  try {
+    if (value > Date.now()) sessionStorage.setItem(STORE_KEY, String(value));
+    else sessionStorage.removeItem(STORE_KEY);
+  } catch {
+    /* private browsing — the window just stays on this page */
+  }
+}
 
 type LockState = {
   /** Ask for the PIN if the window has closed. Resolves true once finance edits are open. */
@@ -33,7 +54,11 @@ export function useFinanceLock(): LockState {
 }
 
 export function FinanceLockProvider({ children }: { children: ReactNode }) {
-  const [until, setUntil] = useState(0);
+  const [until, setUntilState] = useState(() => readUntil());
+  const setUntil = useCallback((value: number) => {
+    setUntilState(value);
+    writeUntil(value);
+  }, []);
   const [now, setNow] = useState(() => Date.now());
   const [open, setOpen] = useState(false);
   const [pin, setPin] = useState("");
@@ -48,21 +73,23 @@ export function FinanceLockProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) {
-        if (alive) setHasPin(false);
-        return;
-      }
-      const { data } = await supabase.from("payment_pins").select("user_id").eq("user_id", auth.user.id).maybeSingle();
-      if (alive) setHasPin(!!data);
-    })();
-    return () => {
-      alive = false;
-    };
+  const checkPin = useCallback(async () => {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) {
+      setHasPin(false);
+      return;
+    }
+    const { data } = await supabase.from("payment_pins").select("user_id").eq("user_id", auth.user.id).maybeSingle();
+    setHasPin(!!data);
   }, []);
+
+  useEffect(() => {
+    void checkPin();
+    // Someone may set their PIN in another tab, then come back here.
+    const onFocus = () => void checkPin();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [checkPin]);
 
   const msLeft = Math.max(0, until - now);
   const unlocked = msLeft > 0;
