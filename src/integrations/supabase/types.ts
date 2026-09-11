@@ -462,6 +462,158 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_busy_slots: {
+        Row: {
+          all_day: boolean
+          byweekday: number[]
+          calendar_item_id: string
+          created_at: string
+          end_date: string
+          end_time: string | null
+          freq: string
+          interval_n: number
+          occurrences: number | null
+          owner_user_id: string
+          start_date: string
+          start_time: string | null
+          strictness: string
+          until: string | null
+          updated_at: string
+        }
+        Insert: {
+          all_day: boolean
+          byweekday?: number[]
+          calendar_item_id: string
+          created_at?: string
+          end_date: string
+          end_time?: string | null
+          freq: string
+          interval_n: number
+          occurrences?: number | null
+          owner_user_id: string
+          start_date: string
+          start_time?: string | null
+          strictness: string
+          until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          all_day?: boolean
+          byweekday?: number[]
+          calendar_item_id?: string
+          created_at?: string
+          end_date?: string
+          end_time?: string | null
+          freq?: string
+          interval_n?: number
+          occurrences?: number | null
+          owner_user_id?: string
+          start_date?: string
+          start_time?: string | null
+          strictness?: string
+          until?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_busy_slots_calendar_item_id_fkey"
+            columns: ["calendar_item_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_items: {
+        Row: {
+          all_day: boolean
+          byweekday: number[]
+          created_at: string
+          end_date: string
+          end_time: string | null
+          freq: string
+          id: string
+          interval_n: number
+          location: string | null
+          note: string | null
+          occurrences: number | null
+          owner_user_id: string
+          reminder_at: string | null
+          reminder_dismissed_at: string | null
+          reminder_minutes: number | null
+          start_date: string
+          start_time: string | null
+          strictness: string
+          timezone: string
+          title: string
+          until: string | null
+          updated_at: string
+          visibility: string
+          work_id: string | null
+          work_kind: string | null
+          work_label: string | null
+          work_path: string | null
+        }
+        Insert: {
+          all_day?: boolean
+          byweekday?: number[]
+          created_at?: string
+          end_date: string
+          end_time?: string | null
+          freq?: string
+          id?: string
+          interval_n?: number
+          location?: string | null
+          note?: string | null
+          occurrences?: number | null
+          owner_user_id?: string
+          reminder_at?: string | null
+          reminder_dismissed_at?: string | null
+          reminder_minutes?: number | null
+          start_date: string
+          start_time?: string | null
+          strictness?: string
+          timezone?: string
+          title: string
+          until?: string | null
+          updated_at?: string
+          visibility?: string
+          work_id?: string | null
+          work_kind?: string | null
+          work_label?: string | null
+          work_path?: string | null
+        }
+        Update: {
+          all_day?: boolean
+          byweekday?: number[]
+          created_at?: string
+          end_date?: string
+          end_time?: string | null
+          freq?: string
+          id?: string
+          interval_n?: number
+          location?: string | null
+          note?: string | null
+          occurrences?: number | null
+          owner_user_id?: string
+          reminder_at?: string | null
+          reminder_dismissed_at?: string | null
+          reminder_minutes?: number | null
+          start_date?: string
+          start_time?: string | null
+          strictness?: string
+          timezone?: string
+          title?: string
+          until?: string | null
+          updated_at?: string
+          visibility?: string
+          work_id?: string | null
+          work_kind?: string | null
+          work_label?: string | null
+          work_path?: string | null
+        }
+        Relationships: []
+      }
       cash_requests: {
         Row: {
           amount_ugx: number
@@ -3806,6 +3958,13 @@ export type Database = {
         Returns: boolean
       }
       build_payment_run: { Args: { _month?: string }; Returns: string }
+      calendar_slot_occurs_on: {
+        Args: {
+          b: Database["public"]["Tables"]["calendar_busy_slots"]["Row"]
+          d: string
+        }
+        Returns: boolean
+      }
       can_approve_strategy: { Args: { _uid: string }; Returns: boolean }
       can_edit_content: { Args: { _user_id: string }; Returns: boolean }
       can_fund_client: {
