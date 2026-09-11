@@ -39,6 +39,7 @@ type Draft = {
   party_name: string;
   party_kind: string;
   client_id: string;
+  resident_id: string;
   contract_id: string;
   category: string;
   issue_date: string;
@@ -56,6 +57,7 @@ const emptyDraft = (direction: InvoiceDirection): Draft => ({
   party_name: "",
   party_kind: direction === "out" ? "client" : "supplier",
   client_id: "",
+  resident_id: "",
   contract_id: "",
   category: direction === "out" ? "client_payment" : "subscriptions",
   issue_date: todayISO(),
@@ -76,6 +78,8 @@ export default function Invoices() {
   const [lines, setLines] = useState<Record<string, InvoiceLine[]>>({});
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
+  const [residents, setResidents] = useState<{ id: string; name: string }[]>([]);
+  const [residentFilter, setResidentFilter] = useState("");
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -84,11 +88,12 @@ export default function Invoices() {
   const [settle, setSettle] = useState<{ inv: Invoice; wallet: string; amount: string; reference: string; note: string } | null>(null);
 
   const load = useCallback(async () => {
-    const [inv, ln, ct, cl, wl] = await Promise.all([
+    const [inv, ln, ct, cl, rs, wl] = await Promise.all([
       supabase.from("invoices").select("*").order("issue_date", { ascending: false }),
       supabase.from("invoice_lines").select("*").order("sort"),
       supabase.from("contracts").select("id, title, party_name, client_id, resident_id, value_ugx, status"),
       supabase.from("clients").select("id, name").order("name"),
+      supabase.from("residents").select("id, name").order("display_order"),
       supabase.from("wallets").select("id, name, active, sort").eq("active", true).order("sort"),
     ]);
     setRows((inv.data as Invoice[]) ?? []);
@@ -99,6 +104,7 @@ export default function Invoices() {
     setLines(map);
     setContracts((ct.data as Contract[]) ?? []);
     setClients((cl.data as { id: string; name: string }[]) ?? []);
+    setResidents((rs.data as { id: string; name: string }[]) ?? []);
     setWallets((wl.data as Wallet[]) ?? []);
   }, []);
 
@@ -106,7 +112,15 @@ export default function Invoices() {
     load();
   }, [load]);
 
-  const list = useMemo(() => rows.filter((r) => r.direction === tab), [rows, tab]);
+  const residentName = useCallback(
+    (id: string | null) => (id ? residents.find((r) => r.id === id)?.name ?? null : null),
+    [residents]
+  );
+
+  const list = useMemo(
+    () => rows.filter((r) => r.direction === tab && (!residentFilter || r.resident_id === residentFilter)),
+    [rows, tab, residentFilter]
+  );
   const owed = list.filter((r) => r.status !== "paid" && r.status !== "void").reduce((t, r) => t + outstanding(r), 0);
 
   /* ---------------- create ---------------- */
@@ -128,6 +142,7 @@ export default function Invoices() {
         contract_id: id,
         party_name: c.party_name,
         client_id: c.client_id ?? "",
+        resident_id: c.resident_id ?? d.resident_id,
         lines: [{ description: c.title, qty: 1, unit: c.value_ugx ?? 0 }],
       };
     });
@@ -170,6 +185,7 @@ export default function Invoices() {
         party_kind: draft.party_kind,
         party_name: draft.party_name.trim(),
         client_id: draft.client_id || null,
+        resident_id: draft.resident_id || null,
         contract_id: draft.contract_id || null,
         issue_date: draft.issue_date,
         due_date: draft.due_date || null,
