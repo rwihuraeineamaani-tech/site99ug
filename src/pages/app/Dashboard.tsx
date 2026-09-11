@@ -50,7 +50,7 @@ export default function Dashboard() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { count } = await supabase.from("clients").select("id", { count: "exact", head: true });
+      const { count } = await supabase.from("residents").select("id", { count: "exact", head: true });
       if (!cancelled) setClients(count ?? 0);
     })();
     return () => {

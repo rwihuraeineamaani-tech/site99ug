@@ -40,7 +40,7 @@ export default function Login() {
 
     const landFor = async (uid: string, silent = false) => {
       // Let an invited client or resident claim their link on first sign-in.
-      await Promise.resolve(supabase.rpc("accept_client_invite")).catch(() => undefined);
+      await Promise.resolve(supabase.rpc("accept_resident_portal_invite")).catch(() => undefined);
       await Promise.resolve(supabase.rpc("accept_resident_invite")).catch(() => undefined);
 
       let roles: string[] = [];
@@ -102,7 +102,7 @@ export default function Login() {
       const uid = data.user?.id;
       if (!uid) throw new Error("Sign in failed");
 
-      await Promise.resolve(supabase.rpc("accept_client_invite")).catch(() => undefined);
+      await Promise.resolve(supabase.rpc("accept_resident_portal_invite")).catch(() => undefined);
       await Promise.resolve(supabase.rpc("accept_resident_invite")).catch(() => undefined);
 
       let roles: string[] = [];

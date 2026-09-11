@@ -23,7 +23,6 @@ type Contract = {
   id: string;
   title: string;
   party_name: string;
-  client_id: string | null;
   resident_id: string | null;
   value_ugx: number | null;
   status: string;
@@ -39,7 +38,6 @@ type Draft = {
   direction: InvoiceDirection;
   party_name: string;
   party_kind: string;
-  client_id: string;
   resident_id: string;
   contract_id: string;
   category: string;
@@ -57,7 +55,6 @@ const emptyDraft = (direction: InvoiceDirection): Draft => ({
   direction,
   party_name: "",
   party_kind: direction === "out" ? "client" : "supplier",
-  client_id: "",
   resident_id: "",
   contract_id: "",
   category: direction === "out" ? "client_payment" : "subscriptions",
@@ -92,7 +89,7 @@ export default function Invoices() {
     const [inv, ln, ct, rs, wl] = await Promise.all([
       supabase.from("invoices").select("*").order("issue_date", { ascending: false }),
       supabase.from("invoice_lines").select("*").order("sort"),
-      supabase.from("contracts").select("id, title, party_name, client_id, resident_id, value_ugx, status"),
+      supabase.from("contracts").select("id, title, party_name, resident_id, value_ugx, status"),
       supabase.from("residents").select("id, name").order("display_order"),
       supabase.from("wallets").select("id, name, active, sort").eq("active", true).order("sort"),
     ]);
@@ -140,7 +137,6 @@ export default function Invoices() {
         ...d,
         contract_id: id,
         party_name: c.party_name,
-        client_id: c.client_id ?? "",
         resident_id: c.resident_id ?? d.resident_id,
         lines: [{ description: c.title, qty: 1, unit: c.value_ugx ?? 0 }],
       };
@@ -183,7 +179,6 @@ export default function Invoices() {
         number,
         party_kind: draft.party_kind,
         party_name: draft.party_name.trim(),
-        client_id: draft.client_id || null,
         resident_id: draft.resident_id || null,
         contract_id: draft.contract_id || null,
         issue_date: draft.issue_date,

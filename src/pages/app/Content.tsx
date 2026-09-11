@@ -61,7 +61,6 @@ export type ContentItem = {
   ref_no: number;
   added_by: string | null;
   added_on: string;
-  client_id: string | null;
   resident_id: string | null;
   project_id: string | null;
   title: string;

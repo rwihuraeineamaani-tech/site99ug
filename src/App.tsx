@@ -39,7 +39,7 @@ import AppSettings from "./pages/app/Settings.tsx";
 import AppTeam from "./pages/app/Team.tsx";
 import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
-import { Sales } from "./pages/app/Departments.tsx";
+import SalesPage from "./pages/app/Sales.tsx";
 import LegalOverview from "./pages/app/legal/Overview.tsx";
 import LegalContractsPage from "./pages/app/legal/Contracts.tsx";
 import LegalPartnerships from "./pages/app/legal/Partnerships.tsx";
@@ -245,7 +245,7 @@ const AnimatedRoutes = () => {
           path="/app/sales"
           element={
             <RequireRole gate="sales">
-              <Sales />
+              <SalesPage />
             </RequireRole>
           }
         />

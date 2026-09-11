@@ -10,7 +10,6 @@ export type Invoice = {
   number: string | null;
   party_kind: string;
   party_name: string;
-  client_id: string | null;
   resident_id: string | null;
   contract_id: string | null;
   issue_date: string;
