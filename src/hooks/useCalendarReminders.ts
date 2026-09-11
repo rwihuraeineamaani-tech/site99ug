@@ -14,11 +14,16 @@ function kampalaToday() {
 export function useCalendarReminders() {
   const { userId, isStaff } = useMyRoles();
   const [items, setItems] = useState<CalendarItem[]>([]);
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(() => new Date());
   const load = useCallback(async () => {
     if (!userId || !isStaff) return;
-    const { data } = await supabase.from("calendar_items").select("*").eq("owner_user_id", userId).not("reminder_minutes", "is", null).is("reminder_dismissed_at", null);
-    setItems((data as CalendarItem[]) ?? []);
+    const [itemResult, readResult] = await Promise.all([
+      supabase.from("calendar_items").select("*").eq("owner_user_id", userId).not("reminder_minutes", "is", null),
+      supabase.from("calendar_reminder_reads").select("calendar_item_id,occurrence_date").eq("owner_user_id", userId),
+    ]);
+    setItems((itemResult.data as CalendarItem[]) ?? []);
+    setDismissed(new Set((readResult.data ?? []).map((r) => `${r.calendar_item_id}-${r.occurrence_date}`)));
   }, [userId, isStaff]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
@@ -38,11 +43,11 @@ export function useCalendarReminders() {
         occurrence,
         dueAt: new Date(kampalaInstant(occurrence, start).getTime() - mins * 60_000),
       }));
-    }).filter((r) => r.dueAt <= now && now.getTime() - r.dueAt.getTime() < 36 * 60 * 60_000)
+    }).filter((r) => !dismissed.has(`${r.item.id}-${r.occurrence}`) && r.dueAt <= now && now.getTime() - r.dueAt.getTime() < 36 * 60 * 60_000)
       .sort((a, b) => a.dueAt.getTime() - b.dueAt.getTime());
-  }, [items, now]);
-  const dismiss = async (id: string) => {
-    await supabase.from("calendar_items").update({ reminder_dismissed_at: new Date().toISOString() }).eq("id", id);
+  }, [items, now, dismissed]);
+  const dismiss = async (id: string, occurrence: string) => {
+    await supabase.from("calendar_reminder_reads").upsert({ calendar_item_id: id, occurrence_date: occurrence }, { onConflict: "calendar_item_id,occurrence_date" });
     await load();
   };
   return { reminders, dismiss, reload: load };

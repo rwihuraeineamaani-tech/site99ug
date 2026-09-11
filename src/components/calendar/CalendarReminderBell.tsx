@@ -22,7 +22,7 @@ export default function CalendarReminderBell() {
             <div key={`${item.id}-${occurrence}`} className="flex gap-3 px-4 py-3">
               <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
               <div className="min-w-0 flex-1"><Link to="/app/calendar" className="block truncate text-sm font-medium hover:text-signal">{item.title}</Link><p className="text-[11px] text-ink-soft">{occurrence} · {item.all_day ? "All day" : item.start_time?.slice(0, 5)}</p></div>
-              <Button variant="ghost" size="icon-sm" onClick={() => dismiss(item.id)} aria-label={`Dismiss ${item.title}`}><Check className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon-sm" onClick={() => dismiss(item.id, occurrence)} aria-label={`Dismiss ${item.title}`}><Check className="h-4 w-4" /></Button>
             </div>
           ))}
         </div>
