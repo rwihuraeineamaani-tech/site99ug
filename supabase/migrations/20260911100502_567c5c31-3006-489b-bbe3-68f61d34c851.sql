@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.check_payment_pin(uuid, text) TO authenticated;
