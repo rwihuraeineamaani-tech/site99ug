@@ -1,394 +1,70 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { CalendarPlus, ChevronLeft, ChevronRight, Clock3, ExternalLink, Lock, MapPin, Users } from "lucide-react";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { Button } from "@/components/ui/button";
 import BlockDialog from "@/components/calendar/BlockDialog";
+import CalendarItemDialog from "@/components/calendar/CalendarItemDialog";
 import { useMyRoles } from "@/hooks/useMyRoles";
-import {
-  CalendarEntry,
-  EntryKind,
-  KIND_LABEL,
-  addDays,
-  loadCalendar,
-  monthGridRange,
-  weekStart,
-} from "@/lib/calendarFeed";
-import { AvailabilityBlock, describeRepeat, timeLabel } from "@/lib/recurrence";
-import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarEntry, EntryKind, KIND_LABEL, addDays, loadCalendar, monthGridRange, weekStart } from "@/lib/calendarFeed";
+import type { CalendarItem } from "@/lib/calendar";
+import type { AvailabilityBlock } from "@/lib/recurrence";
+import { describeRepeat, timeLabel } from "@/lib/recurrence";
 import { cn } from "@/lib/utils";
 
-const KINDS: EntryKind[] = ["shoot", "post", "numbers", "event", "busy"];
-
-const KIND_STYLE: Record<EntryKind, string> = {
-  shoot: "border-signal/50 text-ink",
-  post: "border-rule text-ink",
-  numbers: "border-rule text-ink-soft",
-  event: "border-rule text-ink",
-  busy: "border-dashed border-ink-faint/60 text-ink-soft",
-};
-
+const KINDS: EntryKind[] = ["personal", "shoot", "post", "numbers", "event", "busy"];
+const STYLE: Record<EntryKind, string> = { personal: "border-signal/60 bg-signal/[0.08] text-ink", shoot: "border-acc-violet/50 bg-acc-violet-soft text-ink", post: "border-rule text-ink", numbers: "border-rule text-ink-soft", event: "border-rule text-ink", busy: "border-dashed border-ink-faint/60 text-ink-soft" };
 const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+function todayISO() { return new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Kampala" }).format(new Date()); }
+function longDate(date: string) { return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`)); }
+function entryTime(e: CalendarEntry) { return e.allDay ? "All day" : e.time ? `${e.time}${e.endTime ? `–${e.endTime}` : ""}` : ""; }
 
-function todayISO() {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Kampala" }).format(new Date());
+function EntryCard({ entry, onEdit }: { entry: CalendarEntry; onEdit: (item: CalendarItem) => void }) {
+  const body = <><div className="flex items-start gap-2"><div className="min-w-0 flex-1"><div className="truncate text-xs font-semibold">{entry.title}</div><div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[10px] text-ink-faint">{entry.time && <span>{entryTime(entry)}</span>}{entry.ownerName && <span>{entry.ownerName}</span>}{entry.visibility === "private" && <Lock className="h-3 w-3" />}</div>{entry.note && <div className="mt-1 truncate text-[10px] text-ink-soft">{entry.note}</div>}</div></div></>;
+  if (entry.calendarItem) return <button type="button" onClick={() => onEdit(entry.calendarItem as CalendarItem)} className={cn("block w-full rounded border px-2 py-1.5 text-left focus-ring", STYLE[entry.kind])}>{body}</button>;
+  if (entry.to) return <Link to={entry.to} className={cn("block rounded border px-2 py-1.5 focus-ring", STYLE[entry.kind])}>{body}</Link>;
+  return <div className={cn("rounded border px-2 py-1.5", STYLE[entry.kind])}>{body}</div>;
 }
 
 export default function CalendarPage() {
   const { userId, isLeadership, displayName, email } = useMyRoles();
   const today = todayISO();
+  const [view, setView] = useState<"month" | "week" | "agenda">("month"); const [anchor, setAnchor] = useState(today);
+  const [entries, setEntries] = useState<CalendarEntry[]>([]); const [blocks, setBlocks] = useState<AvailabilityBlock[]>([]);
+  const [residents, setResidents] = useState<{ id: string; name: string }[]>([]); const [people, setPeople] = useState<{ user_id: string; display_name: string | null; email: string }[]>([]);
+  const [kinds, setKinds] = useState<EntryKind[]>(KINDS); const [person, setPerson] = useState("all"); const [client, setClient] = useState("all"); const [loading, setLoading] = useState(true);
+  const [itemOpen, setItemOpen] = useState(false); const [editingItem, setEditingItem] = useState<CalendarItem | null>(null); const [pickedDate, setPickedDate] = useState(today);
+  const [blockOpen, setBlockOpen] = useState(false); const [editingBlock, setEditingBlock] = useState<AvailabilityBlock | null>(null); const [agendaDate, setAgendaDate] = useState<string | null>(null);
+  const range = useMemo(() => view === "week" ? { from: weekStart(anchor), to: addDays(weekStart(anchor), 6) } : view === "agenda" ? { from: today, to: addDays(today, 60) } : monthGridRange(anchor), [view, anchor, today]);
+  const refresh = useCallback(async () => { setLoading(true); const data = await loadCalendar(range.from, range.to); setEntries(data.entries); setBlocks(data.blocks); setResidents(data.residents); setPeople(data.people); setLoading(false); }, [range.from, range.to]);
+  useEffect(() => { refresh(); }, [refresh]);
+  const shown = useMemo(() => entries.filter((e) => kinds.includes(e.kind) && (client === "all" || e.residentId === client) && (person === "all" || (person === "me" ? e.userId === userId || !e.userId : e.userId === person))), [entries, kinds, client, person, userId]);
+  const byDay = useMemo(() => { const map = new Map<string, CalendarEntry[]>(); shown.forEach((e) => map.set(e.date, [...(map.get(e.date) ?? []), e])); return map; }, [shown]);
+  const days = useMemo(() => { const out: string[] = []; for (let d = range.from; d <= range.to; d = addDays(d, 1)) out.push(d); return out; }, [range]);
+  const monthLabel = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${anchor.slice(0, 7)}-01T00:00:00Z`));
+  const step = (dir: 1 | -1) => setAnchor((cur) => { if (view === "week") return addDays(cur, dir * 7); const [y, m] = cur.slice(0, 7).split("-").map(Number); return new Date(Date.UTC(y, m - 1 + dir, 1)).toISOString().slice(0, 10); });
+  const openNew = (date: string) => { setEditingItem(null); setPickedDate(date); setItemOpen(true); };
+  const openEdit = (item: CalendarItem) => { if (item.owner_user_id !== userId) return; setEditingItem(item); setPickedDate(item.start_date); setItemOpen(true); };
+  const myBlocks = blocks.filter((b) => b.owner_user_id === userId); const clientBlocks = blocks.filter((b) => b.owner_kind === "resident");
+  const activeAgendaDate = agendaDate && agendaDate >= range.from && agendaDate <= range.to ? agendaDate : null;
 
-  const [view, setView] = useState<"month" | "week">("month");
-  const [anchor, setAnchor] = useState(today);
-  const [entries, setEntries] = useState<CalendarEntry[]>([]);
-  const [blocks, setBlocks] = useState<AvailabilityBlock[]>([]);
-  const [residents, setResidents] = useState<{ id: string; name: string }[]>([]);
-  const [people, setPeople] = useState<{ user_id: string; display_name: string | null; email: string }[]>([]);
-  const [kinds, setKinds] = useState<EntryKind[]>(KINDS);
-  const [person, setPerson] = useState("all");
-  const [client, setClient] = useState("all");
-  const [dialog, setDialog] = useState(false);
-  const [editing, setEditing] = useState<AvailabilityBlock | null>(null);
-  const [pickedDate, setPickedDate] = useState(today);
-  const [loading, setLoading] = useState(true);
+  return <AppShell><Seo title="Calendar — Site 99" description="Your private calendar and the studio schedule." path="/app/calendar" noindex />
+    <header className="rule-b mb-5 flex flex-wrap items-end gap-3 pb-4"><div><div className="eyebrow mb-1 text-signal">Your calendar · Kampala time</div><h1 className="display text-2xl md:text-3xl">{view === "week" ? `Week of ${longDate(weekStart(anchor))}` : view === "agenda" ? "Upcoming agenda" : monthLabel}</h1><p className="mt-1 text-sm text-ink-soft">Your private schedule beside shoots, content, deadlines and studio events.</p></div><div className="ml-auto flex flex-wrap items-center gap-2">{view !== "agenda" && <div className="flex overflow-hidden rounded-full border border-rule"><Button variant="ghost" size="icon-sm" onClick={() => step(-1)} aria-label="Previous"><ChevronLeft /></Button><Button variant="ghost" size="sm" onClick={() => setAnchor(today)}>Today</Button><Button variant="ghost" size="icon-sm" onClick={() => step(1)} aria-label="Next"><ChevronRight /></Button></div>}<div className="flex overflow-hidden rounded-full border border-rule">{(["month", "week", "agenda"] as const).map((v) => <Button key={v} variant={view === v ? "default" : "ghost"} size="sm" className="rounded-none capitalize" onClick={() => setView(v)}>{v}</Button>)}</div><Button onClick={() => openNew(today)} className="gap-1.5"><CalendarPlus />New item</Button></div></header>
+    <div className="mb-4 flex flex-wrap items-center gap-2">{KINDS.map((k) => <Button key={k} variant={kinds.includes(k) ? "outline" : "ghost"} size="sm" onClick={() => setKinds((cur) => cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k])}>{KIND_LABEL[k]}</Button>)}<select value={person} onChange={(e) => setPerson(e.target.value)} className="rounded-full border border-rule bg-paper-raised px-3 py-2 text-xs"><option value="all">Everyone</option><option value="me">Just me</option>{people.map((p) => <option key={p.user_id} value={p.user_id}>{p.display_name || p.email}</option>)}</select><select value={client} onChange={(e) => setClient(e.target.value)} className="rounded-full border border-rule bg-paper-raised px-3 py-2 text-xs"><option value="all">All clients</option>{residents.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select>{loading && <span className="eyebrow text-[10px] text-ink-faint">Loading…</span>}</div>
 
-  const range = useMemo(() => {
-    if (view === "week") {
-      const from = weekStart(anchor);
-      return { from, to: addDays(from, 6) };
-    }
-    return monthGridRange(anchor);
-  }, [view, anchor]);
+    {view === "month" && <div className="surface overflow-hidden rounded-lg"><div className="grid grid-cols-7 rule-b">{DOW.map((d) => <div key={d} className="px-2 py-2 text-center eyebrow text-[9px] text-ink-faint">{d}</div>)}</div><div className="grid grid-cols-7">{days.map((d) => { const list = byDay.get(d) ?? []; return <div key={d} className={cn("min-h-[116px] border-b border-r border-rule p-1.5", d.slice(0, 7) !== anchor.slice(0, 7) && "opacity-45")}><button type="button" onClick={() => setAgendaDate(d)} className={cn("num rounded-full px-1.5 py-0.5 text-[11px]", d === today ? "bg-signal text-paper" : "text-ink-faint")}>{Number(d.slice(8, 10))}</button><div className="mt-1 space-y-1">{list.slice(0, 3).map((e) => <EntryCard key={e.id} entry={e} onEdit={openEdit} />)}{list.length > 3 && <button type="button" onClick={() => setAgendaDate(d)} className="text-[10px] text-signal">+{list.length - 3} more</button>}</div></div>; })}</div></div>}
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    const data = await loadCalendar(range.from, range.to);
-    setEntries(data.entries);
-    setBlocks(data.blocks);
-    setResidents(data.residents);
-    setPeople(data.people);
-    setLoading(false);
-  }, [range.from, range.to]);
+    {view === "week" && <div className="overflow-x-auto"><div className="grid min-w-[900px] grid-cols-7 gap-px overflow-hidden rounded-lg border border-rule bg-rule">{days.map((d) => { const list = byDay.get(d) ?? []; const allDay = list.filter((e) => e.allDay || !e.time); const timed = list.filter((e) => e.time); return <section key={d} className="min-h-[620px] bg-paper-raised"><div className={cn("sticky top-16 z-10 border-b border-rule bg-paper-raised p-3", d === today && "text-signal")}><div className="eyebrow text-[9px]">{longDate(d)}</div><button type="button" onClick={() => openNew(d)} className="mt-1 text-[10px] text-ink-faint hover:text-signal">+ add</button></div><div className="space-y-1 border-b border-rule p-2">{allDay.map((e) => <EntryCard key={e.id} entry={e} onEdit={openEdit} />)}</div><div className="relative h-[520px] bg-[linear-gradient(to_bottom,hsl(var(--rule))_1px,transparent_1px)] bg-[length:100%_32.5px]">{timed.map((e) => { const [h, m] = (e.time ?? "08:00").split(":").map(Number); const [eh, em] = (e.endTime ?? e.time ?? "09:00").split(":").map(Number); const top = Math.max(0, ((h - 7) * 60 + m) / 2); const height = Math.max(28, (((eh - h) * 60 + em - m) / 2)); return <div key={e.id} className="absolute inset-x-1" style={{ top, minHeight: height }}><EntryCard entry={e} onEdit={openEdit} /></div>; })}</div></section>; })}</div></div>}
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+    {view === "agenda" && <div className="space-y-5">{days.filter((d) => (byDay.get(d)?.length ?? 0) > 0).map((d) => <section key={d}><div className="mb-2 flex items-center gap-3"><h2 className="display text-lg">{longDate(d)}</h2>{d === today && <span className="rounded-full bg-signal px-2 py-0.5 text-[9px] font-semibold text-paper">TODAY</span>}<button className="ml-auto text-xs text-signal" onClick={() => openNew(d)}>Add item</button></div><div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">{(byDay.get(d) ?? []).map((e) => <EntryCard key={e.id} entry={e} onEdit={openEdit} />)}</div></section>)}{shown.length === 0 && <div className="surface rounded-lg px-5 py-12 text-center text-sm text-ink-soft">Your next 60 days are clear.</div>}</div>}
 
-  const shown = useMemo(
-    () =>
-      entries.filter((e) => {
-        if (!kinds.includes(e.kind)) return false;
-        if (client !== "all" && e.residentId !== client) return false;
-        if (person !== "all") {
-          if (person === "me") return e.userId === userId || e.kind !== "busy";
-          return e.userId === person;
-        }
-        return true;
-      }),
-    [entries, kinds, client, person, userId]
-  );
+    {activeAgendaDate && <section className="mt-5 surface rounded-lg p-4"><div className="mb-3 flex items-center"><div><div className="eyebrow text-[10px] text-signal">Day agenda</div><h2 className="display text-xl">{longDate(activeAgendaDate)}</h2></div><Button variant="ghost" size="sm" className="ml-auto" onClick={() => setAgendaDate(null)}>Close</Button></div><div className="grid gap-2 md:grid-cols-2">{(byDay.get(activeAgendaDate) ?? []).map((e) => <EntryCard key={e.id} entry={e} onEdit={openEdit} />)}</div><Button variant="outline" size="sm" className="mt-3" onClick={() => openNew(activeAgendaDate)}>Add another item</Button></section>}
 
-  const byDay = useMemo(() => {
-    const map = new Map<string, CalendarEntry[]>();
-    shown.forEach((e) => map.set(e.date, [...(map.get(e.date) ?? []), e]));
-    return map;
-  }, [shown]);
+    <section className="mt-8 grid gap-6 lg:grid-cols-2"><div><h2 className="mb-3 rule-b pb-2 eyebrow text-[10px]">Legacy availability</h2><ul className="surface divide-y divide-rule rounded-lg">{myBlocks.length === 0 && <li className="px-4 py-5 text-sm text-ink-soft">No older busy blocks.</li>}{myBlocks.map((b) => <li key={b.id} className="flex items-center gap-3 px-4 py-3"><div className="min-w-0"><div className="truncate text-sm">{b.title}</div><div className="truncate text-[11px] text-ink-soft">{describeRepeat(b)} · {timeLabel(b)}</div></div><Button variant="ghost" size="sm" className="ml-auto" onClick={() => { setEditingBlock(b); setBlockOpen(true); }}>Edit</Button></li>)}</ul></div>{isLeadership && <div><h2 className="mb-3 rule-b pb-2 eyebrow text-[10px]">Client availability</h2><ul className="surface divide-y divide-rule rounded-lg">{clientBlocks.length === 0 && <li className="px-4 py-5 text-sm text-ink-soft">No client has blocked time.</li>}{clientBlocks.map((b) => <li key={b.id} className="flex items-center gap-3 px-4 py-3"><div className="min-w-0"><div className="truncate text-sm">{residents.find((r) => r.id === b.resident_id)?.name ?? "Client"} · {b.title}</div><div className="text-[11px] text-ink-soft">{describeRepeat(b)} · {timeLabel(b)}</div></div><Button variant="ghost" size="sm" className="ml-auto" onClick={() => { setEditingBlock(b); setBlockOpen(true); }}>Edit</Button></li>)}</ul><Button variant="outline" size="sm" className="mt-3" onClick={() => { setEditingBlock(null); setBlockOpen(true); }}>Manage client availability</Button></div>}</section>
 
-  const days = useMemo(() => {
-    const out: string[] = [];
-    for (let d = range.from; d <= range.to; d = addDays(d, 1)) out.push(d);
-    return out;
-  }, [range]);
-
-  const monthLabel = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(
-    new Date(`${anchor.slice(0, 7)}-01T00:00:00Z`)
-  );
-
-  const step = (dir: 1 | -1) =>
-    setAnchor((cur) => {
-      if (view === "week") return addDays(cur, dir * 7);
-      const [y, m] = cur.slice(0, 7).split("-").map(Number);
-      const next = new Date(Date.UTC(y, m - 1 + dir, 1));
-      return next.toISOString().slice(0, 10);
-    });
-
-  const myBlocks = blocks.filter((b) => b.owner_user_id === userId);
-  const clientBlocks = blocks.filter((b) => b.owner_kind === "resident");
-
-  const openNew = (date: string) => {
-    setEditing(null);
-    setPickedDate(date);
-    setDialog(true);
-  };
-
-  return (
-    <AppShell>
-      <Seo title="Calendar — Site 99" description="Studio schedule and availability." path="/app/calendar" noindex />
-
-      <header className="rule-b pb-4 mb-5 flex flex-wrap items-end gap-3">
-        <div>
-          <div className="eyebrow text-signal mb-1">Schedule</div>
-          <h1 className="display text-2xl md:text-3xl">{view === "week" ? `Week of ${weekStart(anchor)}` : monthLabel}</h1>
-          <p className="mt-1 text-sm text-ink-soft">
-            Shoots, posts, deadlines and events — plus who is not available.
-          </p>
-        </div>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <div className="flex items-center rounded-full border border-rule overflow-hidden">
-            <button onClick={() => step(-1)} className="px-2 py-1.5 hover:text-signal focus-ring" aria-label="Previous">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button onClick={() => setAnchor(today)} className="px-3 py-1.5 eyebrow text-[10px] focus-ring">
-              Today
-            </button>
-            <button onClick={() => step(1)} className="px-2 py-1.5 hover:text-signal focus-ring" aria-label="Next">
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="flex rounded-full border border-rule overflow-hidden">
-            {(["month", "week"] as const).map((v) => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                className={cn("px-3 py-1.5 eyebrow text-[10px] capitalize focus-ring", view === v && "bg-signal text-paper")}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-          <Button onClick={() => openNew(today)} className="gap-1.5">
-            <CalendarPlus className="h-4 w-4" />
-            I'm busy
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        {KINDS.map((k) => {
-          const on = kinds.includes(k);
-          return (
-            <button
-              key={k}
-              onClick={() => setKinds((cur) => (on ? cur.filter((x) => x !== k) : [...cur, k]))}
-              className={cn(
-                "press rounded-full border px-3 py-1 text-xs",
-                on ? "border-signal bg-signal/10 text-ink" : "border-rule text-ink-faint"
-              )}
-            >
-              {KIND_LABEL[k]}
-            </button>
-          );
-        })}
-        <select
-          value={person}
-          onChange={(e) => setPerson(e.target.value)}
-          className="rounded-full border border-rule bg-paper-raised px-3 py-1 text-xs"
-        >
-          <option value="all">Everyone</option>
-          <option value="me">Just me</option>
-          {people.map((p) => (
-            <option key={p.user_id} value={p.user_id}>
-              {p.display_name || p.email}
-            </option>
-          ))}
-        </select>
-        <select
-          value={client}
-          onChange={(e) => setClient(e.target.value)}
-          className="rounded-full border border-rule bg-paper-raised px-3 py-1 text-xs"
-        >
-          <option value="all">All clients</option>
-          {residents.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </select>
-        {loading && <span className="eyebrow text-[10px] text-ink-faint">Loading…</span>}
-      </div>
-
-      {view === "month" ? (
-        <div className="surface rounded-xl overflow-hidden">
-          <div className="grid grid-cols-7 rule-b">
-            {DOW.map((d) => (
-              <div key={d} className="px-2 py-2 eyebrow text-[9px] text-ink-faint text-center">
-                {d}
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7">
-            {days.map((d) => {
-              const list = byDay.get(d) ?? [];
-              const outside = d.slice(0, 7) !== anchor.slice(0, 7);
-              return (
-                <button
-                  key={d}
-                  onClick={() => openNew(d)}
-                  className={cn(
-                    "text-left min-h-[104px] border-b border-r border-rule p-1.5 align-top hover:bg-paper-sunken focus-ring",
-                    outside && "opacity-45"
-                  )}
-                >
-                  <div className="flex items-center gap-1">
-                    <span
-                      className={cn(
-                        "num text-[11px] tabular-nums",
-                        d === today ? "rounded-full bg-signal px-1.5 py-0.5 text-paper font-semibold" : "text-ink-faint"
-                      )}
-                    >
-                      {Number(d.slice(8, 10))}
-                    </span>
-                  </div>
-                  <div className="mt-1 space-y-1">
-                    {list.slice(0, 3).map((e) => (
-                      <span
-                        key={e.id}
-                        className={cn("block truncate rounded border px-1.5 py-0.5 text-[10px]", KIND_STYLE[e.kind])}
-                        title={`${KIND_LABEL[e.kind]}: ${e.title} — ${e.note}`}
-                      >
-                        {e.title}
-                      </span>
-                    ))}
-                    {list.length > 3 && (
-                      <span className="block text-[10px] text-ink-faint">+{list.length - 3} more</span>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ) : (
-        <div className="grid gap-2 md:grid-cols-7">
-          {days.map((d) => {
-            const list = byDay.get(d) ?? [];
-            return (
-              <section key={d} className={cn("surface rounded-xl p-2", d === today && "border-signal/50")}>
-                <div className="flex items-baseline justify-between px-1 pb-2">
-                  <span className="eyebrow text-[9px] text-ink-faint">{DOW[(new Date(`${d}T00:00:00Z`).getUTCDay() + 6) % 7]}</span>
-                  <span className={cn("num text-sm tabular-nums", d === today && "text-signal font-semibold")}>
-                    {Number(d.slice(8, 10))}
-                  </span>
-                </div>
-                <div className="space-y-1.5">
-                  {list.length === 0 && <p className="px-1 py-3 text-[11px] text-ink-faint">Clear</p>}
-                  {list.map((e) =>
-                    e.to ? (
-                      <Link
-                        key={e.id}
-                        to={e.to}
-                        className={cn("block rounded border px-2 py-1.5 text-[11px] focus-ring", KIND_STYLE[e.kind])}
-                      >
-                        <div className="truncate">{e.title}</div>
-                        <div className="text-[10px] text-ink-faint truncate">{e.note}</div>
-                      </Link>
-                    ) : (
-                      <div key={e.id} className={cn("rounded border px-2 py-1.5 text-[11px]", KIND_STYLE[e.kind])}>
-                        <div className="truncate">{e.title}</div>
-                        <div className="text-[10px] text-ink-faint truncate">{e.note}</div>
-                      </div>
-                    )
-                  )}
-                </div>
-                <button
-                  onClick={() => openNew(d)}
-                  className="mt-2 w-full rounded border border-dashed border-rule py-1 text-[10px] text-ink-faint hover:text-signal focus-ring"
-                >
-                  + busy
-                </button>
-              </section>
-            );
-          })}
-        </div>
-      )}
-
-      <section className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div>
-          <h2 className="eyebrow text-[10px] rule-b pb-2 mb-3">My busy times</h2>
-          <ul className="surface rounded-xl divide-y divide-rule">
-            {myBlocks.length === 0 && <li className="px-4 py-5 text-sm text-ink-soft">Nothing blocked out yet.</li>}
-            {myBlocks.map((b) => (
-              <li key={b.id} className="px-4 py-3 flex items-center gap-3">
-                <div className="min-w-0">
-                  <div className="text-sm truncate">{b.title}</div>
-                  <div className="text-[11px] text-ink-soft truncate">
-                    {describeRepeat(b)} · {timeLabel(b)}
-                  </div>
-                </div>
-                <span
-                  className={cn(
-                    "ml-auto rounded-full border px-2 py-0.5 text-[10px] whitespace-nowrap",
-                    b.strictness === "hard" ? "border-signal text-signal" : "border-rule text-ink-soft"
-                  )}
-                >
-                  {b.strictness === "hard" ? "Do not schedule" : "Warn only"}
-                </span>
-                <button
-                  onClick={() => {
-                    setEditing(b);
-                    setDialog(true);
-                  }}
-                  className="eyebrow text-[10px] text-signal focus-ring"
-                >
-                  Edit
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h2 className="eyebrow text-[10px] rule-b pb-2 mb-3">Client busy times</h2>
-          <ul className="surface rounded-xl divide-y divide-rule">
-            {clientBlocks.length === 0 && <li className="px-4 py-5 text-sm text-ink-soft">No client has blocked time.</li>}
-            {clientBlocks.map((b) => (
-              <li key={b.id} className="px-4 py-3 flex items-center gap-3">
-                <div className="min-w-0">
-                  <div className="text-sm truncate">
-                    {residents.find((r) => r.id === b.resident_id)?.name ?? "Client"} — {b.title}
-                  </div>
-                  <div className="text-[11px] text-ink-soft truncate">
-                    {describeRepeat(b)} · {timeLabel(b)}
-                  </div>
-                </div>
-                <span
-                  className={cn(
-                    "ml-auto rounded-full border px-2 py-0.5 text-[10px] whitespace-nowrap",
-                    b.strictness === "hard" ? "border-signal text-signal" : "border-rule text-ink-soft"
-                  )}
-                >
-                  {b.strictness === "hard" ? "Do not schedule" : "Warn only"}
-                </span>
-                {isLeadership && (
-                  <button
-                    onClick={() => {
-                      setEditing(b);
-                      setDialog(true);
-                    }}
-                    className="eyebrow text-[10px] text-signal focus-ring"
-                  >
-                    Edit
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <BlockDialog
-        open={dialog}
-        onOpenChange={setDialog}
-        onSaved={refresh}
-        userId={userId}
-        residents={residents}
-        canBlockClients={isLeadership}
-        defaultDate={pickedDate}
-        editing={editing}
-      />
-
-      <p className="mt-6 text-[11px] text-ink-faint">
-        Signed in as {displayName || email}. Busy times you mark are visible to the team when they schedule you.
-      </p>
-    </AppShell>
-  );
+    <CalendarItemDialog open={itemOpen} onOpenChange={setItemOpen} onSaved={refresh} defaultDate={pickedDate} editing={editingItem} />
+    <BlockDialog open={blockOpen} onOpenChange={setBlockOpen} onSaved={refresh} userId={userId} residents={residents} canBlockClients={isLeadership} defaultDate={pickedDate} editing={editingBlock} />
+    <p className="mt-6 flex items-center gap-2 text-[11px] text-ink-faint"><Lock className="h-3.5 w-3.5" />Signed in as {displayName || email}. Private items show teammates only that you are Busy and when.</p>
+  </AppShell>;
 }
