@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader } from "@/components/system";
-import { FinanceLockProvider, FinanceLockChip } from "@/components/finance/FinanceLock";
+import { FinanceLockProvider, FinanceLockChip, FinanceGate } from "@/components/finance/FinanceLock";
 
 export default function FinancePage({
   title,
@@ -32,7 +32,7 @@ export default function FinancePage({
             </div>
           }
         />
-        {children}
+        <FinanceGate>{children}</FinanceGate>
       </FinanceLockProvider>
     </AppShell>
   );
