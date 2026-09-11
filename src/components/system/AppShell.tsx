@@ -222,7 +222,7 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
                           end={item.end}
                           onClick={() => isMobile && setOpenMobile(false)}
                           className={cn(
-                            "group relative flex items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring",
+                            "group relative flex min-h-11 items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring md:min-h-0",
                             active
                               ? "bg-acc-violet-soft text-acc-violet"
                               : "text-ink-soft hover:text-ink hover:bg-paper-sunken"
