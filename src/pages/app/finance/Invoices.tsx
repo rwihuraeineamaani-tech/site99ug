@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
 import { toast } from "sonner";
@@ -71,15 +72,15 @@ const emptyDraft = (direction: InvoiceDirection): Draft => ({
 });
 
 export default function Invoices() {
+  const [searchParams] = useSearchParams();
   const { require: requirePin } = useFinanceLock();
   const { canSeeFinance, has } = useMyRoles();
   const [tab, setTab] = useState<InvoiceDirection>("out");
   const [rows, setRows] = useState<Invoice[]>([]);
   const [lines, setLines] = useState<Record<string, InvoiceLine[]>>({});
   const [contracts, setContracts] = useState<Contract[]>([]);
-  const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
   const [residents, setResidents] = useState<{ id: string; name: string }[]>([]);
-  const [residentFilter, setResidentFilter] = useState("");
+  const [residentFilter, setResidentFilter] = useState(() => searchParams.get("resident") ?? "");
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -88,11 +89,10 @@ export default function Invoices() {
   const [settle, setSettle] = useState<{ inv: Invoice; wallet: string; amount: string; reference: string; note: string } | null>(null);
 
   const load = useCallback(async () => {
-    const [inv, ln, ct, cl, rs, wl] = await Promise.all([
+    const [inv, ln, ct, rs, wl] = await Promise.all([
       supabase.from("invoices").select("*").order("issue_date", { ascending: false }),
       supabase.from("invoice_lines").select("*").order("sort"),
       supabase.from("contracts").select("id, title, party_name, client_id, resident_id, value_ugx, status"),
-      supabase.from("clients").select("id, name").order("name"),
       supabase.from("residents").select("id, name").order("display_order"),
       supabase.from("wallets").select("id, name, active, sort").eq("active", true).order("sort"),
     ]);
@@ -103,7 +103,6 @@ export default function Invoices() {
     });
     setLines(map);
     setContracts((ct.data as Contract[]) ?? []);
-    setClients((cl.data as { id: string; name: string }[]) ?? []);
     setResidents((rs.data as { id: string; name: string }[]) ?? []);
     setWallets((wl.data as Wallet[]) ?? []);
   }, []);
@@ -330,6 +329,19 @@ ${inv.note ? `<p class="muted">${esc(inv.note)}</p>` : ""}
         <button className={`${pill} ${tab === "in" ? on : ""}`} onClick={() => setTab("in")}>
           We received
         </button>
+        <select
+          aria-label="Filter by client"
+          className="rounded-lg border border-rule bg-paper-raised px-3 py-1.5 text-xs outline-none focus:border-signal"
+          value={residentFilter}
+          onChange={(e) => setResidentFilter(e.target.value)}
+        >
+          <option value="">All clients</option>
+          {residents.map((resident) => (
+            <option key={resident.id} value={resident.id}>
+              {resident.name}
+            </option>
+          ))}
+        </select>
         <span className="ml-auto text-sm text-ink-soft">
           Outstanding <Money amount={owed} className="font-semibold" />
         </span>
@@ -358,12 +370,20 @@ ${inv.note ? `<p class="muted">${esc(inv.note)}</p>` : ""}
             </label>
             {draft.direction === "out" && (
               <label className="text-sm">
-                <span className="eyebrow text-ink-faint">Linked client record</span>
-                <select className={field} value={draft.client_id} onChange={(e) => setDraft({ ...draft, client_id: e.target.value })}>
+                <span className="eyebrow text-ink-faint">Linked client</span>
+                <select
+                  className={field}
+                  value={draft.resident_id}
+                  onChange={(e) => {
+                    const residentId = e.target.value;
+                    const name = residents.find((resident) => resident.id === residentId)?.name;
+                    setDraft({ ...draft, resident_id: residentId, party_name: name ?? draft.party_name });
+                  }}
+                >
                   <option value="">None</option>
-                  {clients.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
+                  {residents.map((resident) => (
+                    <option key={resident.id} value={resident.id}>
+                      {resident.name}
                     </option>
                   ))}
                 </select>
@@ -497,6 +517,7 @@ ${inv.note ? `<p class="muted">${esc(inv.note)}</p>` : ""}
             <button className="w-full px-4 py-3 text-left flex flex-wrap items-center gap-3 focus-ring" onClick={() => setOpenId(openId === inv.id ? null : inv.id)}>
               <span className="num text-xs text-ink-faint">{inv.number ?? "—"}</span>
               <span className="font-medium">{inv.party_name}</span>
+              {residentName(inv.resident_id) && <StatusChip tone="blue" value={residentName(inv.resident_id) ?? "Client"} />}
               <span className="text-sm text-ink-soft">{inv.period_label ?? catLabel(inv.category)}</span>
               <StatusChip tone={INVOICE_TONE[inv.status]} value={INVOICE_STATUS_LABEL[inv.status]} />
               {inv.recurring && <StatusChip tone="violet" value="Monthly" />}
@@ -524,7 +545,7 @@ ${inv.note ? `<p class="muted">${esc(inv.note)}</p>` : ""}
                 {inv.note && <p className="text-sm text-ink-soft">{inv.note}</p>}
                 <div className="flex flex-wrap gap-2">
                   {inv.file_path && (
-                    <button className={pill} onClick={() => openFile(inv.file_path!)}>
+                    <button className={pill} onClick={() => inv.file_path && openFile(inv.file_path)}>
                       Open file
                     </button>
                   )}
