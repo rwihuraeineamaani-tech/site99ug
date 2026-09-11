@@ -356,8 +356,57 @@
   color-scheme: dark;
 }
 
-.deck .card-lift:hover { box-shadow: 0 10px 30px -18px hsl(var(--signal) / 0.75); }
-.deck .surface { box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.03); }
+/* --- Dark deck: softer hairlines, lit surfaces ------------------- */
+.deck {
+  --hair: 0 0% 100% / 0.07;
+  --hair-soft: 0 0% 100% / 0.045;
+}
+.deck .card-lift:hover {
+  box-shadow: 0 18px 40px -26px hsl(0 0% 0% / 0.9), 0 0 0 1px hsl(var(--signal) / 0.35);
+}
+.deck .surface {
+  background:
+    linear-gradient(180deg, hsl(0 0% 100% / 0.045), hsl(0 0% 100% / 0.006) 42%),
+    hsl(var(--paper-raised));
+  border-color: hsl(var(--hair));
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.05), 0 1px 2px hsl(0 0% 0% / 0.45);
+}
+/* Hairlines: light-on-dark instead of flat grey — reads cleaner */
+.deck .rule-b { border-bottom-color: hsl(var(--hair-soft)); }
+.deck .rule-t { border-top-color: hsl(var(--hair-soft)); }
+.deck .divide-rule > :not([hidden]) ~ :not([hidden]) { border-color: hsl(var(--hair-soft)); }
+.deck .border-rule { border-color: hsl(var(--hair)); }
+
+/* Inner tiles on the boards */
+.deck .tile {
+  background:
+    linear-gradient(180deg, hsl(0 0% 100% / 0.05), hsl(0 0% 100% / 0.012)),
+    hsl(var(--paper-sunken));
+  border: 1px solid hsl(var(--hair));
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.045);
+}
+.deck .tile:hover { border-color: hsl(0 0% 100% / 0.14); }
+.deck .tile-signal { border-color: hsl(var(--signal) / 0.5); }
+.deck .tile-late {
+  border-color: hsl(var(--signal) / 0.65);
+  background:
+    linear-gradient(180deg, hsl(var(--signal) / 0.14), hsl(var(--signal) / 0.04)),
+    hsl(var(--paper-sunken));
+}
+.deck .tile-late::before,
+.deck .tile-signal::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.5rem; bottom: 0.5rem;
+  width: 2px;
+  border-radius: 2px;
+  background: hsl(var(--signal));
+}
+.deck-light .tile {
+  background: hsl(var(--paper));
+  border-color: hsl(var(--rule));
+  box-shadow: 0 1px 2px hsl(240 8% 12% / 0.05);
+}
 
 @layer utilities {
   /* Faint engineering grid + a warm glow behind the header */

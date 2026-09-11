@@ -126,7 +126,7 @@ export function DeckStat({
   const body = (
     <div
       className={cn(
-        "surface card-lift rounded-xl p-4 md:p-5 h-full relative overflow-hidden",
+        "surface card-lift rounded-2xl p-4 md:p-5 h-full relative overflow-hidden",
         tone === "signal" && "border-signal/45"
       )}
     >
@@ -149,7 +149,7 @@ export function DeckStat({
   return (
     <div className="rise" style={{ ["--d" as string]: `${delay}ms` }}>
       {to ? (
-        <Link to={to} className="block h-full focus-ring rounded-xl">
+        <Link to={to} className="block h-full focus-ring rounded-2xl">
           {body}
         </Link>
       ) : (
@@ -192,13 +192,13 @@ export function DeckPanel({
           </Link>
         )}
       </div>
-      {children ?? <p className="surface rounded-xl px-5 py-6 text-sm text-ink-soft">{empty ?? "Nothing here."}</p>}
+      {children ?? <p className="surface rounded-2xl px-5 py-6 text-sm text-ink-soft">{empty ?? "Nothing here."}</p>}
     </section>
   );
 }
 
 export function DeckList({ children }: { children: ReactNode }) {
-  return <ul className="surface rounded-xl overflow-hidden divide-y divide-rule">{children}</ul>;
+  return <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">{children}</ul>;
 }
 
 export default DeckHeader;
@@ -217,7 +217,7 @@ export type StripFigure = {
 /** One line of small figures — replaces the old wall of big count tiles. */
 export function DeckStrip({ figures }: { figures: StripFigure[] }) {
   return (
-    <div className="rise surface rounded-xl divide-y sm:divide-y-0 sm:divide-x divide-rule grid grid-cols-2 sm:grid-cols-4 overflow-hidden">
+    <div className="rise surface rounded-2xl divide-y sm:divide-y-0 sm:divide-x divide-rule grid grid-cols-2 sm:grid-cols-4 overflow-hidden">
       {figures.map((f) => {
         const inner = (
           <div className="px-4 py-3">
@@ -266,7 +266,7 @@ export function DeckColumn({
   const has = Array.isArray(children) ? children.length > 0 : !!children;
   return (
     <section
-      className="rise surface rounded-xl flex flex-col min-h-[180px]"
+      className="rise surface card-lift rounded-2xl flex flex-col min-h-[180px]"
       style={{ ["--d" as string]: `${delay}ms` }}
     >
       <div className="flex items-center gap-2 px-4 py-3 rule-b">
@@ -313,9 +313,9 @@ export function DeckCard({
   const body = (
     <div
       className={cn(
-        "rounded-lg border border-rule bg-paper-raised px-3 py-2.5 card-lift",
-        tone === "signal" && "border-signal/45",
-        tone === "late" && "border-signal bg-signal/[0.06]"
+        "tile relative overflow-hidden rounded-xl px-3.5 py-3 card-lift",
+        tone === "signal" && "tile-signal",
+        tone === "late" && "tile-late"
       )}
     >
       <div className="flex items-start gap-2">
@@ -342,7 +342,7 @@ export function DeckCard({
             e.stopPropagation();
             action.onClick();
           }}
-          className="press mt-2 w-full rounded-md border border-signal bg-signal px-2.5 py-1 text-[11px] font-semibold text-paper focus-ring disabled:opacity-50"
+          className="press mt-2.5 w-full rounded-lg border border-signal bg-signal px-2.5 py-1 text-[11px] font-semibold text-paper focus-ring disabled:opacity-50"
         >
           {action.label}
         </button>
@@ -350,7 +350,7 @@ export function DeckCard({
     </div>
   );
   return to ? (
-    <Link to={to} className="block focus-ring rounded-lg">
+    <Link to={to} className="block focus-ring rounded-xl">
       {body}
     </Link>
   ) : (
