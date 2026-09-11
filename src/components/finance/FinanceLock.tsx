@@ -28,7 +28,7 @@ export function useFinanceLock(): LockState {
   const ctx = useContext(Ctx);
   if (ctx) return ctx;
   // Outside a provider nothing is gated — keeps components usable in isolation.
-  return { require: async () => true, msLeft: 0, unlocked: false, lock: () => {} };
+  return { require: async () => true, msLeft: 0, unlocked: false, lock: () => {}, hasPin: true, openPin: () => {} };
 }
 
 export function FinanceLockProvider({ children }: { children: ReactNode }) {
