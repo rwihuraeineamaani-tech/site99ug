@@ -24,7 +24,10 @@ const toFlow = (n: WorkflowNode): Node => ({ id: n.id, position: { x: n.x, y: n.
 const fromFlow = (n: Node): WorkflowNode => ({ id: n.id, kind: ((n.data as { kind?: WorkflowNodeKind }).kind ?? "approval"), label: String((n.data as { label?: string }).label ?? "Step"), x: Math.round(n.position.x), y: Math.round(n.position.y), config: (n.data as { config?: WorkflowNode["config"] }).config ?? {} });
 
 export default function SystemAdmin() {
-  const [tab, setTab] = useState<Tab>("people");
+  const [params, setParams] = useSearchParams();
+  const urlTab = params.get("tab");
+  const tab: Tab = (tabs as readonly string[]).includes(urlTab ?? "") ? (urlTab as Tab) : "people";
+  const setTab = (next: Tab) => setParams(next === "people" ? {} : { tab: next }, { replace: true });
   const [loading, setLoading] = useState(true);
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [versions, setVersions] = useState<WorkflowVersion[]>([]);
