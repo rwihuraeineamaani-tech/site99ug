@@ -226,7 +226,12 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => {
-                  const active = item.end ? pathname === item.to : pathname.startsWith(item.to);
+                  const [itemPath, itemQuery] = item.to.split("?");
+                  const active = itemQuery
+                    ? pathname === itemPath && search.includes(itemQuery)
+                    : item.end
+                    ? pathname === item.to && (!item.to.startsWith("/app/system-admin") || !search)
+                    : pathname.startsWith(item.to);
                   const Icon = item.icon ?? LayoutDashboard;
                   return (
                     <SidebarMenuItem key={`${group.label}-${item.to}-${item.label}`}>
