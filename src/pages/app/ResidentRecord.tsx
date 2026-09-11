@@ -10,7 +10,7 @@ import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
-import { ArrowLeft, FileText, Target } from "lucide-react";
+import { ArrowLeft, FileText, MessageCircle, Target } from "lucide-react";
 import BrandGuidelines from "@/components/residents/BrandGuidelines";
 import MoneyPanel from "@/components/residents/MoneyPanel";
 import { logoUrl, initials } from "@/lib/logo";
@@ -221,6 +221,20 @@ export default function ResidentRecordPage() {
                 <Target className="h-4 w-4" /> Strategy, goals & targets
               </Button>
             </Link>
+            {resident.user_id && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2"
+                onClick={async () => {
+                  const { data, error } = await supabase.rpc("open_direct_chat", { _target_user: resident.user_id });
+                  if (error) return toast.error(error.message);
+                  window.location.assign(`/app/chat/${data}`);
+                }}
+              >
+                <MessageCircle className="h-4 w-4" /> Chat
+              </Button>
+            )}
             <span className="text-[11px] text-ink-faint">Set what we're aiming for and map how the work flows.</span>
           </div>
 

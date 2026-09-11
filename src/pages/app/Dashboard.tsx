@@ -19,7 +19,6 @@ import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
 import { buildWaiting, type FlowRow, type ResidentLink } from "@/lib/inbox";
 import { buildGreeting } from "@/lib/greeting";
 import Sparkline from "@/components/deck/Sparkline";
-import WaitingCard from "@/components/deck/WaitingCard";
 
 import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
 
@@ -111,59 +110,10 @@ export default function Dashboard() {
     };
   }, [userId, departments.content]);
 
-  const [moving, setMoving] = useState<string | null>(null);
-  const moveStage = async (id: string, next: string) => {
-    setMoving(id);
-    const { error } = await supabase.from("content_items").update({ stage: next } as never).eq("id", id);
-    setMoving(null);
-    if (error) return toast.error(error.message);
-    toast.success(`Moved to ${next}.`);
-    setFlow((cur) => cur.map((r) => (r.id === id ? { ...r, stage: next } : r)));
-  };
-
-  const quickStep = (i: FlowRow): { label: string; next: string } | null => {
-    if (i.stage === "Idea" && isFounder) return { label: "Approve", next: "Approved" };
-    if (i.stage === "Shooting") return { label: "Shoot done", next: "Editing" };
-    return null;
-  };
-
   const waiting = useMemo(
     () => buildWaiting({ userId, flow, resLinks, myCrew, isFounder, amContact, amHandler }),
     [flow, resLinks, myCrew, userId, isFounder, amContact, amHandler]
   );
-
-  /** The same jobs, split into late / today / next, with a client and a due line. */
-  const waitingGroups = useMemo(() => {
-    const t = todayISO();
-    const nameOf = new Map(resLinks.map((r) => [r.id, r.name]));
-    const dayGap = (d: string) =>
-      Math.round((Date.parse(`${d}T00:00:00Z`) - Date.parse(`${t}T00:00:00Z`)) / 86400000);
-
-    const rows = waiting.map(({ item, why, due }) => {
-      const d = due ? due.slice(0, 10) : null;
-      const gap = d ? dayGap(d) : null;
-      const urgency: "late" | "today" | "soon" = gap === null ? "soon" : gap < 0 ? "late" : gap === 0 ? "today" : "soon";
-      const dueLabel =
-        gap === null
-          ? null
-          : gap < 0
-            ? `${Math.abs(gap)} day${Math.abs(gap) === 1 ? "" : "s"} late`
-            : gap === 0
-              ? "today"
-              : gap === 1
-                ? "tomorrow"
-                : `in ${gap} days`;
-      return { item, why, urgency, dueLabel, client: item.resident_id ? nameOf.get(item.resident_id) ?? null : null };
-    });
-
-    return (
-      [
-        { key: "late", label: "Late", rows: rows.filter((r) => r.urgency === "late") },
-        { key: "today", label: "Today", rows: rows.filter((r) => r.urgency === "today") },
-        { key: "soon", label: "Next up", rows: rows.filter((r) => r.urgency === "soon").slice(0, 8) },
-      ] as const
-    ).filter((g) => g.rows.length > 0);
-  }, [waiting, resLinks]);
 
 
   const live = flow.filter((f) => LIVE.includes(f.stage));
@@ -312,7 +262,7 @@ export default function Dashboard() {
 
       <DeckStrip
         figures={[
-          { label: "Waiting on you", value: waiting.length, tone: waiting.length ? "signal" : "quiet" },
+          { label: "To-Do", value: waiting.length, tone: waiting.length ? "signal" : "quiet", to: "/app/todo" },
           { label: "On your plate", value: onMyPlate.length, to: "/app/content" },
           { label: "In the pipeline", value: live.length, to: "/app/content" },
           canSeeFinance || myShares.length
@@ -322,56 +272,13 @@ export default function Dashboard() {
       />
 
       <div className="mt-4 grid gap-3 lg:grid-cols-4 md:grid-cols-2">
-        <DeckColumn
-          title="Waiting on you"
-          count={waiting.length}
-          to="/app/content"
-          empty="Nothing is sitting with you."
-          delay={0}
-        >
-          {waitingGroups.map((g) => (
-            <div key={g.key} className="space-y-2">
-              <div className="flex items-center gap-2 px-1 pt-1">
-                <span className={`eyebrow text-[9px] ${g.key === "late" ? "text-signal" : "text-ink-faint"}`}>
-                  {g.label}
-                </span>
-                <span className="num text-[9px] text-ink-faint">{g.rows.length}</span>
-                <span className="h-px flex-1 bg-rule" />
-              </div>
-              {g.rows.map(({ item, why, urgency, client, dueLabel }) => (
-                <WaitingCard
-                  key={`${item.id}-${why}`}
-                  to={`/app/content?ref=${item.ref_no}`}
-                  move={why}
-                  title={item.title}
-                  refLabel={refCode(item.ref_no)}
-                  stage={item.stage}
-                  client={client}
-                  due={dueLabel}
-                  urgency={urgency}
-                  action={
-                    quickStep(item)
-                      ? {
-                          label: quickStep(item)!.label,
-                          busy: moving === item.id,
-                          onClick: () => moveStage(item.id, quickStep(item)!.next),
-                        }
-                      : undefined
-                  }
-                />
-              ))}
-            </div>
-          ))}
-        </DeckColumn>
-
-
-        <DeckColumn title="Today & overdue" count={today.length} to="/app/shoots" empty="Nothing on the clock." delay={60}>
+        <DeckColumn title="Today & overdue" count={today.length} to="/app/shoots" empty="Nothing on the clock." delay={0}>
           {today.map((r) => (
             <DeckCard key={r.id} to={r.to} eyebrow={r.when} title={r.title} note={r.note} tone={r.late ? "late" : "default"} />
           ))}
         </DeckColumn>
 
-        <DeckColumn title="This week" count={thisWeek.length} to="/app/calendar" toLabel="Calendar" empty="A clear week." delay={120}>
+        <DeckColumn title="This week" count={thisWeek.length} to="/app/calendar" toLabel="Calendar" empty="A clear week." delay={60}>
           {thisWeek.map((e) => (
             <DeckCard
               key={e.id}
@@ -385,7 +292,7 @@ export default function Dashboard() {
 
         <DeckColumn
           title={scope === "studio" && isLeadership ? "Studio performance" : "Your KPI performance"}
-          delay={180}
+          delay={120}
           empty="Nothing to measure yet."
         >
           {isLeadership && (

@@ -7,6 +7,8 @@ export type Announcement = {
   body: string | null;
   published: boolean;
   created_at: string;
+  created_by: string | null;
+  published_at: string | null;
 };
 
 export const useAnnouncements = (onlyPublished = false) =>

@@ -72,6 +72,12 @@ import StrategyGoals from "./pages/app/strategy/Goals.tsx";
 import StrategyApprovals from "./pages/app/strategy/Approvals.tsx";
 import InboxPage from "./pages/app/Inbox.tsx";
 import ApprovalsPage from "./pages/app/Approvals.tsx";
+import ChatPage from "./pages/app/Chat.tsx";
+import TodoPage from "./pages/app/Todo.tsx";
+import BriefsPage from "./pages/app/Briefs.tsx";
+import BriefDetailPage from "./pages/app/BriefDetail.tsx";
+import AnnouncementsPage from "./pages/app/Announcements.tsx";
+import AnnouncementDetailPage from "./pages/app/AnnouncementDetail.tsx";
 
 import Shoots from "./pages/app/Shoots.tsx";
 import ShootDayRun from "./pages/app/ShootDay.tsx";
@@ -154,12 +160,15 @@ const AnimatedRoutes = () => {
         />
         <Route
           path="/app/inbox"
-          element={
-            <RequireRole gate="staff">
-              <InboxPage />
-            </RequireRole>
-          }
+          element={<Navigate to="/app/chat" replace />}
         />
+        <Route path="/app/todo" element={<RequireRole gate="staff"><TodoPage /></RequireRole>} />
+        <Route path="/app/chat" element={<RequireRole gate="staff"><ChatPage /></RequireRole>} />
+        <Route path="/app/chat/:threadId" element={<RequireRole gate="staff"><ChatPage /></RequireRole>} />
+        <Route path="/app/briefs" element={<RequireRole gate="staff"><BriefsPage /></RequireRole>} />
+        <Route path="/app/briefs/:id" element={<RequireRole gate="staff"><BriefDetailPage /></RequireRole>} />
+        <Route path="/app/announcements" element={<RequireRole gate="staff"><AnnouncementsPage /></RequireRole>} />
+        <Route path="/app/announcements/:id" element={<RequireRole gate="staff"><AnnouncementDetailPage /></RequireRole>} />
         <Route
           path="/app/residents"
           element={

@@ -8,6 +8,9 @@ export type Brief = {
   body: string | null;
   file_url: string | null;
   created_at: string;
+  created_by: string | null;
+  shoot_day_id: string | null;
+  content_id: string | null;
 };
 
 export const useBriefs = (residentId?: string | null) =>

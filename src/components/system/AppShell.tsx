@@ -32,6 +32,8 @@ import {
   Workflow,
   Compass,
   BadgeCheck,
+  ListChecks,
+  MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -49,6 +51,9 @@ import { useMyRoles } from "@/hooks/useMyRoles";
 import { useInbox } from "@/hooks/useInbox";
 import { useStrategyWaiting } from "@/hooks/useStrategyWaiting";
 import { useApprovalsWaiting } from "@/hooks/useApprovalsWaiting";
+import { useTodo } from "@/hooks/useTodo";
+import { useChatUnread } from "@/hooks/useChatUnread";
+import { useCommunicationUnread } from "@/hooks/useCommunicationUnread";
 import logo from "@/assets/site99-logo.png";
 import {
   Sidebar,
@@ -69,9 +74,12 @@ type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance } = useMyRoles();
-  const { unread } = useInbox(true);
+  useInbox(true);
   const strategyWaiting = useStrategyWaiting(isLeadership);
   const approvalsWaiting = useApprovalsWaiting();
+  const { items: todoItems } = useTodo();
+  const chatUnread = useChatUnread();
+  const communicationUnread = useCommunicationUnread();
 
   if (nav) return [{ label: "Menu", items: nav }];
 
@@ -91,7 +99,10 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       label: "Overview",
       items: [
         { to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard },
-        { to: "/app/inbox", label: "Inbox", icon: Inbox, badge: unread },
+          { to: "/app/todo", label: "To-Do", icon: ListChecks, badge: todoItems.length },
+          { to: "/app/chat", label: "Chat", icon: MessageCircle, badge: chatUnread },
+          { to: "/app/briefs", label: "Briefs", icon: FileText, badge: communicationUnread.briefs },
+          { to: "/app/announcements", label: "Announcements", icon: Megaphone, badge: communicationUnread.announcements },
         { to: "/app/approvals", label: "Approvals", icon: BadgeCheck, badge: approvalsWaiting },
         { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
         { to: "/app/settings", label: "My settings", icon: UserCog },
