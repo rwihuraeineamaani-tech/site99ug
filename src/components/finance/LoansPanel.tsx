@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useFinanceLock } from "@/components/finance/FinanceLock";
 import { toast } from "sonner";
 import { SectionHeading, StatusChip, Money } from "@/components/system";
 import { useMyRoles } from "@/hooks/useMyRoles";
@@ -40,6 +41,7 @@ const TONE: Record<string, "amber" | "teal" | "neutral" | "stop"> = {
 };
 
 export default function LoansPanel({ onChanged }: { onChanged?: () => void }) {
+  const { require: requirePin } = useFinanceLock();
   const { canSeeFinance, isLeadership } = useMyRoles();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [repayments, setRepayments] = useState<Repayment[]>([]);

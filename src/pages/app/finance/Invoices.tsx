@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useFinanceLock } from "@/components/finance/FinanceLock";
 import { toast } from "sonner";
 import FinancePage from "@/components/finance/FinancePage";
 import { SectionHeading, Money, StatusChip } from "@/components/system";
@@ -68,6 +69,7 @@ const emptyDraft = (direction: InvoiceDirection): Draft => ({
 });
 
 export default function Invoices() {
+  const { require: requirePin } = useFinanceLock();
   const { canSeeFinance, has } = useMyRoles();
   const [tab, setTab] = useState<InvoiceDirection>("out");
   const [rows, setRows] = useState<Invoice[]>([]);

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useFinanceLock } from "@/components/finance/FinanceLock";
 import { toast } from "sonner";
 import FinancePage from "@/components/finance/FinancePage";
 import { SectionHeading, Money, SearchInput, SelectFilter, StatusChip } from "@/components/system";
@@ -68,6 +69,7 @@ const spendTone = (k: string): "violet" | "amber" | "neutral" =>
 const spendChip = (k: string) => (k === "capex" ? "Capital" : k === "opex" ? "Running cost" : "Not a cost");
 
 export default function Cashbook() {
+  const { require: requirePin } = useFinanceLock();
   const { canSeeFinance, has } = useMyRoles();
   const canLog = canSeeFinance || has("admin", "founder");
 
