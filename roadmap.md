@@ -34,3 +34,6 @@
 - [x] Build Sales overview, pipeline, opportunities, offers, partnerships, and forecast
 - [x] Integrate Sales with approvals, To-Do, Calendar, Legal, Finance, and Residents
 - [x] Verify role access, mobile layout, exports, and end-to-end conversion
+
+## Preview health
+- [x] Clear all current typecheck and build errors
