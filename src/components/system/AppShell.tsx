@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import HeaderClock from "@/components/deck/HeaderClock";
 import CalendarReminderBell from "@/components/calendar/CalendarReminderBell";
 import HelpButton from "@/components/system/HelpButton";
+import useActivityTracker from "@/hooks/useActivityTracker";
 import {
   ThemeMode,
   readTheme,
