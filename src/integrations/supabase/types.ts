@@ -2609,6 +2609,210 @@ export type Database = {
           },
         ]
       }
+      leadership_task_activity: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          detail: string | null
+          event_type: string
+          id: string
+          task_id: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          detail?: string | null
+          event_type: string
+          id?: string
+          task_id: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          detail?: string | null
+          event_type?: string
+          id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leadership_task_activity_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "leadership_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leadership_task_assignees: {
+        Row: {
+          assigned_at: string
+          id: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          id?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          id?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leadership_task_assignees_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "leadership_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leadership_task_evidence: {
+        Row: {
+          added_by: string
+          created_at: string
+          id: string
+          kind: string
+          label: string
+          storage_path: string | null
+          task_id: string
+          url: string | null
+        }
+        Insert: {
+          added_by: string
+          created_at?: string
+          id?: string
+          kind: string
+          label: string
+          storage_path?: string | null
+          task_id: string
+          url?: string | null
+        }
+        Update: {
+          added_by?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string
+          storage_path?: string | null
+          task_id?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leadership_task_evidence_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "leadership_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leadership_tasks: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          assigned_by: string
+          cancelled_at: string | null
+          clarification_request: string | null
+          created_at: string
+          due_at: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          instruction: string
+          leader_feedback: string | null
+          priority: string
+          private_notes: string | null
+          require_file_or_link: boolean
+          require_signoff: boolean
+          require_written_update: boolean
+          resident_id: string | null
+          status: string
+          submitted_at: string | null
+          submitted_update: string | null
+          task_type: string
+          title: string
+          updated_at: string
+          work_path: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          assigned_by: string
+          cancelled_at?: string | null
+          clarification_request?: string | null
+          created_at?: string
+          due_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          instruction: string
+          leader_feedback?: string | null
+          priority?: string
+          private_notes?: string | null
+          require_file_or_link?: boolean
+          require_signoff?: boolean
+          require_written_update?: boolean
+          resident_id?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_update?: string | null
+          task_type?: string
+          title: string
+          updated_at?: string
+          work_path?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          assigned_by?: string
+          cancelled_at?: string | null
+          clarification_request?: string | null
+          created_at?: string
+          due_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          instruction?: string
+          leader_feedback?: string | null
+          priority?: string
+          private_notes?: string | null
+          require_file_or_link?: boolean
+          require_signoff?: boolean
+          require_written_update?: boolean
+          resident_id?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_update?: string | null
+          task_type?: string
+          title?: string
+          updated_at?: string
+          work_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leadership_tasks_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leadership_tasks_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       legal_documents: {
         Row: {
           category: string
@@ -5148,6 +5352,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_access_leadership_task: {
+        Args: { _task_id: string; _user_id?: string }
+        Returns: boolean
+      }
       can_act_approval_task: {
         Args: {
           _task: Database["public"]["Tables"]["approval_tasks"]["Row"]
@@ -5156,6 +5364,10 @@ export type Database = {
         Returns: boolean
       }
       can_approve_strategy: { Args: { _uid: string }; Returns: boolean }
+      can_assign_leadership_work: {
+        Args: { _user_id?: string }
+        Returns: boolean
+      }
       can_edit_content: { Args: { _user_id: string }; Returns: boolean }
       can_fund_client: {
         Args: { _resident_id: string; _user_id: string }
@@ -5196,6 +5408,25 @@ export type Database = {
       }
       client_pot_balance: { Args: { _resident_id: string }; Returns: number }
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
+      create_leadership_task: {
+        Args: {
+          _assignee_ids: string[]
+          _due_at: string
+          _entity_id?: string
+          _entity_type?: string
+          _instruction: string
+          _priority: string
+          _private_notes: string
+          _require_file_or_link?: boolean
+          _require_signoff?: boolean
+          _require_written_update?: boolean
+          _resident_id?: string
+          _task_type: string
+          _title: string
+          _work_path?: string
+        }
+        Returns: string
+      }
       decide_approval_task: {
         Args: {
           _decision: string
@@ -5203,6 +5434,10 @@ export type Database = {
           _note?: string
           _task_id: string
         }
+        Returns: undefined
+      }
+      decide_leadership_task: {
+        Args: { _decision: string; _feedback?: string; _task_id: string }
         Returns: undefined
       }
       decline_cash_request: {
@@ -5527,6 +5762,10 @@ export type Database = {
           _to: string
         }
         Returns: string
+      }
+      update_leadership_task: {
+        Args: { _message?: string; _status: string; _task_id: string }
+        Returns: undefined
       }
       wallet_balances: {
         Args: never
