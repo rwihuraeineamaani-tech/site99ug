@@ -40,7 +40,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import HeaderClock from "@/components/deck/HeaderClock";
-import CalendarReminderBell from "@/components/calendar/CalendarReminderBell";
+import NotificationBell from "@/components/system/NotificationBell";
 import HelpButton from "@/components/system/HelpButton";
 import useActivityTracker from "@/hooks/useActivityTracker";
 import {
@@ -371,7 +371,7 @@ export function AppShell({
             </div>
             <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-3 md:gap-5">
               <HelpButton />
-              {userId && <CalendarReminderBell />}
+              {userId && <NotificationBell />}
               <Link
                 to="/app/calendar"
                 className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-rule px-3 py-1.5 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"
