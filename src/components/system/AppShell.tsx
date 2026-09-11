@@ -344,7 +344,7 @@ export function AppShell({
               </span>
             </div>
             <div className="ml-auto flex items-center gap-3 md:gap-5 min-w-0">
-              {isStaff && <CalendarReminderBell />}
+              {userId && <CalendarReminderBell />}
               <Link
                 to="/app/calendar"
                 className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-rule px-3 py-1.5 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { CalendarItem, WorkKind, WorkOption } from "@/lib/calendar";
+import type { CalendarItem, WorkOption } from "@/lib/calendar";
 import type { Freq } from "@/lib/recurrence";
 
 const field = "mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm outline-none press focus:border-signal focus:ring-4 focus:ring-signal/10";
@@ -54,15 +54,15 @@ export default function CalendarItemDialog({ open, onOpenChange, onSaved, defaul
   }, [open]);
 
   const selected = useMemo(() => workOptions.find((x) => `${x.kind}|${x.id}|${x.label}|${x.path}` === work), [work, workOptions]);
-  const save = async () => {
+  const save = async (forceInsert = false) => {
     if (!title.trim()) return toast.error("Give this calendar item a title.");
     if (!allDay && endDate === startDate && endTime <= startTime) return toast.error("End time must be after start time.");
     setBusy(true);
     const reminderMinutes = reminder === "" ? null : reminder === "custom" ? Math.max(0, Number(customReminder) || 0) : Number(reminder);
     const payload = { title: title.trim(), all_day: allDay, start_date: startDate, end_date: freq === "none" ? endDate : startDate, start_time: allDay ? null : startTime, end_time: allDay ? null : endTime, location: location.trim() || null, note: note.trim() || null, visibility, strictness, freq, interval_n: Math.max(1, interval), byweekday: freq === "weekly" ? byweekday : [], until: freq === "none" ? null : until || null, occurrences: freq === "none" || !occurrences ? null : Number(occurrences), reminder_minutes: reminderMinutes, reminder_dismissed_at: null, work_kind: selected?.kind ?? null, work_id: selected?.id ?? null, work_label: selected?.label ?? null, work_path: selected?.path ?? null };
-    const result = editing && !duplicate ? await supabase.from("calendar_items").update(payload).eq("id", editing.id) : await supabase.from("calendar_items").insert(payload);
+    const result = editing && !duplicate && !forceInsert ? await supabase.from("calendar_items").update(payload).eq("id", editing.id) : await supabase.from("calendar_items").insert(payload);
     setBusy(false); if (result.error) return toast.error(result.error.message);
-    toast.success(editing && !duplicate ? "Calendar item updated." : "Calendar item added."); onOpenChange(false); onSaved();
+    toast.success(editing && !duplicate && !forceInsert ? "Calendar item updated." : "Calendar item added."); onOpenChange(false); onSaved();
   };
   const remove = async () => { if (!editing || duplicate) return; setBusy(true); const { error } = await supabase.from("calendar_items").delete().eq("id", editing.id); setBusy(false); if (error) return toast.error(error.message); toast.success("Calendar item deleted."); onOpenChange(false); onSaved(); };
 
@@ -78,6 +78,6 @@ export default function CalendarItemDialog({ open, onOpenChange, onSaved, defaul
     {freq !== "none" && <><div className="grid gap-3 sm:grid-cols-3"><div><label className="eyebrow text-ink-faint">Every</label><input type="number" min="1" className={field} value={interval} onChange={(e) => setInterval(Number(e.target.value))} /></div><div><label className="eyebrow text-ink-faint">Until</label><input type="date" className={field} value={until} onChange={(e) => setUntil(e.target.value)} /></div><div><label className="eyebrow text-ink-faint">Times</label><input type="number" min="1" className={field} value={occurrences} onChange={(e) => setOccurrences(e.target.value)} placeholder="Optional" /></div></div>{freq === "weekly" && <div className="flex flex-wrap gap-1.5">{DAYS.map((d) => <button key={d.n} type="button" onClick={() => setByweekday((cur) => cur.includes(d.n) ? cur.filter((x) => x !== d.n) : [...cur, d.n])} className={`rounded-full border px-2.5 py-1 text-xs ${byweekday.includes(d.n) ? "border-signal bg-signal text-paper" : "border-rule"}`}>{d.label}</button>)}</div>}</>}
     <div><label className="eyebrow text-ink-faint">Linked work</label><select className={field} value={work} onChange={(e) => setWork(e.target.value)}><option value="">No linked work</option>{workOptions.map((o) => <option key={`${o.kind}-${o.id}`} value={`${o.kind}|${o.id}|${o.label}|${o.path}`}>{o.label}</option>)}</select></div>
     <div><label className="eyebrow text-ink-faint">Notes</label><textarea className={field} rows={3} value={note} onChange={(e) => setNote(e.target.value)} /></div>
-    <div className="flex flex-wrap gap-2"><Button onClick={save} disabled={busy}>{editing && !duplicate ? "Save changes" : "Add to calendar"}</Button>{editing && !duplicate && <Button variant="outline" onClick={() => onOpenChange(false)} className="gap-1.5"><Copy className="h-4 w-4" />Close</Button>}{editing && !duplicate && <Button variant="destructive" onClick={remove} disabled={busy} className="ml-auto gap-1.5"><Trash2 className="h-4 w-4" />Delete</Button>}</div>
+    <div className="flex flex-wrap gap-2"><Button onClick={() => save()} disabled={busy}>{editing && !duplicate ? "Save changes" : "Add to calendar"}</Button>{editing && !duplicate && <Button variant="outline" onClick={() => save(true)} disabled={busy} className="gap-1.5"><Copy className="h-4 w-4" />Duplicate</Button>}{editing && !duplicate && <Button variant="destructive" onClick={remove} disabled={busy} className="ml-auto gap-1.5"><Trash2 className="h-4 w-4" />Delete</Button>}</div>
   </div></DialogContent></Dialog>;
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CalendarPlus, ChevronLeft, ChevronRight, Clock3, ExternalLink, Lock, MapPin, Users } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Lock } from "lucide-react";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { Button } from "@/components/ui/button";
