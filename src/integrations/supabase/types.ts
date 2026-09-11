@@ -131,24 +131,30 @@ export type Database = {
         Row: {
           body: string | null
           created_at: string
+          created_by: string | null
           id: string
           published: boolean
+          published_at: string | null
           title: string
           updated_at: string
         }
         Insert: {
           body?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           published?: boolean
+          published_at?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           body?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           published?: boolean
+          published_at?: string | null
           title?: string
           updated_at?: string
         }
@@ -358,32 +364,48 @@ export type Database = {
       briefs: {
         Row: {
           body: string | null
+          content_id: string | null
           created_at: string
+          created_by: string | null
           file_url: string | null
           id: string
           resident_id: string
+          shoot_day_id: string | null
           title: string
           updated_at: string
         }
         Insert: {
           body?: string | null
+          content_id?: string | null
           created_at?: string
+          created_by?: string | null
           file_url?: string | null
           id?: string
           resident_id: string
+          shoot_day_id?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           body?: string | null
+          content_id?: string | null
           created_at?: string
+          created_by?: string | null
           file_url?: string | null
           id?: string
           resident_id?: string
+          shoot_day_id?: string | null
           title?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "briefs_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "briefs_resident_id_fkey"
             columns: ["resident_id"]
@@ -396,6 +418,13 @@ export type Database = {
             columns: ["resident_id"]
             isOneToOne: false
             referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "briefs_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
             referencedColumns: ["id"]
           },
         ]
@@ -636,6 +665,97 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      chat_messages: {
+        Row: {
+          body: string
+          created_at: string
+          edited_at: string | null
+          id: string
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_participants: {
+        Row: {
+          id: string
+          joined_at: string
+          last_read_at: string
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          last_read_at?: string
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          last_read_at?: string
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_participants_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_threads: {
+        Row: {
+          created_at: string
+          created_by: string
+          direct_key: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          direct_key: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          direct_key?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       client_accounts: {
         Row: {
@@ -1111,6 +1231,30 @@ export type Database = {
           notes?: string | null
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      communication_reads: {
+        Row: {
+          entity_id: string
+          entity_kind: string
+          id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          entity_id: string
+          entity_kind: string
+          id?: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          entity_id?: string
+          entity_kind?: string
+          id?: string
+          read_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3776,6 +3920,10 @@ export type Database = {
         Returns: boolean
       }
       hold_payment_line: { Args: { _line_id: string }; Returns: undefined }
+      is_chat_participant: {
+        Args: { _thread_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_content_crew: {
         Args: { _content_id: string; _user_id: string }
         Returns: boolean
@@ -3846,6 +3994,7 @@ export type Database = {
         }[]
       }
       next_invoice_number: { Args: never; Returns: string }
+      open_direct_chat: { Args: { _target_user: string }; Returns: string }
       ops_overview: { Args: never; Returns: Json }
       raise_recurring_invoices: { Args: never; Returns: number }
       read_email_batch: {
