@@ -91,6 +91,8 @@
     font-family: 'Montserrat', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
+  html { overflow-x: hidden; }
+  body { min-width: 320px; }
   ::selection {
     background: hsl(var(--site-red));
     color: hsl(var(--site-white));
@@ -239,6 +241,14 @@
   }
   .shell-x { padding-left: 1.5rem; padding-right: 1.5rem; }
   @media (min-width: 768px) { .shell-x { padding-left: 3rem; padding-right: 3rem; } }
+  @media (max-width: 639px) {
+    .deck input:not([type="checkbox"]):not([type="radio"]),
+    .deck select,
+    .deck textarea { font-size: 16px; }
+    .deck [role="tablist"] { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+    .deck [role="dialog"] { max-width: calc(100vw - 1rem); }
+    .deck table { min-width: 42rem; }
+  }
 
   /* --- Tactile controls ------------------------------------------- */
   .press {

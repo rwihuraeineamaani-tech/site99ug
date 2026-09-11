@@ -37,3 +37,12 @@
 
 ## Preview health
 - [x] Clear all current typecheck and build errors
+
+## Mobile-first system and push notifications
+- [x] Mobile-first shell, touch controls, responsive data tables, and phone calendar defaults
+- [x] Firebase messaging connection and secure per-user device registration
+- [x] Push preferences for tasks, approvals, communications, and finance
+- [x] Push outbox, immediate event triggers, delivery logs, retry handling, and deep links
+- [x] Scheduled deadline and calendar reminder dispatch
+- [x] Mobile browser verification for the shell, dashboard, calendar, Sales, settings, and menu drawer
+- [ ] Enable the connection's web-push configuration so browser registration keys sync

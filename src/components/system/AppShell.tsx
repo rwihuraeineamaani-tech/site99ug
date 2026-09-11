@@ -222,7 +222,7 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
                           end={item.end}
                           onClick={() => isMobile && setOpenMobile(false)}
                           className={cn(
-                            "group relative flex items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring",
+                            "group relative flex min-h-11 items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring md:min-h-0",
                             active
                               ? "bg-acc-violet-soft text-acc-violet"
                               : "text-ink-soft hover:text-ink hover:bg-paper-sunken"
@@ -331,13 +331,13 @@ export function AppShell({
         {groups.length > 0 && <ShellSidebar groups={groups} />}
 
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-40 h-16 rule-b bg-paper/95 backdrop-blur flex items-center gap-3 px-3 md:px-6">
+          <header className="sticky top-0 z-40 h-16 rule-b bg-paper/95 backdrop-blur flex items-center gap-2 px-2.5 md:gap-3 md:px-6">
             {groups.length > 0 && <SidebarTrigger className="focus-ring" />}
             <Link to="/" className="shrink-0 focus-ring rounded-md">
-              <img src={logo} alt="Site 99" className="h-11 md:h-12 w-auto" />
+              <img src={logo} alt="Site 99" className="h-9 w-auto md:h-12" />
             </Link>
             <span className="hidden sm:block h-8 w-px bg-rule" aria-hidden />
-            <div className="flex flex-col justify-center min-w-0">
+            <div className="hidden min-w-0 flex-col justify-center sm:flex">
               <span className="text-sm md:text-base font-semibold leading-tight truncate max-w-[180px] md:max-w-[280px]">
                 {name}
               </span>
@@ -345,7 +345,7 @@ export function AppShell({
                 {title || eyebrow}
               </span>
             </div>
-            <div className="ml-auto flex items-center gap-3 md:gap-5 min-w-0">
+            <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-3 md:gap-5">
               {userId && <CalendarReminderBell />}
               <Link
                 to="/app/calendar"
@@ -371,7 +371,7 @@ export function AppShell({
               </Link>
               <button
                 onClick={signOut}
-                className="eyebrow text-ink-soft hover:text-signal px-2 focus-ring inline-flex items-center gap-1"
+                className="hidden min-h-11 items-center gap-1 px-2 text-ink-soft hover:text-signal focus-ring sm:inline-flex"
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign out</span>
@@ -380,7 +380,7 @@ export function AppShell({
           </header>
 
 
-          <main className="flex-1 px-4 md:px-8 py-8 min-w-0">{children}</main>
+          <main className="flex-1 min-w-0 px-3 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-5 sm:px-4 md:px-8 md:py-8">{children}</main>
         </div>
       </div>
     </SidebarProvider>
