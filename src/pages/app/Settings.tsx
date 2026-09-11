@@ -215,13 +215,13 @@ export default function Settings() {
           </div>
         </div>
 
-        <nav className="mt-6 flex flex-wrap gap-2">
+        <nav className="no-scrollbar -mx-1 mt-6 flex max-w-full gap-2 overflow-x-auto px-1 pb-1">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
               className={cn(
-                "rounded-full border px-4 py-1.5 eyebrow text-[10px] focus-ring transition-colors",
+                "min-h-11 shrink-0 rounded-full border px-4 py-1.5 eyebrow text-[10px] focus-ring transition-colors sm:min-h-0",
                 tab === t.id
                   ? "border-signal/60 bg-acc-violet-soft text-signal"
                   : "border-rule text-ink-soft hover:text-ink"

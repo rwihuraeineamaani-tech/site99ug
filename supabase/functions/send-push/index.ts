@@ -29,12 +29,16 @@ Deno.serve(async (req) => {
       await admin.from('push_outbox').upsert({ recipient_user_id: signedInUser, actor_user_id: null, category: 'tasks', event_type: 'test', title: 'Site 99 notifications are on', body: 'This device is ready for work alerts.', path: '/app/settings', event_key: `test:${signedInUser}:${Date.now()}` }, { onConflict: 'event_key' })
     }
 
+    await admin.rpc('prepare_due_push_reminders', { _now: new Date().toISOString() })
+
     let query = admin.from('push_outbox').select('*').in('status', ['pending', 'failed']).lte('available_at', new Date().toISOString()).lt('attempts', 5).order('created_at').limit(40)
     if (body.data.test && signedInUser) query = query.eq('recipient_user_id', signedInUser).eq('event_type', 'test')
     const { data: rows, error: rowsError } = await query
     if (rowsError) throw rowsError
     let delivered = 0
     for (const row of rows ?? []) {
+      const { data: claimed } = await admin.from('push_outbox').update({ status: 'processing' }).eq('id', row.id).in('status', ['pending', 'failed']).select('id').maybeSingle()
+      if (!claimed) continue
       const { data: pref } = await admin.from('push_preferences').select('*').eq('user_id', row.recipient_user_id).maybeSingle()
       const prefKey = row.category === 'tasks' ? 'tasks_enabled' : row.category === 'approvals' ? 'approvals_enabled' : row.category === 'finance' ? 'finance_enabled' : 'communications_enabled'
       if (pref && pref[prefKey] === false) { await admin.from('push_outbox').update({ status: 'skipped', processed_at: new Date().toISOString() }).eq('id', row.id); continue }
