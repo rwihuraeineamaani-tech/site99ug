@@ -146,15 +146,22 @@ const GUIDES: Record<string, HelpGuide> = {
     tips: ["Tax guidance in Filing is a plain-English summary — always confirm with your accountant before submitting."],
   },
   "/app/team": {
-    title: "Team & access",
-    what: "Add people, set their role and control what they can reach.",
-    steps: ["Add a team member and create their sign-in.", "Give the smallest role that lets them do their job.", "Remove access as soon as someone leaves."],
+    title: "People & access",
+    what: "This now lives inside System administration.",
+    steps: ["Open System administration in the menu.", "Use the People & access tab to add people and set roles."],
   },
   "/app/system-admin": {
     title: "System administration",
-    what: "Who does what, and the approval routes for finance, content, strategy and contracts.",
-    steps: ["Set responsibilities per area.", "Edit an approval route, then publish it as a new version.", "Check the audit history when a decision is questioned."],
+    what: "People and access, who is on the system right now, who does what, and the approval routes for finance, content, strategy and contracts.",
+    steps: [
+      "People & access: add someone, set their role, remove access when they leave.",
+      "Activity trail: see who is on now, how long they have been on, and what everyone has been doing — team and clients shown apart.",
+      "Set responsibilities per area, then edit and publish approval routes.",
+      "Check the audit history when a decision is questioned.",
+    ],
+    tips: ["The activity trail keeps 90 days and only system administrators can see it."],
   },
+
   "/app/equipment": { title: "Equipment", what: "The gear list and what is out on shoots.", steps: ["Add or update gear.", "Check availability before booking a shoot day."] },
   "/app/events": { title: "Events", what: "Events, ticket tiers and orders.", steps: ["Create the event and its ticket tiers.", "Confirm payments and email tickets.", "Use the gate scanner on the day."] },
   "/portal": { title: "Client portal", what: "Your work with Site 99: updates, content and messages.", steps: ["Read the latest updates.", "Use Chat to reach your team."] },
