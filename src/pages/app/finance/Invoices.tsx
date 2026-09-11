@@ -185,6 +185,7 @@ export default function Invoices() {
         party_kind: draft.party_kind,
         party_name: draft.party_name.trim(),
         client_id: draft.client_id || null,
+        resident_id: draft.resident_id || null,
         contract_id: draft.contract_id || null,
         issue_date: draft.issue_date,
         due_date: draft.due_date || null,
