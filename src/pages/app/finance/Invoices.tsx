@@ -39,6 +39,7 @@ type Draft = {
   party_name: string;
   party_kind: string;
   client_id: string;
+  resident_id: string;
   contract_id: string;
   category: string;
   issue_date: string;
