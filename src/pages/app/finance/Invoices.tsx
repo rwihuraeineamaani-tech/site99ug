@@ -88,11 +88,12 @@ export default function Invoices() {
   const [settle, setSettle] = useState<{ inv: Invoice; wallet: string; amount: string; reference: string; note: string } | null>(null);
 
   const load = useCallback(async () => {
-    const [inv, ln, ct, cl, wl] = await Promise.all([
+    const [inv, ln, ct, cl, rs, wl] = await Promise.all([
       supabase.from("invoices").select("*").order("issue_date", { ascending: false }),
       supabase.from("invoice_lines").select("*").order("sort"),
       supabase.from("contracts").select("id, title, party_name, client_id, resident_id, value_ugx, status"),
       supabase.from("clients").select("id, name").order("name"),
+      supabase.from("residents").select("id, name").order("display_order"),
       supabase.from("wallets").select("id, name, active, sort").eq("active", true).order("sort"),
     ]);
     setRows((inv.data as Invoice[]) ?? []);
