@@ -100,6 +100,48 @@ export type Database = {
           },
         ]
       }
+      activity_log: {
+        Row: {
+          action: string
+          actor_id: string
+          actor_kind: string
+          area: string
+          created_at: string
+          detail: Json
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          path: string | null
+          summary: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string
+          actor_kind?: string
+          area?: string
+          created_at?: string
+          detail?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          path?: string | null
+          summary?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          actor_kind?: string
+          area?: string
+          created_at?: string
+          detail?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          path?: string | null
+          summary?: string | null
+        }
+        Relationships: []
+      }
       ai_leads: {
         Row: {
           company: string | null
@@ -5178,6 +5220,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_presence: {
+        Row: {
+          created_at: string
+          current_path: string | null
+          last_seen_at: string
+          session_started_at: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_path?: string | null
+          last_seen_at?: string
+          session_started_at?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_path?: string | null
+          last_seen_at?: string
+          session_started_at?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -5634,6 +5706,7 @@ export type Database = {
         Args: { _version_id: string; _workflow_id: string }
         Returns: undefined
       }
+      purge_activity_log: { Args: never; Returns: undefined }
       queue_push: {
         Args: {
           _actor: string
@@ -5783,6 +5856,10 @@ export type Database = {
         }[]
       }
       tier_sold_count: { Args: { _tier_id: string }; Returns: number }
+      touch_presence: {
+        Args: { _path?: string; _user_agent?: string }
+        Returns: undefined
+      }
       transfer_between_wallets: {
         Args: {
           _amount: number
