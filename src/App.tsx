@@ -36,7 +36,6 @@ import Dashboard from "./pages/app/Dashboard.tsx";
 import StudioCalendar from "./pages/app/Calendar.tsx";
 import AppSettings from "./pages/app/Settings.tsx";
 
-import AppTeam from "./pages/app/Team.tsx";
 import ClientPortal from "./pages/app/ClientPortal.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
 import SalesPage from "./pages/app/Sales.tsx";
