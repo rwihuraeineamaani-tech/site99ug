@@ -104,6 +104,7 @@ export default function Invoices() {
     setLines(map);
     setContracts((ct.data as Contract[]) ?? []);
     setClients((cl.data as { id: string; name: string }[]) ?? []);
+    setResidents((rs.data as { id: string; name: string }[]) ?? []);
     setWallets((wl.data as Wallet[]) ?? []);
   }, []);
 
@@ -111,7 +112,15 @@ export default function Invoices() {
     load();
   }, [load]);
 
-  const list = useMemo(() => rows.filter((r) => r.direction === tab), [rows, tab]);
+  const residentName = useCallback(
+    (id: string | null) => (id ? residents.find((r) => r.id === id)?.name ?? null : null),
+    [residents]
+  );
+
+  const list = useMemo(
+    () => rows.filter((r) => r.direction === tab && (!residentFilter || r.resident_id === residentFilter)),
+    [rows, tab, residentFilter]
+  );
   const owed = list.filter((r) => r.status !== "paid" && r.status !== "void").reduce((t, r) => t + outstanding(r), 0);
 
   /* ---------------- create ---------------- */
