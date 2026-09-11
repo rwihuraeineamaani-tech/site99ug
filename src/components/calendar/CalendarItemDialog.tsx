@@ -38,7 +38,7 @@ export default function CalendarItemDialog({ open, onOpenChange, onSaved, defaul
       supabase.from("shoot_days").select("id,shoot_date,resident_id").order("shoot_date", { ascending: false }).limit(50),
       supabase.from("content_items").select("id,ref_no,title").order("updated_at", { ascending: false }).limit(50),
       supabase.from("briefs").select("id,title").order("updated_at", { ascending: false }).limit(50),
-      supabase.from("invoices").select("id,invoice_no,client_name").order("created_at", { ascending: false }).limit(50),
+      supabase.from("invoices").select("id,number,party_name").order("created_at", { ascending: false }).limit(50),
       supabase.from("strategy_maps").select("id,title,resident_id").order("updated_at", { ascending: false }).limit(50),
     ]).then(([clients, shoots, content, briefs, invoices, maps]) => {
       const opts: WorkOption[] = [];
@@ -46,7 +46,7 @@ export default function CalendarItemDialog({ open, onOpenChange, onSaved, defaul
       (shoots.data ?? []).forEach((x) => opts.push({ kind: "shoot", id: x.id, label: `Shoot · ${x.shoot_date ?? "Unscheduled"}`, path: `/app/shoots/${x.id}` }));
       (content.data ?? []).forEach((x) => opts.push({ kind: "content", id: x.id, label: `Content · ${x.title}`, path: `/app/content?ref=${x.ref_no}` }));
       (briefs.data ?? []).forEach((x) => opts.push({ kind: "brief", id: x.id, label: `Brief · ${x.title}`, path: `/app/briefs/${x.id}` }));
-      (invoices.data ?? []).forEach((x) => opts.push({ kind: "invoice", id: x.id, label: `Invoice · ${x.invoice_no} · ${x.client_name}`, path: `/app/finance/invoices` }));
+      (invoices.data ?? []).forEach((x) => opts.push({ kind: "invoice", id: x.id, label: `Invoice · ${x.number ?? "Draft"} · ${x.party_name}`, path: `/app/finance/invoices` }));
       (maps.data ?? []).forEach((x) => opts.push({ kind: "strategy", id: x.id, label: `Strategy · ${x.title}`, path: `/app/strategy/maps?map=${x.id}` }));
       opts.push({ kind: "todo", id: "todo", label: "To-Do · My work", path: "/app/todo" }, { kind: "approval", id: "approvals", label: "Approvals · Waiting on me", path: "/app/approvals" });
       setWorkOptions(opts);
