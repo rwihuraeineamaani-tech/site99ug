@@ -7,6 +7,7 @@ import Seo from "@/components/Seo";
 import AdminShell from "@/components/admin/AdminShell";
 import TeamPanel from "@/components/admin/TeamPanel";
 import DashboardBuilder from "@/components/admin/DashboardBuilder";
+import ActivityTrail from "@/components/admin/ActivityTrail";
 import StatCard from "@/components/admin/StatCard";
 import { SectionHeading, StatusChip } from "@/components/system";
 import { Button } from "@/components/ui/button";
