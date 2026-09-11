@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ArrowDown, ArrowUp, RotateCcw, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { SectionHeading, StatusChip } from "@/components/system";
 import { ROLE_LABELS, TEAM_ROLES, type AppRole } from "@/hooks/useMyRoles";
@@ -68,7 +69,7 @@ export default function DashboardBuilder() {
       scope,
       role: scope === "role" ? role : null,
       user_id: scope === "user" ? userId : null,
-      panels: items as unknown as object,
+      panels: items as unknown as Json,
     };
     const target = supabase.from("dashboard_layouts").select("id").eq("scope", scope);
     const { data: existing } = scope === "role" ? await target.eq("role", role).maybeSingle() : await target.eq("user_id", userId).maybeSingle();
