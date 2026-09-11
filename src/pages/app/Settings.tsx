@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AppShell } from "@/components/system/AppShell";
 import { DeckPanel } from "@/components/deck";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +35,15 @@ function initialsOf(name: string) {
 
 export default function Settings() {
   const { userId, email, displayName, title, roles, departments, reload, canSeeFinance, has } = useMyRoles();
-  const [tab, setTab] = useState<Tab>("profile");
+  const [params, setParams] = useSearchParams();
+  const urlTab = params.get("tab") as Tab | null;
+  const [tab, setTabState] = useState<Tab>(
+    urlTab && TABS.some((t) => t.id === urlTab) ? urlTab : "profile"
+  );
+  const setTab = (next: Tab) => {
+    setTabState(next);
+    setParams({ tab: next }, { replace: true });
+  };
 
   // Profile
   const [name, setName] = useState("");
