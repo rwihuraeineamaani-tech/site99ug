@@ -444,7 +444,7 @@ export default function Dashboard() {
                               <Link
                                 key={e.id}
                                 to={e.to}
-                                className="block rounded border border-rule px-2 py-1.5 text-[11px] hover:border-signal/50 focus-ring"
+                                className="tile block rounded-lg px-2 py-1.5 text-[11px] hover:border-signal/50 focus-ring"
                               >
                                 <div className="truncate">{e.title}</div>
                                 <div className="text-[10px] text-ink-faint truncate">{KIND_LABEL[e.kind]}</div>
