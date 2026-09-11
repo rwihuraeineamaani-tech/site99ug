@@ -3276,6 +3276,63 @@ export type Database = {
         }
         Relationships: []
       }
+      resident_contacts: {
+        Row: {
+          created_at: string
+          created_by: string
+          email: string | null
+          id: string
+          is_primary: boolean
+          name: string
+          phone: string | null
+          receives_billing: boolean
+          resident_id: string
+          role_title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name: string
+          phone?: string | null
+          receives_billing?: boolean
+          resident_id: string
+          role_title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name?: string
+          phone?: string | null
+          receives_billing?: boolean
+          resident_id?: string
+          role_title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_contacts_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_contacts_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resident_contracts: {
         Row: {
           created_at: string
@@ -3336,6 +3393,69 @@ export type Database = {
           },
         ]
       }
+      resident_onboarding_steps: {
+        Row: {
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          department: string
+          due_on: string | null
+          id: string
+          note: string | null
+          owner_user_id: string | null
+          resident_id: string
+          status: string
+          step_key: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          department: string
+          due_on?: string | null
+          id?: string
+          note?: string | null
+          owner_user_id?: string | null
+          resident_id: string
+          status?: string
+          step_key: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          department?: string
+          due_on?: string | null
+          id?: string
+          note?: string | null
+          owner_user_id?: string | null
+          resident_id?: string
+          status?: string
+          step_key?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_onboarding_steps_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_onboarding_steps_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resident_projects: {
         Row: {
           created_at: string
@@ -3376,9 +3496,63 @@ export type Database = {
           },
         ]
       }
+      resident_users: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_at: string
+          invited_by: string | null
+          resident_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          resident_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          resident_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_users_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_users_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       residents: {
         Row: {
           avatar_url: string | null
+          billing_address: string | null
+          billing_email: string | null
+          category: string | null
           contact_user_id: string | null
           created_at: string
           display_order: number
@@ -3386,18 +3560,31 @@ export type Database = {
           handler_user_id: string | null
           id: string
           invited_at: string
+          legal_name: string | null
+          lifecycle_status: string
           name: string
           notes: string | null
+          onboarded_at: string | null
+          onboarding_started_at: string | null
+          onboarding_status: string
+          primary_email: string | null
+          primary_phone: string | null
           retainer_ugx: number
+          sales_owner_id: string | null
           since: string
+          source: string | null
           status: string
           territory: string
+          tin: string | null
           updated_at: string
           user_id: string | null
           visible: boolean
         }
         Insert: {
           avatar_url?: string | null
+          billing_address?: string | null
+          billing_email?: string | null
+          category?: string | null
           contact_user_id?: string | null
           created_at?: string
           display_order?: number
@@ -3405,18 +3592,31 @@ export type Database = {
           handler_user_id?: string | null
           id?: string
           invited_at?: string
+          legal_name?: string | null
+          lifecycle_status?: string
           name: string
           notes?: string | null
+          onboarded_at?: string | null
+          onboarding_started_at?: string | null
+          onboarding_status?: string
+          primary_email?: string | null
+          primary_phone?: string | null
           retainer_ugx?: number
+          sales_owner_id?: string | null
           since: string
+          source?: string | null
           status?: string
           territory: string
+          tin?: string | null
           updated_at?: string
           user_id?: string | null
           visible?: boolean
         }
         Update: {
           avatar_url?: string | null
+          billing_address?: string | null
+          billing_email?: string | null
+          category?: string | null
           contact_user_id?: string | null
           created_at?: string
           display_order?: number
@@ -3424,12 +3624,22 @@ export type Database = {
           handler_user_id?: string | null
           id?: string
           invited_at?: string
+          legal_name?: string | null
+          lifecycle_status?: string
           name?: string
           notes?: string | null
+          onboarded_at?: string | null
+          onboarding_started_at?: string | null
+          onboarding_status?: string
+          primary_email?: string | null
+          primary_phone?: string | null
           retainer_ugx?: number
+          sales_owner_id?: string | null
           since?: string
+          source?: string | null
           status?: string
           territory?: string
+          tin?: string | null
           updated_at?: string
           user_id?: string | null
           visible?: boolean
@@ -3484,6 +3694,452 @@ export type Database = {
           primary_user_id?: string | null
           updated_at?: string
           work_key?: string
+        }
+        Relationships: []
+      }
+      sales_activities: {
+        Row: {
+          actor_id: string
+          created_at: string
+          detail: string | null
+          id: string
+          kind: string
+          metadata: Json
+          occurred_at: string
+          opportunity_id: string
+          summary: string
+        }
+        Insert: {
+          actor_id?: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind: string
+          metadata?: Json
+          occurred_at?: string
+          opportunity_id: string
+          summary: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind?: string
+          metadata?: Json
+          occurred_at?: string
+          opportunity_id?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_activities_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "sales_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_assignments: {
+        Row: {
+          assigned_by: string
+          assignment_role: string
+          created_at: string
+          id: string
+          opportunity_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string
+          assignment_role?: string
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string
+          assignment_role?: string
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_assignments_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "sales_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_followups: {
+        Row: {
+          assigned_user_id: string
+          calendar_item_id: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          due_at: string
+          id: string
+          opportunity_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_user_id: string
+          calendar_item_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          due_at: string
+          id?: string
+          opportunity_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_user_id?: string
+          calendar_item_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          due_at?: string
+          id?: string
+          opportunity_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_followups_calendar_item_id_fkey"
+            columns: ["calendar_item_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_followups_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "sales_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_offer_lines: {
+        Row: {
+          amount_ugx: number
+          created_at: string
+          description: string
+          id: string
+          offer_id: string
+          quantity: number
+          sort: number
+          unit_price_ugx: number
+        }
+        Insert: {
+          amount_ugx?: number
+          created_at?: string
+          description: string
+          id?: string
+          offer_id: string
+          quantity?: number
+          sort?: number
+          unit_price_ugx?: number
+        }
+        Update: {
+          amount_ugx?: number
+          created_at?: string
+          description?: string
+          id?: string
+          offer_id?: string
+          quantity?: number
+          sort?: number
+          unit_price_ugx?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_offer_lines_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "sales_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_offers: {
+        Row: {
+          accepted_at: string | null
+          approval_instance_id: string | null
+          created_at: string
+          created_by: string
+          discount_ugx: number
+          id: string
+          issued_at: string | null
+          kind: string
+          notes: string | null
+          opportunity_id: string
+          status: string
+          subtotal_ugx: number
+          terms: string | null
+          title: string
+          total_ugx: number
+          updated_at: string
+          valid_until: string | null
+          vat_rate: number
+          vat_ugx: number
+          version: number
+        }
+        Insert: {
+          accepted_at?: string | null
+          approval_instance_id?: string | null
+          created_at?: string
+          created_by?: string
+          discount_ugx?: number
+          id?: string
+          issued_at?: string | null
+          kind: string
+          notes?: string | null
+          opportunity_id: string
+          status?: string
+          subtotal_ugx?: number
+          terms?: string | null
+          title: string
+          total_ugx?: number
+          updated_at?: string
+          valid_until?: string | null
+          vat_rate?: number
+          vat_ugx?: number
+          version?: number
+        }
+        Update: {
+          accepted_at?: string | null
+          approval_instance_id?: string | null
+          created_at?: string
+          created_by?: string
+          discount_ugx?: number
+          id?: string
+          issued_at?: string | null
+          kind?: string
+          notes?: string | null
+          opportunity_id?: string
+          status?: string
+          subtotal_ugx?: number
+          terms?: string | null
+          title?: string
+          total_ugx?: number
+          updated_at?: string
+          valid_until?: string | null
+          vat_rate?: number
+          vat_ugx?: number
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_offers_approval_instance_id_fkey"
+            columns: ["approval_instance_id"]
+            isOneToOne: false
+            referencedRelation: "approval_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_offers_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "sales_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_opportunities: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          converted_resident_id: string | null
+          created_at: string
+          created_by: string
+          expected_close: string | null
+          id: string
+          journey: string
+          lost_at: string | null
+          lost_reason: string | null
+          next_action: string
+          next_action_at: string
+          notes: string | null
+          organisation_name: string
+          owner_user_id: string
+          probability: number
+          resident_id: string | null
+          service: string | null
+          source: string | null
+          stage: string
+          status: string
+          updated_at: string
+          value_ugx: number
+          won_at: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          converted_resident_id?: string | null
+          created_at?: string
+          created_by?: string
+          expected_close?: string | null
+          id?: string
+          journey?: string
+          lost_at?: string | null
+          lost_reason?: string | null
+          next_action: string
+          next_action_at: string
+          notes?: string | null
+          organisation_name: string
+          owner_user_id?: string
+          probability?: number
+          resident_id?: string | null
+          service?: string | null
+          source?: string | null
+          stage?: string
+          status?: string
+          updated_at?: string
+          value_ugx?: number
+          won_at?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          converted_resident_id?: string | null
+          created_at?: string
+          created_by?: string
+          expected_close?: string | null
+          id?: string
+          journey?: string
+          lost_at?: string | null
+          lost_reason?: string | null
+          next_action?: string
+          next_action_at?: string
+          notes?: string | null
+          organisation_name?: string
+          owner_user_id?: string
+          probability?: number
+          resident_id?: string | null
+          service?: string | null
+          source?: string | null
+          stage?: string
+          status?: string
+          updated_at?: string
+          value_ugx?: number
+          won_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_opportunities_converted_resident_id_fkey"
+            columns: ["converted_resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_opportunities_converted_resident_id_fkey"
+            columns: ["converted_resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_opportunities_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "public_residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_opportunities_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_packages: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          price_ugx: number
+          service: string | null
+          updated_at: string
+          vat_rate: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name: string
+          price_ugx?: number
+          service?: string | null
+          updated_at?: string
+          vat_rate?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          price_ugx?: number
+          service?: string | null
+          updated_at?: string
+          vat_rate?: number
+        }
+        Relationships: []
+      }
+      sales_targets: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          month: string
+          owner_user_id: string | null
+          target_ugx: number
+          target_wins: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          month: string
+          owner_user_id?: string | null
+          target_ugx?: number
+          target_wins?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          month?: string
+          owner_user_id?: string | null
+          target_ugx?: number
+          target_wins?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4350,6 +5006,7 @@ export type Database = {
     Functions: {
       accept_client_invite: { Args: never; Returns: boolean }
       accept_resident_invite: { Args: never; Returns: boolean }
+      accept_resident_portal_invite: { Args: never; Returns: string }
       admin_search_orders:
         | {
             Args: { _event_id?: string; _limit?: number; _q: string }
@@ -4635,6 +5292,7 @@ export type Database = {
           week_start: string
         }[]
       }
+      my_resident_id: { Args: { _user_id?: string }; Returns: string }
       my_retainer_shares: {
         Args: never
         Returns: {
@@ -4725,6 +5383,15 @@ export type Database = {
         Args: { _reason: string; _txn_id: string }
         Returns: string
       }
+      sales_move_opportunity: {
+        Args: { _id: string; _reason?: string; _stage: string }
+        Returns: undefined
+      }
+      sales_onboard_resident: {
+        Args: { _opportunity_id: string }
+        Returns: string
+      }
+      sales_submit_offer: { Args: { _offer_id: string }; Returns: string }
       set_client_pay: {
         Args: { _people: Json; _resident_id: string; _retainer_ugx: number }
         Returns: undefined
