@@ -1,7 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { AvailabilityBlock, occurrencesInRange, timeLabel } from "@/lib/recurrence";
+import { CalendarItem, itemAsBlock, slotAsBlock } from "@/lib/calendar";
 
-export type EntryKind = "shoot" | "post" | "numbers" | "event" | "busy";
+export type EntryKind = "shoot" | "post" | "numbers" | "event" | "busy" | "personal";
 
 export type CalendarEntry = {
   id: string;
@@ -14,6 +15,11 @@ export type CalendarEntry = {
   residentId?: string | null;
   strictness?: "warn" | "hard";
   time?: string;
+  endTime?: string;
+  allDay?: boolean;
+  ownerName?: string;
+  visibility?: "private" | "team";
+  calendarItem?: CalendarItem;
 };
 
 export const KIND_LABEL: Record<EntryKind, string> = {
@@ -22,6 +28,7 @@ export const KIND_LABEL: Record<EntryKind, string> = {
   numbers: "Numbers",
   event: "Event",
   busy: "Busy",
+  personal: "My calendar",
 };
 
 export function addDays(iso: string, n: number): string {
@@ -48,11 +55,12 @@ export type CalendarData = {
   blocks: AvailabilityBlock[];
   residents: { id: string; name: string }[];
   people: { user_id: string; display_name: string | null; email: string }[];
+  calendarItems: CalendarItem[];
 };
 
 /** Everything dated between two days: shoots, posts, numbers due, events and busy blocks. */
 export async function loadCalendar(from: string, to: string): Promise<CalendarData> {
-  const [shoots, content, events, blocksRes, residentsRes, peopleRes] = await Promise.all([
+  const [shoots, content, events, blocksRes, calendarItemsRes, busySlotsRes, residentsRes, peopleRes] = await Promise.all([
     supabase
       .from("shoot_days")
       .select("id, resident_id, status, shoot_date, call_time, location")
@@ -64,6 +72,8 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
       .not("stage", "in", '("Archived","Rejected")'),
     supabase.from("events").select("id, title, slug, starts_at, venue").gte("starts_at", from).lte("starts_at", `${to}T23:59:59Z`),
     supabase.from("availability_blocks").select("*"),
+    supabase.from("calendar_items").select("*").lte("start_date", to).or(`until.gte.${from},end_date.gte.${from}`),
+    supabase.from("calendar_busy_slots").select("*").lte("start_date", to).or(`until.gte.${from},end_date.gte.${from}`),
     supabase.from("residents").select("id, name").order("name"),
     supabase.from("team_members").select("user_id, display_name, email"),
   ]);
@@ -71,6 +81,8 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
   const residents = (residentsRes.data as { id: string; name: string }[]) ?? [];
   const names = new Map(residents.map((r) => [r.id, r.name]));
   const people = (peopleRes.data as { user_id: string; display_name: string | null; email: string }[]) ?? [];
+  const personNames = new Map(people.map((p) => [p.user_id, p.display_name || p.email]));
+  const calendarItems = (calendarItemsRes.data as CalendarItem[]) ?? [];
   const blocks = ((blocksRes.data as unknown as AvailabilityBlock[]) ?? []).map((b) => ({
     ...b,
     byweekday: b.byweekday ?? [],
@@ -83,7 +95,7 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
     .forEach((s) =>
       entries.push({
         id: `shoot-${s.id}`,
-        date: s.shoot_date!.slice(0, 10),
+        date: s.shoot_date?.slice(0, 10) ?? "",
         kind: "shoot",
         title: names.get(s.resident_id ?? "") ?? "Shoot day",
         note: [s.call_time ?? "", s.location ?? ""].filter(Boolean).join(" · ") || s.status,
@@ -147,6 +159,46 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
     );
   });
 
+  const visibleItemIds = new Set(calendarItems.map((item) => item.id));
+  calendarItems.forEach((item) => {
+    occurrencesInRange(itemAsBlock(item), from, to).forEach((date) => entries.push({
+      id: `personal-${item.id}-${date}`,
+      date,
+      kind: "personal",
+      title: item.title,
+      note: [item.location, item.work_label].filter(Boolean).join(" · ") || (item.visibility === "private" ? "Private" : "Shared with team"),
+      to: item.work_path ?? undefined,
+      userId: item.owner_user_id,
+      strictness: item.strictness as "warn" | "hard",
+      time: item.all_day ? undefined : item.start_time?.slice(0, 5),
+      endTime: item.all_day ? undefined : item.end_time?.slice(0, 5),
+      allDay: item.all_day,
+      ownerName: personNames.get(item.owner_user_id) ?? "Team member",
+      visibility: item.visibility as "private" | "team",
+      calendarItem: item,
+    }));
+  });
+
+  ((busySlotsRes.data ?? []) as never[]).forEach((raw) => {
+    const slot = raw as import("@/lib/calendar").CalendarBusySlot;
+    if (visibleItemIds.has(slot.calendar_item_id)) return;
+    const block = slotAsBlock(slot);
+    occurrencesInRange(block, from, to).forEach((date) => entries.push({
+      id: `private-busy-${slot.calendar_item_id}-${date}`,
+      date,
+      kind: "busy",
+      title: "Busy",
+      note: `${personNames.get(slot.owner_user_id) ?? "Team member"} · ${timeLabel(block)}`,
+      userId: slot.owner_user_id,
+      strictness: slot.strictness as "warn" | "hard",
+      time: slot.all_day ? undefined : slot.start_time?.slice(0, 5),
+      endTime: slot.all_day ? undefined : slot.end_time?.slice(0, 5),
+      allDay: slot.all_day,
+      ownerName: personNames.get(slot.owner_user_id) ?? "Team member",
+      visibility: "private",
+    }));
+  });
+
   entries.sort((a, b) => a.date.localeCompare(b.date) || (a.time ?? "").localeCompare(b.time ?? ""));
-  return { entries, blocks, residents, people };
+  return { entries, blocks, residents, people, calendarItems };
 }
