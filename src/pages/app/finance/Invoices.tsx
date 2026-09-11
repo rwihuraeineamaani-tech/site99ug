@@ -78,6 +78,8 @@ export default function Invoices() {
   const [lines, setLines] = useState<Record<string, InvoiceLine[]>>({});
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
+  const [residents, setResidents] = useState<{ id: string; name: string }[]>([]);
+  const [residentFilter, setResidentFilter] = useState("");
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
