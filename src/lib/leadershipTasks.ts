@@ -61,5 +61,5 @@ export function personName(people: StaffPerson[], id: string | null) {
 }
 
 export function taskStatusLabel(status: string) {
-  return status.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
+  return status.split("_").join(" ").replace(/^./, (letter) => letter.toUpperCase());
 }

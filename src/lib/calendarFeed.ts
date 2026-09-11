@@ -97,7 +97,7 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
   ((taskRes.data as { id: string; title: string; due_at: string | null; status: string; resident_id: string | null }[]) ?? []).forEach((task) => {
     if (!task.due_at) return;
     const users = taskLinks.filter((link) => link.task_id === task.id);
-    users.forEach((link) => entries.push({ id: `task-${task.id}-${link.user_id}`, date: task.due_at?.slice(0,10) ?? "", kind: "task", title: task.title, note: task.status.replaceAll("_", " "), to: `/app/todo/${task.id}`, userId: link.user_id, residentId: task.resident_id, time: task.due_at?.slice(11,16), visibility: "private" }));
+    users.forEach((link) => entries.push({ id: `task-${task.id}-${link.user_id}`, date: task.due_at?.slice(0,10) ?? "", kind: "task", title: task.title, note: task.status.split("_").join(" "), to: `/app/todo/${task.id}`, userId: link.user_id, residentId: task.resident_id, time: task.due_at?.slice(11,16), visibility: "private" }));
   });
 
   ((shoots.data as { id: string; resident_id: string | null; status: string; shoot_date: string | null; call_time: string | null; location: string | null }[]) ?? [])
