@@ -114,7 +114,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       title: i.title,
       detail: i.detail,
       amount: i.amount,
-      waitingOn: t.assigned_role ? String(t.assigned_role).replaceAll("_", " ") : "assigned person",
+      waitingOn: t.assigned_role ? String(t.assigned_role).replace(/_/g, " ") : "assigned person",
       mine,
       since: t.created_at,
       to: "/app/approvals",
