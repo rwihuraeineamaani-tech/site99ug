@@ -42,6 +42,7 @@ type Contract = {
   notes: string | null;
   created_at: string;
 };
+type OnboardingStep = { id: string; step_key: string; title: string; department: string; owner_user_id: string | null; status: string; due_on: string | null; note: string | null };
 
 const LIVE_STAGES = ["Idea", "Approved", "Crewed", "Scheduled", "Shooting", "Editing", "Review", "Handover"];
 const field = "field text-sm";
@@ -62,6 +63,7 @@ export default function ResidentRecordPage() {
   const [days, setDays] = useState<Day[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [onboarding, setOnboarding] = useState<OnboardingStep[]>([]);
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
 
@@ -70,8 +72,8 @@ export default function ResidentRecordPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
-    const [{ data: res }, { data: team }, { data: content }, { data: sd }, { data: cts }, { data: inv }] = await Promise.all([
-      supabase.rpc("resident_records"),
+    const [{ data: res }, { data: team }, { data: content }, { data: sd }, { data: cts }, { data: inv }, { data: onboardingRows }] = await Promise.all([
+      supabase.from("residents").select("id,name,territory,since,status,email,user_id,avatar_url,contact_user_id,handler_user_id,notes,onboarding_status").eq("id", id),
       supabase.from("team_members").select("user_id, display_name, email, title"),
       supabase
         .from("content_items")
@@ -85,6 +87,7 @@ export default function ResidentRecordPage() {
         .order("shoot_date", { ascending: false }),
       supabase.from("resident_contracts").select("*").eq("resident_id", id).order("created_at", { ascending: false }),
       supabase.from("invoices").select("*").eq("resident_id", id).order("issue_date", { ascending: false }),
+      supabase.from("resident_onboarding_steps").select("*").eq("resident_id", id).order("created_at"),
     ]);
     const r = ((res as unknown as ResidentRecord[]) ?? []).find((x) => x.id === id) ?? null;
     setResident(r);
@@ -95,6 +98,7 @@ export default function ResidentRecordPage() {
     setDays((sd as unknown as Day[]) ?? []);
     setContracts((cts as unknown as Contract[]) ?? []);
     setInvoices((inv as Invoice[]) ?? []);
+    setOnboarding((onboardingRows as OnboardingStep[]) ?? []);
     setLoading(false);
   };
 
@@ -260,6 +264,11 @@ export default function ResidentRecordPage() {
               <div className="mt-1 truncate">{resident.email ?? "no email yet"}</div>
               <div className="text-[11px] text-ink-faint">{resident.user_id ? "signed up" : "not signed up yet"}</div>
             </div>
+          </div>
+
+          <div className="mt-14">
+            <SectionHeading index="01" title="Onboarding" hint={onboarding.length ? `${onboarding.filter((s) => s.status === "complete" || s.status === "not_needed").length} of ${onboarding.length} complete` : "complete"} />
+            {onboarding.length ? <div className="grid gap-3 md:grid-cols-3">{onboarding.map((step) => <div key={step.id} className="surface rounded-lg p-4"><div className="flex items-start gap-2"><div><div className="eyebrow text-ink-faint">{step.department}</div><div className="text-sm font-semibold mt-1">{step.title}</div></div><StatusChip value={step.status.replace("_", " ")} tone={step.status === "complete" ? "teal" : step.status === "blocked" ? "stop" : "pending"} /></div>{step.status !== "complete" && <Button size="sm" variant="outline" className="mt-4" onClick={async () => { const { error } = await supabase.from("resident_onboarding_steps").update({ status: "complete", completed_by: userId, completed_at: new Date().toISOString() }).eq("id", step.id); if (error) return toast.error(error.message); load(); }}>Mark complete</Button>}</div>)}</div> : <p className="text-sm text-ink-soft">This established Resident has no open onboarding work.</p>}
           </div>
 
           <div className="mt-14">

@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 type Client = {
   id: string;
   name: string;
-  contact_person: string | null;
-  contact_email: string | null;
+  primary_phone: string | null;
+  primary_email: string | null;
   category: string;
   status: string;
 };
@@ -27,9 +27,9 @@ export default function ClientPortal() {
     (async () => {
       setLoading(true);
       const { data } = await supabase
-        .from("clients")
-        .select("id, name, contact_person, contact_email, category, status")
-        .limit(1)
+        .from("residents")
+        .select("id, name, primary_phone, primary_email, category, status")
+        .eq("id", clientId ?? "00000000-0000-0000-0000-000000000000")
         .maybeSingle();
       if (cancelled) return;
       setClient((data as Client) ?? null);
@@ -61,8 +61,8 @@ export default function ClientPortal() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="surface rounded-2xl p-5">
               <div className="eyebrow text-ink-faint">Main contact</div>
-              <div className="mt-2">{client.contact_person || "—"}</div>
-              <div className="text-sm text-ink-soft">{client.contact_email || ""}</div>
+               <div className="mt-2">{client.primary_email || "—"}</div>
+               <div className="text-sm text-ink-soft">{client.primary_phone || ""}</div>
             </div>
             <div className="surface rounded-2xl p-5">
               <div className="eyebrow text-ink-faint">Category</div>

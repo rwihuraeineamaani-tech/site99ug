@@ -179,11 +179,11 @@ export function useRolesState(): RoleState {
 
       if (list.includes("client")) {
         const { data: link } = await supabase
-          .from("client_users")
-          .select("client_id")
+          .from("resident_users")
+          .select("resident_id")
           .eq("user_id", data.user.id)
           .maybeSingle();
-        if (!cancelled) setClientId(link?.client_id ?? null);
+        if (!cancelled) setClientId(link?.resident_id ?? null);
       } else {
         setClientId(null);
       }

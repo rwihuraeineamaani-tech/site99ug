@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { buildWaiting, loadWaitingRaw } from "@/lib/inbox";
 import { loadApprovals, type ApprovalContext } from "@/lib/approvals";
 
-export type TodoKind = "content" | "shoots" | "approvals" | "strategy" | "finance" | "operations";
+export type TodoKind = "content" | "shoots" | "approvals" | "strategy" | "finance" | "operations" | "sales";
 export type TodoItem = {
   id: string;
   kind: TodoKind;
@@ -16,7 +16,7 @@ export type TodoItem = {
 
 export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boolean }): Promise<TodoItem[]> {
   if (!ctx.userId) return [];
-  const [{ flow, resLinks, myCrew }, approvals, shootBundle, compliance] = await Promise.all([
+  const [{ flow, resLinks, myCrew }, approvals, shootBundle, compliance, salesFollowups] = await Promise.all([
     loadWaitingRaw(ctx.userId),
     loadApprovals(ctx),
     Promise.all([
@@ -27,6 +27,7 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
     ctx.isLeadership
       ? supabase.from("compliance_items").select("id,name,renews_on,status").neq("status", "complete")
       : Promise.resolve({ data: [] }),
+    supabase.from("sales_followups").select("id,opportunity_id,title,due_at,status,sales_opportunities(organisation_name)").eq("assigned_user_id", ctx.userId).eq("status", "open"),
   ]);
   const clients = new Map(resLinks.map((r) => [r.id, r.name]));
   const waiting = buildWaiting({
@@ -86,5 +87,16 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
     to: "/app/ops/deadlines",
   }));
 
-  return [...waiting, ...approvalItems, ...shoots, ...ops].sort((a, b) => (a.due ?? "9999").localeCompare(b.due ?? "9999"));
+  const sales = ((salesFollowups.data as unknown as { id: string; opportunity_id: string; title: string; due_at: string; status: string; sales_opportunities: { organisation_name: string } | null }[]) ?? []).map<TodoItem>((item) => ({
+    id: `sales-${item.id}`,
+    kind: "sales",
+    move: "Complete this follow-up",
+    title: item.title,
+    client: item.sales_opportunities?.organisation_name ?? null,
+    detail: "Sales follow-up",
+    due: item.due_at,
+    to: `/app/sales?tab=opportunities&opportunity=${item.opportunity_id}`,
+  }));
+
+  return [...waiting, ...approvalItems, ...shoots, ...ops, ...sales].sort((a, b) => (a.due ?? "9999").localeCompare(b.due ?? "9999"));
 }

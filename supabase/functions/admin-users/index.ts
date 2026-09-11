@@ -145,12 +145,12 @@ Deno.serve(async (req) => {
 
       // A client login is tied to exactly one client record.
       if (roles.includes("client")) {
-        const clientId = String(body.client_id ?? "");
-        if (!clientId) return json({ error: "Pick the client this login belongs to" });
+        const residentId = String(body.resident_id ?? "");
+        if (!residentId) return json({ error: "Pick the Resident this login belongs to" });
         const { error: linkErr } = await admin
-          .from("client_users")
+          .from("resident_users")
           .upsert(
-            { client_id: clientId, user_id: uid, email, invited_by: callerId, accepted_at: new Date().toISOString() },
+            { resident_id: residentId, user_id: uid, email, invited_by: callerId, accepted_at: new Date().toISOString() },
             { onConflict: "email" }
           );
         if (linkErr) return json({ error: linkErr.message });

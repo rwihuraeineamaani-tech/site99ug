@@ -22,6 +22,7 @@ export type ResidentRecord = {
   contact_user_id: string | null;
   handler_user_id: string | null;
   notes: string | null;
+  onboarding_status?: string | null;
 };
 
 const VIEW_KEY = "site99:residents-view";
@@ -48,7 +49,7 @@ export default function ResidentsHub() {
   useEffect(() => {
     (async () => {
       const [{ data: res }, { data: acc }, { data: content }, { data: contracts }] = await Promise.all([
-        supabase.rpc("resident_records"),
+        supabase.from("residents").select("id,name,territory,since,status,email,user_id,avatar_url,contact_user_id,handler_user_id,notes,onboarding_status").order("name"),
         supabase.from("client_accounts").select("resident_id, active"),
         supabase.from("content_items").select("resident_id"),
         supabase.from("resident_contracts").select("resident_id, status"),
@@ -170,6 +171,7 @@ export default function ResidentsHub() {
                     <div className="flex flex-wrap items-center gap-2">
                       {r.status && <StatusChip value={r.status} tone={r.status === "active" ? "teal" : "neutral"} />}
                       {mine(r) && <StatusChip value="yours" tone="violet" />}
+                      {r.onboarding_status === "in_progress" && <StatusChip value="onboarding" tone="amber" />}
                       <StatusChip
                         value={contracted.has(r.id) ? "contract active" : "no contract"}
                         tone={contracted.has(r.id) ? "teal" : "neutral"}
