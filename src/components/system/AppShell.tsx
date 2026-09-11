@@ -35,6 +35,7 @@ import {
   MessageCircle,
   Network,
   Activity,
+  ClipboardList,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -76,7 +77,7 @@ export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: ty
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
-  const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance, has } = useMyRoles();
+  const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance, canAssignWork, has } = useMyRoles();
   const strategyWaiting = useStrategyWaiting(isLeadership);
   const approvalsWaiting = useApprovalsWaiting();
   const { items: todoItems } = useTodo();
@@ -105,6 +106,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       items: [
         { to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard },
           { to: "/app/todo", label: "To-Do", icon: ListChecks, badge: todoItems.length },
+          ...(canAssignWork ? [{ to: "/app/work", label: "Work", icon: ClipboardList } as ShellNavItem] : []),
           { to: "/app/chat", label: "Chat", icon: MessageCircle, badge: chatUnread },
           { to: "/app/briefs", label: "Briefs", icon: FileText, badge: communicationUnread.briefs },
           { to: "/app/announcements", label: "Announcements", icon: Megaphone, badge: communicationUnread.announcements },

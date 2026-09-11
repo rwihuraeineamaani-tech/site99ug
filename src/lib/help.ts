@@ -18,6 +18,17 @@ const GUIDES: Record<string, HelpGuide> = {
     ],
     tips: ["Numbers come from real records, so anything missing usually means the work has not been logged yet."],
   },
+  "/app/work": {
+    title: "Work",
+    what: "Where leaders give someone a job and follow it to sign-off.",
+    steps: [
+      "Press “Assign work”, write the job, pick who does it and set the deadline.",
+      "Watch the board: Not started, Being done, Waiting on you, Signed off.",
+      "Use “By person” to see who is loaded and who is free.",
+      "Open a card to read the update, ask for more, or sign it off.",
+    ],
+    tips: ["The person you assign gets it in their To-Do and on their phone."],
+  },
   "/app/todo": {
     title: "To-Do",
     what: "Every action assigned to you across content, shoots, approvals, strategy, finance, sales and leadership work.",
