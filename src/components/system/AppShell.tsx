@@ -203,7 +203,7 @@ const SIDEBAR_SCROLL_KEY = "site99:sidebar-scroll";
 function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   // The shell remounts on every route change, so keep the menu where it was.
