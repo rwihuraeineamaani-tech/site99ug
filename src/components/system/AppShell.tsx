@@ -35,6 +35,7 @@ import {
   MessageCircle,
   Network,
   Activity,
+  ClipboardList,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -76,7 +77,7 @@ export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: ty
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
-  const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance, has } = useMyRoles();
+  const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance, canAssignWork, has } = useMyRoles();
   const strategyWaiting = useStrategyWaiting(isLeadership);
   const approvalsWaiting = useApprovalsWaiting();
   const { items: todoItems } = useTodo();
