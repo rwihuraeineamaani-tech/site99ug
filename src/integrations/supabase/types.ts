@@ -3115,6 +3115,183 @@ export type Database = {
         }
         Relationships: []
       }
+      push_delivery_log: {
+        Row: {
+          created_at: string
+          device_id: string | null
+          error_detail: string | null
+          id: string
+          outbox_id: string
+          provider_status: number | null
+          recipient_user_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          device_id?: string | null
+          error_detail?: string | null
+          id?: string
+          outbox_id: string
+          provider_status?: number | null
+          recipient_user_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string | null
+          error_detail?: string | null
+          id?: string
+          outbox_id?: string
+          provider_status?: number | null
+          recipient_user_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_delivery_log_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "push_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_delivery_log_outbox_id_fkey"
+            columns: ["outbox_id"]
+            isOneToOne: false
+            referencedRelation: "push_outbox"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_devices: {
+        Row: {
+          active: boolean
+          created_at: string
+          device_label: string | null
+          id: string
+          last_seen_at: string
+          platform: string | null
+          token: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          device_label?: string | null
+          id?: string
+          last_seen_at?: string
+          platform?: string | null
+          token: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          device_label?: string | null
+          id?: string
+          last_seen_at?: string
+          platform?: string | null
+          token?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_outbox: {
+        Row: {
+          actor_user_id: string | null
+          attempts: number
+          available_at: string
+          body: string
+          category: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          event_key: string
+          event_type: string
+          id: string
+          last_error: string | null
+          path: string
+          processed_at: string | null
+          recipient_user_id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          attempts?: number
+          available_at?: string
+          body: string
+          category: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_key: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          path?: string
+          processed_at?: string | null
+          recipient_user_id: string
+          status?: string
+          title: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          attempts?: number
+          available_at?: string
+          body?: string
+          category?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_key?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          path?: string
+          processed_at?: string | null
+          recipient_user_id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      push_preferences: {
+        Row: {
+          approvals_enabled: boolean
+          communications_enabled: boolean
+          created_at: string
+          finance_enabled: boolean
+          tasks_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approvals_enabled?: boolean
+          communications_enabled?: boolean
+          created_at?: string
+          finance_enabled?: boolean
+          tasks_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approvals_enabled?: boolean
+          communications_enabled?: boolean
+          created_at?: string
+          finance_enabled?: boolean
+          tasks_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       recurring_payments: {
         Row: {
           active: boolean
@@ -5189,6 +5366,22 @@ export type Database = {
       ops_overview: { Args: never; Returns: Json }
       publish_approval_workflow: {
         Args: { _version_id: string; _workflow_id: string }
+        Returns: undefined
+      }
+      queue_push: {
+        Args: {
+          _actor: string
+          _available_at?: string
+          _body: string
+          _category: string
+          _entity_id: string
+          _entity_type: string
+          _event_key: string
+          _event_type: string
+          _path: string
+          _recipient: string
+          _title: string
+        }
         Returns: undefined
       }
       raise_recurring_invoices: { Args: never; Returns: number }
