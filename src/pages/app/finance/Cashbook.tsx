@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useFinanceLock } from "@/components/finance/FinanceLock";
 import { toast } from "sonner";
 import FinancePage from "@/components/finance/FinancePage";
 import { SectionHeading, Money, SearchInput, SelectFilter, StatusChip } from "@/components/system";
@@ -68,6 +69,7 @@ const spendTone = (k: string): "violet" | "amber" | "neutral" =>
 const spendChip = (k: string) => (k === "capex" ? "Capital" : k === "opex" ? "Running cost" : "Not a cost");
 
 export default function Cashbook() {
+  const { require: requirePin } = useFinanceLock();
   const { canSeeFinance, has } = useMyRoles();
   const canLog = canSeeFinance || has("admin", "founder");
 
@@ -217,6 +219,7 @@ export default function Cashbook() {
   };
 
   const saveEntry = async () => {
+    if (!(await requirePin())) return;
     const amt = Math.round(Number(amount));
     if (!walletId || !amt || amt <= 0) return toast.error("Pick a wallet and a real amount.");
     if (!who.trim()) return toast.error(direction === "in" ? "Who sent the money?" : "Who was paid?");
@@ -254,6 +257,7 @@ export default function Cashbook() {
   };
 
   const saveTransfer = async () => {
+    if (!(await requirePin())) return;
     const amt = Math.round(Number(tAmount));
     if (!fromW || !toW || fromW === toW || !amt) return toast.error("Pick two different wallets and an amount.");
     setBusy(true);
@@ -274,6 +278,7 @@ export default function Cashbook() {
   };
 
   const reverse = async (row: Entry) => {
+    if (!(await requirePin())) return;
     const reason = window.prompt("Why is this being reversed?");
     if (!reason) return;
     const { error } = await supabase.rpc("reverse_cashbook_entry", { _id: row.id, _reason: reason });

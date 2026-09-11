@@ -71,6 +71,7 @@ import StrategyMapBuilder from "./pages/app/strategy/MapBuilder.tsx";
 import StrategyGoals from "./pages/app/strategy/Goals.tsx";
 import StrategyApprovals from "./pages/app/strategy/Approvals.tsx";
 import InboxPage from "./pages/app/Inbox.tsx";
+import ApprovalsPage from "./pages/app/Approvals.tsx";
 
 import Shoots from "./pages/app/Shoots.tsx";
 import ShootDayRun from "./pages/app/ShootDay.tsx";
@@ -143,6 +144,14 @@ const AnimatedRoutes = () => {
           }
         />
         <Route path="/app/clients" element={<Navigate to="/app/residents" replace />} />
+        <Route
+          path="/app/approvals"
+          element={
+            <RequireRole gate="staff">
+              <ApprovalsPage />
+            </RequireRole>
+          }
+        />
         <Route
           path="/app/inbox"
           element={
