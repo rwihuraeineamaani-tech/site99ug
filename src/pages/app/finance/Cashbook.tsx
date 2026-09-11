@@ -217,6 +217,7 @@ export default function Cashbook() {
   };
 
   const saveEntry = async () => {
+    if (!(await requirePin())) return;
     const amt = Math.round(Number(amount));
     if (!walletId || !amt || amt <= 0) return toast.error("Pick a wallet and a real amount.");
     if (!who.trim()) return toast.error(direction === "in" ? "Who sent the money?" : "Who was paid?");
@@ -254,6 +255,7 @@ export default function Cashbook() {
   };
 
   const saveTransfer = async () => {
+    if (!(await requirePin())) return;
     const amt = Math.round(Number(tAmount));
     if (!fromW || !toW || fromW === toW || !amt) return toast.error("Pick two different wallets and an amount.");
     setBusy(true);
@@ -274,6 +276,7 @@ export default function Cashbook() {
   };
 
   const reverse = async (row: Entry) => {
+    if (!(await requirePin())) return;
     const reason = window.prompt("Why is this being reversed?");
     if (!reason) return;
     const { error } = await supabase.rpc("reverse_cashbook_entry", { _id: row.id, _reason: reason });

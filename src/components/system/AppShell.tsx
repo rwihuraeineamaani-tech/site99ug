@@ -48,6 +48,7 @@ import {
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { useInbox } from "@/hooks/useInbox";
 import { useStrategyWaiting } from "@/hooks/useStrategyWaiting";
+import { useApprovalsWaiting } from "@/hooks/useApprovalsWaiting";
 import logo from "@/assets/site99-logo.png";
 import {
   Sidebar,
@@ -70,6 +71,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance } = useMyRoles();
   const { unread } = useInbox(true);
   const strategyWaiting = useStrategyWaiting(isLeadership);
+  const approvalsWaiting = useApprovalsWaiting();
 
   if (nav) return [{ label: "Menu", items: nav }];
 
@@ -90,6 +92,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       items: [
         { to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard },
         { to: "/app/inbox", label: "Inbox", icon: Inbox, badge: unread },
+        { to: "/app/approvals", label: "Approvals", icon: BadgeCheck, badge: approvalsWaiting },
         { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
         { to: "/app/settings", label: "My settings", icon: UserCog },
       ],

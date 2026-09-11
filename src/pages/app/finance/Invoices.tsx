@@ -222,6 +222,7 @@ export default function Invoices() {
 
   const doSettle = async () => {
     if (!settle) return;
+    if (!(await requirePin())) return;
     const amount = Math.round(Number(settle.amount));
     if (!settle.wallet) return toast.error("Which account did the money land in?");
     if (!amount) return toast.error("Enter the amount received.");

@@ -100,6 +100,7 @@ export default function LoansPanel({ onChanged }: { onChanged?: () => void }) {
   };
 
   const repay = async (loan: Loan) => {
+    if (!(await requirePin())) return;
     const value = Number((window.prompt("How much was repaid (UGX)?") ?? "").replace(/[^\d]/g, ""));
     if (!value) return;
     const ref = window.prompt("Transaction ID (optional)") ?? "";
