@@ -13,8 +13,8 @@ import type { AvailabilityBlock } from "@/lib/recurrence";
 import { describeRepeat, timeLabel } from "@/lib/recurrence";
 import { cn } from "@/lib/utils";
 
-const KINDS: EntryKind[] = ["personal", "shoot", "post", "numbers", "event", "busy"];
-const STYLE: Record<EntryKind, string> = { personal: "border-signal/60 bg-signal/[0.08] text-ink", shoot: "border-acc-violet/50 bg-acc-violet-soft text-ink", post: "border-rule text-ink", numbers: "border-rule text-ink-soft", event: "border-rule text-ink", busy: "border-dashed border-ink-faint/60 text-ink-soft" };
+const KINDS: EntryKind[] = ["personal", "task", "shoot", "post", "numbers", "event", "busy"];
+const STYLE: Record<EntryKind, string> = { personal: "border-signal/60 bg-signal/[0.08] text-ink", task: "border-acc-lime/50 bg-acc-lime/10 text-ink", shoot: "border-acc-violet/50 bg-acc-violet-soft text-ink", post: "border-rule text-ink", numbers: "border-rule text-ink-soft", event: "border-rule text-ink", busy: "border-dashed border-ink-faint/60 text-ink-soft" };
 const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 function todayISO() { return new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Kampala" }).format(new Date()); }
 function longDate(date: string) { return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`)); }

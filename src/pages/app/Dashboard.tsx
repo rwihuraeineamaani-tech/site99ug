@@ -139,8 +139,9 @@ export default function Dashboard() {
           late: isOverdue(f.planned_at),
         })
       );
+    todoItems.filter((item) => item.kind === "leadership" && item.due && item.due.slice(0, 10) <= t).forEach((item) => rows.push({ id: item.id, when: whenLabel(item.due), title: item.title, note: item.move, to: item.to, late: isOverdue(item.due) }));
     return rows.slice(0, 8);
-  }, [shootPrompts, flow]);
+  }, [shootPrompts, flow, todoItems]);
 
   const titles = roles.filter((r): r is StaffRole => r in ROLE_LABELS).map((r) => ROLE_LABELS[r]);
   const shareTotal = myShares.reduce((s, r) => s + Number(r.computed_ugx ?? 0), 0);
@@ -235,7 +236,7 @@ export default function Dashboard() {
     dayOfMonth: kampalaNow.dayOfMonth,
     month: kampalaNow.month,
     roleLabel: titles[0],
-    waiting: waiting.length,
+    waiting: todoItems.length,
     onMyPlate: onMyPlate.length,
     shootsToday,
     eventsThisWeek: thisWeek.length,

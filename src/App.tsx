@@ -73,6 +73,7 @@ import StrategyApprovals from "./pages/app/strategy/Approvals.tsx";
 import ApprovalsPage from "./pages/app/Approvals.tsx";
 import ChatPage from "./pages/app/Chat.tsx";
 import TodoPage from "./pages/app/Todo.tsx";
+import LeadershipTaskPage from "./pages/app/LeadershipTask.tsx";
 import BriefsPage from "./pages/app/Briefs.tsx";
 import BriefDetailPage from "./pages/app/BriefDetail.tsx";
 import AnnouncementsPage from "./pages/app/Announcements.tsx";
@@ -171,6 +172,7 @@ const AnimatedRoutes = () => {
           element={<Navigate to="/app/chat" replace />}
         />
         <Route path="/app/todo" element={<RequireRole gate="staff"><TodoPage /></RequireRole>} />
+        <Route path="/app/todo/:id" element={<RequireRole gate="staff"><LeadershipTaskPage /></RequireRole>} />
         <Route path="/app/chat" element={<RequireRole gate="staff"><ChatPage /></RequireRole>} />
         <Route path="/app/chat/:threadId" element={<RequireRole gate="staff"><ChatPage /></RequireRole>} />
         <Route path="/app/briefs" element={<RequireRole gate="staff"><BriefsPage /></RequireRole>} />
