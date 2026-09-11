@@ -34,6 +34,7 @@ import {
   ListChecks,
   MessageCircle,
   Network,
+  Activity,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
