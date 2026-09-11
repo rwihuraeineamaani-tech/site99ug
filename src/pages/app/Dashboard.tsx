@@ -20,6 +20,9 @@ import Sparkline from "@/components/deck/Sparkline";
 import { useTodo } from "@/hooks/useTodo";
 
 import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/lib/kpi";
+import { loadDashboardLayout, defaultLayoutFor, type PanelItem, type PanelKey } from "@/lib/dashboardPanels";
+import { AssignedWorkPanel, SignOffPanel, TeamLoadPanel, useAssignedWork } from "@/components/dashboard/LeadershipPanels";
+import { RolePanel } from "@/components/dashboard/RolePanels";
 
 type PendingWeek = {
   account_id: string;
@@ -38,6 +41,21 @@ export default function Dashboard() {
   const { items: todoItems } = useTodo();
   const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const isFounder = has(...FOUNDER_ROLES);
+  const assignedWork = useAssignedWork(userId);
+
+  /* Which blocks this person sees, and in what order: their own layout, then their role's, then the built-in default. */
+  const [layout, setLayout] = useState<PanelItem[]>(() => defaultLayoutFor(roles));
+  useEffect(() => {
+    let cancelled = false;
+    loadDashboardLayout(userId, roles).then((l) => {
+      if (!cancelled) setLayout(l);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, roles]);
+
+
 
   const [myShares, setMyShares] = useState<{ resident_name: string; kind: string; computed_ugx: number }[]>([]);
   const [clients, setClients] = useState<number | null>(null);
@@ -272,204 +290,255 @@ export default function Dashboard() {
         ]}
       />
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-4 md:grid-cols-2">
-        <DeckColumn title="Today and late" count={today.length} to="/app/shoots" empty="Nothing due today." delay={0}>
-          {today.map((r) => (
-            <DeckCard key={r.id} to={r.to} eyebrow={r.when} title={r.title} note={r.note} tone={r.late ? "late" : "default"} />
-          ))}
-        </DeckColumn>
-
-        <DeckColumn title="This week" count={thisWeek.length} to="/app/calendar" toLabel="Calendar" empty="Nothing else this week." delay={60}>
-          {thisWeek.map((e) => (
-            <DeckCard
-              key={e.id}
-              to={e.to}
-              eyebrow={`${KIND_LABEL[e.kind]} · ${e.date.slice(8, 10)}/${e.date.slice(5, 7)}`}
-              title={e.title}
-              note={e.note}
-            />
-          ))}
-        </DeckColumn>
-
-        <DeckColumn
-          title={scope === "studio" && isLeadership ? "How the studio is doing" : "How you are doing"}
-          delay={120}
-          empty="No figures yet."
-        >
-          {isLeadership && (
-            <div className="flex items-center rounded-full border border-rule overflow-hidden text-[10px] mb-1">
-              {(["mine", "studio"] as KpiScope[]).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setScope(s)}
-                  className={`flex-1 px-3 py-1.5 eyebrow focus-ring ${
-                    scope === s ? "bg-signal text-paper" : "text-ink-soft hover:text-ink"
-                  }`}
-                >
-                  {s === "mine" ? "Mine" : "Studio"}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {!kpi ? (
-            <p className="px-2 py-6 text-center text-xs text-ink-faint">Adding up your numbers…</p>
-          ) : kpi.empty && scope === "mine" ? (
-            <p className="px-2 py-6 text-center text-xs text-ink-faint">
-              Nothing posted or recorded in the last 30 days — your figures appear here as soon as work is done.
-            </p>
-          ) : (
-            <>
-              {kpi.figures.map((f) => (
-                <DeckCard
-                  key={f.key}
-                  to={f.to}
-                  eyebrow={f.label}
-                  title={f.value}
-                  note={f.note}
-                  below={
-                    <>
-                      <Sparkline
-                        points={f.series}
-                        rising={f.delta === null ? undefined : f.delta >= 0}
-                        title={`${f.label}, last eight weeks`}
-                      />
-                      {f.progress !== null && (
-                        <div className="mt-2 h-1 w-full rounded-full bg-paper-sunken overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${f.progress >= 1 ? "bg-acc-lime" : "bg-signal"}`}
-                            style={{ width: `${Math.round(f.progress * 100)}%` }}
-                          />
-                        </div>
-                      )}
-                      {f.progress !== null && f.target !== null && (
-                        <p className="mt-1 text-[10px] text-ink-faint">
-                          {Math.round(f.progress * 100)}% of this month's target of {f.target.toLocaleString()}
-                        </p>
-                      )}
-                    </>
-                  }
-                  right={
-                    f.delta === null ? undefined : (
-                      <span
-                        className={`num text-[11px] tabular-nums whitespace-nowrap ${
-                          f.delta > 0 ? "text-acc-lime" : f.delta < 0 ? "text-signal" : "text-ink-faint"
+      {(() => {
+        const columnPanel = (key: PanelKey) => {
+          if (key === "today")
+            return (
+              <DeckColumn key="today" title="Today and late" count={today.length} to="/app/shoots" empty="Nothing due today." delay={0}>
+                {today.map((r) => (
+                  <DeckCard key={r.id} to={r.to} eyebrow={r.when} title={r.title} note={r.note} tone={r.late ? "late" : "default"} />
+                ))}
+              </DeckColumn>
+            );
+          if (key === "week")
+            return (
+              <DeckColumn key="week" title="This week" count={thisWeek.length} to="/app/calendar" toLabel="Calendar" empty="Nothing else this week." delay={60}>
+                {thisWeek.map((e) => (
+                  <DeckCard
+                    key={e.id}
+                    to={e.to}
+                    eyebrow={`${KIND_LABEL[e.kind]} · ${e.date.slice(8, 10)}/${e.date.slice(5, 7)}`}
+                    title={e.title}
+                    note={e.note}
+                  />
+                ))}
+              </DeckColumn>
+            );
+          if (key === "kpi")
+            return (
+              <DeckColumn
+                key="kpi"
+                title={scope === "studio" && isLeadership ? "How the studio is doing" : "How you are doing"}
+                delay={120}
+                empty="No figures yet."
+              >
+                {isLeadership && (
+                  <div className="flex items-center rounded-full border border-rule overflow-hidden text-[10px] mb-1">
+                    {(["mine", "studio"] as KpiScope[]).map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setScope(s)}
+                        className={`flex-1 px-3 py-1.5 eyebrow focus-ring ${
+                          scope === s ? "bg-signal text-paper" : "text-ink-soft hover:text-ink"
                         }`}
                       >
-                        {f.delta > 0 ? "▲" : f.delta < 0 ? "▼" : "="} {Math.abs(f.delta).toLocaleString()}
-                        {f.deltaUnit}
-                      </span>
-                    )
-                  }
-                />
-              ))}
-              {kpi.best && kpi.worst && kpi.best !== kpi.worst && (
-                <p className="px-2 pt-1 text-[11px] text-ink-soft">
-                  Strongest: <span className="text-ink">{kpi.best}</span> · push on{" "}
-                  <span className="text-signal">{kpi.worst}</span>
-                </p>
-              )}
-            </>
-          )}
-        </DeckColumn>
-      </div>
+                        {s === "mine" ? "Mine" : "Studio"}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-      <section className="rise mt-8">
-        <div className="rule-b pb-3 mb-3 flex items-center gap-3">
-          <h2 className="display text-lg">Your week</h2>
-          <span className="eyebrow text-[10px] text-ink-faint">{weekFrom} →</span>
-          <div className="ml-auto flex items-center rounded-full border border-rule overflow-hidden">
-            <button onClick={() => setWeekOffset((n) => n - 1)} className="px-2 py-1.5 hover:text-signal focus-ring" aria-label="Previous week">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button onClick={() => setWeekOffset(0)} className="px-3 py-1.5 eyebrow text-[10px] focus-ring">
-              This week
-            </button>
-            <button onClick={() => setWeekOffset((n) => n + 1)} className="px-2 py-1.5 hover:text-signal focus-ring" aria-label="Next week">
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <Link to="/app/calendar" className="eyebrow text-[10px] text-signal focus-ring whitespace-nowrap">
-            Full calendar →
-          </Link>
-        </div>
-        <div className="grid gap-2 md:grid-cols-7">
-          {weekDays.map((d) => {
-            const list = weekEntries.filter((e) => e.date === d);
-            const isToday = d === todayISO();
+                {!kpi ? (
+                  <p className="px-2 py-6 text-center text-xs text-ink-faint">Adding up your numbers…</p>
+                ) : kpi.empty && scope === "mine" ? (
+                  <p className="px-2 py-6 text-center text-xs text-ink-faint">
+                    Nothing posted or recorded in the last 30 days — your figures appear here as soon as work is done.
+                  </p>
+                ) : (
+                  <>
+                    {kpi.figures.map((f) => (
+                      <DeckCard
+                        key={f.key}
+                        to={f.to}
+                        eyebrow={f.label}
+                        title={f.value}
+                        note={f.note}
+                        below={
+                          <>
+                            <Sparkline
+                              points={f.series}
+                              rising={f.delta === null ? undefined : f.delta >= 0}
+                              title={`${f.label}, last eight weeks`}
+                            />
+                            {f.progress !== null && (
+                              <div className="mt-2 h-1 w-full rounded-full bg-paper-sunken overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${f.progress >= 1 ? "bg-acc-lime" : "bg-signal"}`}
+                                  style={{ width: `${Math.round(f.progress * 100)}%` }}
+                                />
+                              </div>
+                            )}
+                            {f.progress !== null && f.target !== null && (
+                              <p className="mt-1 text-[10px] text-ink-faint">
+                                {Math.round(f.progress * 100)}% of this month's target of {f.target.toLocaleString()}
+                              </p>
+                            )}
+                          </>
+                        }
+                        right={
+                          f.delta === null ? undefined : (
+                            <span
+                              className={`num text-[11px] tabular-nums whitespace-nowrap ${
+                                f.delta > 0 ? "text-acc-lime" : f.delta < 0 ? "text-signal" : "text-ink-faint"
+                              }`}
+                            >
+                              {f.delta > 0 ? "▲" : f.delta < 0 ? "▼" : "="} {Math.abs(f.delta).toLocaleString()}
+                              {f.deltaUnit}
+                            </span>
+                          )
+                        }
+                      />
+                    ))}
+                    {kpi.best && kpi.worst && kpi.best !== kpi.worst && (
+                      <p className="px-2 pt-1 text-[11px] text-ink-soft">
+                        Strongest: <span className="text-ink">{kpi.best}</span> · push on{" "}
+                        <span className="text-signal">{kpi.worst}</span>
+                      </p>
+                    )}
+                  </>
+                )}
+              </DeckColumn>
+            );
+          return null;
+        };
+
+        const fullPanel = (key: PanelKey, index: string) => {
+          if (key === "weekgrid")
             return (
-              <div key={d} className={`surface rounded-xl p-2 ${isToday ? "border-signal/50" : ""}`}>
-                <div className="flex items-baseline justify-between px-1 pb-2">
-                  <span className="eyebrow text-[9px] text-ink-faint">{DAY_LABELS[new Date(`${d}T00:00:00Z`).getUTCDay()]}</span>
-                  <span className={`num text-sm tabular-nums ${isToday ? "text-signal font-semibold" : ""}`}>
-                    {Number(d.slice(8, 10))}
-                  </span>
+              <section key="weekgrid" className="rise mt-8">
+                <div className="rule-b pb-3 mb-3 flex items-center gap-3">
+                  <h2 className="display text-lg">Your week</h2>
+                  <span className="eyebrow text-[10px] text-ink-faint">{weekFrom} →</span>
+                  <div className="ml-auto flex items-center rounded-full border border-rule overflow-hidden">
+                    <button onClick={() => setWeekOffset((n) => n - 1)} className="px-2 py-1.5 hover:text-signal focus-ring" aria-label="Previous week">
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => setWeekOffset(0)} className="px-3 py-1.5 eyebrow text-[10px] focus-ring">
+                      This week
+                    </button>
+                    <button onClick={() => setWeekOffset((n) => n + 1)} className="px-2 py-1.5 hover:text-signal focus-ring" aria-label="Next week">
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Link to="/app/calendar" className="eyebrow text-[10px] text-signal focus-ring whitespace-nowrap">
+                    Full calendar →
+                  </Link>
                 </div>
-                <div className="space-y-1.5">
-                  {list.length === 0 && <p className="px-1 py-3 text-[11px] text-ink-faint">Clear</p>}
-                  {list.slice(0, 4).map((e) =>
-                    e.to ? (
-                      <Link
-                        key={e.id}
-                        to={e.to}
-                        className="block rounded border border-rule px-2 py-1.5 text-[11px] hover:border-signal/50 focus-ring"
-                      >
-                        <div className="truncate">{e.title}</div>
-                        <div className="text-[10px] text-ink-faint truncate">{KIND_LABEL[e.kind]}</div>
-                      </Link>
-                    ) : (
-                      <div
-                        key={e.id}
-                        className="rounded border border-dashed border-ink-faint/60 px-2 py-1.5 text-[11px] text-ink-soft"
-                      >
-                        <div className="truncate">{e.title}</div>
-                        <div className="text-[10px] text-ink-faint truncate">{e.note}</div>
+                <div className="grid gap-2 md:grid-cols-7">
+                  {weekDays.map((d) => {
+                    const list = weekEntries.filter((e) => e.date === d);
+                    const isToday = d === todayISO();
+                    return (
+                      <div key={d} className={`surface rounded-xl p-2 ${isToday ? "border-signal/50" : ""}`}>
+                        <div className="flex items-baseline justify-between px-1 pb-2">
+                          <span className="eyebrow text-[9px] text-ink-faint">{DAY_LABELS[new Date(`${d}T00:00:00Z`).getUTCDay()]}</span>
+                          <span className={`num text-sm tabular-nums ${isToday ? "text-signal font-semibold" : ""}`}>
+                            {Number(d.slice(8, 10))}
+                          </span>
+                        </div>
+                        <div className="space-y-1.5">
+                          {list.length === 0 && <p className="px-1 py-3 text-[11px] text-ink-faint">Clear</p>}
+                          {list.slice(0, 4).map((e) =>
+                            e.to ? (
+                              <Link
+                                key={e.id}
+                                to={e.to}
+                                className="block rounded border border-rule px-2 py-1.5 text-[11px] hover:border-signal/50 focus-ring"
+                              >
+                                <div className="truncate">{e.title}</div>
+                                <div className="text-[10px] text-ink-faint truncate">{KIND_LABEL[e.kind]}</div>
+                              </Link>
+                            ) : (
+                              <div
+                                key={e.id}
+                                className="rounded border border-dashed border-ink-faint/60 px-2 py-1.5 text-[11px] text-ink-soft"
+                              >
+                                <div className="truncate">{e.title}</div>
+                                <div className="text-[10px] text-ink-faint truncate">{e.note}</div>
+                              </div>
+                            )
+                          )}
+                        </div>
                       </div>
-                    )
-                  )}
+                    );
+                  })}
                 </div>
+              </section>
+            );
+
+          if (key === "numbers")
+            return pendingWeeks.length > 0 ? (
+              <DeckPanel
+                key="numbers"
+                index={index}
+                title={`Weekly numbers — ${weekLabel(pendingWeeks[0].week_start)}`}
+                hint={`${pendingWeeks.length} account${pendingWeeks.length === 1 ? "" : "s"} to fill`}
+              >
+                <DeckList>
+                  {pendingWeeks.map((p) => (
+                    <li key={p.account_id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
+                      <span className="text-sm font-semibold">{p.resident_name}</span>
+                      <StatusChip value={p.platform} tone="violet" />
+                      <span className="text-xs text-ink-faint truncate">{p.handle}</span>
+                      <Link to="/app/residents" className="ml-auto eyebrow text-signal focus-ring whitespace-nowrap">
+                        Add the week →
+                      </Link>
+                    </li>
+                  ))}
+                </DeckList>
+              </DeckPanel>
+            ) : null;
+
+          if (key === "share")
+            return myShares.length > 0 ? (
+              <DeckPanel key="share" index={index} title="Your retainer share" hint="This month, your line only">
+                <DeckList>
+                  {myShares.map((s) => (
+                    <li key={`${s.resident_name}-${s.kind}`} className="px-4 py-3 flex items-center gap-3">
+                      <span className="text-sm font-semibold">{s.resident_name}</span>
+                      <span className="eyebrow text-ink-faint">{s.kind}</span>
+                      <span className="num ml-auto text-sm">UGX {(s.computed_ugx ?? 0).toLocaleString()}</span>
+                    </li>
+                  ))}
+                </DeckList>
+              </DeckPanel>
+            ) : null;
+
+          if (key === "assigned_work") return <AssignedWorkPanel key="assigned_work" work={assignedWork} index={index} />;
+          if (key === "signoffs") return <SignOffPanel key="signoffs" work={assignedWork} index={index} />;
+          if (key === "team_load") return <TeamLoadPanel key="team_load" work={assignedWork} index={index} />;
+          return <RolePanel key={key} panelKey={key} userId={userId} index={index} />;
+        };
+
+        const blocks: JSX.Element[] = [];
+        let columns: (JSX.Element | null)[] = [];
+        let counter = 0;
+        const flushColumns = () => {
+          const filled = columns.filter(Boolean);
+          if (filled.length) {
+            blocks.push(
+              <div key={`cols-${blocks.length}`} className="mt-4 grid gap-3 lg:grid-cols-4 md:grid-cols-2">
+                {filled}
               </div>
             );
-          })}
-        </div>
-      </section>
+          }
+          columns = [];
+        };
 
-      {pendingWeeks.length > 0 && (
-        <DeckPanel
-          index="01"
-          title={`Weekly numbers — ${weekLabel(pendingWeeks[0].week_start)}`}
-          hint={`${pendingWeeks.length} account${pendingWeeks.length === 1 ? "" : "s"} to fill`}
-          delay={200}
-        >
-          <DeckList>
-            {pendingWeeks.map((p) => (
-              <li key={p.account_id} className="px-4 py-3 flex items-center gap-3 flex-wrap">
-                <span className="text-sm font-semibold">{p.resident_name}</span>
-                <StatusChip value={p.platform} tone="violet" />
-                <span className="text-xs text-ink-faint truncate">{p.handle}</span>
-                <Link to="/app/residents" className="ml-auto eyebrow text-signal focus-ring whitespace-nowrap">
-                  Add the week →
-                </Link>
-              </li>
-            ))}
-          </DeckList>
-        </DeckPanel>
-      )}
+        layout.forEach((item) => {
+          if (item.width === "column") {
+            columns.push(columnPanel(item.key));
+            return;
+          }
+          flushColumns();
+          counter += 1;
+          blocks.push(fullPanel(item.key, String(counter).padStart(2, "0")) ?? <span key={`skip-${item.key}`} className="hidden" />);
+        });
+        flushColumns();
+        return blocks;
+      })()}
 
-      {myShares.length > 0 && (
-        <DeckPanel index="02" title="Your retainer share" hint="This month, your line only" delay={240}>
-          <DeckList>
-            {myShares.map((s) => (
-              <li key={`${s.resident_name}-${s.kind}`} className="px-4 py-3 flex items-center gap-3">
-                <span className="text-sm font-semibold">{s.resident_name}</span>
-                <span className="eyebrow text-ink-faint">{s.kind}</span>
-                <span className="num ml-auto text-sm">UGX {(s.computed_ugx ?? 0).toLocaleString()}</span>
-              </li>
-            ))}
-          </DeckList>
-        </DeckPanel>
-      )}
 
     </AppShell>
   );
