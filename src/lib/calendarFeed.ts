@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AvailabilityBlock, occurrencesInRange, timeLabel } from "@/lib/recurrence";
 import { CalendarItem, itemAsBlock, slotAsBlock } from "@/lib/calendar";
 
-export type EntryKind = "shoot" | "post" | "numbers" | "event" | "busy" | "personal";
+export type EntryKind = "shoot" | "post" | "numbers" | "event" | "busy" | "personal" | "task";
 
 export type CalendarEntry = {
   id: string;
@@ -29,6 +29,7 @@ export const KIND_LABEL: Record<EntryKind, string> = {
   event: "Event",
   busy: "Busy",
   personal: "My calendar",
+  task: "Assigned work",
 };
 
 export function addDays(iso: string, n: number): string {
@@ -60,7 +61,7 @@ export type CalendarData = {
 
 /** Everything dated between two days: shoots, posts, numbers due, events and busy blocks. */
 export async function loadCalendar(from: string, to: string): Promise<CalendarData> {
-  const [shoots, content, events, blocksRes, calendarItemsRes, busySlotsRes, residentsRes, peopleRes] = await Promise.all([
+  const [shoots, content, events, blocksRes, calendarItemsRes, busySlotsRes, residentsRes, peopleRes, taskRes, taskLinksRes] = await Promise.all([
     supabase
       .from("shoot_days")
       .select("id, resident_id, status, shoot_date, call_time, location")
@@ -76,6 +77,8 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
     supabase.from("calendar_busy_slots").select("*").lte("start_date", to).or(`until.gte.${from},end_date.gte.${from}`),
     supabase.from("residents").select("id, name").order("name"),
     supabase.from("team_members").select("user_id, display_name, email"),
+    supabase.from("leadership_tasks").select("id,title,due_at,status,resident_id").not("due_at", "is", null).gte("due_at", `${from}T00:00:00`).lte("due_at", `${to}T23:59:59`).not("status", "in", '("accepted","cancelled")'),
+    supabase.from("leadership_task_assignees").select("task_id,user_id"),
   ]);
 
   const residents = (residentsRes.data as { id: string; name: string }[]) ?? [];
@@ -89,6 +92,13 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
   }));
 
   const entries: CalendarEntry[] = [];
+
+  const taskLinks = (taskLinksRes.data as { task_id: string; user_id: string }[]) ?? [];
+  ((taskRes.data as { id: string; title: string; due_at: string | null; status: string; resident_id: string | null }[]) ?? []).forEach((task) => {
+    if (!task.due_at) return;
+    const users = taskLinks.filter((link) => link.task_id === task.id);
+    users.forEach((link) => entries.push({ id: `task-${task.id}-${link.user_id}`, date: task.due_at?.slice(0,10) ?? "", kind: "task", title: task.title, note: task.status.replaceAll("_", " "), to: `/app/todo/${task.id}`, userId: link.user_id, residentId: task.resident_id, time: task.due_at?.slice(11,16), visibility: "private" }));
+  });
 
   ((shoots.data as { id: string; resident_id: string | null; status: string; shoot_date: string | null; call_time: string | null; location: string | null }[]) ?? [])
     .filter((s) => s.shoot_date && s.status !== "cancelled")

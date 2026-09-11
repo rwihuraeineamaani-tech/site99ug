@@ -96,6 +96,7 @@ export type RoleState = {
   isStaff: boolean;
   isAdmin: boolean;
   isLeadership: boolean;
+  canAssignWork: boolean;
   isClient: boolean;
   clientId: string | null;
   canSeeFinance: boolean;
@@ -221,6 +222,7 @@ export function useRolesState(): RoleState {
   const isStaff = roles.some((r) => STAFF_ROLES.has(r));
   const isClient = has("client");
   const isLeadership = has(...LEADERSHIP);
+  const canAssignWork = has("admin", "founder", "managing_director", "creative_director", "sales_head");
   const canSeeFinance = has(...FINANCE);
 
   const canEditContent = has("admin", "founder", "managing_director", "creative_director", "creative");
@@ -260,6 +262,7 @@ export function useRolesState(): RoleState {
     isStaff,
     isAdmin: has("admin", "founder"),
     isLeadership,
+    canAssignWork,
     isClient,
     clientId,
     canSeeFinance,

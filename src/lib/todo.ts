@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { buildWaiting, loadWaitingRaw } from "@/lib/inbox";
 import { loadApprovals, type ApprovalContext } from "@/lib/approvals";
 
-export type TodoKind = "content" | "shoots" | "approvals" | "strategy" | "finance" | "operations" | "sales";
+export type TodoKind = "leadership" | "content" | "shoots" | "approvals" | "strategy" | "finance" | "operations" | "sales";
 export type TodoItem = {
   id: string;
   kind: TodoKind;
@@ -16,7 +16,7 @@ export type TodoItem = {
 
 export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boolean }): Promise<TodoItem[]> {
   if (!ctx.userId) return [];
-  const [{ flow, resLinks, myCrew }, approvals, shootBundle, compliance, salesFollowups] = await Promise.all([
+  const [{ flow, resLinks, myCrew }, approvals, shootBundle, compliance, salesFollowups, leadershipBundle] = await Promise.all([
     loadWaitingRaw(ctx.userId),
     loadApprovals(ctx),
     Promise.all([
@@ -28,6 +28,10 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
       ? supabase.from("compliance_items").select("id,name,renews_on,status").neq("status", "complete")
       : Promise.resolve({ data: [] }),
     supabase.from("sales_followups").select("id,opportunity_id,title,due_at,status,sales_opportunities(organisation_name)").eq("assigned_user_id", ctx.userId).eq("status", "open"),
+    Promise.all([
+      supabase.from("leadership_task_assignees").select("task_id").eq("user_id", ctx.userId),
+      supabase.from("leadership_tasks").select("id,title,instruction,task_type,priority,status,due_at,resident_id").in("status", ["assigned", "in_progress", "submitted", "returned"]),
+    ]),
   ]);
   const clients = new Map(resLinks.map((r) => [r.id, r.name]));
   const waiting = buildWaiting({
@@ -98,5 +102,20 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
     to: `/app/sales?tab=opportunities&opportunity=${item.opportunity_id}`,
   }));
 
-  return [...waiting, ...approvalItems, ...shoots, ...ops, ...sales].sort((a, b) => (a.due ?? "9999").localeCompare(b.due ?? "9999"));
+  const [leadershipLinks, leadershipRows] = leadershipBundle;
+  const assignedIds = new Set(((leadershipLinks.data as { task_id: string }[]) ?? []).map((row) => row.task_id));
+  const leadership = ((leadershipRows.data as { id: string; title: string; instruction: string; task_type: string; priority: string; status: string; due_at: string | null; resident_id: string | null }[]) ?? [])
+    .filter((task) => assignedIds.has(task.id))
+    .map<TodoItem>((task) => ({
+      id: `leadership-${task.id}`,
+      kind: "leadership",
+      move: task.status === "submitted" ? "Waiting for leadership sign-off" : task.status === "returned" ? "Revise and resubmit" : task.status === "in_progress" ? "Continue assigned work" : "Start assigned work",
+      title: task.title,
+      client: task.resident_id ? clients.get(task.resident_id) ?? null : null,
+      detail: `${task.task_type} · ${task.priority} priority`,
+      due: task.due_at,
+      to: `/app/todo/${task.id}`,
+    }));
+
+  return [...leadership, ...waiting, ...approvalItems, ...shoots, ...ops, ...sales].sort((a, b) => (a.due ?? "9999").localeCompare(b.due ?? "9999"));
 }
