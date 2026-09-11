@@ -27,3 +27,10 @@
 - [x] Runtime approval instances, tasks, decisions, delegation, deadlines, and audit
 - [x] Complete domain submission adapters for Finance, Content, Strategy, and Contracts
 - [x] End-to-end role and workflow parity verification
+
+## Sales and unified Residents
+- [ ] Consolidate legacy Clients into Residents and remove Rated
+- [ ] Add Resident contacts, commercial profile, and onboarding workflow
+- [ ] Build Sales overview, pipeline, opportunities, offers, partnerships, and forecast
+- [ ] Integrate Sales with approvals, To-Do, Calendar, Legal, Finance, and Residents
+- [ ] Verify role access, mobile layout, exports, and end-to-end conversion
