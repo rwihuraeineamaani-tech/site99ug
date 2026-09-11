@@ -5364,6 +5364,7 @@ export type Database = {
       next_invoice_number: { Args: never; Returns: string }
       open_direct_chat: { Args: { _target_user: string }; Returns: string }
       ops_overview: { Args: never; Returns: Json }
+      prepare_due_push_reminders: { Args: { _now?: string }; Returns: number }
       publish_approval_workflow: {
         Args: { _version_id: string; _workflow_id: string }
         Returns: undefined
