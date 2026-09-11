@@ -166,6 +166,7 @@ const AnimatedRoutes = () => {
           element={<Navigate to="/app/chat" replace />}
         />
         <Route path="/app/todo" element={<RequireRole gate="staff"><TodoPage /></RequireRole>} />
+        <Route path="/app/work" element={<RequireRole gate="staff"><WorkPage /></RequireRole>} />
         <Route path="/app/todo/:id" element={<RequireRole gate="staff"><LeadershipTaskPage /></RequireRole>} />
         <Route path="/app/chat" element={<RequireRole gate="staff"><ChatPage /></RequireRole>} />
         <Route path="/app/chat/:threadId" element={<RequireRole gate="staff"><ChatPage /></RequireRole>} />
