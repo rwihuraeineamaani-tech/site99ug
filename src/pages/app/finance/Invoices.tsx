@@ -142,6 +142,7 @@ export default function Invoices() {
         contract_id: id,
         party_name: c.party_name,
         client_id: c.client_id ?? "",
+        resident_id: c.resident_id ?? d.resident_id,
         lines: [{ description: c.title, qty: 1, unit: c.value_ugx ?? 0 }],
       };
     });
