@@ -25,5 +25,5 @@
 - [x] People access and responsibility matrix
 - [x] Visual versioned workflow editor with validation and publishing
 - [x] Runtime approval instances, tasks, decisions, delegation, deadlines, and audit
-- [ ] Complete domain submission adapters for Finance, Content, Strategy, and Contracts
-- [ ] End-to-end role and workflow parity verification
+- [x] Complete domain submission adapters for Finance, Content, Strategy, and Contracts
+- [x] End-to-end role and workflow parity verification
