@@ -77,6 +77,7 @@ import BriefsPage from "./pages/app/Briefs.tsx";
 import BriefDetailPage from "./pages/app/BriefDetail.tsx";
 import AnnouncementsPage from "./pages/app/Announcements.tsx";
 import AnnouncementDetailPage from "./pages/app/AnnouncementDetail.tsx";
+import SystemAdmin from "./pages/app/SystemAdmin.tsx";
 
 import Shoots from "./pages/app/Shoots.tsx";
 import ShootDayRun from "./pages/app/ShootDay.tsx";
@@ -137,6 +138,14 @@ const AnimatedRoutes = () => {
           element={
             <RequireRole gate="leadership">
               <AppTeam />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/system-admin"
+          element={
+            <RequireRole gate="admin">
+              <SystemAdmin />
             </RequireRole>
           }
         />

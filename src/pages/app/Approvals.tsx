@@ -85,7 +85,7 @@ export default function Approvals() {
 
   const mine = useMemo(() => items.filter((i) => i.mine), [items]);
   const others = useMemo(() => items.filter((i) => !i.mine), [items]);
-  const canApproveAnything = isFounder || isMd || canApproveStrategy;
+  const canApproveAnything = isFounder || isMd || canApproveStrategy || mine.length > 0;
 
   return (
     <AppShell eyebrow="Approvals">
@@ -100,7 +100,7 @@ export default function Approvals() {
         title="Approvals."
         lede={
           canApproveAnything
-            ? "Everything sitting with you: money, payments, loans, strategy and content. Decide right here."
+            ? "Everything sitting with you across every published approval workflow. Decide right here."
             : "Where every sign-off in the studio currently sits, so you know who is holding a thing up."
         }
         actions={

@@ -4,13 +4,15 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 import { REVIEW_KIND_LABEL, setReview, type ReviewTable } from "@/lib/strategy";
+import { decideRuntimeTask, loadRuntimeTasks } from "@/lib/adminWorkflows";
 
 export type ApprovalKind =
   | "cash_request"
   | "payment_line"
   | "loan"
   | "strategy"
-  | "content";
+  | "content"
+  | "workflow";
 
 export const KIND_LABEL: Record<ApprovalKind, string> = {
   cash_request: "Cash request",
@@ -18,6 +20,7 @@ export const KIND_LABEL: Record<ApprovalKind, string> = {
   loan: "Loan",
   strategy: "Strategy",
   content: "Content",
+  workflow: "Workflow",
 };
 
 export type ApprovalAction = {
@@ -71,7 +74,7 @@ const nameMap = (rows: { user_id: string; display_name: string | null; email: st
 };
 
 export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: ApprovalItem[]; decided: DecidedItem[] }> {
-  const [team, residents, requests, lines, runs, loans, content, goals, targets, maps, plans, versions] =
+  const [team, residents, requests, lines, runs, loans, content, goals, targets, maps, plans, versions, runtime] =
     await Promise.all([
       supabase.from("team_members").select("user_id, display_name, email"),
       supabase.from("residents").select("id, name"),
@@ -88,6 +91,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       supabase.from("strategy_maps").select("id, resident_id, title, version, review_state, submitted_at, review_note"),
       supabase.from("client_plans").select("id, resident_id, review_state, submitted_at, review_note"),
       supabase.from("strategy_map_versions").select("id, resident_id, version, review_state, submitted_at, review_note"),
+      loadRuntimeTasks(),
     ]);
 
   const people = nameMap((team.data ?? []) as { user_id: string; display_name: string | null; email: string | null }[]);
@@ -98,6 +102,29 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
 
   const items: ApprovalItem[] = [];
   const decided: DecidedItem[] = [];
+
+  runtime.forEach((t) => {
+    const i = t.approval_instances;
+    if (!i) return;
+    const mine = t.assigned_user_id === ctx.userId;
+    items.push({
+      id: `workflow-${t.id}`,
+      kind: "workflow",
+      move: t.node_label,
+      title: i.title,
+      detail: i.detail,
+      amount: i.amount,
+      waitingOn: t.assigned_role ? String(t.assigned_role).replaceAll("_", " ") : "assigned person",
+      mine,
+      since: t.created_at,
+      to: "/app/approvals",
+      actions: mine ? [
+        { label: "Approve", run: () => decideRuntimeTask(t.id, "approved") },
+        { label: "Send back", ghost: true, ask: "What should change?", run: (note) => decideRuntimeTask(t.id, "changes_requested", note) },
+        { label: "Reject", ghost: true, ask: "Why is this being rejected?", run: (note) => decideRuntimeTask(t.id, "rejected", note) },
+      ] : [],
+    });
+  });
 
   /* ---------- money asked for ---------- */
   type Req = {

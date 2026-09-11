@@ -18,3 +18,12 @@
 - [x] Recurrence, linked work, scheduling strictness, and in-app reminders
 - [x] Per-occurrence reminder dismissal and dashboard calendar integration
 - [x] Verify creation, privacy controls, views, and editing
+
+
+## System administration and approval workflows
+- [x] Exact System-admin-only route and account controls
+- [x] People access and responsibility matrix
+- [x] Visual versioned workflow editor with validation and publishing
+- [x] Runtime approval instances, tasks, decisions, delegation, deadlines, and audit
+- [ ] Complete domain submission adapters for Finance, Content, Strategy, and Contracts
+- [ ] End-to-end role and workflow parity verification

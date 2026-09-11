@@ -33,6 +33,7 @@ import {
   BadgeCheck,
   ListChecks,
   MessageCircle,
+  Network,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -72,7 +73,7 @@ export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: ty
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
-  const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance } = useMyRoles();
+  const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance, has } = useMyRoles();
   const strategyWaiting = useStrategyWaiting(isLeadership);
   const approvalsWaiting = useApprovalsWaiting();
   const { items: todoItems } = useTodo();
@@ -119,6 +120,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
   if (isLeadership) dept.push({ to: "/app/team", label: "Team & access", icon: Users });
+  if (has("admin")) dept.push({ to: "/app/system-admin", label: "System administration", icon: Network });
   if (dept.length) groups.push({ label: "Departments", items: dept });
 
   const legal: ShellNavItem[] = departments.legal

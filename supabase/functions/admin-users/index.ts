@@ -12,6 +12,7 @@ const ALLOWED_ROLES = [
   "sales_head",
   "finance_ops",
   "creative",
+  "strategist",
   "legal",
   "admin",
   "event_manager",
@@ -48,9 +49,9 @@ Deno.serve(async (req) => {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    // Caller must be leadership (admin, founder or managing director)
-    const { data: isLeadership } = await admin.rpc("is_leadership", { _user_id: callerId });
-    if (!isLeadership) return json({ error: "Leadership only" }, 403);
+    // Account and role changes are reserved for the explicit System admin role.
+    const { data: isSystemAdmin } = await admin.rpc("is_system_admin", { _user_id: callerId });
+    if (!isSystemAdmin) return json({ error: "System admin only" }, 403);
 
     const body = await req.json().catch(() => ({}));
     const action = String(body.action ?? "");
