@@ -6,6 +6,7 @@ import { Activity, AlertTriangle, GitBranch, History, Plus, Save, Send, ShieldCh
 import Seo from "@/components/Seo";
 import AdminShell from "@/components/admin/AdminShell";
 import TeamPanel from "@/components/admin/TeamPanel";
+import DashboardBuilder from "@/components/admin/DashboardBuilder";
 import StatCard from "@/components/admin/StatCard";
 import { SectionHeading, StatusChip } from "@/components/system";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ROLE_LABELS, TEAM_ROLES, type AppRole } from "@/hooks/useMyRoles";
 import { DEFAULT_TEMPLATES, WORKFLOW_KINDS, loadAdminWorkflows, validateWorkflow, type Responsibility, type Workflow, type WorkflowEdge, type WorkflowNode, type WorkflowNodeKind, type WorkflowVersion } from "@/lib/adminWorkflows";
 
-const tabs = ["people", "responsibilities", "workflows", "versions", "audit"] as const;
+const tabs = ["people", "responsibilities", "dashboards", "workflows", "versions", "audit"] as const;
 type Tab = typeof tabs[number];
 type Member = { user_id: string; display_name: string | null; email: string | null; title: string | null };
 const field = "field text-sm";
@@ -123,6 +124,7 @@ export default function SystemAdmin() {
   return <AdminShell eyebrow="System administration" title="Control centre." active={tab} nav={[
     { key: "people", label: "People & access", onClick: () => setTab("people") },
     { key: "responsibilities", label: "Responsibilities", badge: gaps, onClick: () => setTab("responsibilities") },
+    { key: "dashboards", label: "Dashboards", onClick: () => setTab("dashboards") },
     { key: "workflows", label: "Workflow editor", onClick: () => setTab("workflows") },
     { key: "versions", label: "Versions & publishing", onClick: () => setTab("versions") },
     { key: "audit", label: "Audit & health", onClick: () => setTab("audit") },
@@ -144,6 +146,8 @@ export default function SystemAdmin() {
       <section><SectionHeading index="02" title="Responsibility matrix" hint={`${responsibilities.length} work areas`} /><div className="overflow-x-auto border-y border-rule"><table className="w-full text-sm"><thead><tr className="text-left eyebrow text-ink-faint"><th className="py-3 pr-4">Department</th><th className="py-3 pr-4">Work</th><th className="py-3 pr-4">Accountable</th><th className="py-3 pr-4">Backup</th><th className="py-3 pr-4">Authority</th><th /></tr></thead><tbody className="divide-y divide-rule">{responsibilities.map((r) => <tr key={r.id}><td className="py-4 pr-4"><StatusChip value={r.department} tone="neutral" /></td><td className="py-4 pr-4"><strong>{r.name}</strong><div className="text-xs text-ink-faint">{r.description}</div></td><td className="py-4 pr-4">{r.primary_user_id ? nameOf(r.primary_user_id) : r.primary_role ? ROLE_LABELS[r.primary_role as keyof typeof ROLE_LABELS] : <span className="text-state-stop">Gap</span>}</td><td className="py-4 pr-4">{r.backup_user_ids.length + r.backup_roles.length || "—"}</td><td className="py-4 pr-4">{r.approval_authority ? "Approver" : "Owner"}</td><td className="text-right"><Button size="sm" variant="ghost" onClick={() => deleteResponsibility(r.id)}>Remove</Button></td></tr>)}</tbody></table></div></section>
       <section><SectionHeading index="03" title="Delegation & backup cover" hint={`${delegations.length} records`} /><div className="grid gap-3 md:grid-cols-6 items-end"><label className="text-xs text-ink-soft">Approver<select className={`${field} mt-2`} value={newDelegation.delegator_id} onChange={(e) => setNewDelegation({ ...newDelegation, delegator_id: e.target.value })}><option value="">Select…</option>{team.map((m) => <option key={m.user_id} value={m.user_id}>{nameOf(m.user_id)}</option>)}</select></label><label className="text-xs text-ink-soft">Backup<select className={`${field} mt-2`} value={newDelegation.delegate_id} onChange={(e) => setNewDelegation({ ...newDelegation, delegate_id: e.target.value })}><option value="">Select…</option>{team.map((m) => <option key={m.user_id} value={m.user_id}>{nameOf(m.user_id)}</option>)}</select></label><label className="text-xs text-ink-soft">Department<input className={`${field} mt-2`} value={newDelegation.department} onChange={(e) => setNewDelegation({ ...newDelegation, department: e.target.value })} placeholder="All" /></label><label className="text-xs text-ink-soft">From<input className={`${field} mt-2`} type="datetime-local" value={newDelegation.starts_at} onChange={(e) => setNewDelegation({ ...newDelegation, starts_at: e.target.value })} /></label><label className="text-xs text-ink-soft">Until<input className={`${field} mt-2`} type="datetime-local" value={newDelegation.ends_at} onChange={(e) => setNewDelegation({ ...newDelegation, ends_at: e.target.value })} /></label><Button onClick={addDelegation}>Schedule cover</Button></div><ul className="mt-5 divide-y divide-rule border-y border-rule">{delegations.map((d) => <li key={d.id} className="py-3 flex flex-wrap gap-3 text-sm"><strong>{nameOf(d.delegator_id)}</strong><span className="text-ink-faint">covered by</span><strong>{nameOf(d.delegate_id)}</strong><span className="ml-auto text-xs text-ink-faint">{new Date(d.starts_at).toLocaleDateString()} – {new Date(d.ends_at).toLocaleDateString()}</span></li>)}</ul></section>
     </div>}
+
+    {!loading && tab === "dashboards" && <><SectionHeading index="01" title="Dashboard builder" hint="Pick what each role or person sees" /><DashboardBuilder /></>}
 
     {!loading && tab === "workflows" && <div className="space-y-5">
       <div className="flex flex-wrap gap-3 items-center"><select className={`${field} max-w-sm`} value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>{workflows.map((w) => <option key={w.id} value={w.id}>{w.department} · {w.name}</option>)}</select><Button variant="outline" size="sm" onClick={createWorkflow}><Plus /> New workflow</Button><StatusChip value={selected?.current_version_id ? "Published" : "Draft only"} tone={selected?.current_version_id ? "lime" : "amber"} /><Button variant="outline" size="sm" onClick={applyTemplate}><GitBranch /> Use starter</Button><Button size="sm" onClick={save} disabled={busy}><Save /> Save draft</Button><Button size="sm" variant="outline" onClick={publish} disabled={busy}><Send /> Publish</Button></div>
