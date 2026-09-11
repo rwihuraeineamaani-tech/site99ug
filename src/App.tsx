@@ -134,14 +134,8 @@ const AnimatedRoutes = () => {
           }
         />
 
-        <Route
-          path="/app/team"
-          element={
-            <RequireRole gate="admin">
-              <AppTeam />
-            </RequireRole>
-          }
-        />
+        <Route path="/app/team" element={<Navigate to="/app/system-admin" replace />} />
+
         <Route
           path="/app/system-admin"
           element={
