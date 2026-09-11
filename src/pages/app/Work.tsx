@@ -8,7 +8,7 @@ import StatCard from "@/components/admin/StatCard";
 import AssignWorkDialog from "@/components/todo/AssignWorkDialog";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
-import { loadLeadershipTasks, personName, taskStatusLabel, type LeadershipTask, type StaffPerson, type TaskAssignee } from "@/lib/leadershipTasks";
+import { loadLeadershipTasks, personName, type LeadershipTask, type StaffPerson, type TaskAssignee } from "@/lib/leadershipTasks";
 import { cn } from "@/lib/utils";
 
 const today = () => new Date().toISOString().slice(0, 10);
