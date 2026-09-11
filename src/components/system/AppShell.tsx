@@ -39,6 +39,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import HeaderClock from "@/components/deck/HeaderClock";
 import CalendarReminderBell from "@/components/calendar/CalendarReminderBell";
+import HelpButton from "@/components/system/HelpButton";
 import {
   ThemeMode,
   readTheme,
@@ -346,6 +347,7 @@ export function AppShell({
               </span>
             </div>
             <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-3 md:gap-5">
+              <HelpButton />
               {userId && <CalendarReminderBell />}
               <Link
                 to="/app/calendar"
