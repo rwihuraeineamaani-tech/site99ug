@@ -113,7 +113,7 @@ export default function ActivityTrail() {
             const state = onlineState(p.last_seen_at);
             return (
               <li key={p.user_id} className="py-3 flex flex-wrap items-center gap-3 text-sm">
-                <span className={`h-2 w-2 rounded-full ${state === "online" ? "bg-state-go" : "bg-state-wait"}`} />
+                <span className={`h-2 w-2 rounded-full ${state === "online" ? "bg-state-active" : "bg-state-pending"}`} />
                 <div className="min-w-0">
                   <div className="font-medium truncate">{who.name}</div>
                   <div className="text-xs text-ink-faint truncate">{who.detail}</div>
