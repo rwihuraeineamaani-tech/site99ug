@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
 import { toast } from "sonner";
@@ -71,6 +72,7 @@ const emptyDraft = (direction: InvoiceDirection): Draft => ({
 });
 
 export default function Invoices() {
+  const [searchParams] = useSearchParams();
   const { require: requirePin } = useFinanceLock();
   const { canSeeFinance, has } = useMyRoles();
   const [tab, setTab] = useState<InvoiceDirection>("out");
@@ -78,7 +80,7 @@ export default function Invoices() {
   const [lines, setLines] = useState<Record<string, InvoiceLine[]>>({});
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [residents, setResidents] = useState<{ id: string; name: string }[]>([]);
-  const [residentFilter, setResidentFilter] = useState("");
+  const [residentFilter, setResidentFilter] = useState(() => searchParams.get("resident") ?? "");
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);

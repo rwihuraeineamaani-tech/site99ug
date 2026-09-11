@@ -401,7 +401,7 @@ export default function ResidentRecordPage() {
 
           {(canSeeFinance || isLeadership) && (
             <div className="mt-14">
-              <ClientPayPanel residentId={id} index="08" />
+              <ClientPayPanel residentId={id} index="09" />
             </div>
           )}
 
