@@ -18,7 +18,8 @@ import { cn } from "@/lib/utils";
 export default function ChatPage() {
   const { threadId } = useParams();
   const navigate = useNavigate();
-  const { userId } = useMyRoles();
+  const { userId, isClient, isStaff, has } = useMyRoles();
+  const base = isClient && !isStaff ? "/portal/chat" : has("resident") && !isStaff ? "/residents/chat" : "/app/chat";
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [people, setPeople] = useState<ChatPerson[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -59,7 +60,7 @@ export default function ChatPage() {
       const id = await openDirectChat(person.user_id);
       setPickerOpen(false);
       await loadList();
-      navigate(`/app/chat/${id}`);
+      navigate(`${base}/${id}`);
     } catch (e) { toast.error((e as Error).message); }
   };
 
@@ -96,7 +97,7 @@ export default function ChatPage() {
         <aside className={cn("border-rule lg:border-r", threadId && "hidden lg:block")}>
           <div className="border-b border-rule px-4 py-3 eyebrow text-ink-faint">People · {threads.length}</div>
           {loading ? <p className="p-4 text-sm text-ink-soft">Loading…</p> : threads.length === 0 ? <div className="p-8 text-center"><Users className="mx-auto h-6 w-6 text-ink-faint" /><p className="mt-2 text-sm text-ink-soft">No conversations yet.</p></div> : threads.map((thread) => (
-            <button key={thread.id} onClick={() => navigate(`/app/chat/${thread.id}`)} className={cn("flex w-full gap-3 border-b border-rule px-4 py-4 text-left focus-ring", thread.id === threadId ? "bg-acc-violet-soft" : "hover:bg-paper-sunken")}>
+            <button key={thread.id} onClick={() => navigate(`${base}/${thread.id}`)} className={cn("flex w-full gap-3 border-b border-rule px-4 py-4 text-left focus-ring", thread.id === threadId ? "bg-acc-violet-soft" : "hover:bg-paper-sunken")}>
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-paper-sunken text-xs font-bold">{thread.person.display_name.slice(0, 2).toUpperCase()}</span>
               <span className="min-w-0 flex-1"><span className="flex items-center gap-2"><span className="truncate text-sm font-semibold">{thread.person.display_name}</span>{thread.unread > 0 && <span className="ml-auto grid h-5 min-w-5 place-items-center rounded-full bg-signal px-1 text-[10px] font-bold text-paper">{thread.unread}</span>}</span><span className="mt-1 block truncate text-xs text-ink-soft">{thread.lastMessage?.body ?? thread.person.subtitle}</span><span className="mt-1 block text-[10px] text-ink-faint">{thread.lastMessage ? ago(thread.lastMessage.created_at) : thread.person.person_kind}</span></span>
             </button>
@@ -104,7 +105,7 @@ export default function ChatPage() {
         </aside>
 
         <section className={cn("flex min-h-[620px] flex-col", !threadId && "hidden lg:flex")}>
-          {selected && <div className="flex items-center gap-3 border-b border-rule px-4 py-3"><Button variant="ghost" size="sm" className="lg:hidden" onClick={() => navigate("/app/chat")}>Back</Button><div><div className="font-semibold">{selected.person.display_name}</div><div className="text-xs text-ink-faint">{selected.person.subtitle} · {selected.person.person_kind}</div></div></div>}
+          {selected && <div className="flex items-center gap-3 border-b border-rule px-4 py-3"><Button variant="ghost" size="sm" className="lg:hidden" onClick={() => navigate(base)}>Back</Button><div><div className="font-semibold">{selected.person.display_name}</div><div className="text-xs text-ink-faint">{selected.person.subtitle} · {selected.person.person_kind}</div></div></div>}
           {!selected ? <ConversationEmptyState icon={<MessageCircle className="h-8 w-8" />} title="Choose a conversation" description="Open a person from the list, or start a new chat." /> : <>
             <Conversation className="min-h-0 flex-1"><ConversationContent className="gap-4 p-5">{messages.length === 0 && <ConversationEmptyState title="No messages yet" description={`Say hello to ${selected.person.display_name}.`} />}{messages.map((message) => { const mine = message.sender_id === userId; return <Message key={message.id} from={mine ? "user" : "assistant"}><MessageContent className={mine ? "bg-signal text-paper" : ""}><p className="whitespace-pre-wrap">{message.body}</p></MessageContent><span className={cn("text-[10px] text-ink-faint", mine && "ml-auto")}>{new Date(message.created_at).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span></Message>; })}</ConversationContent><ConversationScrollButton /></Conversation>
             <div className="border-t border-rule p-4"><PromptInput onSubmit={send} className="border-rule bg-paper"><PromptInputTextarea placeholder={`Message ${selected.person.display_name}…`} /><PromptInputFooter className="justify-end"><PromptInputSubmit status={sending ? "submitted" : undefined} disabled={sending} /></PromptInputFooter></PromptInput></div>
