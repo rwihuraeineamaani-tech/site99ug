@@ -120,9 +120,22 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   if (departments.clients) dept.push({ to: "/app/residents", label: "Residents", icon: Handshake });
   if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
-  if (has("admin")) dept.push({ to: "/app/team", label: "Team & access", icon: Users });
-  if (has("admin")) dept.push({ to: "/app/system-admin", label: "System administration", icon: Network });
   if (dept.length) groups.push({ label: "Departments", items: dept });
+
+  if (has("admin")) {
+    groups.push({
+      label: "System administration",
+      items: [
+        { to: "/app/system-admin", label: "Overview & people", end: true, icon: Network },
+        { to: "/app/system-admin?tab=activity", label: "Activity trail", icon: Activity },
+        { to: "/app/system-admin?tab=responsibilities", label: "Responsibilities", icon: Users },
+        { to: "/app/system-admin?tab=dashboards", label: "Dashboards", icon: Gauge },
+        { to: "/app/system-admin?tab=workflows", label: "Workflow editor", icon: Workflow },
+        { to: "/app/system-admin?tab=versions", label: "Versions & publishing", icon: BadgeCheck },
+        { to: "/app/system-admin?tab=audit", label: "Audit & health", icon: ShieldCheck },
+      ],
+    });
+  }
 
   const legal: ShellNavItem[] = departments.legal
     ? [
