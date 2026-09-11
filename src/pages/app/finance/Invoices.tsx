@@ -57,6 +57,7 @@ const emptyDraft = (direction: InvoiceDirection): Draft => ({
   party_name: "",
   party_kind: direction === "out" ? "client" : "supplier",
   client_id: "",
+  resident_id: "",
   contract_id: "",
   category: direction === "out" ? "client_payment" : "subscriptions",
   issue_date: todayISO(),
