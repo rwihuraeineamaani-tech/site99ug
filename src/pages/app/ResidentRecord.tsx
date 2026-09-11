@@ -14,6 +14,7 @@ import { ArrowLeft, FileText, Target } from "lucide-react";
 import BrandGuidelines from "@/components/residents/BrandGuidelines";
 import MoneyPanel from "@/components/residents/MoneyPanel";
 import { logoUrl, initials } from "@/lib/logo";
+import { INVOICE_STATUS_LABEL, INVOICE_TONE, outstanding, type Invoice } from "@/lib/invoices";
 import type { ResidentRecord } from "./Residents";
 
 type Member = { user_id: string; display_name: string | null; email: string; title: string | null };
@@ -60,6 +61,7 @@ export default function ResidentRecordPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [days, setDays] = useState<Day[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
 
@@ -68,7 +70,7 @@ export default function ResidentRecordPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
-    const [{ data: res }, { data: team }, { data: content }, { data: sd }, { data: cts }] = await Promise.all([
+    const [{ data: res }, { data: team }, { data: content }, { data: sd }, { data: cts }, { data: inv }] = await Promise.all([
       supabase.rpc("resident_records"),
       supabase.from("team_members").select("user_id, display_name, email, title"),
       supabase
@@ -82,6 +84,7 @@ export default function ResidentRecordPage() {
         .eq("resident_id", id)
         .order("shoot_date", { ascending: false }),
       supabase.from("resident_contracts").select("*").eq("resident_id", id).order("created_at", { ascending: false }),
+      supabase.from("invoices").select("*").eq("resident_id", id).order("issue_date", { ascending: false }),
     ]);
     const r = ((res as unknown as ResidentRecord[]) ?? []).find((x) => x.id === id) ?? null;
     setResident(r);
@@ -91,6 +94,7 @@ export default function ResidentRecordPage() {
     setItems((content as unknown as Item[]) ?? []);
     setDays((sd as unknown as Day[]) ?? []);
     setContracts((cts as unknown as Contract[]) ?? []);
+    setInvoices((inv as Invoice[]) ?? []);
     setLoading(false);
   };
 
@@ -342,8 +346,30 @@ export default function ResidentRecordPage() {
             />
           </div>
 
+          {(canSeeFinance || isLeadership) && (
+            <div className="mt-14">
+              <SectionHeading index="06" title="Invoices" hint={`${invoices.length} linked`} />
+              <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
+                {invoices.map((invoice) => (
+                  <li key={invoice.id} className="px-5 py-4 flex items-center gap-3 flex-wrap">
+                    <span className="num text-xs text-ink-faint">{invoice.number ?? "Bill"}</span>
+                    <span className="text-sm font-semibold">{invoice.party_name}</span>
+                    <StatusChip value={INVOICE_STATUS_LABEL[invoice.status]} tone={INVOICE_TONE[invoice.status]} />
+                    <span className="text-xs text-ink-soft">{invoice.direction === "out" ? "Issued" : "Received"}</span>
+                    <span className="num text-sm ml-auto">{ugx(invoice.total_ugx)}</span>
+                    {outstanding(invoice) > 0 && <span className="text-xs text-ink-faint">{ugx(outstanding(invoice))} due</span>}
+                  </li>
+                ))}
+                {invoices.length === 0 && <li className="px-5 py-4 text-sm text-ink-soft">No invoices linked to this client yet.</li>}
+              </ul>
+              <Link to={`/app/finance/invoices?resident=${id}`} className="inline-block mt-4 focus-ring rounded-full">
+                <Button size="sm" variant="soft">Open Finance → Invoices</Button>
+              </Link>
+            </div>
+          )}
+
           <div className="mt-14">
-            <SectionHeading index="06" title="Contracts" hint="managed in Legal" />
+            <SectionHeading index="07" title="Contracts" hint="managed in Legal" />
             <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
               {active.map(contractRow)}
               {active.length === 0 && <li className="px-5 py-4 text-sm text-ink-soft">No active contract on file.</li>}
@@ -369,7 +395,7 @@ export default function ResidentRecordPage() {
           </div>
 
           <div className="mt-14">
-            <BrandGuidelines residentId={id} residentName={resident.name} index="07" />
+            <BrandGuidelines residentId={id} residentName={resident.name} index="08" />
           </div>
 
 
@@ -380,7 +406,7 @@ export default function ResidentRecordPage() {
           )}
 
           <div className="mt-14">
-            <SectionHeading index="09" title="Notes" hint="Internal only" />
+            <SectionHeading index="10" title="Notes" hint="Internal only" />
             <div className="surface rounded-2xl p-5 space-y-3">
               <textarea
                 rows={4}
