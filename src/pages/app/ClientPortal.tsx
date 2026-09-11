@@ -4,6 +4,9 @@ import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
 import { useMyRoles } from "@/hooks/useMyRoles";
+import { Link } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Client = {
   id: string;
@@ -44,7 +47,7 @@ export default function ClientPortal() {
         eyebrow="Client portal"
         title={loading ? "Loading…" : client?.name ?? "Your engagement"}
         lede="Everything Site 99 is doing for you, in one place. You only ever see your own engagement."
-        actions={client ? <StatusChip value={client.status} /> : undefined}
+        actions={client ? <div className="flex items-center gap-2"><Link to="/portal/chat"><Button size="sm" className="gap-2"><MessageCircle className="h-4 w-4" /> Chat</Button></Link><StatusChip value={client.status} /></div> : undefined}
       />
 
       {!loading && !client && (

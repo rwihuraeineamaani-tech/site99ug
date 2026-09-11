@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/Layout";
 import { PortalAurora } from "@/components/PortalAurora";
@@ -431,7 +431,10 @@ function ProfileTab({
       </section>
 
       <section>
-        <div className={lbl + " mb-4"}>Messages with the office</div>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div className={lbl}>Messages with the office</div>
+          <Link to="/residents/chat" className="rounded-full bg-site-red px-4 py-2 label text-xs text-site-white hover:bg-foreground hover:text-background">Open private chat →</Link>
+        </div>
         <div className="border-t border-border max-h-[420px] overflow-y-auto space-y-3 py-5 mb-4">
           {grouped.length === 0 && (
             <div className="mono text-xs text-muted-foreground">
