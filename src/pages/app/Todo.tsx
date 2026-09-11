@@ -57,9 +57,9 @@ export default function TodoPage() {
       assigned.length === 0
         ? <div className="rounded-lg border border-rule py-16 text-center"><CheckCircle2 className="mx-auto h-8 w-8 text-acc-lime" /><h2 className="mt-3 font-semibold">Nothing assigned yet.</h2><p className="mt-1 text-sm text-ink-soft">Use “Assign work” to give someone a clear job.</p></div>
         : <div className="overflow-hidden rounded-lg border border-rule bg-paper-raised">{assigned.map((task) => <Link key={task.id} to={`/app/todo/${task.id}`} className="grid gap-2 border-b border-rule px-4 py-4 last:border-0 hover:bg-paper-sunken focus-ring md:grid-cols-[1fr_200px_130px_110px] md:items-center">
-            <div><div className="text-sm font-semibold">{task.title}</div><div className="text-xs text-ink-soft">{task.task_type.replaceAll("_", " ")} · {task.priority} priority</div></div>
+            <div><div className="text-sm font-semibold">{task.title}</div><div className="text-xs text-ink-soft">{task.task_type.split("_").join(" ")} · {task.priority} priority</div></div>
             <span className="truncate text-xs text-ink-soft">{links.filter((l) => l.task_id === task.id).map((l) => personName(people, l.user_id)).join(", ") || "No assignee"}</span>
-            <StatusChip value={taskStatusLabel(task.status)} tone={task.status === "submitted" ? "warn" : task.status === "accepted" ? "good" : "neutral"} />
+            <StatusChip value={taskStatusLabel(task.status)} tone={task.status === "submitted" ? "warn" : task.status === "accepted" ? "done" : "neutral"} />
             <span className="text-xs text-ink-faint">{task.due_at ? new Date(task.due_at).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "No deadline"}</span>
           </Link>)}</div>
     ) : <>
