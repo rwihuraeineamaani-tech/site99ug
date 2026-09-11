@@ -3819,6 +3819,15 @@ export type Database = {
         Returns: boolean
       }
       can_view_content: { Args: { _user_id: string }; Returns: boolean }
+      chat_people: {
+        Args: never
+        Returns: {
+          display_name: string
+          person_kind: string
+          subtitle: string
+          user_id: string
+        }[]
+      }
       check_payment_pin: {
         Args: { _pin: string; _user_id: string }
         Returns: boolean
