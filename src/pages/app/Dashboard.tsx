@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { StatusChip } from "@/components/system";
@@ -13,7 +12,6 @@ const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 import { useMyAssignments } from "@/hooks/useMyAssignments";
 import { useMyRoles, ROLE_LABELS, type StaffRole } from "@/hooks/useMyRoles";
-import { refCode } from "@/lib/contentFlow";
 import { weekLabel } from "@/lib/weeks";
 import { whenLabel, isOverdue, todayISO } from "@/lib/deck";
 import { buildWaiting, type FlowRow, type ResidentLink } from "@/lib/inbox";

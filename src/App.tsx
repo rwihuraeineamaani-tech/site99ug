@@ -70,7 +70,6 @@ import StrategyOverview from "./pages/app/strategy/Overview.tsx";
 import StrategyMapBuilder from "./pages/app/strategy/MapBuilder.tsx";
 import StrategyGoals from "./pages/app/strategy/Goals.tsx";
 import StrategyApprovals from "./pages/app/strategy/Approvals.tsx";
-import InboxPage from "./pages/app/Inbox.tsx";
 import ApprovalsPage from "./pages/app/Approvals.tsx";
 import ChatPage from "./pages/app/Chat.tsx";
 import TodoPage from "./pages/app/Todo.tsx";
@@ -459,9 +458,13 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        <Route path="/portal/chat" element={<RequireRole gate="client"><ChatPage /></RequireRole>} />
+        <Route path="/portal/chat/:threadId" element={<RequireRole gate="client"><ChatPage /></RequireRole>} />
 
         <Route path="/residents/login" element={<Navigate to="/login" replace />} />
         <Route path="/residents/portal" element={<ResidentPortal />} />
+        <Route path="/residents/chat" element={<RequireRole gate="resident"><ChatPage /></RequireRole>} />
+        <Route path="/residents/chat/:threadId" element={<RequireRole gate="resident"><ChatPage /></RequireRole>} />
         <Route path="/blog/tiktok-viral-economics-uganda" element={<TikTokViralEconomicsUganda />} />
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />

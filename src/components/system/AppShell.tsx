@@ -27,7 +27,6 @@ import {
   CalendarClock,
   Megaphone,
   UserCog,
-  Inbox,
   Target,
   Workflow,
   Compass,
@@ -48,7 +47,6 @@ import {
 } from "@/lib/theme";
 
 import { useMyRoles } from "@/hooks/useMyRoles";
-import { useInbox } from "@/hooks/useInbox";
 import { useStrategyWaiting } from "@/hooks/useStrategyWaiting";
 import { useApprovalsWaiting } from "@/hooks/useApprovalsWaiting";
 import { useTodo } from "@/hooks/useTodo";
@@ -74,7 +72,6 @@ type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance } = useMyRoles();
-  useInbox(true);
   const strategyWaiting = useStrategyWaiting(isLeadership);
   const approvalsWaiting = useApprovalsWaiting();
   const { items: todoItems } = useTodo();
@@ -87,7 +84,10 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
     return [
       {
         label: "Menu",
-        items: [{ to: "/portal", label: "Dashboard", end: true, icon: LayoutDashboard }],
+        items: [
+          { to: "/portal", label: "Dashboard", end: true, icon: LayoutDashboard },
+          { to: "/portal/chat", label: "Chat", icon: MessageCircle, badge: chatUnread },
+        ],
       },
     ];
   }
