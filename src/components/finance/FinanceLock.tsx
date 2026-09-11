@@ -40,9 +40,27 @@ export function FinanceLockProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const pending = useRef<((ok: boolean) => void) | null>(null);
 
+  const [hasPin, setHasPin] = useState<boolean | null>(null);
+
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) {
+        if (alive) setHasPin(false);
+        return;
+      }
+      const { data } = await supabase.from("payment_pins").select("user_id").eq("user_id", auth.user.id).maybeSingle();
+      if (alive) setHasPin(!!data);
+    })();
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const msLeft = Math.max(0, until - now);
