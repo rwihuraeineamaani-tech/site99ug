@@ -467,3 +467,13 @@ body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
   #strategy-print { position: absolute; inset: 0; padding: 0; }
   .no-print { display: none !important; }
 }
+
+/* Finance stays readable but every control is disabled until the PIN is typed. */
+.finance-locked button:not([data-finance-allow]),
+.finance-locked [role="button"]:not([data-finance-allow]),
+.finance-locked textarea,
+.finance-locked input[type="checkbox"],
+.finance-locked input[type="radio"] {
+  pointer-events: none !important;
+  opacity: 0.5;
+}

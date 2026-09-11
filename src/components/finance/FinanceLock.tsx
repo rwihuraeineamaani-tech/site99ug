@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,10 @@ type LockState = {
   msLeft: number;
   unlocked: boolean;
   lock: () => void;
+  /** null while we are still checking whether this person has set a PIN. */
+  hasPin: boolean | null;
+  /** Opens the PIN box straight away. */
+  openPin: () => void;
 };
 
 const Ctx = createContext<LockState | null>(null);
@@ -24,7 +29,7 @@ export function useFinanceLock(): LockState {
   const ctx = useContext(Ctx);
   if (ctx) return ctx;
   // Outside a provider nothing is gated — keeps components usable in isolation.
-  return { require: async () => true, msLeft: 0, unlocked: false, lock: () => {} };
+  return { require: async () => true, msLeft: 0, unlocked: false, lock: () => {}, hasPin: true, openPin: () => {} };
 }
 
 export function FinanceLockProvider({ children }: { children: ReactNode }) {
@@ -36,9 +41,27 @@ export function FinanceLockProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const pending = useRef<((ok: boolean) => void) | null>(null);
 
+  const [hasPin, setHasPin] = useState<boolean | null>(null);
+
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) {
+        if (alive) setHasPin(false);
+        return;
+      }
+      const { data } = await supabase.from("payment_pins").select("user_id").eq("user_id", auth.user.id).maybeSingle();
+      if (alive) setHasPin(!!data);
+    })();
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const msLeft = Math.max(0, until - now);
@@ -90,8 +113,19 @@ export function FinanceLockProvider({ children }: { children: ReactNode }) {
   };
 
   const value = useMemo<LockState>(
-    () => ({ require, msLeft, unlocked, lock: () => setUntil(0) }),
-    [require, msLeft, unlocked]
+    () => ({
+      require,
+      msLeft,
+      unlocked,
+      lock: () => setUntil(0),
+      hasPin,
+      openPin: () => {
+        setPin("");
+        setError(null);
+        setOpen(true);
+      },
+    }),
+    [require, msLeft, unlocked, hasPin]
   );
 
   return (
@@ -134,14 +168,23 @@ export function FinanceLockProvider({ children }: { children: ReactNode }) {
 
 /** Small countdown shown in the finance page header. */
 export function FinanceLockChip() {
-  const { msLeft, unlocked, lock } = useFinanceLock();
+  const { msLeft, unlocked, lock, hasPin, openPin } = useFinanceLock();
   const secs = Math.ceil(msLeft / 1000);
   const label = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
 
   if (!unlocked)
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-rule bg-paper-sunken px-2.5 py-1 text-[11px] text-ink-faint">
-        <Lock className="h-3 w-3" /> Finance edits locked
+      <span className="inline-flex items-center gap-2 rounded-full border border-rule bg-paper-sunken px-2.5 py-1 text-[11px] text-ink-faint">
+        <Lock className="h-3 w-3" /> Finance buttons locked
+        {hasPin === false ? (
+          <Link to="/app/settings?tab=security" className="press underline underline-offset-2" data-finance-allow>
+            Set up your PIN
+          </Link>
+        ) : (
+          <button type="button" onClick={openPin} className="press underline underline-offset-2" data-finance-allow>
+            Unlock with PIN
+          </button>
+        )}
       </span>
     );
 
@@ -153,6 +196,39 @@ export function FinanceLockChip() {
         Lock now
       </button>
     </span>
+  );
+}
+
+/**
+ * Wraps a finance page. The numbers stay readable, but every button stays
+ * disabled until the six-digit PIN is typed.
+ */
+export function FinanceGate({ children }: { children: ReactNode }) {
+  const { unlocked, hasPin, openPin } = useFinanceLock();
+
+  return (
+    <>
+      {!unlocked && (
+        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-rule bg-paper-sunken px-4 py-3">
+          <Lock className="h-4 w-4 text-ink-faint" />
+          <p className="text-sm text-ink-faint flex-1 min-w-[12rem]">
+            {hasPin === false
+              ? "You have not set a finance PIN yet. Set one to make changes here."
+              : "Type your six-digit PIN to make changes. It stays open for five minutes."}
+          </p>
+          {hasPin === false ? (
+            <Button asChild size="sm" data-finance-allow>
+              <Link to="/app/settings?tab=security">Set up your PIN</Link>
+            </Button>
+          ) : (
+            <Button size="sm" onClick={openPin} data-finance-allow>
+              Unlock with PIN
+            </Button>
+          )}
+        </div>
+      )}
+      <div className={unlocked ? undefined : "finance-locked"}>{children}</div>
+    </>
   );
 }
 
