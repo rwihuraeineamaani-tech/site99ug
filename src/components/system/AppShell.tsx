@@ -347,6 +347,7 @@ export function AppShell({
               </span>
             </div>
             <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-3 md:gap-5">
+              <HelpButton />
               {userId && <CalendarReminderBell />}
               <Link
                 to="/app/calendar"
