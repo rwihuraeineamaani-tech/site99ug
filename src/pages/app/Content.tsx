@@ -17,7 +17,7 @@ import {
 } from "@/components/system";
 import { toneFor, TONE_SOFT, TONE_SOLID, TONE_TEXT } from "@/components/system/StatusChip";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Lock } from "lucide-react";
+import { Plus, Trash2, Lock, ExternalLink } from "lucide-react";
 
 import { useMyAssignments } from "@/hooks/useMyAssignments";
 import { useMyRoles } from "@/hooks/useMyRoles";
@@ -121,6 +121,18 @@ const parsePostedLinks = (rows: string[] | null): Record<string, string> => {
 const postedLinkParts = (row: string) => {
   const at = row.indexOf(": ");
   return at > 0 ? { platform: row.slice(0, at), url: row.slice(at + 2).trim() } : { platform: "", url: row.trim() };
+};
+
+const externalUrl = (value: string | null) => {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  const candidate = /^[a-z][a-z\d+.-]*:/i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    const url = new URL(candidate);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
 };
 
 /** "Belongs to" is one picker over two record types: r:<id> for a resident, p:<id> for a project. */
@@ -315,6 +327,7 @@ export default function ContentPipeline() {
 
   const saveNew = async () => {
     if (!fresh.title.trim()) return toast.error("Give it a name first.");
+    if (fresh.link.trim() && !externalUrl(fresh.link)) return toast.error("Enter a valid web link.");
     setBusy(true);
     const { data: me } = await supabase.auth.getUser();
     const { error } = await supabase.from("content_items").insert({
@@ -322,7 +335,7 @@ export default function ContentPipeline() {
       ...decodeOwner(fresh.owner),
       content_type: fresh.content_type,
       stage: "Idea",
-      link: fresh.link.trim() || null,
+      link: externalUrl(fresh.link),
       notes: fresh.notes.trim() || null,
       added_by: me.user?.id ?? null,
       created_by: me.user?.id ?? null,
@@ -337,15 +350,16 @@ export default function ContentPipeline() {
 
   const save = async () => {
     if (!draft.title.trim()) return toast.error("Give it a title first.");
+    if (draft.link.trim() && !externalUrl(draft.link)) return toast.error("Enter a valid web link.");
     setBusy(true);
     const isLocked = !!editing && editing.stage !== "Idea";
     const payload = isLocked
-      ? { notes: draft.notes.trim() || null }
+      ? { link: externalUrl(draft.link), notes: draft.notes.trim() || null }
       : {
           title: draft.title.trim(),
           ...decodeOwner(draft.owner),
           content_type: draft.content_type,
-          link: draft.link.trim() || null,
+          link: externalUrl(draft.link),
           notes: draft.notes.trim() || null,
         };
 
@@ -524,6 +538,19 @@ export default function ContentPipeline() {
     { key: "title", header: "Item", cell: (r) => <span className="font-medium">{r.title}</span> },
     { key: "owner", header: "Belongs to", hideOnMobile: true, cell: (r) => ownerLabel(r) },
     { key: "type", header: "Type", hideOnMobile: true, cell: (r) => r.content_type },
+    {
+      key: "reference",
+      header: "Reference",
+      hideOnMobile: true,
+      cell: (r) => {
+        const href = externalUrl(r.link);
+        return href ? (
+          <a href={href} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()} className="inline-flex items-center gap-1 text-signal hover:underline">
+            Open <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+          </a>
+        ) : <span className="text-ink-faint">—</span>;
+      },
+    },
     { key: "stage", header: "Stage", cell: (r) => <StatusChip value={r.stage} /> },
     {
       key: "author",
@@ -558,6 +585,18 @@ export default function ContentPipeline() {
     },
     { key: "title", header: "Idea", cell: (r) => <span className="font-medium">{r.title}</span> },
     { key: "type", header: "Type", hideOnMobile: true, cell: (r) => r.content_type },
+    {
+      key: "reference",
+      header: "Reference",
+      cell: (r) => {
+        const href = externalUrl(r.link);
+        return href ? (
+          <a href={href} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()} className="inline-flex items-center gap-1 text-signal hover:underline">
+            Open <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+          </a>
+        ) : <span className="text-ink-faint">—</span>;
+      },
+    },
     {
       key: "author",
       header: "Added by",
@@ -1144,6 +1183,17 @@ export default function ContentPipeline() {
                         {" · "}
                         <span className="font-semibold text-ink">{i.content_type}</span>
                       </div>
+                      {externalUrl(i.link) && (
+                        <a
+                          href={externalUrl(i.link) ?? undefined}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(event) => event.stopPropagation()}
+                          className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-signal hover:underline"
+                        >
+                          Open reference <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                        </a>
+                      )}
                       <div className="mt-2.5 flex items-center justify-between gap-2">
                         <span className="text-[11px] text-ink-faint truncate">Idea by {authorName(i.added_by)}</span>
                         {(i.shoot_at || i.planned_at) && (
@@ -1208,6 +1258,9 @@ export default function ContentPipeline() {
             <label className="text-sm sm:col-span-2">
               <span className="eyebrow text-ink-faint">Reference link</span>
               <input
+                type="url"
+                inputMode="url"
+                autoComplete="url"
                 className={field}
                 placeholder="https://…"
                 value={fresh.link}
@@ -1263,6 +1316,17 @@ export default function ContentPipeline() {
           )}
 
           {stepPanel()}
+
+          {editing && externalUrl(editing.link) && (
+            <a
+              href={externalUrl(editing.link) ?? undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-rule px-3 text-sm font-semibold text-signal hover:border-signal"
+            >
+              Open reference link <ExternalLink className="h-4 w-4" aria-hidden="true" />
+            </a>
+          )}
 
           {editing && crew.length > 0 && editing.stage !== "Idea" && editing.stage !== "Approved" && (
             <div className="rounded-xl border border-rule p-3 text-xs text-ink-soft">
@@ -1334,10 +1398,13 @@ export default function ContentPipeline() {
             <label className="text-sm">
               <span className="eyebrow text-ink-faint">Reference link</span>
               <input
-                className={`${field} ${locked ? "opacity-60" : ""}`}
+                type="url"
+                inputMode="url"
+                autoComplete="url"
+                className={field}
                 value={draft.link}
-                disabled={locked}
                 onChange={(e) => setDraft({ ...draft, link: e.target.value })}
+                placeholder="Paste a link here"
               />
             </label>
 
@@ -1359,8 +1426,8 @@ export default function ContentPipeline() {
             </p>
           ) : locked ? (
             <p className="text-xs text-ink-faint">
-              Title, resident or project, type and reference link were locked when this idea was approved. The date comes from
-              its shoot day.
+              Title, resident or project and type were locked when this idea was approved. The reference link remains editable,
+              and the date comes from its shoot day.
             </p>
           ) : null}
 
