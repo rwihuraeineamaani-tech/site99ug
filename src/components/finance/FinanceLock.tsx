@@ -198,4 +198,37 @@ export function FinanceLockChip() {
   );
 }
 
+/**
+ * Wraps a finance page. The numbers stay readable, but every button stays
+ * disabled until the six-digit PIN is typed.
+ */
+export function FinanceGate({ children }: { children: ReactNode }) {
+  const { unlocked, hasPin, openPin } = useFinanceLock();
+
+  return (
+    <>
+      {!unlocked && (
+        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-rule bg-paper-sunken px-4 py-3">
+          <Lock className="h-4 w-4 text-ink-faint" />
+          <p className="text-sm text-ink-faint flex-1 min-w-[12rem]">
+            {hasPin === false
+              ? "You have not set a finance PIN yet. Set one to make changes here."
+              : "Type your six-digit PIN to make changes. It stays open for five minutes."}
+          </p>
+          {hasPin === false ? (
+            <Button asChild size="sm" data-finance-allow>
+              <Link to="/app/settings?tab=security">Set up your PIN</Link>
+            </Button>
+          ) : (
+            <Button size="sm" onClick={openPin} data-finance-allow>
+              Unlock with PIN
+            </Button>
+          )}
+        </div>
+      )}
+      <div className={unlocked ? undefined : "finance-locked"}>{children}</div>
+    </>
+  );
+}
+
 export default FinanceLockProvider;
