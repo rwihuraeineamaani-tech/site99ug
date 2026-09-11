@@ -3,7 +3,7 @@ import type { AvailabilityBlock } from "@/lib/recurrence";
 
 export type CalendarItem = Database["public"]["Tables"]["calendar_items"]["Row"];
 export type CalendarBusySlot = Database["public"]["Tables"]["calendar_busy_slots"]["Row"];
-export type WorkKind = NonNullable<CalendarItem["work_kind"]>;
+export type WorkKind = NonNullable<CalendarItem["work_kind"]> | "sales";
 
 export type WorkOption = { kind: WorkKind; id: string; label: string; path: string };
 
