@@ -29,8 +29,11 @@
 - [x] End-to-end role and workflow parity verification
 
 ## Sales and unified Residents
-- [ ] Consolidate legacy Clients into Residents and remove Rated
-- [ ] Add Resident contacts, commercial profile, and onboarding workflow
-- [ ] Build Sales overview, pipeline, opportunities, offers, partnerships, and forecast
-- [ ] Integrate Sales with approvals, To-Do, Calendar, Legal, Finance, and Residents
-- [ ] Verify role access, mobile layout, exports, and end-to-end conversion
+- [x] Consolidate legacy Clients into Residents and remove Rated
+- [x] Add Resident contacts, commercial profile, and onboarding workflow
+- [x] Build Sales overview, pipeline, opportunities, offers, partnerships, and forecast
+- [x] Integrate Sales with approvals, To-Do, Calendar, Legal, Finance, and Residents
+- [x] Verify role access, mobile layout, exports, and end-to-end conversion
+
+## Preview health
+- [x] Clear all current typecheck and build errors

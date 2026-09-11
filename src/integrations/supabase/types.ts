@@ -1715,92 +1715,6 @@ export type Database = {
           },
         ]
       }
-      client_users: {
-        Row: {
-          accepted_at: string | null
-          client_id: string
-          created_at: string
-          email: string
-          id: string
-          invited_at: string
-          invited_by: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          accepted_at?: string | null
-          client_id: string
-          created_at?: string
-          email: string
-          id?: string
-          invited_at?: string
-          invited_by?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          accepted_at?: string | null
-          client_id?: string
-          created_at?: string
-          email?: string
-          id?: string
-          invited_at?: string
-          invited_by?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "client_users_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clients: {
-        Row: {
-          category: string
-          contact_email: string | null
-          contact_person: string | null
-          contact_phone: string | null
-          created_at: string
-          created_by: string | null
-          id: string
-          name: string
-          notes: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          category?: string
-          contact_email?: string | null
-          contact_person?: string | null
-          contact_phone?: string | null
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name: string
-          notes?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          contact_email?: string | null
-          contact_person?: string | null
-          contact_phone?: string | null
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name?: string
-          notes?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       communication_reads: {
         Row: {
           entity_id: string
@@ -1915,7 +1829,6 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           caption_suggestions: string | null
-          client_id: string | null
           content_type: string
           created_at: string
           created_by: string | null
@@ -1956,7 +1869,6 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           caption_suggestions?: string | null
-          client_id?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
@@ -1997,7 +1909,6 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           caption_suggestions?: string | null
-          client_id?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
@@ -2034,13 +1945,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "content_items_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "content_items_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -2065,7 +1969,6 @@ export type Database = {
       }
       contracts: {
         Row: {
-          client_id: string | null
           contract_type: string
           created_at: string
           created_by: string | null
@@ -2084,7 +1987,6 @@ export type Database = {
           value_ugx: number | null
         }
         Insert: {
-          client_id?: string | null
           contract_type?: string
           created_at?: string
           created_by?: string | null
@@ -2103,7 +2005,6 @@ export type Database = {
           value_ugx?: number | null
         }
         Update: {
-          client_id?: string | null
           contract_type?: string
           created_at?: string
           created_by?: string | null
@@ -2122,13 +2023,6 @@ export type Database = {
           value_ugx?: number | null
         }
         Relationships: [
-          {
-            foreignKeyName: "contracts_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "contracts_resident_id_fkey"
             columns: ["resident_id"]
@@ -2596,7 +2490,6 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           category: string
-          client_id: string | null
           contract_id: string | null
           created_at: string
           created_by: string | null
@@ -2628,7 +2521,6 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           category?: string
-          client_id?: string | null
           contract_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -2660,7 +2552,6 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           category?: string
-          client_id?: string | null
           contract_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -2688,13 +2579,6 @@ export type Database = {
           vat_ugx?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "invoices_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "invoices_contract_id_fkey"
             columns: ["contract_id"]
@@ -5004,7 +4888,6 @@ export type Database = {
       }
     }
     Functions: {
-      accept_client_invite: { Args: never; Returns: boolean }
       accept_resident_invite: { Args: never; Returns: boolean }
       accept_resident_portal_invite: { Args: never; Returns: string }
       admin_search_orders:
@@ -5280,7 +5163,6 @@ export type Database = {
         }
         Returns: number
       }
-      my_client_id: { Args: never; Returns: string }
       my_pending_account_weeks: {
         Args: never
         Returns: {
