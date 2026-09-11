@@ -67,9 +67,9 @@ async function salesRows(): Promise<Row[]> {
   const [opps, followups, offers] = await Promise.all([
     supabase
       .from("sales_opportunities")
-      .select("id, organization_name, stage, value_ugx, expected_close_on, next_action, next_action_on")
+      .select("id, organisation_name, stage, value_ugx, expected_close, next_action")
       .eq("status", "open")
-      .order("expected_close_on", { ascending: true })
+      .order("expected_close", { ascending: true })
       .limit(6),
     supabase
       .from("sales_followups")
@@ -83,7 +83,7 @@ async function salesRows(): Promise<Row[]> {
   (opps.data ?? []).forEach((r) =>
     rows.push({
       id: `opp-${r.id}`,
-      title: r.organization_name ?? "Deal",
+      title: r.organisation_name ?? "Deal",
       note: r.next_action ? `Next: ${r.next_action}` : "Open deal",
       state: String(r.stage).split("_").join(" "),
       right: money(r.value_ugx as number),
