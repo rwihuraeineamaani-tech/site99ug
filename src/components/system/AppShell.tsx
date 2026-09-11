@@ -293,8 +293,9 @@ export function AppShell({
   nav?: ShellNavItem[];
 }) {
   const navigate = useNavigate();
-  const { displayName, email, title, userId } = useMyRoles();
+  const { displayName, email, title, userId, isStaff } = useMyRoles();
   const groups = useNavGroups(nav);
+  useActivityTracker(isStaff ? "staff" : "client");
 
   const signOut = async () => {
     await supabase.auth.signOut();
