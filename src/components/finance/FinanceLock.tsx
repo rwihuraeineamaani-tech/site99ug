@@ -73,21 +73,23 @@ export function FinanceLockProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) {
-        if (alive) setHasPin(false);
-        return;
-      }
-      const { data } = await supabase.from("payment_pins").select("user_id").eq("user_id", auth.user.id).maybeSingle();
-      if (alive) setHasPin(!!data);
-    })();
-    return () => {
-      alive = false;
-    };
+  const checkPin = useCallback(async () => {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) {
+      setHasPin(false);
+      return;
+    }
+    const { data } = await supabase.from("payment_pins").select("user_id").eq("user_id", auth.user.id).maybeSingle();
+    setHasPin(!!data);
   }, []);
+
+  useEffect(() => {
+    void checkPin();
+    // Someone may set their PIN in another tab, then come back here.
+    const onFocus = () => void checkPin();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [checkPin]);
 
   const msLeft = Math.max(0, until - now);
   const unlocked = msLeft > 0;
