@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
       if (!devices?.length) { await admin.from('push_outbox').update({ status: 'skipped', processed_at: new Date().toISOString(), last_error: 'No active device' }).eq('id', row.id); continue }
       let anySent = false
       for (const device of devices) {
-        const response = await fetch(`${gateway}/v1/projects/_/messages:send`, { method: 'POST', headers: { Authorization: `Bearer ${lovableKey}`, 'X-Connection-Api-Key': connectionKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: { token: device.token, notification: { title: row.title, body: row.body }, data: { path: row.path, eventKey: row.event_key }, webpush: { fcm_options: { link: new URL(row.path, req.headers.get('origin') || 'https://site99ug.com').href } } } }) })
+        const response = await fetch(`${gateway}/v1/projects/_/messages:send`, { method: 'POST', headers: { Authorization: `Bearer ${lovableKey}`, 'X-Connection-Api-Key': connectionKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: { token: device.token, data: { title: row.title, body: row.body, path: row.path, eventKey: row.event_key }, webpush: { fcm_options: { link: new URL(row.path, req.headers.get('origin') || 'https://site99ug.com').href } } } }) })
         const detail = await response.text()
         const stale = response.status === 404 || (response.status === 400 && /UNREGISTERED|INVALID_ARGUMENT/i.test(detail))
         await admin.from('push_delivery_log').insert({ outbox_id: row.id, device_id: device.id, recipient_user_id: row.recipient_user_id, status: response.ok ? 'sent' : stale ? 'stale' : 'failed', provider_status: response.status, error_detail: response.ok ? null : detail.slice(0, 1000) })

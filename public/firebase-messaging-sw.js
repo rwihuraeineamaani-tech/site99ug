@@ -5,9 +5,9 @@ firebase.initializeApp(Object.fromEntries(new URL(self.location).searchParams));
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || 'Site 99';
+  const title = payload.data?.title || payload.notification?.title || 'Site 99';
   const options = {
-    body: payload.notification?.body || '',
+    body: payload.data?.body || payload.notification?.body || '',
     icon: '/favicon.ico',
     badge: '/favicon.ico',
     data: { path: payload.data?.path || '/app' },

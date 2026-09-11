@@ -9,12 +9,16 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { BellRing, ExternalLink, Smartphone, Trash2 } from "lucide-react";
+import { usePushNotifications, type PushPreferences } from "@/hooks/usePushNotifications";
 
-type Tab = "profile" | "appearance" | "account" | "security";
+type Tab = "profile" | "appearance" | "notifications" | "account" | "security";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "profile", label: "Profile" },
   { id: "appearance", label: "Appearance" },
+  { id: "notifications", label: "Notifications" },
   { id: "account", label: "Account" },
   { id: "security", label: "Security" },
 ];
@@ -56,6 +60,7 @@ export default function Settings() {
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [savingPin, setSavingPin] = useState(false);
+  const push = usePushNotifications(userId);
 
 
   useEffect(() => {
@@ -292,8 +297,42 @@ export default function Settings() {
           </DeckPanel>
         )}
 
+        {tab === "notifications" && (
+          <DeckPanel index="03" title="Push notifications" hint="Work alerts on this phone or computer">
+            <div className="surface rounded-xl p-4 sm:p-5 space-y-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-acc-violet-soft text-acc-violet"><BellRing className="h-5 w-5" /></div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold">{push.status === "enabled" ? "Notifications are on" : "Stay ahead of your work"}</div>
+                  <p className="mt-1 text-xs text-ink-soft">
+                    {push.status === "open-in-new-tab" ? "Open Site 99 in its own browser tab to enable notifications." : push.status === "denied" ? "Notifications are blocked. Allow them in this browser’s site settings." : push.status === "unsupported" ? "This browser does not support web notifications." : push.status === "not-configured" ? "Web push needs to be enabled on the messaging connection." : push.status === "enabled" ? `${push.devices.length} active device${push.devices.length === 1 ? "" : "s"}.` : "Choose which work alerts should reach this device."}
+                  </p>
+                </div>
+                {push.status === "open-in-new-tab" ? <Button asChild variant="outline"><a href={window.location.href} target="_blank" rel="noreferrer">Open tab <ExternalLink /></a></Button> : push.status === "enabled" ? <Button variant="outline" onClick={push.disable} disabled={push.busy}>Turn off here</Button> : <Button onClick={push.enable} disabled={push.busy || ["unsupported", "not-configured"].includes(push.status)}>{push.busy ? "Working…" : "Enable notifications"}</Button>}
+              </div>
+
+              <div className="divide-y divide-rule rounded-lg border border-rule">
+                {([
+                  ["tasks_enabled", "Tasks & deadlines", "Assignments, overdue work, calendar reminders, shoots and Sales follow-ups"],
+                  ["approvals_enabled", "Approvals", "New requests, reminders, escalations and decisions"],
+                  ["communications_enabled", "Messages & briefs", "Direct messages, briefs, replies and announcements"],
+                  ["finance_enabled", "Finance alerts", "Cash requests, invoices, payment runs and second approvals"],
+                ] as [keyof PushPreferences, string, string][]).map(([key, label, description]) => (
+                  <label key={key} className="flex min-h-16 items-center gap-4 px-3 py-3 sm:px-4">
+                    <span className="min-w-0 flex-1"><span className="block text-sm font-medium">{label}</span><span className="mt-0.5 block text-xs text-ink-faint">{description}</span></span>
+                    <Switch checked={push.preferences[key]} onCheckedChange={(checked) => push.updatePreference(key, checked)} aria-label={label} />
+                  </label>
+                ))}
+              </div>
+
+              {push.status === "enabled" && <div className="flex flex-wrap gap-2"><Button variant="outline" size="sm" onClick={push.sendTest}>Send test</Button></div>}
+              {push.devices.length > 0 && <div><div className="eyebrow mb-2 text-[10px] text-ink-faint">Connected devices</div><div className="divide-y divide-rule rounded-lg border border-rule">{push.devices.map((device) => <div key={device.id} className="flex min-h-14 items-center gap-3 px-3 py-2"><Smartphone className="h-4 w-4 text-ink-faint" /><div className="min-w-0 flex-1"><div className="truncate text-sm">{device.device_label || "Browser"}</div><div className="text-[10px] text-ink-faint">Last active {new Date(device.last_seen_at).toLocaleString()}</div></div><Button variant="ghost" size="icon-sm" aria-label="Remove device" onClick={() => push.removeDevice(device.id)}><Trash2 /></Button></div>)}</div></div>}
+            </div>
+          </DeckPanel>
+        )}
+
         {tab === "account" && (
-          <DeckPanel index="03" title="Account details">
+          <DeckPanel index="04" title="Account details">
             <div className="surface rounded-xl p-5 grid gap-4 text-sm">
               <div className="grid gap-1">
                 <span className="eyebrow text-[10px] text-ink-faint">Email</span>
@@ -322,7 +361,7 @@ export default function Settings() {
 
         {tab === "security" && (
           <>
-            <DeckPanel index="04" title="Change password">
+            <DeckPanel index="05" title="Change password">
               <div className="surface rounded-xl p-5 space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="cpw">Current password</Label>
@@ -342,7 +381,7 @@ export default function Settings() {
               </div>
             </DeckPanel>
 
-            <DeckPanel index="05" title="Change email address">
+            <DeckPanel index="06" title="Change email address">
               <div className="surface rounded-xl p-5 space-y-4">
                 <p className="text-sm text-ink-soft">
                   You sign in with <span className="text-ink">{email ?? "—"}</span>. A confirmation link goes to the
@@ -365,7 +404,7 @@ export default function Settings() {
             </DeckPanel>
 
             {(canSeeFinance || has("admin", "founder", "managing_director")) && (
-              <DeckPanel index="06" title="Payment PIN">
+              <DeckPanel index="07" title="Payment PIN">
                 <div className="surface rounded-xl p-5 space-y-4">
                   <p className="text-sm text-ink-soft">
                     Money only leaves an account when this six-digit PIN is typed in. Anything at or above the agreed

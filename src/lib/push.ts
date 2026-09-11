@@ -60,5 +60,5 @@ export async function disablePushForDevice(userId: string) {
 export async function listenForForegroundPush(onPush: (title: string, body?: string) => void) {
   if (pushEnvironmentStatus() || Notification.permission !== "granted" || !(await isSupported())) return () => undefined;
   const firebase = getApps()[0] ?? initializeApp(firebaseConfig);
-  return onMessage(getMessaging(firebase), (payload) => onPush(payload.notification?.title ?? "Site 99", payload.notification?.body));
+  return onMessage(getMessaging(firebase), (payload) => onPush(payload.data?.title ?? payload.notification?.title ?? "Site 99", payload.data?.body ?? payload.notification?.body));
 }
