@@ -18,7 +18,7 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
   if (!ctx.userId) return [];
   const [{ flow, resLinks, myCrew }, approvals, shootBundle, compliance, salesFollowups, leadershipBundle] = await Promise.all([
     loadWaitingRaw(ctx.userId),
-    loadApprovals(ctx),
+    loadApprovals(ctx).catch(() => ({ items: [] as Awaited<ReturnType<typeof loadApprovals>>["items"] })),
     Promise.all([
       supabase.from("shoot_days").select("id,resident_id,status,shoot_date").in("status", ["draft", "confirmed", "shooting"]),
       supabase.from("shoot_day_items").select("shoot_day_id,content_id"),
