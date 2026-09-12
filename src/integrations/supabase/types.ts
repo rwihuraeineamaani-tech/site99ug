@@ -5414,6 +5414,10 @@ export type Database = {
               ticket_count: number
             }[]
           }
+      approval_instance_visible: {
+        Args: { _instance_id: string; _user_id?: string }
+        Returns: boolean
+      }
       approve_cash_request: { Args: { _id: string }; Returns: string }
       approve_payment_run: {
         Args: { _line_ids?: string[]; _run_id: string }
