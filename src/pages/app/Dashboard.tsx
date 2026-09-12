@@ -211,12 +211,21 @@ export default function Dashboard() {
   useEffect(() => {
     let cancelled = false;
     loadCalendar(weekFrom, addDays(weekFrom, 6)).then((d) => {
-      if (!cancelled) setWeekEntries(d.entries);
+      const seen = new Set<string>();
+      const once = d.entries.filter((e) => {
+        if (e.kind !== "task") return true;
+        const key = `${e.to}-${e.date}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      if (!cancelled) setWeekEntries(once);
     });
     return () => {
       cancelled = true;
     };
   }, [weekFrom]);
+
 
   const thisWeek = useMemo(
     () => weekEntries.filter((e) => e.kind !== "busy" && e.date >= todayISO()).slice(0, 10),
