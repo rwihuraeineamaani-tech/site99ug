@@ -20,7 +20,7 @@ export function usePushNotifications(userId?: string | null) {
     ]);
     if (pref.data) setPreferences(pref.data as PushPreferences);
     setDevices((deviceRows.data ?? []) as typeof devices);
-    const unavailable = pushEnvironmentStatus();
+    const unavailable = await pushEnvironmentStatus();
     setStatus(unavailable ?? (Notification.permission === "granted" && (deviceRows.data?.length ?? 0) > 0 ? "enabled" : Notification.permission === "denied" ? "denied" : "disabled"));
   }, [userId]);
 
