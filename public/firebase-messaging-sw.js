@@ -13,7 +13,11 @@ messaging.onBackgroundMessage((payload) => {
     data: { path: payload.data?.path || '/app' },
     tag: payload.data?.eventKey || undefined,
   };
-  self.registration.showNotification(title, options);
+  const shown = self.registration.showNotification(title, options);
+  if (self.navigator && typeof self.navigator.setAppBadge === 'function') {
+    self.registration.getNotifications().then((list) => self.navigator.setAppBadge(list.length + 1)).catch(() => undefined);
+  }
+  return shown;
 });
 
 self.addEventListener('notificationclick', (event) => {
