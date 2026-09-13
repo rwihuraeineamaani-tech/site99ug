@@ -1,0 +1,25 @@
+{
+  "name": "Site 99",
+  "short_name": "Site 99",
+  "description": "The Site 99 work portal: your day, your jobs, approvals and messages.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0b",
+  "theme_color": "#0a0a0b",
+  "icons": [
+    {
+      "src": "/__l5e/assets-v1/b4eb09e6-3e5c-4678-bc2d-5e440cba384a/site-logo-square.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/__l5e/assets-v1/b4eb09e6-3e5c-4678-bc2d-5e440cba384a/site-logo-square.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
