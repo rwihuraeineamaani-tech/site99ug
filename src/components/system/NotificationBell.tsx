@@ -8,6 +8,7 @@ import { useCommunicationUnread } from "@/hooks/useCommunicationUnread";
 import { useApprovalsWaiting } from "@/hooks/useApprovalsWaiting";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useAppBadge } from "@/hooks/useAppBadge";
 
 const pushCopy: Record<string, string> = {
   disabled: "Turn on alerts for this device",
@@ -26,6 +27,7 @@ export default function NotificationBell() {
   const { status, busy, enable } = usePushNotifications(userId);
 
   const total = reminders.length + chat + briefs + announcements + approvals;
+  useAppBadge(total);
 
   const rows = [
     { key: "chat", count: chat, label: "New messages", to: "/app/chat", icon: MessageSquare },
