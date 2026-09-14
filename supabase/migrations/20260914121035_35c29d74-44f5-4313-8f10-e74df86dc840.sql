@@ -1,0 +1,1 @@
+DELETE FROM public.leadership_tasks WHERE title = 'E2E wiring check';
