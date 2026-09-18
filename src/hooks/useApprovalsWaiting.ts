@@ -50,10 +50,21 @@ export function useApprovalsWaiting() {
           (t) => jobs.push(n(supabase.from(t).select("id", { count: "exact", head: true }).eq("review_state", "submitted")))
         );
       }
-      jobs.push(n(supabase.from("approval_tasks").select("id", { count: "exact", head: true }).eq("status", "pending")));
-
       const totals = await Promise.all(jobs);
-      if (!cancelled) setCount(totals.reduce((a, b) => a + b, 0));
+      // Workflow steps only count when they name you, or a role you hold.
+      const { data: tasks } = await supabase
+        .from("approval_tasks")
+        .select("assigned_user_id, assigned_role, exclude_requester, approval_instances(requester_id)")
+        .eq("status", "pending");
+      const mineTasks = (tasks ?? []).filter((t) => {
+        const inst = t.approval_instances as unknown as { requester_id: string } | null;
+        const forMe =
+          t.assigned_user_id === userId ||
+          (!t.assigned_user_id && Boolean(t.assigned_role) && roles.includes(String(t.assigned_role) as never));
+        const ownRequest = inst?.requester_id === userId && t.exclude_requester !== false;
+        return forMe && !ownRequest;
+      }).length;
+      if (!cancelled) setCount(totals.reduce((a, b) => a + b, 0) + mineTasks);
     })();
     return () => {
       cancelled = true;
