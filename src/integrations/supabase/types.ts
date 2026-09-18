@@ -660,13 +660,6 @@ export type Database = {
             foreignKeyName: "availability_blocks_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "availability_blocks_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -704,13 +697,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "brand_assets_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "brand_assets_resident_id_fkey"
             columns: ["resident_id"]
@@ -777,13 +763,6 @@ export type Database = {
             foreignKeyName: "brand_guidelines_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: true
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "brand_guidelines_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: true
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -832,13 +811,6 @@ export type Database = {
             columns: ["content_id"]
             isOneToOne: false
             referencedRelation: "content_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "briefs_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
             referencedColumns: ["id"]
           },
           {
@@ -1137,13 +1109,6 @@ export type Database = {
             foreignKeyName: "cash_requests_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cash_requests_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -1236,13 +1201,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cashbook_entries_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
             referencedColumns: ["id"]
           },
           {
@@ -1402,13 +1360,6 @@ export type Database = {
             foreignKeyName: "client_accounts_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "client_accounts_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -1449,13 +1400,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "client_assignments_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "client_assignments_resident_id_fkey"
             columns: ["resident_id"]
@@ -1512,13 +1456,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "client_funds_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "client_funds_resident_id_fkey"
             columns: ["resident_id"]
@@ -1610,13 +1547,6 @@ export type Database = {
             foreignKeyName: "client_goals_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "client_goals_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -1669,13 +1599,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "client_plans_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: true
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "client_plans_resident_id_fkey"
             columns: ["resident_id"]
@@ -1741,13 +1664,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "client_targets_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "client_targets_resident_id_fkey"
             columns: ["resident_id"]
@@ -1997,13 +1913,6 @@ export type Database = {
             foreignKeyName: "content_items_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_items_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -2065,13 +1974,6 @@ export type Database = {
           value_ugx?: number | null
         }
         Relationships: [
-          {
-            foreignKeyName: "contracts_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "contracts_resident_id_fkey"
             columns: ["resident_id"]
@@ -2446,13 +2348,6 @@ export type Database = {
             foreignKeyName: "inbox_messages_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "inbox_messages_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -2669,13 +2564,6 @@ export type Database = {
             foreignKeyName: "invoices_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -2873,13 +2761,6 @@ export type Database = {
             foreignKeyName: "leadership_tasks_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "leadership_tasks_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -3064,13 +2945,6 @@ export type Database = {
           sender_role?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "messages_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "messages_resident_id_fkey"
             columns: ["resident_id"]
@@ -3658,13 +3532,6 @@ export type Database = {
             foreignKeyName: "resident_contacts_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "resident_contacts_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -3714,13 +3581,6 @@ export type Database = {
           value_ugx?: number | null
         }
         Relationships: [
-          {
-            foreignKeyName: "resident_contracts_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "resident_contracts_resident_id_fkey"
             columns: ["resident_id"]
@@ -3781,13 +3641,6 @@ export type Database = {
             foreignKeyName: "resident_onboarding_steps_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "resident_onboarding_steps_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -3815,13 +3668,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "resident_projects_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
             referencedColumns: ["id"]
           },
           {
@@ -3868,13 +3714,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "resident_users_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "resident_users_resident_id_fkey"
             columns: ["resident_id"]
@@ -4382,21 +4221,7 @@ export type Database = {
             foreignKeyName: "sales_opportunities_converted_resident_id_fkey"
             columns: ["converted_resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sales_opportunities_converted_resident_id_fkey"
-            columns: ["converted_resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sales_opportunities_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
             referencedColumns: ["id"]
           },
           {
@@ -4512,13 +4337,6 @@ export type Database = {
           shoot_day_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "schedule_overrides_blocked_resident_id_fkey"
-            columns: ["blocked_resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "schedule_overrides_blocked_resident_id_fkey"
             columns: ["blocked_resident_id"]
@@ -4698,13 +4516,6 @@ export type Database = {
             foreignKeyName: "shoot_days_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "shoot_days_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -4762,13 +4573,6 @@ export type Database = {
             columns: ["cashbook_entry_id"]
             isOneToOne: false
             referencedRelation: "cashbook_entries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "shoot_spend_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
             referencedColumns: ["id"]
           },
           {
@@ -4857,13 +4661,6 @@ export type Database = {
             foreignKeyName: "strategy_map_versions_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "strategy_map_versions_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
             referencedRelation: "residents"
             referencedColumns: ["id"]
           },
@@ -4925,13 +4722,6 @@ export type Database = {
           version?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "strategy_maps_resident_id_fkey"
-            columns: ["resident_id"]
-            isOneToOne: false
-            referencedRelation: "public_residents"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "strategy_maps_resident_id_fkey"
             columns: ["resident_id"]
@@ -5336,39 +5126,7 @@ export type Database = {
       }
     }
     Views: {
-      public_residents: {
-        Row: {
-          avatar_url: string | null
-          display_order: number | null
-          id: string | null
-          name: string | null
-          since: string | null
-          status: string | null
-          territory: string | null
-          visible: boolean | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          display_order?: number | null
-          id?: string | null
-          name?: string | null
-          since?: string | null
-          status?: string | null
-          territory?: string | null
-          visible?: boolean | null
-        }
-        Update: {
-          avatar_url?: string | null
-          display_order?: number | null
-          id?: string | null
-          name?: string | null
-          since?: string | null
-          status?: string | null
-          territory?: string | null
-          visible?: boolean | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       accept_resident_invite: { Args: never; Returns: boolean }
@@ -5654,6 +5412,19 @@ export type Database = {
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       is_strategy_team: { Args: { _uid: string }; Returns: boolean }
       is_system_admin: { Args: { _user_id?: string }; Returns: boolean }
+      list_public_residents: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_order: number
+          id: string
+          name: string
+          since: string
+          status: string
+          territory: string
+          visible: boolean
+        }[]
+      }
       log_cashbook_entry: {
         Args: {
           _amount: number
