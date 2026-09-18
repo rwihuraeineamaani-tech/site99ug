@@ -4,13 +4,14 @@ import { useMyRoles } from "@/hooks/useMyRoles";
 
 /** How many things are sitting with the signed-in person, for the sidebar badge. */
 export function useApprovalsWaiting() {
-  const { userId, has, canApproveStrategy } = useMyRoles();
+  const { userId, has, roles, canApproveStrategy } = useMyRoles();
   const isFounder = has("admin", "founder");
   const isMd = has("admin", "founder", "managing_director");
+  const roleKey = roles.join(",");
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!userId || (!isFounder && !isMd && !canApproveStrategy)) {
+    if (!userId) {
       setCount(0);
       return;
     }
