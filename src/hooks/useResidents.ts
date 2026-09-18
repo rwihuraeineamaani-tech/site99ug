@@ -42,17 +42,14 @@ export type PublicResident = {
 };
 
 /**
- * Public read via the `public_residents` view — no email, no user_id,
- * and only visible residents. Safe for anonymous visitors.
+ * Public read through a safe database function — no email, no user_id,
+ * and only visible clients. Safe for anonymous visitors.
  */
 export const usePublicResidents = () =>
   useQuery({
     queryKey: ["residents-public"],
     queryFn: async (): Promise<PublicResident[]> => {
-      const { data, error } = await (supabase as any)
-        .from("public_residents")
-        .select("*")
-        .order("display_order", { ascending: true });
+      const { data, error } = await (supabase as any).rpc("list_public_residents");
       if (error) throw error;
       return (data as PublicResident[]) ?? [];
     },
