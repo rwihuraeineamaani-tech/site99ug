@@ -32,6 +32,8 @@ export type ApprovalAction = {
 };
 
 export type ApprovalItem = {
+  /** plain-English reason this is not yours to decide, when that applies */
+  blocked?: string | null;
   id: string;
   kind: ApprovalKind;
   /** what has to be done, in plain words */
