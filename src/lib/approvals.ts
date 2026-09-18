@@ -32,6 +32,8 @@ export type ApprovalAction = {
 };
 
 export type ApprovalItem = {
+  /** plain-English reason this is not yours to decide, when that applies */
+  blocked?: string | null;
   id: string;
   kind: ApprovalKind;
   /** what has to be done, in plain words */
@@ -65,6 +67,8 @@ export type ApprovalContext = {
   isMd: boolean;
   canApproveStrategy: boolean;
   canSeeFinance: boolean;
+  /** every role the signed-in person holds */
+  roles?: string[];
 };
 
 const nameMap = (rows: { user_id: string; display_name: string | null; email: string | null }[]) => {
@@ -107,10 +111,16 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
     return i ? `${i.entity_type}:${i.entity_id}` : "";
   }));
 
+  const myRoles = new Set(ctx.roles ?? []);
   runtime.forEach((t) => {
     const i = t.approval_instances;
     if (!i) return;
-    const mine = t.assigned_user_id === ctx.userId || Boolean(t.assigned_role && i.requester_id !== ctx.userId);
+    // Only yours when the step names you, or names a role you actually hold.
+    const forMe =
+      t.assigned_user_id === ctx.userId ||
+      (!t.assigned_user_id && Boolean(t.assigned_role) && myRoles.has(String(t.assigned_role)));
+    const ownRequest = i.requester_id === ctx.userId && t.exclude_requester !== false;
+    const mine = forMe && !ownRequest;
     items.push({
       id: `workflow-${t.id}`,
       kind: "workflow",
@@ -118,6 +128,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       title: i.title,
       detail: i.detail,
       amount: i.amount,
+      blocked: forMe && ownRequest ? "You raised this, so someone else has to sign it off." : null,
       waitingOn: t.assigned_role ? String(t.assigned_role).replace(/_/g, " ") : "assigned person",
       mine,
       since: t.created_at,

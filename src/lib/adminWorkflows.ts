@@ -33,6 +33,7 @@ export type WorkflowAudit = { id: string; event_type: string; summary: string; d
 export type RuntimeTask = {
   id: string; node_label: string; status: string; due_at: string | null; created_at: string;
   assigned_user_id: string | null; assigned_role: AppRole | null;
+  exclude_requester?: boolean | null; require_distinct_actor?: boolean | null;
   approval_instances: { id: string; title: string; detail: string | null; amount: number | null; entity_type: string; entity_id: string; status: string; requester_id: string; created_at: string } | null;
 };
 
