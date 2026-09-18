@@ -47,6 +47,7 @@ function Row({ item, onDone }: { item: ApprovalItem; onDone: () => void }) {
           {item.detail ? `${item.detail} · ` : ""}waiting {waitingFor(item.since)}
           {item.mine ? "" : ` · with the ${item.waitingOn}`}
         </div>
+        {item.blocked ? <div className="mt-1 text-[11px] text-ink-soft">{item.blocked}</div> : null}
       </div>
       {item.amount ? <span className="num text-sm">{formatUGX(item.amount)}</span> : null}
       <Link to={item.to} className="press focus-ring text-xs underline underline-offset-4 text-ink-soft">
@@ -62,7 +63,7 @@ function Row({ item, onDone }: { item: ApprovalItem; onDone: () => void }) {
 }
 
 export default function Approvals() {
-  const { userId, has, canApproveStrategy, canSeeFinance, loading: rolesLoading } = useMyRoles();
+  const { userId, has, roles, canApproveStrategy, canSeeFinance, loading: rolesLoading } = useMyRoles();
   const isFounder = has("admin", "founder");
   const isMd = has("admin", "founder", "managing_director");
 
@@ -71,7 +72,7 @@ export default function Approvals() {
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    const out = await loadApprovals({ userId, isFounder, isMd, canApproveStrategy, canSeeFinance });
+    const out = await loadApprovals({ userId, isFounder, isMd, canApproveStrategy, canSeeFinance, roles });
     setItems(out.items);
     setDecided(out.decided);
     setLoading(false);
