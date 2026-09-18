@@ -70,7 +70,8 @@ export function useApprovalsWaiting() {
     return () => {
       cancelled = true;
     };
-  }, [userId, isFounder, isMd, canApproveStrategy]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, isFounder, isMd, canApproveStrategy, roleKey]);
 
   return count;
 }
