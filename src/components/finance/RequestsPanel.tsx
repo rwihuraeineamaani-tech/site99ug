@@ -245,6 +245,21 @@ export default function RequestsPanel({
                         File
                       </button>
                     )}
+                    {r.status === "declined" && r.requester === userId && (
+                      <button
+                        className={pill}
+                        onClick={() => {
+                          setAmount(String(r.amount_ugx));
+                          setPurpose(r.purpose);
+                          setCategory(r.category);
+                          setNeededOn(r.needed_on ?? "");
+                          setResidentId(r.resident_id ?? "");
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                      >
+                        Send again
+                      </button>
+                    )}
                     {canApprove && (
                       <>
                         <button className="ctl ctl-solid eyebrow px-3 py-1.5 focus-ring" disabled={busy} onClick={() => approve(r.id)}>

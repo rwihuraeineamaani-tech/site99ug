@@ -9,31 +9,38 @@ export default function FinancePage({
   lede,
   path,
   actions,
+  /** Set false for pages that do not move money, so a PIN is not needed. */
+  gate = true,
   children,
 }: {
   title: string;
   lede: string;
   path: string;
   actions?: ReactNode;
+  gate?: boolean;
   children: ReactNode;
 }) {
+  const body = (
+    <>
+      <Seo title={`${title} — Finance — Site 99`} description={lede} path={path} noindex />
+      <PageHeader
+        eyebrow="Finance"
+        title={title}
+        lede={lede}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            {gate && <FinanceLockChip />}
+            {actions}
+          </div>
+        }
+      />
+      {gate ? <FinanceGate>{children}</FinanceGate> : children}
+    </>
+  );
+
   return (
     <AppShell>
-      <FinanceLockProvider>
-        <Seo title={`${title} — Finance — Site 99`} description={lede} path={path} noindex />
-        <PageHeader
-          eyebrow="Finance"
-          title={title}
-          lede={lede}
-          actions={
-            <div className="flex flex-wrap items-center gap-2">
-              <FinanceLockChip />
-              {actions}
-            </div>
-          }
-        />
-        <FinanceGate>{children}</FinanceGate>
-      </FinanceLockProvider>
+      {gate ? <FinanceLockProvider>{body}</FinanceLockProvider> : body}
     </AppShell>
   );
 }
