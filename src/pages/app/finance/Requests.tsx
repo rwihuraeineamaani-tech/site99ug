@@ -9,6 +9,7 @@ export default function FinanceRequests() {
       title="Requests."
       lede="Ask for money, and follow it through approval to payment."
       path="/app/finance/requests"
+      gate={false}
     >
       <RequestsPanel onChanged={() => setTick((t) => t + 1)} />
     </FinancePage>
