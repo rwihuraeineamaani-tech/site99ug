@@ -460,14 +460,11 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
-        <Route
-          path="/portal"
-          element={
-            <RequireRole gate="client">
-              <ClientPortal />
-            </RequireRole>
-          }
-        />
+        <Route path="/portal" element={<RequireRole gate="client"><PortalOverview /></RequireRole>} />
+        <Route path="/portal/work" element={<RequireRole gate="client"><PortalWork /></RequireRole>} />
+        <Route path="/portal/shoots" element={<RequireRole gate="client"><PortalShoots /></RequireRole>} />
+        <Route path="/portal/money" element={<RequireRole gate="client"><PortalMoney /></RequireRole>} />
+        <Route path="/portal/documents" element={<RequireRole gate="client"><PortalDocuments /></RequireRole>} />
         <Route path="/portal/chat" element={<RequireRole gate="client"><ChatPage /></RequireRole>} />
         <Route path="/portal/chat/:threadId" element={<RequireRole gate="client"><ChatPage /></RequireRole>} />
 
