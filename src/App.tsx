@@ -36,7 +36,11 @@ import Dashboard from "./pages/app/Dashboard.tsx";
 import StudioCalendar from "./pages/app/Calendar.tsx";
 import AppSettings from "./pages/app/Settings.tsx";
 
-import ClientPortal from "./pages/app/ClientPortal.tsx";
+import PortalOverview from "./pages/app/portal/PortalOverview.tsx";
+import PortalWork from "./pages/app/portal/PortalWork.tsx";
+import PortalShoots from "./pages/app/portal/PortalShoots.tsx";
+import PortalMoney from "./pages/app/portal/PortalMoney.tsx";
+import PortalDocuments from "./pages/app/portal/PortalDocuments.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
 import SalesPage from "./pages/app/Sales.tsx";
 import LegalOverview from "./pages/app/legal/Overview.tsx";
