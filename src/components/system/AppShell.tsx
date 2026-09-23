@@ -92,6 +92,10 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         label: "Menu",
         items: [
           { to: "/portal", label: "Dashboard", end: true, icon: LayoutDashboard },
+          { to: "/portal/work", label: "Your work", icon: Clapperboard },
+          { to: "/portal/shoots", label: "Shoot days", icon: Camera },
+          { to: "/portal/money", label: "Money", icon: Wallet },
+          { to: "/portal/documents", label: "Documents", icon: FileText },
           { to: "/portal/chat", label: "Chat", icon: MessageCircle, badge: chatUnread },
         ],
       },
