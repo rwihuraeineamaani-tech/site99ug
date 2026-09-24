@@ -60,7 +60,7 @@ const toFlow = (n: MapNode): Node => ({
 });
 
 export default function StrategyMapBuilder() {
-  const { isStrategyTeam } = useMyRoles();
+  const { isStaff } = useMyRoles();
   const [params, setParams] = useSearchParams();
   const client = params.get("client") ?? "";
 
@@ -210,7 +210,7 @@ export default function StrategyMapBuilder() {
   };
 
   const state = reviewState(map?.review_state);
-  const canEdit = isStrategyTeam;
+  const canEdit = isStaff;
 
   return (
     <StrategyPage
