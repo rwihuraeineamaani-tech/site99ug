@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
@@ -16,6 +16,7 @@ import {
 
 function Row({ item, onDone }: { item: ApprovalItem; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
 
   const run = async (a: ApprovalItem["actions"][number]) => {
     let note: string | undefined;
@@ -50,9 +51,9 @@ function Row({ item, onDone }: { item: ApprovalItem; onDone: () => void }) {
         {item.blocked ? <div className="mt-1 text-[11px] text-ink-soft">{item.blocked}</div> : null}
       </div>
       {item.amount ? <span className="num text-sm">{formatUGX(item.amount)}</span> : null}
-      <Link to={item.to} className="press focus-ring text-xs underline underline-offset-4 text-ink-soft">
+      <Button size="sm" variant="ghost" onClick={() => navigate(item.to)}>
         Open
-      </Link>
+      </Button>
       {item.actions.map((a) => (
         <Button key={a.label} size="sm" variant={a.ghost ? "outline" : "default"} disabled={busy} onClick={() => run(a)}>
           {a.label}
@@ -142,7 +143,7 @@ export default function Approvals() {
           </div>
 
           <div className="mt-14">
-            <SectionHeading index="03" title="Recently decided" />
+            <SectionHeading index="03" title="Archive · recently decided" hint={`${decided.length}`} />
             {decided.length === 0 ? (
               <p className="text-sm text-ink-soft">Nothing decided yet.</p>
             ) : (
@@ -153,6 +154,11 @@ export default function Approvals() {
                     <span className="text-sm truncate flex-1">{d.title}</span>
                     <span className="text-[11px] text-ink-faint">{d.when ? d.when.slice(0, 10) : ""}</span>
                     <StatusChip value={d.outcome} tone={d.tone} />
+                    {d.to ? (
+                      <Link to={d.to} className="press focus-ring text-xs underline underline-offset-4 text-ink-soft">
+                        Open
+                      </Link>
+                    ) : null}
                   </li>
                 ))}
               </ul>

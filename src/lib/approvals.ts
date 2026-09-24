@@ -59,7 +59,24 @@ export type DecidedItem = {
   outcome: string;
   tone: "lime" | "stop" | "neutral";
   when: string | null;
+  to?: string;
 };
+
+/** Where each kind of record lives, so "Open" takes you to the real thing. */
+export function routeForEntity(entityType: string): string {
+  switch (entityType) {
+    case "cash_request": return "/app/finance/requests";
+    case "loan": return "/app/finance/loans";
+    case "payment_line": case "payment_run": return "/app/finance/monthly";
+    case "invoice": return "/app/finance/invoices";
+    case "content_item": return "/app/content";
+    case "sales_offer": case "sales_opportunity": return "/app/sales";
+    case "contract": case "contracts": case "resident_contract": return "/app/legal/contracts";
+    case "strategy_maps": case "strategy_map_versions": case "client_goals": case "client_targets": case "client_plans":
+      return "/app/strategy/approvals";
+    default: return "/app/approvals";
+  }
+}
 
 export type ApprovalContext = {
   userId: string | null;
@@ -97,6 +114,12 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       supabase.from("strategy_map_versions").select("id, resident_id, version, review_state, submitted_at, review_note"),
       loadRuntimeTasks(),
     ]);
+  const { data: finished } = await supabase
+    .from("approval_instances")
+    .select("id, title, entity_type, status, completed_at, updated_at")
+    .neq("status", "active")
+    .order("updated_at", { ascending: false })
+    .limit(40);
 
   const people = nameMap((team.data ?? []) as { user_id: string; display_name: string | null; email: string | null }[]);
   const clients: Record<string, string> = {};
@@ -132,7 +155,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       waitingOn: t.assigned_role ? String(t.assigned_role).replace(/_/g, " ") : "assigned person",
       mine,
       since: t.created_at,
-      to: "/app/approvals",
+      to: routeForEntity(i.entity_type),
       actions: mine ? [
         { label: "Approve", run: () => decideRuntimeTask(t.id, "approved") },
         { label: "Send back", ghost: true, ask: "What should change?", run: (note) => decideRuntimeTask(t.id, "changes_requested", note) },
@@ -199,6 +222,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
         outcome: r.status === "declined" ? "Declined" : r.status === "paid" ? "Paid" : "Approved",
         tone: r.status === "declined" ? "stop" : "lime",
         when: r.updated_at ?? r.created_at,
+        to: "/app/finance/requests",
       });
     }
   });
@@ -361,6 +385,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
         outcome: state === "approved" ? "Approved" : "Sent back",
         tone: state === "approved" ? "lime" : "stop",
         when: (row.submitted_at as string) ?? null,
+        to: rid ? `/app/residents/${rid}/strategy` : "/app/strategy/approvals",
       });
     }
   };
@@ -377,10 +402,25 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
     pushStrategy("strategy_map_versions", v, `Map version ${v.version}`)
   );
 
+  const OUTCOME: Record<string, [string, DecidedItem["tone"]]> = {
+    approved: ["Approved", "lime"],
+    rejected: ["Rejected", "stop"],
+    changes_requested: ["Sent back", "stop"],
+    cancelled: ["Cancelled", "neutral"],
+  };
+  ((finished ?? []) as { id: string; title: string; entity_type: string; status: string; completed_at: string | null; updated_at: string }[]).forEach((f) => {
+    const [outcome, tone] = OUTCOME[f.status] ?? ["Closed", "neutral"];
+    decided.push({ id: `wf-${f.id}`, kind: "workflow", title: f.title, outcome, tone, when: f.completed_at ?? f.updated_at, to: routeForEntity(f.entity_type) });
+  });
+  const seen = new Set<string>();
+  const uniqueDecided = decided.filter((d) => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+  decided.length = 0;
+  decided.push(...uniqueDecided);
+
   items.sort((a, b) => (a.since ?? "").localeCompare(b.since ?? ""));
   decided.sort((a, b) => (b.when ?? "").localeCompare(a.when ?? ""));
 
-  return { items, decided: decided.slice(0, 15) };
+  return { items, decided: decided.slice(0, 40) };
 }
 
 /** How long something has been sitting, in plain words. */
