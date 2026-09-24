@@ -15,7 +15,7 @@ type Contract = {
   file_path: string | null;
 };
 
-type Step = { id: string; title: string; status: string; due_on: string | null; notes: string | null };
+type Step = { id: string; title: string; status: string; due_on: string | null; note: string | null };
 
 const fmt = (d?: string | null) =>
   d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—";
@@ -37,7 +37,7 @@ export default function PortalDocuments() {
           .order("created_at", { ascending: false }),
         supabase
           .from("resident_onboarding_steps")
-          .select("id, title, status, due_on, notes")
+          .select("id, title, status, due_on, note")
           .eq("resident_id", clientId)
           .order("created_at"),
       ]);
@@ -98,7 +98,7 @@ export default function PortalDocuments() {
                     <StatusChip value={s.status} />
                   </div>
                   <div className="mt-1 text-xs text-ink-faint">Due {fmt(s.due_on)}</div>
-                  {s.notes && <p className="mt-1 text-sm text-ink-soft">{s.notes}</p>}
+                  {s.note && <p className="mt-1 text-sm text-ink-soft">{s.note}</p>}
                 </li>
               ))}
             </ul>
