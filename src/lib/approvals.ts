@@ -116,7 +116,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
     ]);
   const { data: finished } = await supabase
     .from("approval_instances")
-    .select("id, title, entity_type, status, completed_at, updated_at")
+    .select("id, title, entity_type, entity_id, status, completed_at, updated_at")
     .neq("status", "active")
     .order("updated_at", { ascending: false })
     .limit(40);
@@ -133,6 +133,8 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
     const i = t.approval_instances;
     return i ? `${i.entity_type}:${i.entity_id}` : "";
   }));
+  // Anything that already went through a workflow is not re-listed by the older checks.
+  ((finished ?? []) as { entity_type: string; entity_id?: string }[]).forEach((f) => f.entity_id && runtimeEntities.add(`${f.entity_type}:${f.entity_id}`));
 
   const myRoles = new Set(ctx.roles ?? []);
   runtime.forEach((t) => {
