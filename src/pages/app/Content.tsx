@@ -291,7 +291,9 @@ export default function ContentPipeline() {
       title: row.title,
       owner: encodeOwner(row.resident_id, row.project_id),
       content_type: row.content_type,
-      planned_at: row.planned_at ?? "",
+      planned_at: row.planned_at
+        ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Africa/Kampala", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(row.planned_at)).replace(" ", "T")
+        : "",
       link: row.link ?? "",
       notes: row.notes ?? "",
     });
@@ -1408,6 +1410,16 @@ export default function ContentPipeline() {
                 onChange={(e) => setDraft({ ...draft, link: e.target.value })}
                 placeholder="Paste a link here"
               />
+            </label>
+            <label className="text-sm">
+              <span className="eyebrow text-ink-faint">Scheduled to post (Kampala time)</span>
+              <input
+                type="datetime-local"
+                className={field}
+                value={draft.planned_at}
+                onChange={(e) => setDraft({ ...draft, planned_at: e.target.value })}
+              />
+              <span className="mt-1 block text-[11px] text-ink-faint">The client sees this date in their portal.</span>
             </label>
 
             <label className="text-sm sm:col-span-2">
