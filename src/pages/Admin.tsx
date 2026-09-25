@@ -10,7 +10,6 @@ import { useMessages } from "@/hooks/useMessages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import TeamPanel from "@/components/admin/TeamPanel";
-import { ACCOUNT_PLATFORMS } from "@/lib/weeks";
 
 
 type ProjForm = {
@@ -25,8 +24,6 @@ const emptyProj: ProjForm = {
   youtube_url: "", aspect_ratio: "4:5",
 };
 
-type ResForm = { id?: string; name: string; territory: string; since: string; status: string; display_order: number; email: string; visible: boolean; contact_user_id: string; handler_user_id: string };
-const emptyRes: ResForm = { name: "", territory: "", since: "", status: "Active", display_order: 0, email: "", visible: true, contact_user_id: "", handler_user_id: "" };
 
 
 type Tab = "projects" | "residents" | "briefs" | "announcements" | "messages" | "requests" | "team";
@@ -95,7 +92,7 @@ export default function Admin() {
       ]}
     >
       {activeTab === "projects" && <ProjectsAdmin userId={userId} qc={qc} />}
-      {activeTab === "residents" && <ResidentsAdmin qc={qc} />}
+      {activeTab === "residents" && <ResidentsAdmin />}
       {activeTab === "briefs" && <BriefsAdmin userId={userId} qc={qc} />}
       {activeTab === "announcements" && <AnnouncementsAdmin qc={qc} />}
       {activeTab === "messages" && <MessagesAdmin />}
@@ -201,7 +198,17 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
       <form onSubmit={save} className="grid md:grid-cols-2 gap-6 mb-12 border border-border p-6 rounded-2xl">
         <div className="md:col-span-2 mono text-xs uppercase tracking-[0.3em] text-site-red">{editing ? "Edit project" : "New project"}</div>
         <div><label className={lbl}>Title *</label><input required className={input} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-        <div><label className={lbl}>Client *</label><input required className={input} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} /></div>
+        <div><label className={lbl}>Client *</label>
+          <select required className={input} value={form.resident_ids[0] ?? (form.client ? "__inhouse" : "")}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "__inhouse") setForm({ ...form, client: "In house", resident_ids: [] });
+              else { const r = residents.find((x) => x.id === v); setForm({ ...form, client: r?.name ?? "", resident_ids: v ? [v] : [] }); }
+            }}>
+            <option value="">Pick a Resident…</option>
+            <option value="__inhouse">In house / Site 99</option>
+            {residents.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+          </select></div>
         <div><label className={lbl}>Year *</label><input required className={input} value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} /></div>
         <div><label className={lbl}>Tag *</label><input required className={input} value={form.tag} onChange={(e) => setForm({ ...form, tag: e.target.value })} /></div>
         <div><label className={lbl}>External URL</label><input className={input} value={form.external_url} onChange={(e) => setForm({ ...form, external_url: e.target.value })} /></div>
@@ -298,244 +305,32 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
   );
 }
 
-/* ---------- Client social accounts ---------- */
-type AccountRow = { id: string; resident_id: string; platform: string; handle: string; active: boolean; sort: number };
-
-function AccountsEditor({ residentId }: { residentId: string }) {
-  const [rows, setRows] = useState<AccountRow[]>([]);
-  const [platform, setPlatform] = useState(ACCOUNT_PLATFORMS[0]);
-  const [handle, setHandle] = useState("");
-
-  const load = async () => {
-    const { data } = await supabase
-      .from("client_accounts")
-      .select("*")
-      .eq("resident_id", residentId)
-      .order("sort", { ascending: true });
-    setRows((data as unknown as AccountRow[]) ?? []);
-  };
-
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [residentId]);
-
-  const add = async () => {
-    if (!handle.trim()) return toast.error("Add the @handle");
-    const { error } = await supabase
-      .from("client_accounts")
-      .insert({ resident_id: residentId, platform, handle: handle.trim(), sort: rows.length } as never);
-    if (error) return toast.error(error.message);
-    setHandle("");
-    load();
-  };
-
-  const toggle = async (r: AccountRow) => {
-    const { error } = await supabase.from("client_accounts").update({ active: !r.active } as never).eq("id", r.id);
-    if (error) return toast.error(error.message);
-    load();
-  };
-
-  const remove = async (r: AccountRow) => {
-    if (!confirm(`Remove ${r.platform} ${r.handle}? Its weekly numbers go too.`)) return;
-    const { error } = await supabase.from("client_accounts").delete().eq("id", r.id);
-    if (error) return toast.error(error.message);
-    load();
-  };
-
-  return (
-    <div className="mt-3 space-y-3">
-      {rows.length > 0 && (
-        <ul className="divide-y divide-border border border-border rounded-2xl overflow-hidden">
-          {rows.map((r) => (
-            <li key={r.id} className="px-4 py-3 flex items-center gap-3 text-sm">
-              <span className="mono text-[10px] uppercase tracking-[0.2em] text-site-red w-28 shrink-0">{r.platform}</span>
-              <span className="truncate">{r.handle}</span>
-              {!r.active && <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">paused</span>}
-              <button type="button" onClick={() => toggle(r)} className="ctl mono text-[10px] uppercase tracking-[0.2em] ml-auto px-3 py-1.5 focus-ring">
-                {r.active ? "Stop managing" : "Resume"}
-              </button>
-              <button type="button" onClick={() => remove(r)} className="ctl mono text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 focus-ring">
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div className="flex flex-wrap items-center gap-3">
-        <select value={platform} onChange={(e) => setPlatform(e.target.value)} className="field text-sm w-auto px-3 py-1.5">
-          {ACCOUNT_PLATFORMS.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
-        <input
-          value={handle}
-          onChange={(e) => setHandle(e.target.value)}
-          placeholder="@handle"
-          className="field text-sm w-auto flex-1 min-w-[12rem] px-3 py-1.5"
-        />
-        <button type="button" onClick={add} className="ctl mono text-[10px] uppercase tracking-[0.2em] px-4 py-2 focus-ring">
-          Add account
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ---------- Residents ---------- */
-
-function ResidentsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
-  const { data: residents = [], refetch } = useResidents();
-  const [form, setForm] = useState<ResForm>(emptyRes);
-  const [editing, setEditing] = useState(false);
-  const { data: members = [] } = useQuery({
-    queryKey: ["team-members-simple"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("team_members").select("user_id, display_name, email");
-      if (error) throw error;
-      return (data ?? []).map((m) => ({
-        user_id: m.user_id as string,
-        name: (m.display_name as string | null)?.trim() || (m.email as string).split("@")[0],
-      }));
-    },
-  });
-
-  const save = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const payload = {
-      name: form.name, territory: form.territory, since: form.since, status: form.status,
-      display_order: form.display_order, email: form.email.trim().toLowerCase() || null,
-      visible: form.visible,
-      contact_user_id: form.contact_user_id || null,
-      handler_user_id: form.handler_user_id || null,
-    };
-
-    const { error } = form.id
-      ? await supabase.from("residents").update(payload).eq("id", form.id)
-      : await supabase.from("residents").insert(payload);
-    if (error) return toast.error(error.message);
-    toast.success(form.id ? "Updated" : "Invited");
-    setForm(emptyRes); setEditing(false); qc.invalidateQueries({ queryKey: ["residents"] }); refetch();
-  };
-  const edit = (r: any) => {
-    setForm({ id: r.id, name: r.name, territory: r.territory, since: r.since, status: r.status,
-      display_order: r.display_order, email: r.email || "", visible: r.visible !== false,
-      contact_user_id: r.contact_user_id || "", handler_user_id: r.handler_user_id || "" });
-
-    setEditing(true); window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-  const toggleVisible = async (r: any) => {
-    const { error } = await supabase.from("residents").update({ visible: !(r.visible !== false) }).eq("id", r.id);
-    if (error) return toast.error(error.message);
-    toast.success(r.visible !== false ? "Hidden from site" : "Showing on site");
-    qc.invalidateQueries({ queryKey: ["residents"] }); refetch();
-  };
-  const remove = async (id: string) => {
-    if (!confirm("Delete this resident? Their portal access will be revoked.")) return;
-    const { error } = await supabase.from("residents").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["residents"] }); refetch();
-  };
-
+/* ---------- Residents (read-only — edited in the team system) ---------- */
+function ResidentsAdmin() {
+  const { data: residents = [] } = useResidents();
   return (
     <>
-      <form onSubmit={save} className="grid md:grid-cols-2 gap-6 mb-12 border border-border p-6 rounded-2xl">
-        <div className="md:col-span-2 mono text-xs uppercase tracking-[0.3em] text-site-red">{editing ? "Edit resident" : "Invite resident"}</div>
-        <div><label className={lbl}>Name *</label><input required className={input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-        <div><label className={lbl}>Territory *</label><input required placeholder="Kampala · Fast Food" className={input} value={form.territory} onChange={(e) => setForm({ ...form, territory: e.target.value })} /></div>
-        <div className="md:col-span-2">
-          <label className={lbl}>Email * (used to invite)</label>
-          <input required type="email" className={input} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <p className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-2">
-            Send them <span className="text-site-red">/login</span> — they sign up with this email and access opens automatically.
-          </p>
-        </div>
-        <div><label className={lbl}>Since *</label><input required className={input} value={form.since} onChange={(e) => setForm({ ...form, since: e.target.value })} /></div>
-        <div><label className={lbl}>Status</label><input className={input} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} /></div>
-        <div><label className={lbl}>Display order</label><input type="number" className={input} value={form.display_order} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} /></div>
-        <div>
-          <label className={lbl}>Contact person</label>
-          <select className={input} value={form.contact_user_id} onChange={(e) => setForm({ ...form, contact_user_id: e.target.value })}>
-            <option value="">Not set</option>
-            {members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className={lbl}>Handler (posts the work)</label>
-          <select className={input} value={form.handler_user_id} onChange={(e) => setForm({ ...form, handler_user_id: e.target.value })}>
-            <option value="">Not set</option>
-            {members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
-          </select>
-        </div>
-
-        {form.id && (
-          <div className="md:col-span-2">
-            <label className={lbl}>Social accounts we manage</label>
-            <AccountsEditor residentId={form.id} />
-          </div>
-        )}
-
-
-
-        <div className="md:col-span-2 flex items-center gap-3">
-          <label className="inline-flex items-center gap-3 mono text-xs uppercase tracking-[0.3em]">
-            <input type="checkbox" checked={form.visible} onChange={(e) => setForm({ ...form, visible: e.target.checked })} className="w-4 h-4 accent-site-red" />
-            Show on public site
-          </label>
-        </div>
-        <div className="md:col-span-2 flex gap-3">
-          <button type="submit" className="ctl ctl-solid px-8 py-4 label text-xs focus-ring">{editing ? "Save changes" : "Invite resident"}</button>
-          {editing && <button type="button" onClick={() => { setForm(emptyRes); setEditing(false); }} className="ctl mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Cancel</button>}
-        </div>
-      </form>
-
+      <div className="border border-border p-6 rounded-2xl mb-8">
+        <div className="mono text-xs uppercase tracking-[0.3em] text-site-red">One home for clients</div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Residents (clients) are now added and edited in one place — the Residents page in the team system.
+          Website details (show on site, area, since, order) and social accounts live on each Resident's page.
+        </p>
+        <a href="/app/residents" className="ctl ctl-solid inline-block mt-4 px-6 py-3 label text-xs focus-ring">Open Residents</a>
+      </div>
       <div className="grid gap-3">
         {residents.map((r: any) => {
           const shown = r.visible !== false;
           return (
-          <div key={r.id} className={`flex items-center gap-4 border border-border p-4 rounded-2xl ${shown ? "" : "opacity-60"}`}>
-            <div className="flex-1 min-w-0">
-              <div className="display text-2xl truncate">{r.name}</div>
-              <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-                {r.territory} · since {r.since} · {r.status}
-                {r.email && <> · <span className="text-foreground/80">{r.email}</span></>}
-                {r.user_id ? <> · <span className="text-site-red">claimed</span></> : <> · pending signup</>}
-                {" · "}<span className={shown ? "text-site-red" : "text-muted-foreground"}>{shown ? "visible" : "hidden"}</span>
+            <div key={r.id} className={`flex items-center gap-4 border border-border p-4 rounded-2xl ${shown ? "" : "opacity-60"}`}>
+              <div className="flex-1 min-w-0">
+                <div className="display text-2xl truncate">{r.name}</div>
+                <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                  {r.territory} · since {r.since} · {shown ? "on the website" : "hidden"}
+                </div>
               </div>
+              <a href={`/app/residents/${r.id}`} className="ctl mono text-xs uppercase tracking-[0.3em] focus-ring px-3 py-1.5">Open in Residents</a>
             </div>
-            <button
-              onClick={() => {
-                if (!r.email) return toast.error("Add an email first");
-                const portalUrl = `${window.location.origin}/login`;
-                const subject = `You're invited to the Site 99 Resident Portal`;
-                const body =
-`Hi ${r.name},
-
-You've been invited to the Site 99 Resident Portal.
-
-1. Go to: ${portalUrl}
-2. Sign up using THIS exact email: ${r.email}
-3. Once you log in, your portal opens automatically — you'll see your assigned projects, briefs, announcements, and a direct line to the office.
-
-Welcome aboard.
-— Site 99
-office@site99ug.com`;
-                const message = `Subject: ${subject}\n\n${body}`;
-                navigator.clipboard.writeText(message).then(
-                  () => toast.success("Invite copied — paste into your email"),
-                  () => toast.error("Couldn't copy")
-                );
-                window.open(`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_blank");
-              }}
-              className="mono text-xs uppercase tracking-[0.3em] hover:text-site-red"
-              title="Copy invite & open mail app"
-            >
-              Copy invite
-            </button>
-            <button onClick={() => toggleVisible(r)} className="ctl mono text-xs uppercase tracking-[0.3em] focus-ring px-3 py-1.5">{shown ? "Hide" : "Show"}</button>
-            <button onClick={() => edit(r)} className="ctl mono text-xs uppercase tracking-[0.3em] focus-ring px-3 py-1.5">Edit</button>
-            <button onClick={() => remove(r.id)} className="ctl mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Delete</button>
-          </div>
           );
         })}
       </div>
