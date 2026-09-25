@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AdminShell from "@/components/admin/AdminShell";
@@ -95,7 +95,7 @@ export default function Admin() {
         ...tabs.map((t) => ({
           key: t,
           label: label(t),
-          icon: ({ projects: <FolderKanban />, residents: <Handshake />, briefs: <FileText />, announcements: <Megaphone />, messages: <MessageSquare />, requests: <Inbox />, team: <Users /> } as Record<Tab, React.ReactNode>)[t],
+          icon: ({ projects: <FolderKanban />, residents: <Handshake />, briefs: <FileText />, announcements: <Megaphone />, messages: <MessageSquare />, requests: <Inbox />, team: <Users /> } as Record<Tab, ReactNode>)[t],
           onClick: () => setTab(t),
         })),
         { key: "events", label: "Events", icon: <CalendarDays />, to: "/app/events" },
