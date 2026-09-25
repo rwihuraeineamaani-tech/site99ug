@@ -93,6 +93,8 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         items: [
           { to: "/portal", label: "Dashboard", end: true, icon: LayoutDashboard },
           { to: "/portal/work", label: "Your work", icon: Clapperboard },
+          { to: "/portal/calendar", label: "Calendar", icon: CalendarDays },
+          { to: "/portal/strategy", label: "Strategy", icon: Target },
           { to: "/portal/shoots", label: "Shoot days", icon: Camera },
           { to: "/portal/money", label: "Money", icon: Wallet },
           { to: "/portal/documents", label: "Documents", icon: FileText },

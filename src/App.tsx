@@ -41,6 +41,8 @@ import PortalWork from "./pages/app/portal/PortalWork.tsx";
 import PortalShoots from "./pages/app/portal/PortalShoots.tsx";
 import PortalMoney from "./pages/app/portal/PortalMoney.tsx";
 import PortalDocuments from "./pages/app/portal/PortalDocuments.tsx";
+import PortalStrategy from "./pages/app/portal/PortalStrategy.tsx";
+import PortalCalendar from "./pages/app/portal/PortalCalendar.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
 import SalesPage from "./pages/app/Sales.tsx";
 import LegalOverview from "./pages/app/legal/Overview.tsx";
@@ -464,6 +466,8 @@ const AnimatedRoutes = () => {
         <Route path="/portal/work" element={<RequireRole gate="client"><PortalWork /></RequireRole>} />
         <Route path="/portal/shoots" element={<RequireRole gate="client"><PortalShoots /></RequireRole>} />
         <Route path="/portal/money" element={<RequireRole gate="client"><PortalMoney /></RequireRole>} />
+        <Route path="/portal/strategy" element={<RequireRole gate="client"><PortalStrategy /></RequireRole>} />
+        <Route path="/portal/calendar" element={<RequireRole gate="client"><PortalCalendar /></RequireRole>} />
         <Route path="/portal/documents" element={<RequireRole gate="client"><PortalDocuments /></RequireRole>} />
         <Route path="/portal/chat" element={<RequireRole gate="client"><ChatPage /></RequireRole>} />
         <Route path="/portal/chat/:threadId" element={<RequireRole gate="client"><ChatPage /></RequireRole>} />

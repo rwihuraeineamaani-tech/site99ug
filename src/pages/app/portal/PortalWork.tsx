@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePortalClient } from "@/hooks/usePortalClient";
 import PortalPage, { PortalCard, PortalEmpty } from "@/components/portal/PortalPage";
 import { StatusChip } from "@/components/system";
+import { postCountdown, postLabel, postWhen } from "@/lib/portalSchedule";
 
 type Item = {
   id: string;
@@ -11,6 +12,7 @@ type Item = {
   content_type: string;
   platforms: string[] | null;
   planned_at: string | null;
+  scheduled_post_at?: string | null;
   posted_at: string | null;
   posted_links: string[] | null;
 };
@@ -32,7 +34,7 @@ export default function PortalWork() {
       const [ci, br] = await Promise.all([
         supabase
           .from("content_items")
-          .select("id, title, stage, content_type, platforms, planned_at, posted_at, posted_links")
+          .select("*")
           .eq("resident_id", clientId)
           .order("planned_at", { ascending: false })
           .limit(100),
@@ -44,7 +46,7 @@ export default function PortalWork() {
           .limit(30),
       ]);
       if (cancelled) return;
-      setItems((ci.data as Item[]) ?? []);
+      setItems((ci.data as unknown as Item[]) ?? []);
       setBriefs((br.data as Brief[]) ?? []);
     })();
     return () => {
@@ -53,7 +55,7 @@ export default function PortalWork() {
   }, [clientId]);
 
   const live = items.filter((i) => i.posted_at);
-  const upcoming = items.filter((i) => !i.posted_at);
+  const upcoming = items.filter((i) => !i.posted_at).sort((a, b) => (postWhen(a)?.getTime() ?? Infinity) - (postWhen(b)?.getTime() ?? Infinity));
 
   return (
     <PortalPage
@@ -75,7 +77,7 @@ export default function PortalWork() {
                     <StatusChip value={i.stage} />
                   </div>
                   <div className="mt-1 text-xs text-ink-faint">
-                    {i.content_type} · planned {fmt(i.planned_at)}
+                    {i.content_type} · posting {postLabel(i)}{postCountdown(i) ? ` · ${postCountdown(i)}` : ""}
                     {i.platforms?.length ? ` · ${i.platforms.join(", ")}` : ""}
                   </div>
                 </li>
