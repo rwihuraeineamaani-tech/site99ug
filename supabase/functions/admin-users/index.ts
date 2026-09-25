@@ -23,6 +23,7 @@ const ALLOWED_ROLES = [
   "operations_manager",
   "talent",
   "communications",
+  "hr",
   "designer",
   "client",
 ] as const;

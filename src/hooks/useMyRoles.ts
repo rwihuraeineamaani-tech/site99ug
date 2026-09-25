@@ -20,6 +20,7 @@ export type StaffRole =
   | "operations_manager"
   | "talent"
   | "communications"
+  | "hr"
   | "designer";
 
 export type AppRole = StaffRole | "client" | "resident" | "user";
@@ -37,6 +38,7 @@ export const TEAM_ROLES: StaffRole[] = [
   "legal",
   "talent",
   "communications",
+  "hr",
   "designer",
   "event_manager",
   "site_editor",
@@ -68,6 +70,7 @@ export const ROLE_LABELS: Record<StaffRole, string> = {
   operations_manager: "Operations Manager",
   talent: "Talent",
   communications: "Communications",
+  hr: "Human Resources",
   designer: "Designer",
 };
 
@@ -89,6 +92,7 @@ export const ROLE_HINTS: Record<StaffRole, string> = {
   operations_manager: "Delivery, turnaround time, workload, shoots and equipment",
   talent: "Talent bookings, shoots, releases and usage deadlines",
   communications: "Briefs, announcements, messages and publishing schedule",
+  hr: "Team onboarding, workload, deadlines and assigned work",
   designer: "Design briefs, production, reviews, revisions and delivery dates",
 };
 
@@ -254,7 +258,7 @@ export function useRolesState(): RoleState {
   const isStaff = roles.some((r) => STAFF_ROLES.has(r));
   const isClient = has("client");
   const isLeadership = has(...LEADERSHIP);
-  const canAssignWork = has("admin", "founder", "managing_director", "operations_manager", "creative_director", "sales_head");
+  const canAssignWork = has("admin", "founder", "managing_director", "operations_manager", "creative_director", "sales_head", "hr");
   const canSeeFinance = has(...FINANCE);
 
   const canEditContent = has("admin", "founder", "managing_director", "creative_director", "creative", "strategist", "communications", "designer");

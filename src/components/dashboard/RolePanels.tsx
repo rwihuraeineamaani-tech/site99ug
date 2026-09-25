@@ -240,6 +240,11 @@ async function eventsRows(): Promise<Row[]> {
   return (data ?? []).map((row) => ({ id: row.id, title: row.title, note: new Date(row.starts_at).toLocaleDateString(), state: row.published ? "Published" : "Draft", to: "/app/events" }));
 }
 
+async function peopleRows(): Promise<Row[]> {
+  const { data } = await supabase.from("leadership_tasks").select("id, title, status, due_at").not("status", "in", '("accepted","cancelled")').order("due_at", { ascending: true, nullsFirst: false }).limit(10);
+  return (data ?? []).map((row) => ({ id: row.id, title: row.title, note: row.due_at ? `Due ${new Date(row.due_at).toLocaleDateString()}` : "No deadline", state: row.status.replace(/_/g, " "), to: `/app/work/${row.id}` }));
+}
+
 async function siteRows(): Promise<Row[]> {
   const [projects, announcements] = await Promise.all([
     supabase.from("projects").select("id, title, client, updated_at").order("updated_at", { ascending: false }).limit(5),
@@ -259,6 +264,7 @@ const LOADERS: Record<string, (userId: string | null) => Promise<Row[]>> = {
   turnaround: () => turnaroundRows(),
   communications_queue: () => communicationsRows(),
   talent_queue: () => talentRows(),
+  people_queue: () => peopleRows(),
   events_queue: () => eventsRows(),
   site_queue: () => siteRows(),
 };
@@ -274,6 +280,7 @@ const META: Record<string, { title: string; empty: string; to?: string; toLabel?
   turnaround: { title: "Turnaround time", empty: "Turnaround appears when content enters production.", to: "/app/content", toLabel: "Review pipeline" },
   communications_queue: { title: "Communications", empty: "No briefs, announcements or scheduled posts need attention.", to: "/app/calendar", toLabel: "Open calendar" },
   talent_queue: { title: "Talent work", empty: "No upcoming talent work or agreement deadlines.", to: "/app/shoots", toLabel: "Open shoots" },
+  people_queue: { title: "People and workload", empty: "No open work needs people support.", to: "/app/work", toLabel: "Open work" },
   events_queue: { title: "Events", empty: "No upcoming events.", to: "/app/events", toLabel: "Open events" },
   site_queue: { title: "Website publishing", empty: "No recent website work.", to: "/app/site", toLabel: "Open editor" },
 };

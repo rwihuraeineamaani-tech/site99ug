@@ -30,6 +30,7 @@ export type PanelKey =
   | "turnaround"
   | "communications_queue"
   | "talent_queue"
+  | "people_queue"
   | "events_queue"
   | "site_queue";
 
@@ -112,6 +113,7 @@ export const PANELS: PanelSpec[] = [
   { key: "turnaround", title: "Turnaround time", hint: "Average age and longest-open content work", width: "full", roles: ["admin", "founder", "managing_director", "operations_manager", "creative", "strategist", "communications", "designer"] },
   { key: "communications_queue", title: "Communications", hint: "Briefs, announcements and scheduled posts", width: "full", roles: ["admin", "founder", "managing_director", "communications"] },
   { key: "talent_queue", title: "Talent work", hint: "Shoots, agreements and assigned talent work", width: "full", roles: ["admin", "founder", "managing_director", "operations_manager", "talent"] },
+  { key: "people_queue", title: "People and workload", hint: "Open work, deadlines and onboarding", width: "full", roles: ["admin", "founder", "managing_director", "operations_manager", "hr"] },
   { key: "events_queue", title: "Events", hint: "Upcoming events and readiness", width: "full", roles: ["admin", "founder", "managing_director", "operations_manager", "event_manager"] },
   { key: "site_queue", title: "Website publishing", hint: "Projects, announcements and recent changes", width: "full", roles: ["admin", "founder", "site_editor", "communications", "designer"] },
 ];
@@ -190,6 +192,7 @@ export const DEFAULT_LAYOUTS: Partial<Record<StaffRole, PanelItem[]>> = {
     { key: "weekgrid", width: "full" },
   ],
   talent: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "talent_queue", width: "full" }, { key: "ops_shoots", width: "full" }, { key: "weekgrid", width: "full" }],
+  hr: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "people_queue", width: "full" }, { key: "team_load", width: "full" }, { key: "assigned_work", width: "full" }, { key: "weekgrid", width: "full" }],
   communications: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "communications_queue", width: "full" }, { key: "content_pipeline", width: "full" }, { key: "weekgrid", width: "full" }],
   designer: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "my_content", width: "full" }, { key: "turnaround", width: "full" }, { key: "weekgrid", width: "full" }],
   event_manager: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "events_queue", width: "full" }, { key: "weekgrid", width: "full" }],
