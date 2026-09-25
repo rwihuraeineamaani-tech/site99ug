@@ -353,14 +353,16 @@ export default function ContentPipeline() {
     if (draft.link.trim() && !externalUrl(draft.link)) return toast.error("Enter a valid web link.");
     setBusy(true);
     const isLocked = !!editing && editing.stage !== "Idea";
+    const plannedAt = draft.planned_at ? `${draft.planned_at.slice(0, 16)}:00+03:00` : null;
     const payload = isLocked
-      ? { link: externalUrl(draft.link), notes: draft.notes.trim() || null }
+      ? { link: externalUrl(draft.link), notes: draft.notes.trim() || null, planned_at: plannedAt }
       : {
           title: draft.title.trim(),
           ...decodeOwner(draft.owner),
           content_type: draft.content_type,
           link: externalUrl(draft.link),
           notes: draft.notes.trim() || null,
+          planned_at: plannedAt,
         };
 
     const { error } = await supabase.from("content_items").update(payload).eq("id", editing!.id);
