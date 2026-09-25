@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AdminShell from "@/components/admin/AdminShell";
 import { useProjects, type Project } from "@/hooks/useProjects";
-import { useResidents, type Resident } from "@/hooks/useResidents";
+import { useResidents } from "@/hooks/useResidents";
 import { useBriefs } from "@/hooks/useBriefs";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { useMessages } from "@/hooks/useMessages";
@@ -11,7 +11,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import TeamPanel from "@/components/admin/TeamPanel";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { FolderKanban, Handshake, FileText, Megaphone, MessageSquare, Inbox, Users, CalendarDays, ExternalLink, Plus, Pencil, Trash2, Upload, X } from "lucide-react";
 
 
@@ -171,7 +170,7 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
       await supabase.from("resident_projects").delete().eq("project_id", projectId);
       if (form.resident_ids.length) {
         await supabase.from("resident_projects").insert(
-          form.resident_ids.map((rid) => ({ project_id: projectId!, resident_id: rid }))
+          form.resident_ids.map((rid) => ({ project_id: projectId, resident_id: rid }))
         );
       }
     }
@@ -331,32 +330,34 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
 function ResidentsAdmin() {
   const { data: residents = [] } = useResidents();
   return (
-    <>
-      <div className="border border-border p-6 rounded-2xl mb-8">
-        <div className="mono text-xs uppercase tracking-[0.3em] text-site-red">One home for clients</div>
-        <p className="mt-2 text-sm text-muted-foreground">
+    <div className="space-y-5">
+      <header><p className="eyebrow text-signal">Directory</p><h2 className="mt-1 text-2xl font-bold">Residents</h2><p className="mt-1 text-sm text-ink-soft">Clients and Residents are the same people, managed from one record.</p></header>
+      <div className={`${panel} p-5`}>
+        <h3 className="font-semibold">One home for client details</h3>
+        <p className="mt-2 max-w-2xl text-sm text-ink-soft">
           Residents (clients) are now added and edited in one place — the Residents page in the team system.
           Website details (show on site, area, since, order) and social accounts live on each Resident's page.
         </p>
-        <a href="/app/residents" className="ctl ctl-solid inline-block mt-4 px-6 py-3 label text-xs focus-ring">Open Residents</a>
+        <Button asChild className="mt-4"><a href="/app/residents">Open Residents <ExternalLink /></a></Button>
       </div>
-      <div className="grid gap-3">
+      <div className="overflow-hidden rounded-md border border-rule bg-paper-raised">
+        <div className="flex items-center justify-between border-b border-rule px-4 py-3"><p className="eyebrow text-ink-faint">Website directory</p><span className="text-xs text-ink-faint">{residents.length} Residents</span></div>
         {residents.map((r: any) => {
           const shown = r.visible !== false;
           return (
-            <div key={r.id} className={`flex items-center gap-4 border border-border p-4 rounded-2xl ${shown ? "" : "opacity-60"}`}>
+            <div key={r.id} className={`flex flex-col gap-3 border-b border-rule p-4 last:border-0 sm:flex-row sm:items-center ${shown ? "" : "opacity-60"}`}>
               <div className="flex-1 min-w-0">
-                <div className="display text-2xl truncate">{r.name}</div>
-                <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-                  {r.territory} · since {r.since} · {shown ? "on the website" : "hidden"}
+                <div className="truncate font-semibold">{r.name}</div>
+                <div className="mt-1 text-xs text-ink-soft">
+                  {r.territory || "No area set"} · {r.since ? `since ${r.since}` : "year not set"} · <span className={shown ? "text-success" : "text-ink-faint"}>{shown ? "Shown on website" : "Hidden"}</span>
                 </div>
               </div>
-              <a href={`/app/residents/${r.id}`} className="ctl mono text-xs uppercase tracking-[0.3em] focus-ring px-3 py-1.5">Open in Residents</a>
+              <Button asChild variant="outline" size="sm"><a href={`/app/residents/${r.id}`}>Open record <ExternalLink /></a></Button>
             </div>
           );
         })}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -404,9 +405,10 @@ function BriefsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<typ
   };
 
   return (
-    <>
-      <form onSubmit={save} className="grid gap-6 mb-12 border border-border p-6 rounded-2xl">
-        <div className="mono text-xs uppercase tracking-[0.3em] text-site-red">New brief</div>
+    <div className="space-y-5">
+      <header><p className="eyebrow text-signal">Client documents</p><h2 className="mt-1 text-2xl font-bold">Briefs</h2><p className="mt-1 text-sm text-ink-soft">Send clear documents and instructions to a Resident.</p></header>
+      <form onSubmit={save} className={`${panel} grid gap-5 p-4 sm:p-6`}>
+        <h3 className="border-b border-rule pb-4 text-lg font-semibold">New brief</h3>
         <div>
           <label className={lbl}>Resident *</label>
           <select required className={input} value={form.resident_id}
@@ -419,34 +421,32 @@ function BriefsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<typ
         <div><label className={lbl}>Body</label><textarea rows={4} className={input + " resize-none"} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></div>
         <div>
           <label className={lbl}>Attachment</label>
-          <input type="file" onChange={onFile} className="mt-2 text-sm block" />
-          {form.file_url && <a href={form.file_url} target="_blank" rel="noreferrer" className="mt-2 inline-block mono text-xs text-site-red">Preview file →</a>}
+          <label className="mt-2 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-rule bg-paper-sunken px-4 text-sm font-semibold hover:border-signal"><Upload className="h-4 w-4" /> {uploading ? "Uploading…" : "Choose file"}<input type="file" onChange={onFile} className="sr-only" /></label>
+          {form.file_url && <Button asChild variant="link" size="sm"><a href={form.file_url} target="_blank" rel="noreferrer">Preview file <ExternalLink /></a></Button>}
         </div>
-        <button type="submit" disabled={uploading} className="ctl ctl-solid px-8 py-4 label text-xs disabled:opacity-50 justify-self-start focus-ring">
-          Post brief
-        </button>
+        <Button type="submit" disabled={uploading} className="justify-self-start">Post brief</Button>
       </form>
 
-      <div className="grid gap-3">
+      <div className="overflow-hidden rounded-md border border-rule bg-paper-raised">
         {briefs.map((b) => {
           const r = residents.find((x: any) => x.id === b.resident_id) as any;
           return (
-            <div key={b.id} className="border border-border p-4 rounded-2xl">
+            <div key={b.id} className="border-b border-rule p-4 last:border-0">
               <div className="flex justify-between items-start gap-4 mb-1">
-                <div className="display text-xl">{b.title}</div>
-                <button onClick={() => remove(b.id)} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Delete</button>
+                <div className="font-semibold">{b.title}</div>
+                <Button variant="ghost" size="icon-sm" onClick={() => remove(b.id)} title="Delete brief" aria-label={`Delete ${b.title}`}><Trash2 /></Button>
               </div>
-              <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">
+              <div className="mb-2 text-xs text-ink-soft">
                 {r?.name ?? "—"} · {new Date(b.created_at).toLocaleString()}
               </div>
-              {b.body && <p className="text-sm text-muted-foreground whitespace-pre-line">{b.body}</p>}
-              {b.file_url && <a href={b.file_url} target="_blank" rel="noreferrer" className="inline-block mt-2 mono text-xs text-site-red">Open file →</a>}
+              {b.body && <p className="whitespace-pre-line text-sm text-ink-soft">{b.body}</p>}
+              {b.file_url && <a href={b.file_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-signal">Open file <ExternalLink className="h-3.5 w-3.5" /></a>}
             </div>
           );
         })}
-        {briefs.length === 0 && <div className="mono text-xs text-muted-foreground">No briefs yet.</div>}
+        {briefs.length === 0 && <div className="p-12 text-center text-sm text-ink-soft">No briefs yet.</div>}
       </div>
-    </>
+    </div>
   );
 }
 
