@@ -5564,6 +5564,17 @@ export type Database = {
           visible: boolean
         }[]
       }
+      resolve_website_resident: {
+        Args: {
+          _email?: string
+          _name?: string
+          _project_ids: string[]
+          _resident_id?: string
+          _since?: string
+          _territory?: string
+        }
+        Returns: string
+      }
       reverse_cashbook_entry: {
         Args: { _id: string; _reason: string }
         Returns: string
