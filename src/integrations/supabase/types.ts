@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_change_history: {
+        Row: {
+          actor_id: string | null
+          after_roles: Database["public"]["Enums"]["app_role"][]
+          before_roles: Database["public"]["Enums"]["app_role"][]
+          created_at: string
+          id: string
+          reason: string
+          target_user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          after_roles?: Database["public"]["Enums"]["app_role"][]
+          before_roles?: Database["public"]["Enums"]["app_role"][]
+          created_at?: string
+          id?: string
+          reason: string
+          target_user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          after_roles?: Database["public"]["Enums"]["app_role"][]
+          before_roles?: Database["public"]["Enums"]["app_role"][]
+          created_at?: string
+          id?: string
+          reason?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       access_requests: {
         Row: {
           brand: string
@@ -5409,7 +5439,7 @@ export type Database = {
         Args: { _day_id: string; _user_id: string }
         Returns: boolean
       }
-      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_staff: { Args: { _user_id?: string }; Returns: boolean }
       is_strategy_team: { Args: { _uid: string }; Returns: boolean }
       is_system_admin: { Args: { _user_id?: string }; Returns: boolean }
       list_public_residents: {
@@ -5692,6 +5722,12 @@ export type Database = {
         | "legal"
         | "client"
         | "strategist"
+        | "team_member"
+        | "operations_manager"
+        | "talent"
+        | "communications"
+        | "designer"
+        | "hr"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5836,6 +5872,12 @@ export const Constants = {
         "legal",
         "client",
         "strategist",
+        "team_member",
+        "operations_manager",
+        "talent",
+        "communications",
+        "designer",
+        "hr",
       ],
     },
   },

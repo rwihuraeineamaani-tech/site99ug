@@ -6,6 +6,7 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 const ALLOWED_ROLES = [
+  "team_member",
   "founder",
   "creative_director",
   "managing_director",
@@ -19,6 +20,11 @@ const ALLOWED_ROLES = [
   "scanner",
   "viewer",
   "site_editor",
+  "operations_manager",
+  "talent",
+  "communications",
+  "hr",
+  "designer",
   "client",
 ] as const;
 type Role = (typeof ALLOWED_ROLES)[number];
@@ -88,6 +94,7 @@ Deno.serve(async (req) => {
       const displayName = String(body.display_name ?? "").trim() || null;
       const jobTitle = String(body.title ?? "").trim() || null;
       const roles = sanitizeRoles(body.roles);
+      if (!roles.includes("client") && !roles.includes("team_member")) roles.unshift("team_member");
       // Failures here return 200 with an `error` field so the browser can read the reason.
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "Valid email required" });
       if (password.length < 8) return json({ error: "Password must be at least 8 characters" });
@@ -179,16 +186,21 @@ Deno.serve(async (req) => {
     if (action === "set_roles") {
       const userId = String(body.user_id ?? "");
       const roles = sanitizeRoles(body.roles);
+      if (!roles.includes("client") && !roles.includes("team_member")) roles.unshift("team_member");
       if (!userId) return json({ error: "user_id required" }, 400);
       const keepsLeadership = roles.some((r) => ["admin", "founder", "managing_director"].includes(r));
       if (userId === callerId && !keepsLeadership)
         return json({ error: "You cannot remove your own leadership access" }, 400);
 
+      const { data: beforeRows } = await admin.from("user_roles").select("role").eq("user_id", userId);
+      const beforeRoles = (beforeRows ?? []).map((row) => row.role as Role);
       await admin.from("user_roles").delete().eq("user_id", userId);
       if (roles.length) {
         const { error } = await admin.from("user_roles").insert(roles.map((role) => ({ user_id: userId, role })));
         if (error) throw error;
       }
+      await admin.from("access_change_history").insert({ target_user_id: userId, actor_id: callerId, before_roles: beforeRoles, after_roles: roles, reason: "System Administrator updated positions and access" });
+      await admin.from("activity_log").insert({ actor_id: callerId, actor_kind: "staff", area: "System administration", action: "Updated access", summary: "Positions and workspace access changed", path: "/app/system-admin", entity_type: "team_member", entity_id: userId, detail: { before_roles: beforeRoles, after_roles: roles } });
       return json({ ok: true });
     }
 

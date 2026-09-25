@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ROLE_HINTS, ROLE_LABELS, TEAM_ROLES, type StaffRole } from "@/hooks/useMyRoles";
+import { POSITION_ROLES, ROLE_HINTS, ROLE_LABELS, TECHNICAL_ROLES, WORKSPACE_ROLES, type StaffRole } from "@/hooks/useMyRoles";
 import { PASSWORD_HINT, suggestPassword } from "@/lib/password";
 import { Button } from "@/components/ui/button";
 import { KeyRound, Pencil, Plus, Trash2, Users, X } from "lucide-react";
@@ -16,28 +16,22 @@ type Member = {
   roles: StaffRole[];
 };
 
-const ALL_ROLES: StaffRole[] = TEAM_ROLES;
-
 const lbl = "eyebrow text-ink-faint";
 const input = "field mt-2 min-h-11 text-base";
 
 function RoleChecks({ value, onChange }: { value: StaffRole[]; onChange: (r: StaffRole[]) => void }) {
+  const group = (title: string, roles: StaffRole[]) => <div><div className={`${lbl} mb-2`}>{title}</div><div className="grid gap-2 sm:grid-cols-2">{roles.map((r) => (
+    <label key={r} className="press flex cursor-pointer items-start gap-3 rounded-md border border-rule bg-paper-sunken p-3 hover:border-signal/50">
+      <input type="checkbox" checked={value.includes(r)} onChange={(e) => onChange(e.target.checked ? [...value, r] : value.filter((x) => x !== r))} className="mt-1 accent-current" />
+      <span><span className="text-sm font-semibold">{ROLE_LABELS[r]}</span><span className="block text-xs text-muted-foreground mt-1">{ROLE_HINTS[r]}</span></span>
+    </label>
+  ))}</div></div>;
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
-      {ALL_ROLES.map((r) => (
-        <label key={r} className="press flex cursor-pointer items-start gap-3 rounded-md border border-rule bg-paper-sunken p-3 hover:border-signal/50">
-          <input
-            type="checkbox"
-            checked={value.includes(r)}
-            onChange={(e) => onChange(e.target.checked ? [...value, r] : value.filter((x) => x !== r))}
-            className="mt-1 accent-current"
-          />
-          <span>
-            <span className="text-sm font-semibold">{ROLE_LABELS[r]}</span>
-            <span className="block text-xs text-muted-foreground mt-1">{ROLE_HINTS[r]}</span>
-          </span>
-        </label>
-      ))}
+    <div className="space-y-5">
+      {group("Positions", POSITION_ROLES)}
+      {group("Workspace access", WORKSPACE_ROLES)}
+      {group("Approval authority", TECHNICAL_ROLES)}
+      <p className="text-xs text-ink-faint">Every internal account automatically receives Team member access and can read the Content Pipeline.</p>
     </div>
   );
 }
@@ -152,8 +146,7 @@ export default function TeamPanel() {
           <p className="eyebrow text-signal">Website access</p>
           <h2 className="mt-1 text-2xl font-bold">Team</h2>
         <p className="text-sm text-muted-foreground max-w-xl">
-          Create accounts for your team and grant only the access each person needs. You set the password and share it
-          with them directly.
+          Job titles describe people. Positions decide their dashboard and workspace access; only the System Administrator can change them.
         </p>
         </div>
         <Button variant={showNew ? "outline" : "default"} onClick={() => setShowNew((s) => !s)}>
@@ -225,7 +218,7 @@ export default function TeamPanel() {
 
           </div>
           <div>
-            <div className={`${lbl} mb-3`}>Access levels</div>
+            <div className={`${lbl} mb-3`}>Positions and access</div>
             <RoleChecks value={form.roles} onChange={(roles) => setForm({ ...form, roles })} />
           </div>
           <Button

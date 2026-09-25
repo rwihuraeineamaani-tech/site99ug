@@ -265,7 +265,7 @@ export default function Settings() {
                 <span className="eyebrow text-[10px] text-ink-faint">Your access</span>
                 <span className="text-ink-soft">{roleNames || "No roles yet"}</span>
                 <span className="text-xs text-ink-faint">
-                  Access levels are set by an admin — ask a managing director or founder to change yours.
+                  Access is set only by the System Administrator. Your job title is shown publicly; these access names are private.
                 </span>
               </div>
               <Button onClick={saveProfile} disabled={savingProfile}>

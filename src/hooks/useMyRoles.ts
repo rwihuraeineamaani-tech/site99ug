@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 /** Every role the system understands. Legacy console roles are kept so existing logins keep working. */
 export type StaffRole =
+  | "team_member"
   | "founder"
   | "creative_director"
   | "managing_director"
@@ -15,50 +16,72 @@ export type StaffRole =
   | "event_manager"
   | "scanner"
   | "viewer"
-  | "site_editor";
+  | "site_editor"
+  | "operations_manager"
+  | "talent"
+  | "communications"
+  | "hr"
+  | "designer";
 
 export type AppRole = StaffRole | "client" | "resident" | "user";
 
 /** Roles offered when adding a team member (in the order they appear). */
 export const TEAM_ROLES: StaffRole[] = [
+  "team_member",
   "founder",
-  "creative_director",
   "managing_director",
+  "operations_manager",
   "sales_head",
   "finance_ops",
   "creative",
   "strategist",
   "legal",
-  "admin",
+  "talent",
+  "communications",
+  "hr",
+  "designer",
   "event_manager",
+  "site_editor",
   "scanner",
   "viewer",
-  "site_editor",
+  "admin",
+  "creative_director",
 ];
 
+export const POSITION_ROLES: StaffRole[] = TEAM_ROLES.filter((role) => !["team_member", "admin", "viewer", "scanner", "site_editor", "creative_director"].includes(role));
+export const WORKSPACE_ROLES: StaffRole[] = ["site_editor", "event_manager", "scanner", "viewer"];
+export const TECHNICAL_ROLES: StaffRole[] = ["admin"];
+
 export const ROLE_LABELS: Record<StaffRole, string> = {
+  team_member: "Team member",
   founder: "Founder",
   creative_director: "Creative Director",
   managing_director: "Managing Director",
   sales_head: "Head of Sales & Partnerships",
-  finance_ops: "Finance / Ops",
-  creative: "Creative / Production",
-  strategist: "Strategist",
+  finance_ops: "Finance",
+  creative: "Content Creation / Production",
+  strategist: "Strategy",
   legal: "Legal",
   admin: "System admin",
   event_manager: "Event manager",
   scanner: "Gate scanner",
   viewer: "Read-only",
   site_editor: "Site editor",
+  operations_manager: "Operations Manager",
+  talent: "Talent",
+  communications: "Communications",
+  hr: "Human Resources",
+  designer: "Designer",
 };
 
 export const ROLE_HINTS: Record<StaffRole, string> = {
+  team_member: "Common team workspace and read-only Content Pipeline",
   founder: "Full access across the whole business, including money and team",
   creative_director: "Creative direction, content pipeline, clients and projects",
   managing_director: "Operations, clients, contracts, money and team",
   sales_head: "Clients, contracts and pipeline — no payroll",
-  finance_ops: "Finance, payroll, contract splits and operating expenses",
-  creative: "Content pipeline and production — no money",
+  finance_ops: "Cashbook, payments, invoices, budgets and financial reporting",
+  creative: "Content pipeline, production, shoots and publishing",
   strategist: "Client strategy: plans, goals, monthly targets and strategy maps",
   legal: "Contracts and legal documents",
   admin: "Technical administrator: settings, roles and every module",
@@ -66,9 +89,14 @@ export const ROLE_HINTS: Record<StaffRole, string> = {
   scanner: "Ticket scanner at the door only",
   viewer: "Read-only dashboard, orders and exports",
   site_editor: "Projects, residents, announcements",
+  operations_manager: "Delivery, turnaround time, workload, shoots and equipment",
+  talent: "Talent bookings, shoots, releases and usage deadlines",
+  communications: "Briefs, announcements, messages and publishing schedule",
+  hr: "Team onboarding, workload, deadlines and assigned work",
+  designer: "Design briefs, production, reviews, revisions and delivery dates",
 };
 
-const LEADERSHIP: StaffRole[] = ["admin", "founder", "managing_director"];
+const LEADERSHIP: StaffRole[] = ["admin", "founder", "managing_director", "operations_manager"];
 const FINANCE: StaffRole[] = ["admin", "founder", "managing_director", "finance_ops"];
 const STRATEGY: StaffRole[] = ["admin", "founder", "managing_director", "strategist", "creative_director", "sales_head"];
 
@@ -118,6 +146,10 @@ export type RoleState = {
   reload: () => void;
   /** clients this person is on, with their part */
   assignments: { resident_id: string; kind: "contact" | "handler" }[];
+  /** Positions available for dashboard focus; access never changes when this changes. */
+  positions: StaffRole[];
+  viewRole: StaffRole | null;
+  setViewRole: (role: StaffRole | null) => void;
 };
 
 
@@ -133,6 +165,10 @@ export function useRolesState(): RoleState {
   const [jobTitle, setJobTitle] = useState<string | null>(null);
   const [assignments, setAssignments] = useState<{ resident_id: string; kind: "contact" | "handler" }[]>([]);
   const [tick, setTick] = useState(0);
+  const [viewRole, setViewRoleState] = useState<StaffRole | null>(() => {
+    const saved = localStorage.getItem("site99:position-view");
+    return saved && TEAM_ROLES.includes(saved as StaffRole) ? (saved as StaffRole) : null;
+  });
   const firstLoad = useRef(true);
   const currentUser = useRef<string | null>(null);
 
@@ -222,24 +258,24 @@ export function useRolesState(): RoleState {
   const isStaff = roles.some((r) => STAFF_ROLES.has(r));
   const isClient = has("client");
   const isLeadership = has(...LEADERSHIP);
-  const canAssignWork = has("admin", "founder", "managing_director", "creative_director", "sales_head");
+  const canAssignWork = has("admin", "founder", "managing_director", "operations_manager", "creative_director", "sales_head", "hr");
   const canSeeFinance = has(...FINANCE);
 
-  const canEditContent = has("admin", "founder", "managing_director", "creative_director", "creative");
+  const canEditContent = has("admin", "founder", "managing_director", "creative_director", "creative", "strategist", "communications", "designer");
   const canManageClients = has("admin", "founder", "managing_director", "sales_head", "creative_director");
-  const canManageEvents = has("admin", "founder", "managing_director", "event_manager");
-  const canViewEvents = has("admin", "founder", "managing_director", "event_manager", "viewer", "finance_ops");
-  const canScan = has("admin", "founder", "managing_director", "event_manager", "scanner");
-  const canEditSite = has("admin", "founder", "creative_director", "creative", "site_editor");
+  const canManageEvents = has("admin", "founder", "managing_director", "operations_manager", "event_manager");
+  const canViewEvents = has("admin", "founder", "managing_director", "operations_manager", "event_manager", "viewer", "finance_ops", "communications", "talent");
+  const canScan = has("admin", "founder", "managing_director", "operations_manager", "event_manager", "scanner");
+  const canEditSite = has("admin", "founder", "creative_director", "creative", "communications", "designer", "site_editor");
   const isStrategyTeam = has(...STRATEGY);
   const canApproveStrategy = isLeadership;
 
   const departments: Record<Department, boolean> = {
     content: isStaff,
-    clients: canManageClients || has("legal", "finance_ops"),
+    clients: canManageClients || has("legal", "finance_ops", "talent", "communications"),
     sales: has("admin", "founder", "managing_director", "sales_head"),
     legal: has("admin", "founder", "managing_director", "legal"),
-    ops: isLeadership,
+    ops: isLeadership || has("talent"),
     finance: canSeeFinance,
     site: canEditSite,
     events: canViewEvents || canScan,
@@ -247,9 +283,16 @@ export function useRolesState(): RoleState {
 
   const landingPath = isStaff ? "/app" : isClient ? "/portal" : has("resident") ? "/residents/portal" : "/";
 
-  const primaryRole = TEAM_ROLES.find((r) => roles.includes(r));
+  const positions = POSITION_ROLES.filter((role) => roles.includes(role));
+  const primaryRole = positions[0] ?? TEAM_ROLES.find((r) => roles.includes(r) && r !== "team_member");
   const title =
-    jobTitle ?? (primaryRole ? ROLE_LABELS[primaryRole] : isClient ? "Client" : has("resident") ? "Resident" : null);
+    jobTitle ?? (isStaff ? "Team member" : isClient ? "Client" : has("resident") ? "Resident" : null);
+  const setViewRole = (role: StaffRole | null) => {
+    if (role && !positions.includes(role)) return;
+    setViewRoleState(role);
+    if (role) localStorage.setItem("site99:position-view", role);
+    else localStorage.removeItem("site99:position-view");
+  };
 
   return {
     loading,
@@ -278,6 +321,9 @@ export function useRolesState(): RoleState {
     departments,
     landingPath,
     assignments,
+    positions,
+    viewRole: viewRole && positions.includes(viewRole) ? viewRole : null,
+    setViewRole,
     reload: () => setTick((t) => t + 1),
   };
 }

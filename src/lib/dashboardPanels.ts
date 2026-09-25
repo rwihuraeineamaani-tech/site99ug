@@ -25,7 +25,14 @@ export type PanelKey =
   | "sales_pipeline"
   | "strategy_queue"
   | "legal_queue"
-  | "ops_shoots";
+  | "ops_shoots"
+  | "content_pipeline"
+  | "turnaround"
+  | "communications_queue"
+  | "talent_queue"
+  | "people_queue"
+  | "events_queue"
+  | "site_queue";
 
 export type PanelItem = { key: PanelKey; width: PanelWidth };
 
@@ -102,6 +109,13 @@ export const PANELS: PanelSpec[] = [
     width: "full",
     roles: ["admin", "founder", "managing_director", "creative_director", "creative"],
   },
+  { key: "content_pipeline", title: "Production pipeline", hint: "Content moving through each stage", width: "full", roles: [] },
+  { key: "turnaround", title: "Turnaround time", hint: "Average age and longest-open content work", width: "full", roles: ["admin", "founder", "managing_director", "operations_manager", "creative", "strategist", "communications", "designer"] },
+  { key: "communications_queue", title: "Communications", hint: "Briefs, announcements and scheduled posts", width: "full", roles: ["admin", "founder", "managing_director", "communications"] },
+  { key: "talent_queue", title: "Talent work", hint: "Shoots, agreements and assigned talent work", width: "full", roles: ["admin", "founder", "managing_director", "operations_manager", "talent"] },
+  { key: "people_queue", title: "People and workload", hint: "Open work, deadlines and onboarding", width: "full", roles: ["admin", "founder", "managing_director", "operations_manager", "hr"] },
+  { key: "events_queue", title: "Events", hint: "Upcoming events and readiness", width: "full", roles: ["admin", "founder", "managing_director", "operations_manager", "event_manager"] },
+  { key: "site_queue", title: "Website publishing", hint: "Projects, announcements and recent changes", width: "full", roles: ["admin", "founder", "site_editor", "communications", "designer"] },
 ];
 
 export const PANEL_BY_KEY = new Map(PANELS.map((p) => [p.key, p]));
@@ -126,8 +140,10 @@ const LEADERSHIP_SET: PanelItem[] = [
 ];
 
 export const DEFAULT_LAYOUTS: Partial<Record<StaffRole, PanelItem[]>> = {
+  team_member: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "content_pipeline", width: "full" }, { key: "weekgrid", width: "full" }],
   founder: [...LEADERSHIP_SET, { key: "finance_queue", width: "full" }, { key: "sales_pipeline", width: "full" }],
   managing_director: [...LEADERSHIP_SET, { key: "finance_queue", width: "full" }, { key: "legal_queue", width: "full" }],
+  operations_manager: [...LEADERSHIP_SET, { key: "turnaround", width: "full" }, { key: "ops_shoots", width: "full" }],
   admin: LEADERSHIP_SET,
   creative_director: [
     { key: "today", width: "column" },
@@ -175,16 +191,25 @@ export const DEFAULT_LAYOUTS: Partial<Record<StaffRole, PanelItem[]>> = {
     { key: "legal_queue", width: "full" },
     { key: "weekgrid", width: "full" },
   ],
+  talent: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "talent_queue", width: "full" }, { key: "ops_shoots", width: "full" }, { key: "weekgrid", width: "full" }],
+  hr: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "people_queue", width: "full" }, { key: "team_load", width: "full" }, { key: "assigned_work", width: "full" }, { key: "weekgrid", width: "full" }],
+  communications: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "communications_queue", width: "full" }, { key: "content_pipeline", width: "full" }, { key: "weekgrid", width: "full" }],
+  designer: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "my_content", width: "full" }, { key: "turnaround", width: "full" }, { key: "weekgrid", width: "full" }],
+  event_manager: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "events_queue", width: "full" }, { key: "weekgrid", width: "full" }],
+  site_editor: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "site_queue", width: "full" }, { key: "weekgrid", width: "full" }],
+  scanner: [{ key: "today", width: "column" }, { key: "weekgrid", width: "full" }],
+  viewer: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "content_pipeline", width: "full" }, { key: "weekgrid", width: "full" }],
 };
 
 export const FALLBACK_LAYOUT = BASE;
 
 /** The default a role gets before the admin changes anything. */
 export function defaultLayoutFor(roles: AppRole[]): PanelItem[] {
-  for (const role of Object.keys(DEFAULT_LAYOUTS) as StaffRole[]) {
-    if (roles.includes(role)) return DEFAULT_LAYOUTS[role] as PanelItem[];
-  }
-  return FALLBACK_LAYOUT;
+  const merged = (Object.keys(DEFAULT_LAYOUTS) as StaffRole[])
+    .filter((role) => role !== "team_member" && roles.includes(role))
+    .flatMap((role) => DEFAULT_LAYOUTS[role] ?? []);
+  if (!merged.length) return roles.includes("team_member") ? (DEFAULT_LAYOUTS.team_member as PanelItem[]) : FALLBACK_LAYOUT;
+  return merged.filter((item, index) => merged.findIndex((candidate) => candidate.key === item.key) === index);
 }
 
 export function allowedPanel(spec: PanelSpec, roles: AppRole[]) {
@@ -210,8 +235,9 @@ export async function loadDashboardLayout(userId: string | null, roles: AppRole[
     const mine = rows.find((r) => r.scope === "user" && r.user_id === userId);
     if (mine) chosen = cleanPanels(mine.panels);
     if (!chosen?.length) {
-      const byRole = rows.find((r) => r.scope === "role" && r.role && roles.includes(r.role as AppRole));
-      if (byRole) chosen = cleanPanels(byRole.panels);
+      const byRoles = rows.filter((r) => r.scope === "role" && r.role && roles.includes(r.role as AppRole));
+      const merged = byRoles.flatMap((row) => cleanPanels(row.panels));
+      if (merged.length) chosen = merged.filter((item, index) => merged.findIndex((candidate) => candidate.key === item.key) === index);
     }
   }
   const layout = chosen?.length ? chosen : defaultLayoutFor(roles);
