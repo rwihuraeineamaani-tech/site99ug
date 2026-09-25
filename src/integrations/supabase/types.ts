@@ -2763,6 +2763,7 @@ export type Database = {
           created_by: string | null
           id: string
           label: string | null
+          manual_actual: number | null
           metric: string
           month: string
           target_value: number
@@ -2777,6 +2778,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           label?: string | null
+          manual_actual?: number | null
           metric: string
           month: string
           target_value?: number
@@ -2791,6 +2793,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           label?: string | null
+          manual_actual?: number | null
           metric?: string
           month?: string
           target_value?: number

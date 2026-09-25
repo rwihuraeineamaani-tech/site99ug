@@ -1,0 +1,1 @@
+ALTER TABLE public.kpi_targets ADD COLUMN manual_actual numeric;
