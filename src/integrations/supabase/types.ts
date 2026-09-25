@@ -5439,7 +5439,7 @@ export type Database = {
         Args: { _day_id: string; _user_id: string }
         Returns: boolean
       }
-      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_staff: { Args: { _user_id?: string }; Returns: boolean }
       is_strategy_team: { Args: { _uid: string }; Returns: boolean }
       is_system_admin: { Args: { _user_id?: string }; Returns: boolean }
       list_public_residents: {
