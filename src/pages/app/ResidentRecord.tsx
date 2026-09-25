@@ -13,6 +13,7 @@ import { refCode, STAGE_NOTE, type Stage } from "@/lib/contentFlow";
 import { ArrowLeft, FileText, MessageCircle, Target } from "lucide-react";
 import BrandGuidelines from "@/components/residents/BrandGuidelines";
 import MoneyPanel from "@/components/residents/MoneyPanel";
+import WebsitePanel from "@/components/residents/WebsitePanel";
 import { logoUrl, initials } from "@/lib/logo";
 import { INVOICE_STATUS_LABEL, INVOICE_TONE, outstanding, type Invoice } from "@/lib/invoices";
 import type { ResidentRecord } from "./Residents";
@@ -55,6 +56,7 @@ export default function ResidentRecordPage() {
   const { isLeadership, canSeeFinance, has, userId } = useMyRoles();
   const canManageContracts = isLeadership || canSeeFinance || has("legal");
   const isAdmin = has("admin");
+  const hasSiteRole = has("site_editor");
 
   const [loading, setLoading] = useState(true);
   const [resident, setResident] = useState<ResidentRecord | null>(null);
@@ -419,6 +421,10 @@ export default function ResidentRecordPage() {
 
           <div className="mt-14">
             <BrandGuidelines residentId={id} residentName={resident.name} index="08" />
+          </div>
+
+          <div className="mt-14">
+            <WebsitePanel residentId={id} index="08b" canEdit={isLeadership || isAdmin || hasSiteRole} />
           </div>
 
 
