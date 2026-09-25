@@ -236,8 +236,8 @@ async function talentRows(): Promise<Row[]> {
 }
 
 async function eventsRows(): Promise<Row[]> {
-  const { data } = await supabase.from("events").select("id, title, date, status").gte("date", todayISO()).order("date").limit(8);
-  return (data ?? []).map((row) => ({ id: row.id, title: row.title, note: new Date(row.date).toLocaleDateString(), state: row.status, to: "/app/events" }));
+  const { data } = await supabase.from("events").select("id, title, starts_at, published").gte("starts_at", new Date().toISOString()).order("starts_at").limit(8);
+  return (data ?? []).map((row) => ({ id: row.id, title: row.title, note: new Date(row.starts_at).toLocaleDateString(), state: row.published ? "Published" : "Draft", to: "/app/events" }));
 }
 
 async function siteRows(): Promise<Row[]> {
