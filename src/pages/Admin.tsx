@@ -10,6 +10,7 @@ import { useMessages } from "@/hooks/useMessages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import TeamPanel from "@/components/admin/TeamPanel";
+import ResidentReviewQueue from "@/components/admin/ResidentReviewQueue";
 import { Button } from "@/components/ui/button";
 import { FolderKanban, Handshake, FileText, Megaphone, MessageSquare, Inbox, Users, CalendarDays, ExternalLink, Plus, Pencil, Trash2, Upload, X } from "lucide-react";
 
@@ -102,7 +103,7 @@ export default function Admin() {
       ]}
     >
       {activeTab === "projects" && <ProjectsAdmin userId={userId} qc={qc} />}
-      {activeTab === "residents" && <ResidentsAdmin />}
+      {activeTab === "residents" && <ResidentsAdmin isAdmin={isAdmin} />}
       {activeTab === "briefs" && <BriefsAdmin userId={userId} qc={qc} />}
       {activeTab === "announcements" && <AnnouncementsAdmin qc={qc} />}
       {activeTab === "messages" && <MessagesAdmin />}
@@ -327,11 +328,12 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
 }
 
 /* ---------- Residents (read-only — edited in the team system) ---------- */
-function ResidentsAdmin() {
+function ResidentsAdmin({ isAdmin }: { isAdmin: boolean }) {
   const { data: residents = [] } = useResidents();
   return (
     <div className="space-y-5">
       <header><p className="eyebrow text-signal">Directory</p><h2 className="mt-1 text-2xl font-bold">Residents</h2><p className="mt-1 text-sm text-ink-soft">Clients and Residents are the same people, managed from one record.</p></header>
+      {isAdmin && <ResidentReviewQueue />}
       <div className={`${panel} p-5`}>
         <h3 className="font-semibold">One home for client details</h3>
         <p className="mt-2 max-w-2xl text-sm text-ink-soft">
