@@ -87,22 +87,23 @@ export default function ClientPayPanel({ residentId, index = "02" }: { residentI
   };
   const shareTotal = draft.people.reduce((a, p) => a + lineTotal(p), 0);
   const balance = retainer - shareTotal;
-  const contactCount = draft.people.filter((p) => p.kind === "contact").length;
+  const contactCount = draft.people.length;
 
   const setPerson = (i: number, patch: Partial<Person>) =>
     setDraft((d) => ({ ...d, people: d.people.map((p, idx) => (idx === i ? { ...p, ...patch } : p)) }));
 
   const addPerson = () => {
-    const free = members.find((m) => !draft.people.some((p) => p.user_id === m.user_id));
-    if (!free) return toast.error("Everyone on the team is already on this client.");
+    if (draft.people.length) return toast.error("A client has one Handler only.");
+    const free = members[0];
+    if (!free) return toast.error("No team members yet.");
     setDraft((d) => ({
       ...d,
-      people: [...d.people, { user_id: free.user_id, kind: contactCount ? "handler" : "contact", mode: "amount", value: "0" }],
+      people: [{ user_id: free.user_id, kind: "contact", mode: "amount", value: "0" }],
     }));
   };
 
   const save = async () => {
-    if (contactCount !== 1) return toast.error("Pick exactly one contact person.");
+    if (contactCount !== 1) return toast.error("Pick the Handler for this client.");
     if (balance < 0) return toast.error("The shares add up to more than the retainer.");
     setBusy(true);
     const { error } = await supabase.rpc("set_client_pay", {
@@ -129,7 +130,7 @@ export default function ClientPayPanel({ residentId, index = "02" }: { residentI
       <SectionHeading
         index={index}
         title={residentId ? "Money" : "Team on each client"}
-        hint="One contact, any number of handlers"
+        hint="One Handler per client — they are also the contact person"
       />
 
       <div className="space-y-4">
@@ -157,7 +158,7 @@ export default function ClientPayPanel({ residentId, index = "02" }: { residentI
                   {c.people.map((p) => (
                     <div key={p.user_id} className="flex gap-3">
                       <span className="min-w-40">{nameOf(p.user_id as string)}</span>
-                      <span className="eyebrow text-ink-faint">{p.kind}</span>
+                      <span className="eyebrow text-ink-faint">Handler</span>
                       <span className="num ml-auto">{ugx(p.computed_ugx ?? 0)}</span>
                     </div>
                   ))}
@@ -194,14 +195,7 @@ export default function ClientPayPanel({ residentId, index = "02" }: { residentI
                             </option>
                           ))}
                         </select>
-                        <select
-                          className={field}
-                          value={p.kind}
-                          onChange={(e) => setPerson(i, { kind: e.target.value as Person["kind"] })}
-                        >
-                          <option value="contact">Contact person</option>
-                          <option value="handler">Handler</option>
-                        </select>
+                        <span className="eyebrow text-ink-faint">Handler</span>
                         <select
                           className={field}
                           value={p.mode}
@@ -228,20 +222,22 @@ export default function ClientPayPanel({ residentId, index = "02" }: { residentI
                         </div>
                       </div>
                     ))}
-                    <Button size="sm" variant="secondary" onClick={addPerson}>
-                      Add someone
-                    </Button>
+                    {draft.people.length === 0 && (
+                      <Button size="sm" variant="secondary" onClick={addPerson}>
+                        Choose Handler
+                      </Button>
+                    )}
                   </div>
 
                   <div className="rule-t pt-3 text-sm flex flex-wrap gap-6">
                     <span>
-                      Shares <span className="num font-semibold">{ugx(shareTotal)}</span>
+                      Share <span className="num font-semibold">{ugx(shareTotal)}</span>
                     </span>
                     <span className={balance < 0 ? "text-signal" : ""}>
                       Site 99 balance <span className="num font-semibold">{ugx(balance)}</span>
                     </span>
                     {contactCount !== 1 && (
-                      <span className="text-signal">Pick exactly one contact person.</span>
+                      <span className="text-signal">Pick the Handler for this client.</span>
                     )}
                   </div>
 
