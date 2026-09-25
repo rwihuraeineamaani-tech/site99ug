@@ -421,6 +421,10 @@ export default function ResidentRecordPage() {
             <BrandGuidelines residentId={id} residentName={resident.name} index="08" />
           </div>
 
+          <div className="mt-14">
+            <WebsitePanel residentId={id} index="08b" canEdit={isLeadership || isAdmin || hasSiteRole} />
+          </div>
+
 
           {(canSeeFinance || isLeadership) && (
             <div className="mt-14">
