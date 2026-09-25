@@ -1,0 +1,1 @@
+ALTER FUNCTION public.resolve_website_resident(uuid[], uuid, text, text, text, text) SECURITY INVOKER;
