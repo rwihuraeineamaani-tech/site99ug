@@ -37,7 +37,7 @@ const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_direct
 const LIVE = ["Idea", "Approved", "Crewed", "Scheduled", "Shooting", "Editing", "Review", "Handover"];
 
 export default function Dashboard() {
-  const { roles, canSeeFinance, departments, isLeadership, displayName, email, userId, has } = useMyRoles();
+  const { roles, positions, viewRole, setViewRole, title, canSeeFinance, departments, isLeadership, displayName, email, userId, has } = useMyRoles();
   const { items: todoItems } = useTodo();
   const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const isFounder = has(...FOUNDER_ROLES);
@@ -47,13 +47,13 @@ export default function Dashboard() {
   const [layout, setLayout] = useState<PanelItem[]>(() => defaultLayoutFor(roles));
   useEffect(() => {
     let cancelled = false;
-    loadDashboardLayout(userId, roles).then((l) => {
+    loadDashboardLayout(userId, viewRole ? [viewRole] : roles).then((l) => {
       if (!cancelled) setLayout(l);
     });
     return () => {
       cancelled = true;
     };
-  }, [userId, roles]);
+  }, [userId, roles, viewRole]);
 
 
 
@@ -161,7 +161,7 @@ export default function Dashboard() {
     return rows.slice(0, 8);
   }, [shootPrompts, flow, todoItems]);
 
-  const titles = roles.filter((r): r is StaffRole => r in ROLE_LABELS).map((r) => ROLE_LABELS[r]);
+  const titles = title ? [title] : [];
   const shareTotal = myShares.reduce((s, r) => s + Number(r.computed_ugx ?? 0), 0);
 
   /* ---- KPI performance: last 30 days against the 30 before ---- */
@@ -262,7 +262,7 @@ export default function Dashboard() {
     weekday: kampalaNow.weekday,
     dayOfMonth: kampalaNow.dayOfMonth,
     month: kampalaNow.month,
-    roleLabel: titles[0],
+    roleLabel: viewRole ? ROLE_LABELS[viewRole] : title ?? undefined,
     waiting: todoItems.length,
     onMyPlate: onMyPlate.length,
     shootsToday,
@@ -279,12 +279,11 @@ export default function Dashboard() {
         tagline={tagline}
         headline={headline}
         actions={
-          <Link
-            to="/app/calendar"
-            className="press rounded-full border border-rule px-3.5 py-2 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"
-          >
-            Open calendar →
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            {positions.length > 1 && <label className="sr-only" htmlFor="dashboard-position">Dashboard view</label>}
+            {positions.length > 1 && <select id="dashboard-position" className="field min-h-9 py-1.5 text-xs" value={viewRole ?? "all"} onChange={(event) => setViewRole(event.target.value === "all" ? null : event.target.value as StaffRole)}><option value="all">All my work</option>{positions.map((position) => <option key={position} value={position}>{ROLE_LABELS[position]}</option>)}</select>}
+            <Link to="/app/calendar" className="press rounded-full border border-rule px-3.5 py-2 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring">Open calendar →</Link>
+          </div>
         }
       />
 

@@ -16,7 +16,7 @@ export type StaffRole =
   | "event_manager"
   | "scanner"
   | "viewer"
-  | "site_editor";
+  | "site_editor"
   | "operations_manager"
   | "talent"
   | "communications"
