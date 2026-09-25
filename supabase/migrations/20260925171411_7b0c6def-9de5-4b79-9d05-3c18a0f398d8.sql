@@ -1,0 +1,3 @@
+CREATE POLICY "Leadership update residents" ON public.residents FOR UPDATE TO authenticated USING (public.is_leadership(auth.uid())) WITH CHECK (public.is_leadership(auth.uid()));
+CREATE POLICY "Site editors manage accounts" ON public.client_accounts FOR ALL TO authenticated USING (public.has_any_role(auth.uid(), ARRAY['admin'::app_role,'site_editor'::app_role])) WITH CHECK (public.has_any_role(auth.uid(), ARRAY['admin'::app_role,'site_editor'::app_role]));
+CREATE POLICY "Leadership manage resident_projects" ON public.resident_projects FOR ALL TO authenticated USING (public.is_leadership(auth.uid())) WITH CHECK (public.is_leadership(auth.uid()));
