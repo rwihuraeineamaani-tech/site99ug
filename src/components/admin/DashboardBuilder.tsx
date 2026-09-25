@@ -97,7 +97,7 @@ export default function DashboardBuilder() {
   return (
     <div className="space-y-8">
       <section>
-        <SectionHeading index="01" title="Whose dashboard" hint="A person's own setup wins over their role's" />
+        <SectionHeading index="01" title="Whose dashboard" hint="A person's own setup wins; otherwise all assigned positions merge" />
         <div className="grid gap-3 md:grid-cols-3">
           <label className="text-sm">
             <span className="eyebrow text-ink-faint">Set up for</span>

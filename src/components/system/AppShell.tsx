@@ -125,8 +125,8 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   ];
 
   const dept: ShellNavItem[] = [];
-  if (departments.content) dept.push({ to: "/app/content", label: "Content & strategy", icon: Clapperboard });
-  if (departments.content) dept.push({ to: "/app/shoots", label: "Shoot days", icon: Camera });
+  if (departments.content) dept.push({ to: "/app/content", label: "Content Pipeline", icon: Clapperboard });
+  if (departments.content && has("admin", "founder", "managing_director", "operations_manager", "creative", "talent", "communications", "designer", "creative_director")) dept.push({ to: "/app/shoots", label: "Shoot days", icon: Camera });
   if (departments.clients) dept.push({ to: "/app/residents", label: "Residents", icon: Handshake });
   if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
@@ -158,7 +158,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
     : [];
   if (legal.length) groups.push({ label: "Legal", items: legal });
 
-  groups.push({
+  if (has("admin", "founder", "managing_director", "strategist", "creative_director", "sales_head")) groups.push({
     label: "Strategy",
     items: [
       { to: "/app/strategy", label: "Overview", end: true, icon: Compass },

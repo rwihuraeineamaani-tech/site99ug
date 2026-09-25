@@ -201,6 +201,53 @@ async function myContentRows(userId: string | null): Promise<Row[]> {
   }));
 }
 
+async function contentPipelineRows(): Promise<Row[]> {
+  const { data } = await supabase.from("content_items").select("id, title, stage, planned_at, updated_at").not("stage", "in", '("Archived","Rejected")').order("updated_at", { ascending: true }).limit(10);
+  return (data ?? []).map((row) => ({ id: row.id, title: row.title, note: row.planned_at ? `Due ${new Date(row.planned_at).toLocaleDateString()}` : "No delivery date", state: row.stage, to: "/app/content" }));
+}
+
+async function turnaroundRows(): Promise<Row[]> {
+  const { data } = await supabase.from("content_items").select("id, title, stage, created_at, updated_at").not("stage", "in", '("Archived","Rejected","Handover")').order("created_at", { ascending: true }).limit(50);
+  const now = Date.now();
+  const aged = (data ?? []).map((row) => ({ ...row, days: Math.max(0, Math.floor((now - Date.parse(row.updated_at ?? row.created_at)) / 86400000)) })).sort((a, b) => b.days - a.days);
+  const average = aged.length ? Math.round(aged.reduce((sum, row) => sum + row.days, 0) / aged.length) : 0;
+  return aged.slice(0, 8).map((row, index) => ({ id: row.id, title: row.title, note: `${row.stage} · ${row.days} day${row.days === 1 ? "" : "s"} in current work`, state: index === 0 ? `Longest · ${row.days}d` : undefined, right: index === 0 ? `Average ${average}d` : undefined, to: "/app/content" }));
+}
+
+async function communicationsRows(): Promise<Row[]> {
+  const [briefs, announcements, posts] = await Promise.all([
+    supabase.from("briefs").select("id, title, updated_at").order("updated_at", { ascending: false }).limit(4),
+    supabase.from("announcements").select("id, title, published, updated_at").order("updated_at", { ascending: false }).limit(4),
+    supabase.from("content_items").select("id, title, stage, planned_at").not("planned_at", "is", null).order("planned_at", { ascending: true }).limit(4),
+  ]);
+  return [
+    ...(briefs.data ?? []).map((row) => ({ id: `brief-${row.id}`, title: row.title, note: "Brief", state: "Ready", to: `/app/briefs/${row.id}` })),
+    ...(announcements.data ?? []).map((row) => ({ id: `announcement-${row.id}`, title: row.title, note: "Announcement", state: row.published ? "Published" : "Draft", to: `/app/announcements/${row.id}` })),
+    ...(posts.data ?? []).map((row) => ({ id: `post-${row.id}`, title: row.title, note: row.planned_at ? `Posts ${new Date(row.planned_at).toLocaleDateString()}` : "Post", state: row.stage, to: "/app/content" })),
+  ].slice(0, 10);
+}
+
+async function talentRows(): Promise<Row[]> {
+  const [shoots, contracts] = await Promise.all([
+    shootRows(),
+    supabase.from("contracts").select("id, title, party_name, ends_on, status").not("ends_on", "is", null).lte("ends_on", plusDays(60)).order("ends_on").limit(5),
+  ]);
+  return [...shoots, ...(contracts.data ?? []).map((row) => ({ id: `talent-${row.id}`, title: row.title, note: `${row.party_name ?? "Agreement"} · ends ${new Date(row.ends_on as string).toLocaleDateString()}`, state: row.status, to: "/app/legal/contracts" }))].slice(0, 10);
+}
+
+async function eventsRows(): Promise<Row[]> {
+  const { data } = await supabase.from("events").select("id, title, date, status").gte("date", todayISO()).order("date").limit(8);
+  return (data ?? []).map((row) => ({ id: row.id, title: row.title, note: new Date(row.date).toLocaleDateString(), state: row.status, to: "/app/events" }));
+}
+
+async function siteRows(): Promise<Row[]> {
+  const [projects, announcements] = await Promise.all([
+    supabase.from("projects").select("id, title, client, updated_at").order("updated_at", { ascending: false }).limit(5),
+    supabase.from("announcements").select("id, title, published, updated_at").order("updated_at", { ascending: false }).limit(5),
+  ]);
+  return [...(projects.data ?? []).map((row) => ({ id: `project-${row.id}`, title: row.title, note: row.client ?? "In house", state: "Project", to: "/app/site" })), ...(announcements.data ?? []).map((row) => ({ id: `site-announcement-${row.id}`, title: row.title, note: "Website announcement", state: row.published ? "Published" : "Draft", to: "/app/site" }))];
+}
+
 const LOADERS: Record<string, (userId: string | null) => Promise<Row[]>> = {
   finance_queue: () => financeRows(),
   sales_pipeline: () => salesRows(),
@@ -208,6 +255,12 @@ const LOADERS: Record<string, (userId: string | null) => Promise<Row[]>> = {
   legal_queue: () => legalRows(),
   ops_shoots: () => shootRows(),
   my_content: (userId) => myContentRows(userId),
+  content_pipeline: () => contentPipelineRows(),
+  turnaround: () => turnaroundRows(),
+  communications_queue: () => communicationsRows(),
+  talent_queue: () => talentRows(),
+  events_queue: () => eventsRows(),
+  site_queue: () => siteRows(),
 };
 
 const META: Record<string, { title: string; empty: string; to?: string; toLabel?: string }> = {
@@ -217,6 +270,12 @@ const META: Record<string, { title: string; empty: string; to?: string; toLabel?
   legal_queue: { title: "Legal", empty: "No contracts or renewals coming up.", to: "/app/legal", toLabel: "Open legal" },
   ops_shoots: { title: "Shoots ahead", empty: "No shoot days booked.", to: "/app/shoots", toLabel: "Open shoots" },
   my_content: { title: "My content", empty: "You are not on any content yet.", to: "/app/content", toLabel: "Open pipeline" },
+  content_pipeline: { title: "Production pipeline", empty: "No content is moving through production yet.", to: "/app/content", toLabel: "Open pipeline" },
+  turnaround: { title: "Turnaround time", empty: "Turnaround appears when content enters production.", to: "/app/content", toLabel: "Review pipeline" },
+  communications_queue: { title: "Communications", empty: "No briefs, announcements or scheduled posts need attention.", to: "/app/calendar", toLabel: "Open calendar" },
+  talent_queue: { title: "Talent work", empty: "No upcoming talent work or agreement deadlines.", to: "/app/shoots", toLabel: "Open shoots" },
+  events_queue: { title: "Events", empty: "No upcoming events.", to: "/app/events", toLabel: "Open events" },
+  site_queue: { title: "Website publishing", empty: "No recent website work.", to: "/app/site", toLabel: "Open editor" },
 };
 
 /** A read-only panel for one department, loading only what the person may already see. */
