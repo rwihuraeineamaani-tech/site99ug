@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ROLE_HINTS, ROLE_LABELS, TEAM_ROLES, type StaffRole } from "@/hooks/useMyRoles";
 import { PASSWORD_HINT, suggestPassword } from "@/lib/password";
+import { Button } from "@/components/ui/button";
+import { KeyRound, Pencil, Plus, Trash2, Users, X } from "lucide-react";
 
 type Member = {
   id: string;
@@ -16,15 +18,14 @@ type Member = {
 
 const ALL_ROLES: StaffRole[] = TEAM_ROLES;
 
-const lbl = "mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground";
-const input = "field mt-2 text-sm";
-const btn = "ctl mono text-[10px] uppercase tracking-[0.2em] px-4 py-2 focus-ring";
+const lbl = "eyebrow text-ink-faint";
+const input = "field mt-2 min-h-11 text-base";
 
 function RoleChecks({ value, onChange }: { value: StaffRole[]; onChange: (r: StaffRole[]) => void }) {
   return (
     <div className="grid gap-2 sm:grid-cols-2">
       {ALL_ROLES.map((r) => (
-        <label key={r} className="flex items-start gap-3 rounded-xl border border-border p-3 cursor-pointer press hover:border-site-red/50 hover:bg-paper-sunken">
+        <label key={r} className="press flex cursor-pointer items-start gap-3 rounded-md border border-rule bg-paper-sunken p-3 hover:border-signal/50">
           <input
             type="checkbox"
             checked={value.includes(r)}
@@ -32,7 +33,7 @@ function RoleChecks({ value, onChange }: { value: StaffRole[]; onChange: (r: Sta
             className="mt-1 accent-current"
           />
           <span>
-            <span className="mono text-[11px] uppercase tracking-[0.2em]">{ROLE_LABELS[r]}</span>
+            <span className="text-sm font-semibold">{ROLE_LABELS[r]}</span>
             <span className="block text-xs text-muted-foreground mt-1">{ROLE_HINTS[r]}</span>
           </span>
         </label>
@@ -145,19 +146,23 @@ export default function TeamPanel() {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="eyebrow text-signal">Website access</p>
+          <h2 className="mt-1 text-2xl font-bold">Team</h2>
         <p className="text-sm text-muted-foreground max-w-xl">
           Create accounts for your team and grant only the access each person needs. You set the password and share it
           with them directly.
         </p>
-        <button className={btn} onClick={() => setShowNew((s) => !s)}>
-          {showNew ? "Cancel" : "New member"}
-        </button>
+        </div>
+        <Button variant={showNew ? "outline" : "default"} onClick={() => setShowNew((s) => !s)}>
+          {showNew ? <><X /> Close</> : <><Plus /> New member</>}
+        </Button>
       </div>
 
       {showNew && (
-        <div className="rounded-lg border border-border p-5 space-y-5">
+        <div className="space-y-5 rounded-md border border-rule bg-paper-raised p-4 sm:p-5">
           <div className="grid gap-5 md:grid-cols-3">
             <div>
               <div className={lbl}>Email</div>
@@ -197,24 +202,22 @@ export default function TeamPanel() {
                 placeholder="min 8 characters"
               />
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  className={btn}
+                <Button
+                  type="button" variant="outline" size="sm"
                   onClick={() => setForm({ ...form, password: suggestPassword() })}
                 >
                   Suggest
-                </button>
+                </Button>
                 {form.password && (
-                  <button
-                    type="button"
-                    className={btn}
+                  <Button
+                    type="button" variant="outline" size="sm"
                     onClick={async () => {
                       await navigator.clipboard.writeText(form.password);
                       toast.success("Password copied");
                     }}
                   >
                     Copy
-                  </button>
+                  </Button>
                 )}
               </div>
               <p className="mt-2 text-xs text-muted-foreground">{PASSWORD_HINT}</p>
@@ -225,17 +228,16 @@ export default function TeamPanel() {
             <div className={`${lbl} mb-3`}>Access levels</div>
             <RoleChecks value={form.roles} onChange={(roles) => setForm({ ...form, roles })} />
           </div>
-          <button
+          <Button
             disabled={busy}
             onClick={create}
-            className="mono text-[10px] uppercase tracking-[0.2em] bg-site-red text-site-white rounded-md px-4 py-2 disabled:opacity-50"
           >
             {busy ? "Creating…" : "Create account"}
-          </button>
+          </Button>
         </div>
       )}
 
-      <div className="rounded-lg border border-border overflow-hidden">
+      <div className="overflow-hidden rounded-md border border-rule bg-paper-raised">
         <div className="hidden md:grid grid-cols-[1.4fr_1.6fr_auto] gap-4 px-4 py-3 border-b border-border bg-secondary/40">
           <span className={lbl}>Member</span>
           <span className={lbl}>Access</span>
@@ -258,7 +260,7 @@ export default function TeamPanel() {
                   m.roles.map((r) => (
                     <span
                       key={r}
-                      className="mono text-[9px] uppercase tracking-[0.2em] rounded-full border border-border px-2 py-1"
+                    className="rounded-sm border border-rule bg-paper-sunken px-2 py-1 text-[10px] font-medium"
                     >
                       {ROLE_LABELS[r] ?? r}
                     </span>
@@ -268,36 +270,29 @@ export default function TeamPanel() {
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
-                <button
-                  className={btn}
+                <Button
+                  variant="outline" size="sm"
                   onClick={() => {
                     setEditing(editing === m.user_id ? null : m.user_id);
                     setEditRoles(m.roles);
                   }}
                 >
-                  {editing === m.user_id ? "Close" : "Edit access"}
-                </button>
-                <button className={btn} onClick={() => editTitle(m)}>
-                  Edit title
-                </button>
-                <button className={btn} onClick={() => resetPassword(m)}>
-                  Reset password
-                </button>
-                <button className={`${btn} hover:text-site-red`} onClick={() => remove(m)}>
-                  Remove
-                </button>
+                  {editing === m.user_id ? <><X /> Close</> : <><Users /> Edit access</>}
+                </Button>
+                <Button variant="ghost" size="icon-sm" title="Edit job title" aria-label={`Edit ${m.display_name || m.email}'s job title`} onClick={() => editTitle(m)}><Pencil /></Button>
+                <Button variant="ghost" size="icon-sm" title="Reset password" aria-label={`Reset ${m.display_name || m.email}'s password`} onClick={() => resetPassword(m)}><KeyRound /></Button>
+                <Button variant="ghost" size="icon-sm" title="Remove member" aria-label={`Remove ${m.display_name || m.email}`} onClick={() => remove(m)}><Trash2 /></Button>
               </div>
             </div>
             {editing === m.user_id && (
               <div className="px-4 pb-5 space-y-4">
                 <RoleChecks value={editRoles} onChange={setEditRoles} />
-                <button
+                <Button
                   disabled={busy}
                   onClick={() => saveRoles(m)}
-                  className="mono text-[10px] uppercase tracking-[0.2em] bg-site-red text-site-white rounded-md px-4 py-2 disabled:opacity-50"
                 >
                   {busy ? "Saving…" : "Save access"}
-                </button>
+                </Button>
               </div>
             )}
           </div>
