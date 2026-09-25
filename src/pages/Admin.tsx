@@ -10,6 +10,9 @@ import { useMessages } from "@/hooks/useMessages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import TeamPanel from "@/components/admin/TeamPanel";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { FolderKanban, Handshake, FileText, Megaphone, MessageSquare, Inbox, Users, CalendarDays, ExternalLink, Plus, Pencil, Trash2, Upload, X } from "lucide-react";
 
 
 type ProjForm = {
@@ -28,8 +31,9 @@ const emptyProj: ProjForm = {
 
 type Tab = "projects" | "residents" | "briefs" | "announcements" | "messages" | "requests" | "team";
 
-const lbl = "mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground";
-const input = "mt-2 w-full bg-transparent border-b border-border focus:border-site-red outline-none py-2 text-lg";
+const lbl = "eyebrow text-ink-faint";
+const input = "field mt-2 min-h-11 text-base";
+const panel = "rounded-md border border-rule bg-paper-raised";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -84,11 +88,18 @@ export default function Admin() {
   return (
     <AdminShell
       title="Site 99 Manager"
-      eyebrow="Site console"
+      eyebrow="Website"
       active={activeTab}
+      layout="sidebar"
+      actions={<Button asChild variant="outline" size="sm"><a href="/" target="_blank" rel="noreferrer">View website <ExternalLink /></a></Button>}
       nav={[
-        ...tabs.map((t) => ({ key: t, label: label(t), onClick: () => setTab(t) })),
-        { key: "events", label: "Events ↗", to: "/app/events" },
+        ...tabs.map((t) => ({
+          key: t,
+          label: label(t),
+          icon: ({ projects: <FolderKanban />, residents: <Handshake />, briefs: <FileText />, announcements: <Megaphone />, messages: <MessageSquare />, requests: <Inbox />, team: <Users /> } as Record<Tab, React.ReactNode>)[t],
+          onClick: () => setTab(t),
+        })),
+        { key: "events", label: "Events", icon: <CalendarDays />, to: "/app/events" },
       ]}
     >
       {activeTab === "projects" && <ProjectsAdmin userId={userId} qc={qc} />}
@@ -110,6 +121,7 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
   const [form, setForm] = useState<ProjForm>(emptyProj);
   const [editing, setEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const startNew = () => { setForm(emptyProj); setEditing(true); };
 
   const uploadFile = async (file: File) => {
     const ext = file.name.split(".").pop();
@@ -194,9 +206,17 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
       : [...f.resident_ids, rid] }));
 
   return (
-    <>
-      <form onSubmit={save} className="grid md:grid-cols-2 gap-6 mb-12 border border-border p-6 rounded-2xl">
-        <div className="md:col-span-2 mono text-xs uppercase tracking-[0.3em] text-site-red">{editing ? "Edit project" : "New project"}</div>
+    <div className="space-y-5">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div><p className="eyebrow text-signal">Portfolio</p><h2 className="mt-1 text-2xl font-bold">Projects</h2><p className="mt-1 text-sm text-ink-soft">Choose what appears on the public work page.</p></div>
+        {!editing && <Button onClick={startNew}><Plus /> Add project</Button>}
+      </header>
+
+      {editing && <form onSubmit={save} className={`${panel} grid gap-5 p-4 sm:p-6 md:grid-cols-2`}>
+        <div className="flex items-center justify-between gap-3 border-b border-rule pb-4 md:col-span-2">
+          <div><p className="eyebrow text-signal">Project editor</p><h3 className="mt-1 text-xl font-bold">{form.id ? "Edit project" : "New project"}</h3></div>
+          <Button type="button" variant="ghost" size="icon" aria-label="Close editor" title="Close editor" onClick={() => { setForm(emptyProj); setEditing(false); }}><X /></Button>
+        </div>
         <div><label className={lbl}>Title *</label><input required className={input} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
         <div><label className={lbl}>Client *</label>
           <select required className={input} value={form.resident_ids[0] ?? (form.client ? "__inhouse" : "")}
@@ -225,19 +245,17 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
             <option value="9:16">9:16 — Vertical</option>
           </select>
         </div>
-        <div className="md:col-span-2"><label className={lbl}>Description</label><textarea rows={3} className={input + " resize-none"} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+        <div className="md:col-span-2"><label className={lbl}>Description</label><textarea rows={4} className={input + " resize-none"} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
         <div className="md:col-span-2">
           <label className={lbl}>Cover photo or video {form.youtube_url ? "(optional — YouTube will be used)" : "(used when no YouTube URL)"}</label>
-          <div className="mt-2 flex items-center gap-4">
-            <input type="file" accept="image/*,video/*" onChange={handleCover} className="text-sm" />
+          <div className="mt-2 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-rule bg-paper-sunken px-4 text-sm font-semibold hover:border-signal"><Upload className="h-4 w-4" /> Choose cover<input type="file" accept="image/*,video/*" onChange={handleCover} className="sr-only" /></label>
             {form.cover_url && (
               isVideo(form.cover_url)
-                ? <video src={form.cover_url} className="h-20 w-20 object-cover rounded-2xl bg-black" muted />
-                : <img src={form.cover_url} alt="cover" className="h-20 w-20 object-cover rounded-2xl" />
+                ? <video src={form.cover_url} className="h-20 w-20 rounded-md bg-paper-sunken object-cover" muted />
+                : <img src={form.cover_url} alt="Project cover" className="h-20 w-20 rounded-md object-cover" />
             )}
-            {form.cover_url && (
-              <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Clear</button>
-            )}
+            {form.cover_url && <Button type="button" variant="ghost" size="sm" onClick={() => setForm({ ...form, cover_url: "" })}>Clear</Button>}
           </div>
           {form.youtube_url && form.cover_url && (
             <p className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-2">Both set — YouTube takes priority on the card. Clear it above to use the cover.</p>
@@ -245,16 +263,16 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
         </div>
         <div className="md:col-span-2">
           <label className={lbl}>Gallery (images & videos)</label>
-          <input type="file" accept="image/*,video/*" multiple onChange={handleGallery} className="mt-2 text-sm block" />
+          <label className="mt-2 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-rule bg-paper-sunken px-4 text-sm font-semibold hover:border-signal"><Upload className="h-4 w-4" /> Add gallery files<input type="file" accept="image/*,video/*" multiple onChange={handleGallery} className="sr-only" /></label>
           {form.gallery_urls.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {form.gallery_urls.map((u, i) => (
                 <div key={i} className="relative">
                   {isVideo(u)
-                    ? <video src={u} className="h-16 w-16 object-cover rounded-2xl bg-black" muted />
-                    : <img src={u} className="h-16 w-16 object-cover rounded-2xl" alt="" />}
+                    ? <video src={u} className="h-16 w-16 rounded-md bg-paper-sunken object-cover" muted />
+                    : <img src={u} className="h-16 w-16 rounded-md object-cover" alt="Gallery item" />}
                   <button type="button" onClick={() => setForm({ ...form, gallery_urls: form.gallery_urls.filter((_, idx) => idx !== i) })}
-                    className="absolute -top-2 -right-2 bg-site-red text-site-white w-5 h-5 rounded-full text-xs">×</button>
+                    className="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full bg-signal text-paper focus-ring" aria-label="Remove gallery item"><X className="h-3.5 w-3.5" /></button>
                 </div>
               ))}
             </div>
@@ -270,8 +288,8 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
                 const on = form.resident_ids.includes(r.id);
                 return (
                   <button key={r.id} type="button" onClick={() => toggleResident(r.id)}
-                    className={`px-3 py-1.5 rounded-full mono text-xs uppercase tracking-[0.2em] border transition-colors ${
-                      on ? "bg-site-red text-site-white border-site-red" : "border-border hover:border-site-red"
+                    className={`min-h-10 rounded-md border px-3 py-2 text-sm transition-colors focus-ring ${
+                      on ? "border-signal bg-signal text-paper" : "border-rule bg-paper-sunken hover:border-signal"
                     }`}>
                     {r.name}
                   </button>
@@ -280,28 +298,32 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
             </div>
           )}
         </div>
-        <div className="md:col-span-2 flex gap-3">
-          <button type="submit" disabled={uploading} className="ctl ctl-solid px-8 py-4 label text-xs disabled:opacity-50 focus-ring">
+        <div className="flex flex-col-reverse gap-3 border-t border-rule pt-4 sm:flex-row md:col-span-2">
+          <Button type="submit" disabled={uploading} className="sm:min-w-40">
             {editing ? "Save changes" : "Create project"}
-          </button>
-          {editing && <button type="button" onClick={() => { setForm(emptyProj); setEditing(false); }} className="ctl mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Cancel</button>}
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => { setForm(emptyProj); setEditing(false); }}>Cancel</Button>
         </div>
-      </form>
+      </form>}
 
-      <div className="grid gap-3">
+      <div className="overflow-hidden rounded-md border border-rule bg-paper-raised">
+        <div className="flex items-center justify-between border-b border-rule px-4 py-3"><p className="eyebrow text-ink-faint">Published work</p><span className="text-xs text-ink-faint">{projects.length} project{projects.length === 1 ? "" : "s"}</span></div>
         {projects.map((p) => (
-          <div key={p.id} className="flex items-center gap-4 border border-border p-3 rounded-2xl">
-            <img src={p.cover_url} alt="" className="h-16 w-16 object-cover rounded-2xl bg-secondary" />
+          <div key={p.id} className="grid grid-cols-[64px_minmax(0,1fr)] gap-3 border-b border-rule p-3 last:border-0 sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-center">
+            {p.cover_url ? <img src={p.cover_url} alt="" className="h-16 w-16 rounded-sm bg-paper-sunken object-cover" /> : <div className="grid h-16 w-16 place-items-center rounded-sm bg-paper-sunken"><FolderKanban className="h-5 w-5 text-ink-faint" /></div>}
             <div className="flex-1 min-w-0">
-              <div className="display text-xl truncate">{p.title}</div>
-              <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">{p.tag} · {p.client} · {p.year} · order {p.display_order}</div>
+              <div className="truncate font-semibold">{p.title}</div>
+              <div className="mt-1 truncate text-xs text-ink-soft">{p.tag} · {p.client} · {p.year} · position {p.display_order}</div>
             </div>
-            <button onClick={() => edit(p)} className="ctl mono text-xs uppercase tracking-[0.3em] focus-ring px-3 py-1.5">Edit</button>
-            <button onClick={() => remove(p.id)} className="ctl mono text-xs uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Delete</button>
+            <div className="col-span-2 flex justify-end gap-1 sm:col-span-1">
+              <Button variant="ghost" size="icon-sm" onClick={() => edit(p)} title="Edit project" aria-label={`Edit ${p.title}`}><Pencil /></Button>
+              <Button variant="ghost" size="icon-sm" onClick={() => remove(p.id)} title="Delete project" aria-label={`Delete ${p.title}`}><Trash2 /></Button>
+            </div>
           </div>
         ))}
+        {projects.length === 0 && <div className="px-4 py-14 text-center text-sm text-ink-soft">No projects have been added yet.</div>}
       </div>
-    </>
+    </div>
   );
 }
 
