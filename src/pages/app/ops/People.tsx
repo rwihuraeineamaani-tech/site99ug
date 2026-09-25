@@ -75,7 +75,7 @@ export default function People() {
                 </div>
                 <div className="mt-3 text-xs text-ink-soft">
                   {mine.length
-                    ? `On ${mine.length} client${mine.length > 1 ? "s" : ""} — ${mine.filter((x) => x.kind === "contact").length} as contact, ${mine.filter((x) => x.kind === "handler").length} as handler`
+                    ? `Handler on ${mine.length} client${mine.length > 1 ? "s" : ""}`
                     : "Not on any client yet"}
                   {" · "}
                   {jobsOf(m.user_id)} content job{jobsOf(m.user_id) === 1 ? "" : "s"}

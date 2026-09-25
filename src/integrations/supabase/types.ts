@@ -2599,6 +2599,209 @@ export type Database = {
           },
         ]
       }
+      kpi_allowances: {
+        Row: {
+          created_at: string
+          data_ugx: number
+          id: string
+          month: string
+          note: string | null
+          shoot_days: number
+          transport_ugx: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_ugx?: number
+          id?: string
+          month: string
+          note?: string | null
+          shoot_days?: number
+          transport_ugx?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_ugx?: number
+          id?: string
+          month?: string
+          note?: string | null
+          shoot_days?: number
+          transport_ugx?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      kpi_contract_bonuses: {
+        Row: {
+          amount_ugx: number
+          confirmed_by: string | null
+          contract_id: string | null
+          contract_value_ugx: number
+          created_at: string
+          id: string
+          kind: string
+          month: string
+          note: string | null
+          percent: number
+          resident_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_ugx?: number
+          confirmed_by?: string | null
+          contract_id?: string | null
+          contract_value_ugx?: number
+          created_at?: string
+          id?: string
+          kind: string
+          month: string
+          note?: string | null
+          percent: number
+          resident_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_ugx?: number
+          confirmed_by?: string | null
+          contract_id?: string | null
+          contract_value_ugx?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          month?: string
+          note?: string | null
+          percent?: number
+          resident_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_contract_bonuses_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_month_close: {
+        Row: {
+          closed_by: string | null
+          created_at: string
+          month: string
+          snapshot: Json
+          updated_at: string
+        }
+        Insert: {
+          closed_by?: string | null
+          created_at?: string
+          month: string
+          snapshot?: Json
+          updated_at?: string
+        }
+        Update: {
+          closed_by?: string | null
+          created_at?: string
+          month?: string
+          snapshot?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      kpi_settings: {
+        Row: {
+          contract_end_pct: number
+          created_at: string
+          head_bonus_pct: number
+          hit_bonus_pct: number
+          id: boolean
+          miss_penalty_pct: number
+          renewal_pct: number
+          updated_at: string
+          updated_by: string | null
+          weights: Json
+        }
+        Insert: {
+          contract_end_pct?: number
+          created_at?: string
+          head_bonus_pct?: number
+          hit_bonus_pct?: number
+          id?: boolean
+          miss_penalty_pct?: number
+          renewal_pct?: number
+          updated_at?: string
+          updated_by?: string | null
+          weights?: Json
+        }
+        Update: {
+          contract_end_pct?: number
+          created_at?: string
+          head_bonus_pct?: number
+          hit_bonus_pct?: number
+          id?: boolean
+          miss_penalty_pct?: number
+          renewal_pct?: number
+          updated_at?: string
+          updated_by?: string | null
+          weights?: Json
+        }
+        Relationships: []
+      }
+      kpi_targets: {
+        Row: {
+          approval_state: string
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+          manual_actual: number | null
+          metric: string
+          month: string
+          target_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approval_state?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          manual_actual?: number | null
+          metric: string
+          month: string
+          target_value?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approval_state?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          manual_actual?: number | null
+          metric?: string
+          month?: string
+          target_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leadership_task_activity: {
         Row: {
           actor_user_id: string | null
@@ -4621,6 +4824,36 @@ export type Database = {
           },
         ]
       }
+      staff_pay: {
+        Row: {
+          base_salary_ugx: number
+          created_at: string
+          department: string | null
+          head_bonus_ugx: number
+          is_head: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          base_salary_ugx?: number
+          created_at?: string
+          department?: string | null
+          head_bonus_ugx?: number
+          is_head?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          base_salary_ugx?: number
+          created_at?: string
+          department?: string | null
+          head_bonus_ugx?: number
+          is_head?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       strategy_map_versions: {
         Row: {
           approved_at: string | null
@@ -5425,6 +5658,7 @@ export type Database = {
         Returns: boolean
       }
       is_founder: { Args: { _user_id: string }; Returns: boolean }
+      is_kpi_manager: { Args: { _user_id: string }; Returns: boolean }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
       is_md: { Args: { _user_id: string }; Returns: boolean }
       is_resident_contact: {
