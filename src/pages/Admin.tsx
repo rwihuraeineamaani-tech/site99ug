@@ -476,40 +476,41 @@ function AnnouncementsAdmin({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   };
 
   return (
-    <>
-      <form onSubmit={save} className="grid gap-6 mb-12 border border-border p-6 rounded-2xl">
-        <div className="mono text-xs uppercase tracking-[0.3em] text-site-red">New announcement</div>
+    <div className="space-y-5">
+      <header><p className="eyebrow text-signal">Updates</p><h2 className="mt-1 text-2xl font-bold">Announcements</h2><p className="mt-1 text-sm text-ink-soft">Share company-wide news or prepare it as a draft.</p></header>
+      <form onSubmit={save} className={`${panel} grid gap-5 p-4 sm:p-6`}>
+        <h3 className="border-b border-rule pb-4 text-lg font-semibold">New announcement</h3>
         <div><label className={lbl}>Title *</label><input required className={input} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
         <div><label className={lbl}>Body</label><textarea rows={4} className={input + " resize-none"} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></div>
-        <label className="flex items-center gap-3 mono text-xs uppercase tracking-[0.3em]">
-          <input type="checkbox" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} />
-          Published
+        <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-rule bg-paper-sunken px-4 text-sm">
+          <input className="h-4 w-4 accent-current" type="checkbox" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} />
+          Publish now
         </label>
-        <button type="submit" className="ctl ctl-solid px-8 py-4 label text-xs justify-self-start focus-ring">Post</button>
+        <Button type="submit" className="justify-self-start">{form.published ? "Publish announcement" : "Save draft"}</Button>
       </form>
 
-      <div className="grid gap-3">
+      <div className="overflow-hidden rounded-md border border-rule bg-paper-raised">
         {items.map((a) => (
-          <div key={a.id} className="border border-border p-4 rounded-2xl">
-            <div className="flex justify-between items-start gap-4 mb-1">
-              <div className="display text-xl">{a.title}</div>
-              <div className="flex gap-3 items-center">
-                <label className="mono text-[10px] uppercase tracking-[0.3em] flex items-center gap-2">
+          <div key={a.id} className="border-b border-rule p-4 last:border-0">
+            <div className="mb-1 flex items-start justify-between gap-4">
+              <div className="font-semibold">{a.title}</div>
+              <div className="flex items-center gap-2">
+                <label className="flex min-h-10 cursor-pointer items-center gap-2 rounded-md px-2 text-xs font-medium hover:bg-paper-sunken">
                   <input type="checkbox" checked={a.published} onChange={(e) => togglePub(a.id, e.target.checked)} />
-                  pub
+                  {a.published ? "Live" : "Draft"}
                 </label>
-                <button onClick={() => remove(a.id)} className="ctl mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground focus-ring px-3 py-1.5">Delete</button>
+                <Button variant="ghost" size="icon-sm" onClick={() => remove(a.id)} title="Delete announcement" aria-label={`Delete ${a.title}`}><Trash2 /></Button>
               </div>
             </div>
-            <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">
-              {new Date(a.created_at).toLocaleString()} {!a.published && <span className="text-site-red">· draft</span>}
+            <div className="mb-2 text-xs text-ink-faint">
+              {new Date(a.created_at).toLocaleString()}
             </div>
-            {a.body && <p className="text-sm text-muted-foreground whitespace-pre-line">{a.body}</p>}
+            {a.body && <p className="whitespace-pre-line text-sm text-ink-soft">{a.body}</p>}
           </div>
         ))}
-        {items.length === 0 && <div className="mono text-xs text-muted-foreground">No announcements yet.</div>}
+        {items.length === 0 && <div className="p-12 text-center text-sm text-ink-soft">No announcements yet.</div>}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -532,13 +533,15 @@ function MessagesAdmin() {
   };
 
   return (
-    <div className="grid md:grid-cols-[220px_1fr] gap-6">
-      <div className="border border-border rounded-2xl p-3 max-h-[60vh] overflow-y-auto">
-        <div className={lbl + " px-2 mb-2"}>Residents</div>
+    <div className="space-y-5">
+      <header><p className="eyebrow text-signal">Conversations</p><h2 className="mt-1 text-2xl font-bold">Messages</h2><p className="mt-1 text-sm text-ink-soft">Talk directly with a Resident from their shared portal.</p></header>
+      <div className="grid min-h-[560px] overflow-hidden rounded-md border border-rule bg-paper-raised md:grid-cols-[240px_minmax(0,1fr)]">
+      <div className="max-h-52 overflow-y-auto border-b border-rule p-2 md:max-h-[640px] md:border-b-0 md:border-r">
+        <div className={lbl + " px-2 py-2"}>Residents</div>
         {residents.map((r: any) => (
           <button key={r.id} onClick={() => setPicked(r.id)}
-            className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-colors ${
-              pickedId === r.id ? "bg-secondary text-foreground" : "hover:bg-secondary/50 text-muted-foreground"
+            className={`min-h-11 w-full rounded-md px-3 py-2 text-left text-sm transition-colors focus-ring ${
+              pickedId === r.id ? "bg-signal/10 font-semibold text-ink" : "text-ink-soft hover:bg-paper-sunken hover:text-ink"
             }`}>
             {r.name}
           </button>
@@ -546,20 +549,20 @@ function MessagesAdmin() {
         {residents.length === 0 && <div className="mono text-xs text-muted-foreground p-2">No residents.</div>}
       </div>
 
-      <div className="border border-border rounded-2xl p-5 min-h-[60vh] flex flex-col">
-        {!picked && <div className="m-auto mono text-xs text-muted-foreground">Select a resident.</div>}
+      <div className="flex min-h-[400px] min-w-0 flex-col p-4 sm:p-5">
+        {!picked && <div className="m-auto text-center"><MessageSquare className="mx-auto h-7 w-7 text-ink-faint" /><p className="mt-3 text-sm text-ink-soft">Choose a Resident to open the conversation.</p></div>}
         {picked && (
           <>
             <div className="mb-4 pb-3 border-b border-border">
-              <div className="display text-xl">{(picked as any).name}</div>
+              <div className="font-semibold">{(picked as any).name}</div>
               <div className={lbl}>{(picked as any).email || "no email"}</div>
             </div>
             <div className="flex-1 overflow-y-auto space-y-3 mb-3">
               {msgs.length === 0 && <div className="mono text-xs text-muted-foreground">No messages yet.</div>}
               {msgs.map((m) => (
                 <div key={m.id} className={`flex ${m.sender_role === "admin" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm whitespace-pre-line ${
-                    m.sender_role === "admin" ? "bg-site-red text-site-white" : "bg-secondary"
+                  <div className={`max-w-[88%] rounded-md px-4 py-3 text-sm whitespace-pre-line sm:max-w-[75%] ${
+                    m.sender_role === "admin" ? "bg-signal text-paper" : "bg-paper-sunken text-ink"
                   }`}>
                     {m.body}
                     <div className="mono text-[10px] uppercase tracking-[0.2em] mt-1 opacity-70">
@@ -569,17 +572,15 @@ function MessagesAdmin() {
                 </div>
               ))}
             </div>
-            <form onSubmit={send} className="flex gap-3">
+            <form onSubmit={send} className="flex flex-col gap-3 border-t border-rule pt-3 sm:flex-row">
               <textarea rows={2} value={body} onChange={(e) => setBody(e.target.value)}
                 placeholder="Reply…"
-                className="flex-1 bg-transparent border border-border rounded-2xl p-3 text-sm focus:border-site-red outline-none resize-none" />
-              <button type="submit" disabled={!body.trim()}
-                className="ctl ctl-solid px-6 py-3 label text-xs disabled:opacity-50 self-end focus-ring">
-                Send →
-              </button>
+                className="field flex-1 resize-none text-base" />
+              <Button type="submit" disabled={!body.trim()} className="self-stretch sm:self-end">Send</Button>
             </form>
           </>
         )}
+      </div>
       </div>
     </div>
   );
@@ -595,23 +596,25 @@ function AccessRequests() {
       return data as Array<{ id: string; name: string; brand: string; email: string; territory: string; brief: string; created_at: string }>;
     },
   });
-  if (isLoading) return <div className="mono text-xs text-muted-foreground">Loading…</div>;
-  if (!requests.length) return <div className="mono text-xs text-muted-foreground">No access requests yet.</div>;
+  if (isLoading) return <div className="text-sm text-ink-soft">Loading requests…</div>;
   return (
-    <div className="grid gap-4">
+    <div className="space-y-5">
+      <header><p className="eyebrow text-signal">Website leads</p><h2 className="mt-1 text-2xl font-bold">Access requests</h2><p className="mt-1 text-sm text-ink-soft">People who asked to work with Site 99 through the website.</p></header>
+      {!requests.length && <div className={`${panel} p-12 text-center`}><Inbox className="mx-auto h-7 w-7 text-ink-faint" /><p className="mt-3 text-sm text-ink-soft">No access requests yet.</p></div>}
       {requests.map((r) => (
-        <div key={r.id} className="border border-border p-5 rounded-2xl">
-          <div className="flex justify-between items-start gap-4 mb-3">
+        <div key={r.id} className={`${panel} p-5`}>
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <div className="display text-2xl">{r.name} <span className="text-muted-foreground">— {r.brand}</span></div>
-              <a href={`mailto:${r.email}`} className="mono text-xs text-site-red">{r.email}</a>
+              <div className="text-lg font-semibold">{r.name}</div>
+              <p className="text-sm text-ink-soft">{r.brand}</p>
+              <a href={`mailto:${r.email}`} className="mt-1 inline-block text-sm font-semibold text-signal">{r.email}</a>
             </div>
-            <div className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground whitespace-nowrap">
+            <div className="whitespace-nowrap text-xs text-ink-faint">
               {new Date(r.created_at).toLocaleString()}
             </div>
           </div>
           <div className={lbl}>Territory</div>
-          <div className="text-sm mb-3">{r.territory}</div>
+          <div className="mb-4 text-sm">{r.territory || "Not supplied"}</div>
           <div className={lbl}>Brief</div>
           <p className="text-sm whitespace-pre-line">{r.brief}</p>
         </div>
