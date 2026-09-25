@@ -291,7 +291,9 @@ export default function ContentPipeline() {
       title: row.title,
       owner: encodeOwner(row.resident_id, row.project_id),
       content_type: row.content_type,
-      planned_at: row.planned_at ?? "",
+      planned_at: (row as { scheduled_post_at?: string | null }).scheduled_post_at
+        ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Africa/Kampala", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date((row as { scheduled_post_at?: string | null }).scheduled_post_at as string)).replace(" ", "T")
+        : row.planned_at ? `${row.planned_at}T18:00` : "",
       link: row.link ?? "",
       notes: row.notes ?? "",
     });
@@ -353,17 +355,20 @@ export default function ContentPipeline() {
     if (draft.link.trim() && !externalUrl(draft.link)) return toast.error("Enter a valid web link.");
     setBusy(true);
     const isLocked = !!editing && editing.stage !== "Idea";
+    const scheduledAt = draft.planned_at ? `${draft.planned_at.slice(0, 16)}:00+03:00` : null;
+    const when = { planned_at: draft.planned_at ? draft.planned_at.slice(0, 10) : null, scheduled_post_at: scheduledAt };
     const payload = isLocked
-      ? { link: externalUrl(draft.link), notes: draft.notes.trim() || null }
+      ? { link: externalUrl(draft.link), notes: draft.notes.trim() || null, ...when }
       : {
           title: draft.title.trim(),
           ...decodeOwner(draft.owner),
           content_type: draft.content_type,
           link: externalUrl(draft.link),
           notes: draft.notes.trim() || null,
+          ...when,
         };
 
-    const { error } = await supabase.from("content_items").update(payload).eq("id", editing!.id);
+    const { error } = await supabase.from("content_items").update(payload as never).eq("id", editing!.id);
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Updated.");
@@ -1406,6 +1411,16 @@ export default function ContentPipeline() {
                 onChange={(e) => setDraft({ ...draft, link: e.target.value })}
                 placeholder="Paste a link here"
               />
+            </label>
+            <label className="text-sm">
+              <span className="eyebrow text-ink-faint">Scheduled to post (Kampala time)</span>
+              <input
+                type="datetime-local"
+                className={field}
+                value={draft.planned_at}
+                onChange={(e) => setDraft({ ...draft, planned_at: e.target.value })}
+              />
+              <span className="mt-1 block text-[11px] text-ink-faint">The client sees this date in their portal.</span>
             </label>
 
             <label className="text-sm sm:col-span-2">

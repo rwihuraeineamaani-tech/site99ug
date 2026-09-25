@@ -11,6 +11,8 @@ import { PortalClient } from "@/hooks/usePortalClient";
 const TABS = [
   { to: "/portal", label: "Overview", end: true },
   { to: "/portal/work", label: "Your work" },
+  { to: "/portal/calendar", label: "Calendar" },
+  { to: "/portal/strategy", label: "Strategy" },
   { to: "/portal/shoots", label: "Shoot days" },
   { to: "/portal/money", label: "Money" },
   { to: "/portal/documents", label: "Documents" },
