@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_change_history: {
+        Row: {
+          actor_id: string | null
+          after_roles: Database["public"]["Enums"]["app_role"][]
+          before_roles: Database["public"]["Enums"]["app_role"][]
+          created_at: string
+          id: string
+          reason: string
+          target_user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          after_roles?: Database["public"]["Enums"]["app_role"][]
+          before_roles?: Database["public"]["Enums"]["app_role"][]
+          created_at?: string
+          id?: string
+          reason: string
+          target_user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          after_roles?: Database["public"]["Enums"]["app_role"][]
+          before_roles?: Database["public"]["Enums"]["app_role"][]
+          created_at?: string
+          id?: string
+          reason?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       access_requests: {
         Row: {
           brand: string
