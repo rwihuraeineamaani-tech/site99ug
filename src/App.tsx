@@ -79,6 +79,8 @@ import ApprovalsPage from "./pages/app/Approvals.tsx";
 import ChatPage from "./pages/app/Chat.tsx";
 import TodoPage from "./pages/app/Todo.tsx";
 import WorkPage from "./pages/app/Work.tsx";
+import KpiPage from "./pages/app/Kpi.tsx";
+import KpiDesk from "./pages/app/KpiDesk.tsx";
 import LeadershipTaskPage from "./pages/app/LeadershipTask.tsx";
 import BriefsPage from "./pages/app/Briefs.tsx";
 import BriefDetailPage from "./pages/app/BriefDetail.tsx";
@@ -172,6 +174,8 @@ const AnimatedRoutes = () => {
           element={<Navigate to="/app/chat" replace />}
         />
         <Route path="/app/todo" element={<RequireRole gate="staff"><TodoPage /></RequireRole>} />
+        <Route path="/app/kpi" element={<RequireRole gate="staff"><KpiPage /></RequireRole>} />
+        <Route path="/app/kpi/desk" element={<RequireRole gate="staff"><KpiDesk /></RequireRole>} />
         <Route path="/app/work" element={<RequireRole gate="staff"><WorkPage /></RequireRole>} />
         <Route path="/app/todo/:id" element={<RequireRole gate="staff"><LeadershipTaskPage /></RequireRole>} />
         <Route path="/app/chat" element={<RequireRole gate="staff"><ChatPage /></RequireRole>} />

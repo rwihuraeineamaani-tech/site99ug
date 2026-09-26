@@ -113,6 +113,8 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app", label: "Dashboard", end: true, icon: LayoutDashboard },
           { to: "/app/todo", label: "To-Do", icon: ListChecks, badge: todoItems.length },
           ...(canAssignWork ? [{ to: "/app/work", label: "Work", icon: ClipboardList } as ShellNavItem] : []),
+          { to: "/app/kpi", label: "My KPI", icon: Gauge, end: true },
+          ...(has("founder", "managing_director", "operations_manager", "hr", "finance_ops") ? [{ to: "/app/kpi/desk", label: "KPI desk", icon: Gauge } as ShellNavItem] : []),
           { to: "/app/chat", label: "Chat", icon: MessageCircle, badge: chatUnread },
           { to: "/app/briefs", label: "Briefs", icon: FileText, badge: communicationUnread.briefs },
           { to: "/app/announcements", label: "Announcements", icon: Megaphone, badge: communicationUnread.announcements },
