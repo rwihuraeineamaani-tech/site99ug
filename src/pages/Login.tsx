@@ -3,23 +3,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Seo from "@/components/Seo";
 import { toast } from "sonner";
+import { TEAM_ROLES } from "@/hooks/useMyRoles";
 
 type Mode = "signin" | "forgot" | "signup";
 
-const STAFF_ROLES = [
-  "admin",
-  "founder",
-  "creative_director",
-  "managing_director",
-  "sales_head",
-  "finance_ops",
-  "creative",
-  "legal",
-  "event_manager",
-  "scanner",
-  "viewer",
-  "site_editor",
-];
+const STAFF_ROLES: string[] = [...TEAM_ROLES];
 
 export default function Login() {
   const navigate = useNavigate();
