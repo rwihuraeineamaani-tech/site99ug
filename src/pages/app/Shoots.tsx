@@ -912,6 +912,30 @@ export default function Shoots() {
           )}
         </DialogContent>
       </Dialog>
+      <Dialog open={shotOpen} onOpenChange={setShotOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add an idea we shot today</DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-ink-soft">For ideas that came up on the day. It goes straight to editing and is tagged "Added on the shoot day".</p>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Title</span>
+            <input className={field} value={shot.title} onChange={(e) => setShot({ ...shot, title: e.target.value })} /></label>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Type</span>
+            <select className={field} value={shot.type} onChange={(e) => setShot({ ...shot, type: e.target.value })}>
+              {["Vertical short-form video", "Long-form video", "Carousel", "Poster", "Photo set", "Campaign", "Strategy"].map((t) => <option key={t}>{t}</option>)}
+            </select></label>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Notes</span>
+            <textarea rows={2} className={field} value={shot.notes} onChange={(e) => setShot({ ...shot, notes: e.target.value })} /></label>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Footage link (optional)</span>
+            <input className={field} value={shot.link} onChange={(e) => setShot({ ...shot, link: e.target.value })} /></label>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Editor (optional)</span>
+            <select className={field} value={shot.editor} onChange={(e) => setShot({ ...shot, editor: e.target.value })}>
+              <option value="">Decide later</option>
+              {members.map((m) => <option key={m.user_id} value={m.user_id}>{m.display_name || m.email}</option>)}
+            </select></label>
+          <Button disabled={busy || !shot.title.trim()} onClick={addShot}>Add and send to editing</Button>
+        </DialogContent>
+      </Dialog>
       <Dialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
