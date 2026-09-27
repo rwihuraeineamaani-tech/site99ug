@@ -88,7 +88,12 @@ export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: ty
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
-  const { isStaff, isClient, talentId, departments, canScan, isLeadership, canSeeFinance, canAssignWork, has } = useMyRoles();
+  const { isStaff, isClient, talentId, departments, canScan, isLeadership, canSeeFinance, canAssignWork, has, userId: peopleUid } = useMyRoles();
+  const [canPeople, setCanPeople] = useState(false);
+  useEffect(() => {
+    if (!peopleUid || !isStaff) return;
+    supabase.rpc("can_view_people" as never, { _u: peopleUid } as never).then(({ data }) => setCanPeople(Boolean(data)));
+  }, [peopleUid, isStaff]);
   const strategyWaiting = useStrategyWaiting(isLeadership);
   const approvalsWaiting = useApprovalsWaiting();
   const { items: todoItems } = useTodo();
@@ -234,6 +239,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       ]
     : [];
   if (ops.length) groups.push({ label: "Management", items: ops });
+  else if (canPeople) groups.push({ label: "People", items: [{ to: "/app/ops/people", label: "People", icon: Users }] });
 
   const winding: ShellNavItem[] = [];
   if (departments.events) winding.push({ to: "/app/events", label: "Events", icon: CalendarDays });
