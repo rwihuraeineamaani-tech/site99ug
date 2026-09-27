@@ -13,11 +13,18 @@ export type Step = { id: string; resident_id: string; step_key: string; title: s
 type Member = { user_id: string; display_name: string | null; email: string };
 
 const LINKS: Record<string, (id: string) => string> = {
+  welcome: (id) => `/app/residents/${id}`,
+  details: (id) => `/app/residents/${id}`,
   legal: () => "/app/legal/contracts",
   brand: (id) => `/app/residents/${id}`,
+  socials: (id) => `/app/residents/${id}`,
+  handler: (id) => `/app/residents/${id}`,
   strategy: () => "/app/strategy",
   content_plan: () => "/app/content",
+  shoot: () => "/app/shoots",
+  billing: () => "/app/finance/invoices",
   first_invoice: () => "/app/finance/invoices",
+  targets: (id) => `/app/residents/${id}`,
 };
 const done = (s: Step) => s.status === "complete" || s.status === "not_needed";
 const today = () => new Date().toISOString().slice(0, 10);
