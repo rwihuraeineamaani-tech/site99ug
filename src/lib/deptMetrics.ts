@@ -1,3 +1,4 @@
+import { completeness } from "@/lib/staffProfile";
 import { supabase } from "@/integrations/supabase/client";
 import type { StaffRole } from "@/hooks/useMyRoles";
 
@@ -345,11 +346,28 @@ async function talent(): Promise<DeptBoard> {
 
 async function people(): Promise<DeptBoard> {
   const month = iso(new Date()).slice(0, 7);
-  const [tm, kt, lt] = await Promise.all([
+  const [tm, kt, lt, sp, sv, se, sdoc] = await Promise.all([
     rows(supabase.from("team_members").select("user_id, display_name, email")),
     rows(supabase.from("kpi_targets").select("user_id, month, target_value, manual_actual")),
     rows(supabase.from("leadership_tasks").select("status, due_at")),
+    rows(supabase.from("staff_profiles" as never).select("*")),
+    rows(supabase.from("staff_private" as never).select("*")),
+    rows(supabase.from("staff_employment" as never).select("user_id, contract_end, probation_end")),
+    rows(supabase.from("staff_documents" as never).select("user_id, kind")),
   ]);
+  const fileBands = [{ band: "0–49%", people: 0 }, { band: "50–79%", people: 0 }, { band: "80–99%", people: 0 }, { band: "Complete", people: 0 }];
+  for (const m of tm) {
+    const c = completeness(sp.find((x) => x.user_id === m.user_id) ?? null, sv.find((x) => x.user_id === m.user_id) ?? null, sdoc.filter((d) => d.user_id === m.user_id)).pct;
+    fileBands[c >= 100 ? 3 : c >= 80 ? 2 : c >= 50 ? 1 : 0].people++;
+  }
+  const todayIso = iso(new Date());
+  const in90 = iso(new Date(Date.now() + 90 * 864e5));
+  const expiring = [
+    { what: "Work permits", count: sv.filter((x) => x.permit_expiry && x.permit_expiry >= todayIso && x.permit_expiry <= in90).length },
+    { what: "Passports", count: sv.filter((x) => x.passport_expiry && x.passport_expiry >= todayIso && x.passport_expiry <= in90).length },
+    { what: "Contracts", count: se.filter((x) => x.contract_end && x.contract_end >= todayIso && x.contract_end <= in90).length },
+    { what: "Probation", count: se.filter((x) => x.probation_end && x.probation_end >= todayIso && x.probation_end <= in90).length },
+  ];
   const names = new Map(tm.map((t) => [t.user_id, t.display_name || (t.email ?? "").split("@")[0]]));
   const mine = kt.filter((k) => (k.month ?? "").slice(0, 7) === month);
   const per = new Map<string, { person: string; targets: number; hit: number }>();
@@ -367,6 +385,10 @@ async function people(): Promise<DeptBoard> {
         explain: { what: "Each person's monthly targets and how many they have already hit.", how: "Targets from the KPI desk; 'hit' when the recorded result reaches the target.", good: "Bars closing up by month end. Hit = 30% bonus, miss = −30%." } },
       { title: "Assigned work by status", kind: "bar", xKey: "status", series: [{ key: "tasks", label: "Tasks" }], data: taskStat, to: "/app/work",
         explain: { what: "Leadership-assigned tasks across the team.", how: "Current status of every assigned task.", good: "'Submitted' tasks reviewed quickly so they move to 'accepted'." } },
+      { title: "Staff files — how complete", kind: "bar", xKey: "band", series: [{ key: "people", label: "People" }], data: fileBands, to: "/app/ops/people",
+        explain: { what: "How much of each person's staff file is filled in.", how: "Required personal, ID (NIN for Ugandans, passport and work permit for foreigners), next of kin and education fields, plus required documents.", good: "Everyone in 'Complete'. Chase anyone under 50%." } },
+      { title: "Ending in the next 90 days", kind: "bar", xKey: "what", series: [{ key: "count", label: "People" }], data: expiring, to: "/app/ops/people",
+        explain: { what: "Work permits, passports, contracts and probation periods ending soon.", how: "Dates from staff files; HR and the MD also get alerts at 60, 30 and 7 days.", good: "Zero work permits here without a renewal already started." } },
     ],
   };
 }
