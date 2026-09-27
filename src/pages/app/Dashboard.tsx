@@ -88,14 +88,14 @@ export default function Dashboard() {
         supabase.rpc("resident_options"),
         supabase.from("content_crew").select("content_id, role").eq("user_id", userId),
         supabase.rpc("my_pending_account_weeks"),
-        supabase.rpc("my_retainer_shares"),
+        supabase.from("client_assignments").select("residents(name)").eq("user_id", userId),
       ]);
       if (cancelled) return;
       setFlow((rows as unknown as FlowRow[]) ?? []);
       setResLinks((rs as unknown as ResidentLink[]) ?? []);
       setMyCrew((cw as { content_id: string; role: string }[]) ?? []);
       setPendingWeeks((weeks as unknown as PendingWeek[]) ?? []);
-      setMyShares((shares as unknown as { resident_name: string; kind: string; computed_ugx: number }[]) ?? []);
+      setMyShares(((shares as unknown as { residents: { name: string } | null }[]) ?? []).map((r) => ({ resident_name: r.residents?.name ?? "Client", kind: "Handler", computed_ugx: 0 })));
     })();
     return () => {
       cancelled = true;
@@ -162,7 +162,6 @@ export default function Dashboard() {
   }, [shootPrompts, flow, todoItems]);
 
   const titles = title ? [title] : [];
-  const shareTotal = myShares.reduce((s, r) => s + Number(r.computed_ugx ?? 0), 0);
 
   /* ---- KPI performance: last 30 days against the 30 before ---- */
   const windows = useMemo(() => kpiWindows(), []);
@@ -292,8 +291,8 @@ export default function Dashboard() {
           { label: "To-Do", value: todoItems.length, tone: todoItems.length ? "signal" : "quiet", to: "/app/todo" },
           { label: "Work with you", value: onMyPlate.length, to: "/app/content" },
           { label: "Content in progress", value: live.length, to: "/app/content" },
-          canSeeFinance || myShares.length
-            ? { label: "Your earnings this month", value: `UGX ${shareTotal.toLocaleString()}` }
+          myShares.length
+            ? { label: "Clients you handle", value: myShares.length, to: "/app/kpi" }
             : { label: "Clients", value: clients ?? "—", to: "/app/residents" },
         ]}
       />
@@ -500,13 +499,13 @@ export default function Dashboard() {
 
           if (key === "share")
             return myShares.length > 0 ? (
-              <DeckPanel key="share" index={index} title="Your retainer share" hint="This month, your line only">
+              <DeckPanel key="share" index={index} title="Clients you handle" hint="Your pay is on My KPI">
                 <DeckList>
                   {myShares.map((s) => (
                     <li key={`${s.resident_name}-${s.kind}`} className="px-4 py-3 flex items-center gap-3">
                       <span className="text-sm font-semibold">{s.resident_name}</span>
                       <span className="eyebrow text-ink-faint">{s.kind}</span>
-                      <span className="num ml-auto text-sm">UGX {(s.computed_ugx ?? 0).toLocaleString()}</span>
+                      
                     </li>
                   ))}
                 </DeckList>

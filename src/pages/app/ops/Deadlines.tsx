@@ -14,12 +14,27 @@ export default function Deadlines() {
 
   useEffect(() => {
     (async () => {
-      const [content, days, contracts, compliance] = await Promise.all([
+      const [content, days, legacy, compliance, rc, res] = await Promise.all([
         supabase.from("content_items").select("id, ref_no, title, stage, shoot_at, metrics_due_at, metrics_filled_at"),
         supabase.from("shoot_days").select("id, shoot_date, status, location"),
         supabase.from("contracts").select("id, title, party_name, ends_on, status"),
         supabase.from("compliance_items").select("id, name, renews_on, status"),
+        supabase.from("resident_contracts").select("id, title, ends_on, status, resident_id"),
+        supabase.from("residents").select("id, name"),
       ]);
+      const resNames = new Map(((res.data as { id: string; name: string }[]) ?? []).map((r) => [r.id, r.name]));
+      const contracts = {
+        data: [
+          ...((legacy.data as { id: string; title: string; party_name: string | null; ends_on: string | null; status: string }[]) ?? []),
+          ...(((rc.data as { id: string; title: string; ends_on: string | null; status: string; resident_id: string }[]) ?? []).map((r) => ({
+            id: r.id,
+            title: r.title,
+            party_name: resNames.get(r.resident_id) ?? "Client",
+            ends_on: r.ends_on,
+            status: r.status === "renewal_due" ? "active" : r.status,
+          }))),
+        ],
+      };
 
       const out: Row[] = [];
       for (const c of (content.data ?? []) as {

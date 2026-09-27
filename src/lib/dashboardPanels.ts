@@ -51,7 +51,7 @@ export const PANELS: PanelSpec[] = [
   { key: "kpi", title: "How you are doing", hint: "Last 30 days against the 30 before", width: "column", roles: [] },
   { key: "weekgrid", title: "Your week", hint: "Seven-day calendar strip", width: "full", roles: [] },
   { key: "numbers", title: "Weekly numbers to fill", hint: "Client accounts waiting on figures", width: "full", roles: [] },
-  { key: "share", title: "Your retainer share", hint: "This month, your line only", width: "full", roles: [] },
+  { key: "share", title: "Clients you handle", hint: "Your pay is on My KPI", width: "full", roles: [] },
   {
     key: "assigned_work",
     title: "Work I assigned",

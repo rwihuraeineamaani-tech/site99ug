@@ -88,10 +88,9 @@ export default function Invoices() {
   const [settle, setSettle] = useState<{ inv: Invoice; wallet: string; amount: string; reference: string; note: string } | null>(null);
 
   const load = useCallback(async () => {
-    const [inv, ln, ct, rs, wl, rc] = await Promise.all([
+    const [inv, ln, rs, wl, rc] = await Promise.all([
       supabase.from("invoices").select("*").order("issue_date", { ascending: false }),
       supabase.from("invoice_lines").select("*").order("sort"),
-      supabase.from("contracts").select("id, title, party_name, resident_id, value_ugx, status"),
       supabase.from("residents").select("id, name").order("display_order"),
       supabase.from("wallets").select("id, name, active, sort").eq("active", true).order("sort"),
       supabase.from("resident_contracts").select("id, title, resident_id, value_ugx, status"),
@@ -104,14 +103,14 @@ export default function Invoices() {
     setLines(map);
     const resList = (rs.data as { id: string; name: string }[]) ?? [];
     const names = new Map(resList.map((r) => [r.id, r.name]));
-    setContracts([
-      ...(((rc.data as Omit<Contract, "key" | "party_name">[]) ?? []).map((c) => ({
+    // Client contracts are the only contracts invoices link to.
+    setContracts(
+      ((rc.data as Omit<Contract, "key" | "party_name">[]) ?? []).map((c) => ({
         ...c,
         key: `rc:${c.id}`,
         party_name: names.get(c.resident_id ?? "") ?? "Client",
-      }))),
-      ...(((ct.data as Omit<Contract, "key">[]) ?? []).map((c) => ({ ...c, key: `c:${c.id}` }))),
-    ]);
+      }))
+    );
     setResidents(resList);
     setWallets((wl.data as Wallet[]) ?? []);
   }, []);
