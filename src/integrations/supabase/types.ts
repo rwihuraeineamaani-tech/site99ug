@@ -1439,6 +1439,85 @@ export type Database = {
           },
         ]
       }
+      client_feedback: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          note: string | null
+          rating: number
+          resident_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          note?: string | null
+          rating?: number
+          resident_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          note?: string | null
+          rating?: number
+          resident_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_feedback_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_followups: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          created_by: string | null
+          done_at: string | null
+          due_date: string | null
+          id: string
+          resident_id: string
+          title: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          resident_id: string
+          title: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          resident_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_followups_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_funds: {
         Row: {
           added_by: string | null
@@ -1575,6 +1654,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "client_goals_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_interactions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          happened_at: string
+          id: string
+          kind: string
+          resident_id: string
+          summary: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          happened_at?: string
+          id?: string
+          kind?: string
+          resident_id: string
+          summary: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          happened_at?: string
+          id?: string
+          kind?: string
+          resident_id?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_interactions_resident_id_fkey"
             columns: ["resident_id"]
             isOneToOne: false
             referencedRelation: "residents"
@@ -4031,6 +4148,7 @@ export type Database = {
       }
       residents: {
         Row: {
+          archived_at: string | null
           avatar_url: string | null
           billing_address: string | null
           billing_email: string | null
@@ -4063,6 +4181,7 @@ export type Database = {
           visible: boolean
         }
         Insert: {
+          archived_at?: string | null
           avatar_url?: string | null
           billing_address?: string | null
           billing_email?: string | null
@@ -4095,6 +4214,7 @@ export type Database = {
           visible?: boolean
         }
         Update: {
+          archived_at?: string | null
           avatar_url?: string | null
           billing_address?: string | null
           billing_email?: string | null
@@ -5517,6 +5637,10 @@ export type Database = {
         Args: { _line_ids?: string[]; _run_id: string }
         Returns: undefined
       }
+      archive_resident: {
+        Args: { _archive: boolean; _id: string }
+        Returns: undefined
+      }
       availability_conflicts: {
         Args: {
           _from_time?: string
@@ -5677,6 +5801,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      delete_resident: { Args: { _id: string }; Returns: undefined }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
