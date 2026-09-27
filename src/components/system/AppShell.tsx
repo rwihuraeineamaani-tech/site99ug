@@ -1,5 +1,5 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
+import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -36,6 +36,10 @@ import {
   Network,
   Activity,
   ClipboardList,
+  HeartHandshake,
+  PhoneCall,
+  RefreshCw,
+  Star,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -160,6 +164,17 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
     : [];
   if (legal.length) groups.push({ label: "Legal", items: legal });
 
+  if (departments.relations) groups.push({
+    label: "Client Relations",
+    items: [
+      { to: "/app/relations", label: "Overview", end: true, icon: HeartHandshake },
+      { to: "/app/relations/log", label: "Contact log", icon: PhoneCall },
+      { to: "/app/relations/followups", label: "Follow-ups", icon: ListChecks },
+      { to: "/app/relations/renewals", label: "Renewals", icon: RefreshCw },
+      { to: "/app/relations/feedback", label: "Feedback", icon: Star },
+    ],
+  });
+
   if (has("admin", "founder", "managing_director", "strategist", "creative_director", "sales_head")) groups.push({
     label: "Strategy",
     items: [
@@ -251,8 +266,7 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
                         <NavLink
                           to={item.to}
                           end={item.end}
-                          onClick={() => isMobile && setOpenMobile(false)}
-                          className={cn(
+                                                    className={cn(
                             "group relative flex min-h-11 items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring md:min-h-0",
                             active
                               ? "bg-acc-violet-soft text-acc-violet"
@@ -294,6 +308,20 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
   );
 }
 
+const ShellCtx = createContext<((eyebrow: string) => void) | null>(null);
+
+/** Stays mounted across every /app page so the menu never rebuilds or jumps. */
+export function AppLayout() {
+  const [eyebrow, setEyebrow] = useState("Operating system");
+  return (
+    <ShellCtx.Provider value={setEyebrow}>
+      <ShellFrame eyebrow={eyebrow}>
+        <Outlet />
+      </ShellFrame>
+    </ShellCtx.Provider>
+  );
+}
+
 export function AppShell({
   children,
   eyebrow = "Operating system",
@@ -301,6 +329,23 @@ export function AppShell({
 }: {
   children: ReactNode;
   eyebrow?: string;
+  nav?: ShellNavItem[];
+}) {
+  const setEyebrow = useContext(ShellCtx);
+  useEffect(() => {
+    setEyebrow?.(eyebrow);
+  }, [setEyebrow, eyebrow]);
+  if (setEyebrow) return <>{children}</>;
+  return <ShellFrame eyebrow={eyebrow} nav={nav}>{children}</ShellFrame>;
+}
+
+function ShellFrame({
+  children,
+  eyebrow,
+  nav,
+}: {
+  children: ReactNode;
+  eyebrow: string;
   nav?: ShellNavItem[];
 }) {
   const navigate = useNavigate();
