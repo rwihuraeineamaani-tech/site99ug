@@ -169,8 +169,9 @@ function PersonEditor({ p, month, settings, residents, locked, userId, onSaved }
     <div className="grid gap-2">
       <div className="eyebrow text-ink-faint">Client contract bonuses</div>
       {p.contractBonuses.map((b) => <div key={b.id} className="flex items-center justify-between gap-2 text-sm">
-        <span>{b.kind === "end" ? "Contract targets" : "Renewal"} · {b.percent}% of {ugx(b.contract_value_ugx)}</span>
+        <span>{b.kind === "end" ? "Contract targets" : "Renewal"} · {b.percent}% of {ugx(b.contract_value_ugx)}{b.status === "pending" && <span className="ml-2 text-[11px] text-acc-amber">Automatic · waiting for confirmation</span>}</span>
         <span className="flex items-center gap-2"><span className="num">{ugx(b.amount_ugx)}</span>
+          {!locked && b.status === "pending" && <Button size="sm" onClick={async () => { const { error } = await t("kpi_contract_bonuses").update({ status: "confirmed", confirmed_by: userId }).eq("id", b.id); done(error, "Bonus confirmed."); }}>Confirm</Button>}
           {!locked && <Button size="sm" variant="ghost" onClick={async () => { const { error } = await t("kpi_contract_bonuses").delete().eq("id", b.id); done(error, "Removed."); }}>Remove</Button>}</span>
       </div>)}
       {!locked && <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">

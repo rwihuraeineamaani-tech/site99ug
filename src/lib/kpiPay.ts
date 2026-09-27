@@ -96,6 +96,8 @@ export type ContractBonus = {
   amount_ugx: number;
   month: string;
   note: string | null;
+  /** Automatic bonuses start as "pending" until management confirms them on the KPI desk. */
+  status?: "pending" | "confirmed";
 };
 export type Member = { user_id: string; display_name: string | null; email: string | null; title: string | null };
 
@@ -212,9 +214,11 @@ export function computePerson(input: {
       lines.push({ label: `Targets missed (-${settings.miss_penalty_pct}%)`, amount: -pct(settings.miss_penalty_pct) });
     }
   }
-  contractBonuses.forEach((c) =>
-    lines.push({ label: c.kind === "end" ? `Contract targets bonus (${c.percent}%)` : `Renewal bonus (+${c.percent}%)`, amount: c.amount_ugx })
-  );
+  contractBonuses
+    .filter((c) => c.status !== "pending")
+    .forEach((c) =>
+      lines.push({ label: c.kind === "end" ? `Contract targets bonus (${c.percent}%)` : `Renewal bonus (+${c.percent}%)`, amount: c.amount_ugx })
+    );
 
   const expected = lines.reduce((s, l) => s + l.amount, 0);
   const possible = base + allow + pct(settings.hit_bonus_pct) + headExtra + contract;
