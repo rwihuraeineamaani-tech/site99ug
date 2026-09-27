@@ -81,7 +81,7 @@ export default function SopsPage() {
               <button key={s.id} onClick={() => setOpen(s.id)} className="rounded-xl border border-rule bg-paper-raised p-5 text-left hover:border-signal/50 focus-ring">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <span className="eyebrow text-[10px] text-ink-faint">{deptLabel(s.department)}</span>
-                  {s.status !== "published" && <StatusChip tone={s.status === "draft" ? "warn" : "neutral"}>{s.status}</StatusChip>}
+                  {s.status !== "published" && <StatusChip tone={s.status === "draft" ? "warn" : "neutral"} value={s.status} />}
                   {s.status === "published" && (iRead(s) ? <span className="text-[11px] text-acc-lime">read v{s.version}</span> : <span className="text-[11px] text-signal">not read yet</span>)}
                 </div>
                 <div className="font-semibold">{s.title}</div>
@@ -148,7 +148,7 @@ function SopView({ sop, read, canEdit, canSeeReads, reads, onBack, onEdit, onCha
       <button onClick={onBack} className="mb-4 text-sm text-ink-soft hover:text-signal">← All procedures</button>
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="eyebrow text-[10px] text-signal">{deptLabel(sop.department)}</span>
-        <StatusChip tone={sop.status === "published" ? "done" : sop.status === "draft" ? "warn" : "neutral"}>{sop.status}{sop.version ? ` · v${sop.version}` : ""}</StatusChip>
+        <StatusChip tone={sop.status === "published" ? "done" : sop.status === "draft" ? "warn" : "neutral"} value={`${sop.status}${sop.version ? ` · v${sop.version}` : ""}`} />
       </div>
       <h2 className="display text-2xl md:text-4xl">{sop.title}</h2>
       {sop.summary && <p className="mt-2 text-ink-soft">{sop.summary}</p>}
