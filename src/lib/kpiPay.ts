@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
  * ------------------------------------------------------------------ */
 
 export type Weights = Record<ComponentKey, number>;
-export type ComponentKey = "work_done" | "work_missed" | "todo_done" | "content" | "numbers" | "approvals";
+export type ComponentKey = "work_done" | "work_missed" | "todo_done" | "content" | "numbers" | "approvals" | "attendance";
 
 export type KpiSettings = {
   hit_bonus_pct: number;
@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: KpiSettings = {
   miss_penalty_pct: 30,
   contract_end_pct: 10,
   renewal_pct: 5,
-  weights: { work_done: 30, work_missed: 15, todo_done: 10, content: 20, numbers: 15, approvals: 10 },
+  weights: { work_done: 30, work_missed: 15, todo_done: 10, content: 20, numbers: 15, approvals: 10, attendance: 5 },
 };
 
 export const COMPONENTS: { key: ComponentKey; label: string; negative?: boolean; meaning: string; improve: string }[] = [
@@ -64,6 +64,13 @@ export const COMPONENTS: { key: ComponentKey; label: string; negative?: boolean;
     improve: "Check Approvals daily and decide before the deadline.",
   },
 ];
+
+COMPONENTS.push({
+  key: "attendance",
+  label: "Clocked in on time",
+  meaning: "Working days you clocked in before the MD's cut-off time. Excused days and shoot days you were crewed on don't count against you.",
+  improve: "Press Clock in on your dashboard when you arrive, before the cut-off.",
+});
 
 export const TARGET_METRICS: { key: string; label: string; unit?: string }[] = [
   { key: "posted", label: "Content posted" },
@@ -113,6 +120,8 @@ export type Activity = {
   numbersExpected: number;
   approvalsTotal: number;
   approvalsOnTime: number;
+  attendanceOnTime: number;
+  attendanceRequired: number;
 };
 
 export type PersonKpi = {
@@ -169,6 +178,7 @@ export function computePerson(input: {
     content: contentValue,
     numbers: ratio(a.numbersFilled, a.numbersExpected),
     approvals: ratio(a.approvalsOnTime, a.approvalsTotal),
+    attendance: ratio(a.attendanceOnTime, a.attendanceRequired),
   };
 
   const parts = COMPONENTS.map((c) => ({ key: c.key, label: c.label, value: values[c.key], weight: Number(w[c.key] ?? 0), negative: c.negative }));
@@ -228,7 +238,7 @@ export function computePerson(input: {
 
 const emptyActivity = (): Activity => ({
   workTotal: 0, workDone: 0, workLate: 0, submitted: 0, submittedOnTime: 0,
-  posted: 0, shoots: 0, numbersFilled: 0, numbersExpected: 0, approvalsTotal: 0, approvalsOnTime: 0,
+  posted: 0, shoots: 0, numbersFilled: 0, numbersExpected: 0, approvalsTotal: 0, approvalsOnTime: 0, attendanceOnTime: 0, attendanceRequired: 0,
 });
 
 export async function loadSettings(): Promise<KpiSettings> {
@@ -251,8 +261,8 @@ export async function loadKpiMonth(month: string, onlyUser?: string) {
   const q = <T,>(p: PromiseLike<{ data: unknown }>) => Promise.resolve(p).then((r) => (r.data as T[]) ?? []);
   const t = (name: string) => supabase.from(name as never);
 
-  const [settings, members, pays, targets, allowances, bonuses, tasks, assignees, content, crew, shoots, shootItems, metrics, assigns, accounts, approvals] =
-    await Promise.all([
+  const [[settings, members, pays, targets, allowances, bonuses, tasks, assignees, content, crew, shoots, shootItems, metrics, assigns, accounts, approvals], attSettings, attRecords] =
+    await Promise.all([Promise.all([
       loadSettings(),
       q<Member>(supabase.from("team_members").select("user_id, display_name, email, title")),
       q<StaffPay>(t("staff_pay").select("*")),
@@ -277,6 +287,9 @@ export async function loadKpiMonth(month: string, onlyUser?: string) {
       q<{ assigned_user_id: string | null; status: string; due_at: string | null; acted_at: string | null; acted_by: string | null }>(
         supabase.from("approval_tasks").select("assigned_user_id,status,due_at,acted_at,acted_by").gte("created_at", from).lte("created_at", to)
       ),
+    ] as const),
+    t("attendance_settings").select("*").maybeSingle().then((r) => r.data as unknown as AttSettings | null),
+    q<{ user_id: string; day: string; status: string }>(t("attendance_records").select("user_id,day,status").gte("day", month).lte("day", end)),
     ]);
 
   // Weeks in the month so far (Mondays up to today / month end).
@@ -319,6 +332,22 @@ export async function loadKpiMonth(month: string, onlyUser?: string) {
       if (x.acted_at && (!x.due_at || x.acted_at <= x.due_at)) a.approvalsOnTime++;
     });
 
+    if (attSettings?.enabled && !attSettings.exempt_user_ids?.includes(uid)) {
+      const shootDates = new Set(doneShoots.filter((s) => myDays.has(s.id) && s.shoot_date).map((s) => s.shoot_date as string));
+      const recs = new Map(attRecords.filter((r) => r.user_id === uid).map((r) => [r.day, r.status]));
+      const c = new Date(`${month}T00:00:00Z`);
+      while (c.toISOString().slice(0, 10) <= stop) {
+        const d = c.toISOString().slice(0, 10);
+        c.setUTCDate(c.getUTCDate() + 1);
+        if (!attSettings.work_days.includes(new Date(`${d}T00:00:00Z`).getUTCDay())) continue;
+        const st = recs.get(d);
+        if (st === "excused") continue;
+        if (d === today && !st) continue;
+        a.attendanceRequired++;
+        if (st === "on_time" || (st === "late" && !attSettings.enforce_cutoff) || shootDates.has(d)) a.attendanceOnTime++;
+      }
+    }
+
     return computePerson({
       member,
       pay: pays.find((p) => p.user_id === uid) ?? null,
@@ -332,5 +361,7 @@ export async function loadKpiMonth(month: string, onlyUser?: string) {
 
   return { settings, people: result, members, targets, assigns };
 }
+
+type AttSettings = { enabled: boolean; enforce_cutoff: boolean; work_days: number[]; exempt_user_ids: string[] };
 
 export const ugx = (n: number) => `UGX ${Math.round(n).toLocaleString()}`;

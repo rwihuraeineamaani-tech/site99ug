@@ -1,6 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
+  Clock,
   LayoutDashboard,
   CalendarDays,
   ScanLine,
@@ -226,6 +227,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/ops/people", label: "People", icon: Users },
         { to: "/app/ops/workload", label: "Workload", icon: Gauge },
         { to: "/app/ops/deadlines", label: "Deadlines", icon: CalendarClock },
+        { to: "/app/ops/attendance", label: "Clock-in", icon: Clock },
         { to: "/app/ops/report", label: "Weekly report", icon: FileText },
         { to: "/app/ops/announcements", label: "Announcements", icon: Megaphone },
         { to: "/app/equipment", label: "Equipment", icon: Package }, { to: "/app/sops?dept=ops", label: "SOPs", icon: BookMarked }

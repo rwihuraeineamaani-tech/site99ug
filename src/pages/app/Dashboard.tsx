@@ -25,6 +25,7 @@ import { loadDashboardLayout, defaultLayoutFor, type PanelItem, type PanelKey } 
 import { AssignedWorkPanel, SignOffPanel, TeamLoadPanel, useAssignedWork } from "@/components/dashboard/LeadershipPanels";
 import { RolePanel } from "@/components/dashboard/RolePanels";
 import DeptDashboard from "@/components/dashboard/DeptDashboard";
+import ClockInCard from "@/components/dashboard/ClockInCard";
 import { deptFor } from "@/lib/deptMetrics";
 
 type PendingWeek = {
@@ -290,6 +291,7 @@ export default function Dashboard() {
         }
       />
 
+      <ClockInCard userId={userId} />
       <DeptDashboard dept={deptFor(viewRole, positions)} userId={userId} canSeeFinance={canSeeFinance} />
 
       {(() => {

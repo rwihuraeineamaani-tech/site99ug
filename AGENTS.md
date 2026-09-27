@@ -10,3 +10,5 @@
 - SOPs live in `sops` (+ `sop_versions`, `sop_reads`); only System Admin/Founders write them (RLS), and `publish_sop` snapshots each published version so staff re-confirm reading.
 - Sidebar sections are collapsible via shadcn Collapsible in ShellSidebar; open state persists in sessionStorage (`site99:sidebar-groups`), the section containing the current page is always open, and per-user menu density lives on `team_members.nav_density`.
 - Each department has its own dashboard board (`deptFor` in `src/lib/deptMetrics.ts` → `DeptDashboard`), chosen by position/focus, so Finance, Sales, Founders etc. never share one generic layout; every chart carries a plain-English explanation.
+
+- Clock-in lives in `attendance_settings` (single row, MD/System Admin edit) + `attendance_records`; staff only write through `clock_in`/`clock_out` RPCs that compute lateness in Kampala time server-side, and it feeds the KPI as the low-weight `attendance` component — so times can't be faked.
