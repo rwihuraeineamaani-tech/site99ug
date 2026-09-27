@@ -5470,6 +5470,108 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_documents: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          file_path: string
+          id: string
+          kind: string
+          uploaded_by: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          file_path: string
+          id?: string
+          kind: string
+          uploaded_by?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          file_path?: string
+          id?: string
+          kind?: string
+          uploaded_by?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      staff_employment: {
+        Row: {
+          contract_end: string | null
+          contract_type: string | null
+          created_at: string
+          department: string | null
+          notice_days: number | null
+          probation_end: string | null
+          reports_to: string | null
+          start_date: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          work_location: string | null
+        }
+        Insert: {
+          contract_end?: string | null
+          contract_type?: string | null
+          created_at?: string
+          department?: string | null
+          notice_days?: number | null
+          probation_end?: string | null
+          reports_to?: string | null
+          start_date?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+          work_location?: string | null
+        }
+        Update: {
+          contract_end?: string | null
+          contract_type?: string | null
+          created_at?: string
+          department?: string | null
+          notice_days?: number | null
+          probation_end?: string | null
+          reports_to?: string | null
+          start_date?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+          work_location?: string | null
+        }
+        Relationships: []
+      }
+      staff_notes: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          user_id: string
+        }
+        Insert: {
+          author_id?: string
+          body: string
+          created_at?: string
+          id?: string
+          kind?: string
+          user_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       staff_pay: {
         Row: {
           base_salary_ugx: number
@@ -5497,6 +5599,168 @@ export type Database = {
           is_head?: boolean
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      staff_private: {
+        Row: {
+          account_name: string | null
+          account_no: string | null
+          bank_branch: string | null
+          bank_name: string | null
+          blood_group: string | null
+          created_at: string
+          health_notes: string | null
+          kin_address: string | null
+          kin_name: string | null
+          kin_phone: string | null
+          kin_relation: string | null
+          momo_network: string | null
+          momo_number: string | null
+          nin: string | null
+          nssf_no: string | null
+          pass_no: string | null
+          passport_country: string | null
+          passport_expiry: string | null
+          passport_no: string | null
+          permit_class: string | null
+          permit_expiry: string | null
+          permit_no: string | null
+          tin: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name?: string | null
+          account_no?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          blood_group?: string | null
+          created_at?: string
+          health_notes?: string | null
+          kin_address?: string | null
+          kin_name?: string | null
+          kin_phone?: string | null
+          kin_relation?: string | null
+          momo_network?: string | null
+          momo_number?: string | null
+          nin?: string | null
+          nssf_no?: string | null
+          pass_no?: string | null
+          passport_country?: string | null
+          passport_expiry?: string | null
+          passport_no?: string | null
+          permit_class?: string | null
+          permit_expiry?: string | null
+          permit_no?: string | null
+          tin?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string | null
+          account_no?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          blood_group?: string | null
+          created_at?: string
+          health_notes?: string | null
+          kin_address?: string | null
+          kin_name?: string | null
+          kin_phone?: string | null
+          kin_relation?: string | null
+          momo_network?: string | null
+          momo_number?: string | null
+          nin?: string | null
+          nssf_no?: string | null
+          pass_no?: string | null
+          passport_country?: string | null
+          passport_expiry?: string | null
+          passport_no?: string | null
+          permit_class?: string | null
+          permit_expiry?: string | null
+          permit_no?: string | null
+          tin?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      staff_profiles: {
+        Row: {
+          address_line: string | null
+          created_at: string
+          date_of_birth: string | null
+          district: string | null
+          emergency_name: string | null
+          emergency_phone: string | null
+          emergency_relation: string | null
+          gender: string | null
+          institution: string | null
+          languages: string | null
+          legal_name: string | null
+          marital_status: string | null
+          nationality: string | null
+          personal_email: string | null
+          phone_alt: string | null
+          preferred_name: string | null
+          qualification: string | null
+          qualification_year: number | null
+          skills: string | null
+          sub_county: string | null
+          updated_at: string
+          user_id: string
+          village: string | null
+        }
+        Insert: {
+          address_line?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          district?: string | null
+          emergency_name?: string | null
+          emergency_phone?: string | null
+          emergency_relation?: string | null
+          gender?: string | null
+          institution?: string | null
+          languages?: string | null
+          legal_name?: string | null
+          marital_status?: string | null
+          nationality?: string | null
+          personal_email?: string | null
+          phone_alt?: string | null
+          preferred_name?: string | null
+          qualification?: string | null
+          qualification_year?: number | null
+          skills?: string | null
+          sub_county?: string | null
+          updated_at?: string
+          user_id: string
+          village?: string | null
+        }
+        Update: {
+          address_line?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          district?: string | null
+          emergency_name?: string | null
+          emergency_phone?: string | null
+          emergency_relation?: string | null
+          gender?: string | null
+          institution?: string | null
+          languages?: string | null
+          legal_name?: string | null
+          marital_status?: string | null
+          nationality?: string | null
+          personal_email?: string | null
+          phone_alt?: string | null
+          preferred_name?: string | null
+          qualification?: string | null
+          qualification_year?: number | null
+          skills?: string | null
+          sub_county?: string | null
+          updated_at?: string
+          user_id?: string
+          village?: string | null
         }
         Relationships: []
       }
@@ -5882,6 +6146,7 @@ export type Database = {
       }
       team_members: {
         Row: {
+          avatar_url: string | null
           bio: string | null
           created_at: string
           created_by: string | null
@@ -5896,6 +6161,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           created_by?: string | null
@@ -5910,6 +6176,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           created_by?: string | null
@@ -6402,6 +6669,7 @@ export type Database = {
         Returns: boolean
       }
       can_view_content: { Args: { _user_id: string }; Returns: boolean }
+      can_view_people: { Args: { _u: string }; Returns: boolean }
       chat_people: {
         Args: never
         Returns: {
@@ -6637,6 +6905,7 @@ export type Database = {
         Returns: boolean
       }
       is_founder: { Args: { _user_id: string }; Returns: boolean }
+      is_hr_level: { Args: { _u: string }; Returns: boolean }
       is_kpi_manager: { Args: { _user_id: string }; Returns: boolean }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
       is_md: { Args: { _user_id: string }; Returns: boolean }
@@ -6857,6 +7126,7 @@ export type Database = {
         Returns: string
       }
       run_contract_lifecycle_daily: { Args: never; Returns: undefined }
+      run_staff_expiry_alerts: { Args: never; Returns: undefined }
       sales_move_opportunity: {
         Args: { _id: string; _reason?: string; _stage: string }
         Returns: undefined

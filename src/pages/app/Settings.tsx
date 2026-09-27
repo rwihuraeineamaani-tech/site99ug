@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import StaffFileForm from "@/components/people/StaffFileForm";
+import { uploadAvatar } from "@/lib/staffProfile";
 import { Link, useSearchParams } from "react-router-dom";
 import { AppShell } from "@/components/system/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,13 +26,15 @@ import {
   User,
   UserCircle,
   Wallet,
+  FileText,
 } from "lucide-react";
 import { usePushNotifications, type PushPreferences } from "@/hooks/usePushNotifications";
 
-type Tab = "profile" | "appearance" | "notifications" | "account" | "security";
+type Tab = "profile" | "file" | "appearance" | "notifications" | "account" | "security";
 
 const TABS: { id: Tab; label: string; hint: string; icon: typeof User }[] = [
   { id: "profile", label: "Profile", hint: "Name, title, phone & bio", icon: UserCircle },
+  { id: "file", label: "Staff file", hint: "ID, next of kin, bank, documents", icon: FileText },
   { id: "appearance", label: "Appearance", hint: "Theme & menu density", icon: Palette },
   { id: "notifications", label: "Notifications", hint: "Push alerts on this device", icon: BellRing },
   { id: "account", label: "Account", hint: "Email, access & quick links", icon: User },
@@ -324,6 +328,14 @@ export default function Settings() {
               <p className="text-xs text-ink-faint">{activeTab.hint}</p>
             </div>
 
+            {tab === "file" && userId && (
+              <div className="space-y-4">
+                <Section title="Profile photo" hint="Shown to the team on People and in chat.">
+                  <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { await uploadAvatar(userId, f); toast.success("Photo updated"); } catch (err) { toast.error((err as Error).message); } }} />
+                </Section>
+                <StaffFileForm userId={userId} mode="self" canEditEmployment={has("hr", "managing_director", "founder", "admin")} />
+              </div>
+            )}
             {tab === "profile" && (
               <Section title="Your profile" hint="How you appear across the system">
                 <div className="space-y-1.5">

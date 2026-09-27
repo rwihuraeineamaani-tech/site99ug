@@ -328,7 +328,7 @@ const AnimatedRoutes = () => {
         <Route
           path="/app/ops/people"
           element={
-            <RequireRole gate="ops">
+            <RequireRole gate="staff">
               <OpsPeople />
             </RequireRole>
           }
