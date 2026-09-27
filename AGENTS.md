@@ -9,3 +9,4 @@
 - Client onboarding runs from one 9-step checklist (`start_resident_onboarding`); steps flagged `requires_md_approval` can only be completed through `approve_onboarding_step` (trigger-enforced), and the handover sign-off marks the client onboarded.
 - SOPs live in `sops` (+ `sop_versions`, `sop_reads`); only System Admin/Founders write them (RLS), and `publish_sop` snapshots each published version so staff re-confirm reading.
 - Sidebar sections are collapsible via shadcn Collapsible in ShellSidebar; open state persists in sessionStorage (`site99:sidebar-groups`), the section containing the current page is always open, and per-user menu density lives on `team_members.nav_density`.
+- Each department has its own dashboard board (`deptFor` in `src/lib/deptMetrics.ts` → `DeptDashboard`), chosen by position/focus, so Finance, Sales, Founders etc. never share one generic layout; every chart carries a plain-English explanation.
