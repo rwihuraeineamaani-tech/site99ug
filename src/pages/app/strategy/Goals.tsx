@@ -27,7 +27,8 @@ const num = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleStr
 
 export default function StrategyGoals() {
   const today = todayISO();
-  const { isStrategyTeam } = useMyRoles();
+  // Everyone on the team can add and manage goals & targets.
+  const { isStaff: isStrategyTeam } = useMyRoles();
   const [params, setParams] = useSearchParams();
   const client = params.get("client") ?? "";
   const [month, setMonth] = useState(() => monthOf(today));
