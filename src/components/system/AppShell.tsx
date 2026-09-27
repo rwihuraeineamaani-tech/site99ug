@@ -261,8 +261,26 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
 
 
 const SIDEBAR_SCROLL_KEY = "site99:sidebar-scroll";
+const SIDEBAR_GROUPS_KEY = "site99:sidebar-groups";
 
-function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
+function itemIsActive(item: ShellNavItem, pathname: string, search: string) {
+  const [itemPath, itemQuery] = item.to.split("?");
+  return itemQuery
+    ? pathname === itemPath && search.includes(itemQuery)
+    : item.end
+    ? pathname === item.to && (!item.to.startsWith("/app/system-admin") || !search)
+    : pathname.startsWith(item.to);
+}
+
+function readOpenGroups(): Record<string, boolean> {
+  try {
+    return JSON.parse(sessionStorage.getItem(SIDEBAR_GROUPS_KEY) || "{}") as Record<string, boolean>;
+  } catch {
+    return {};
+  }
+}
+
+function ShellSidebar({ groups, compact = false }: { groups: ShellNavGroup[]; compact?: boolean }) {
   const { state, isMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
   const { pathname, search } = useLocation();
@@ -279,14 +297,51 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Section containing the current page is always open; "Overview" and the
+  // first group start open; everything else starts closed. Choices are
+  // remembered per browser session so navigating doesn't re-collapse them.
+  const activeLabel = groups.find((g) => g.items.some((i) => itemIsActive(i, pathname, search)))?.label;
+  const [open, setOpen] = useState<Record<string, boolean>>(() => {
+    const saved = readOpenGroups();
+    const next: Record<string, boolean> = {};
+    groups.forEach((g, i) => {
+      next[g.label] = saved[g.label] ?? (g.label === "Overview" || i === 0);
+    });
+    return next;
+  });
+
+  const toggleGroup = (label: string, next: boolean) => {
+    setOpen((prev) => {
+      const merged = { ...prev, [label]: next };
+      sessionStorage.setItem(SIDEBAR_GROUPS_KEY, JSON.stringify(merged));
+      return merged;
+    });
+  };
+
   return (
     <Sidebar collapsible="icon" className="border-r border-rule">
       <SidebarContent ref={scrollRef} className="bg-paper">
-        {groups.map((group) => (
-          <SidebarGroup key={group.label}>
-            {!collapsed && <SidebarGroupLabel className="eyebrow text-ink-faint">{group.label}</SidebarGroupLabel>}
+        {groups.map((group) => {
+          const isOpen = collapsed || open[group.label] || group.label === activeLabel;
+          return (
+          <Collapsible
+            key={group.label}
+            open={isOpen}
+            onOpenChange={(next) => toggleGroup(group.label, next)}
+            className="group/collapsible"
+          >
+          <SidebarGroup className={compact ? "py-1" : undefined}>
+            {!collapsed && (
+              <SidebarGroupLabel asChild className="eyebrow text-ink-faint">
+                <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 hover:text-ink focus-ring">
+                  <span>{group.label}</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform", !isOpen && "-rotate-90")} />
+                </CollapsibleTrigger>
+              </SidebarGroupLabel>
+            )}
+            <CollapsibleContent forceMount={collapsed ? true : undefined}>
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className={compact ? "gap-0" : undefined}>
                 {group.items.map((item) => {
                   const [itemPath, itemQuery] = item.to.split("?");
                   const active = itemQuery
