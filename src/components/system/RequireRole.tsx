@@ -1,7 +1,9 @@
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useMyRoles, type Department } from "@/hooks/useMyRoles";
-import logo from "@/assets/site99-logo.png";
+import logoAsset from "@/assets/site99-logo-red.png.asset.json";
+
+const logo = logoAsset.url;
 
 type Gate = "staff" | "client" | "resident" | "talent_portal" | "admin" | "leadership" | "finance" | Department;
 
@@ -18,7 +20,7 @@ export function RequireRole({ gate, children }: { gate: Gate; children: ReactNod
         <img
           src={logo}
           alt="Site 99"
-          className="access-logo-float h-20 w-20 object-contain sm:h-24 sm:w-24"
+          className="access-logo-float h-36 w-36 object-contain sm:h-44 sm:w-44"
         />
       </div>
     );
