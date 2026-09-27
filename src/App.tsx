@@ -1,3 +1,5 @@
+import { AppLayout } from "@/components/system/AppShell";
+import RelationsOverview from "./pages/app/Relations";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
@@ -117,6 +119,18 @@ const AnimatedRoutes = () => {
         <Route path="/admin/login" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/admin" element={<Navigate to="/app/site" replace />} />
+        <Route
+          path="/app/site"
+          element={
+            <RequireRole gate="site">
+              <Admin />
+            </RequireRole>
+          }
+        />
+        <Route element={<AppLayout />}>
+        <Route path="/app/relations" element={<RequireRole gate="relations"><RelationsOverview /></RequireRole>} />
+        <Route path="/app/relations/:tab" element={<RequireRole gate="relations"><RelationsOverview /></RequireRole>} />
         <Route
           path="/app"
           element={
@@ -440,15 +454,6 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
-        <Route path="/admin" element={<Navigate to="/app/site" replace />} />
-        <Route
-          path="/app/site"
-          element={
-            <RequireRole gate="site">
-              <Admin />
-            </RequireRole>
-          }
-        />
 
         <Route
           path="/app/events"
@@ -466,6 +471,8 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        </Route>
+        <Route element={<AppLayout />}>
         <Route path="/portal" element={<RequireRole gate="client"><PortalOverview /></RequireRole>} />
         <Route path="/portal/work" element={<RequireRole gate="client"><PortalWork /></RequireRole>} />
         <Route path="/portal/shoots" element={<RequireRole gate="client"><PortalShoots /></RequireRole>} />
@@ -476,6 +483,7 @@ const AnimatedRoutes = () => {
         <Route path="/portal/chat" element={<RequireRole gate="client"><ChatPage /></RequireRole>} />
         <Route path="/portal/chat/:threadId" element={<RequireRole gate="client"><ChatPage /></RequireRole>} />
 
+        </Route>
         <Route path="/residents/login" element={<Navigate to="/login" replace />} />
         <Route path="/residents/portal" element={<ResidentPortal />} />
         <Route path="/residents/chat" element={<RequireRole gate="resident"><ChatPage /></RequireRole>} />

@@ -20,6 +20,7 @@ export type StaffRole =
   | "operations_manager"
   | "talent"
   | "communications"
+  | "client_relations"
   | "hr"
   | "designer";
 
@@ -38,6 +39,7 @@ export const TEAM_ROLES: StaffRole[] = [
   "legal",
   "talent",
   "communications",
+  "client_relations",
   "hr",
   "designer",
   "event_manager",
@@ -70,6 +72,7 @@ export const ROLE_LABELS: Record<StaffRole, string> = {
   operations_manager: "Operations Manager",
   talent: "Talent",
   communications: "Communications",
+  client_relations: "Client Relations",
   hr: "Human Resources",
   designer: "Designer",
 };
@@ -92,6 +95,7 @@ export const ROLE_HINTS: Record<StaffRole, string> = {
   operations_manager: "Delivery, turnaround time, workload, shoots and equipment",
   talent: "Talent bookings, shoots, releases and usage deadlines",
   communications: "Briefs, announcements, messages and publishing schedule",
+  client_relations: "Client health, contact log, follow-ups, renewals and feedback",
   hr: "Team onboarding, workload, deadlines and assigned work",
   designer: "Design briefs, production, reviews, revisions and delivery dates",
 };
@@ -103,6 +107,7 @@ const STRATEGY: StaffRole[] = ["admin", "founder", "managing_director", "strateg
 /** Department sections of the internal system. */
 export type Department =
   | "content"
+  | "relations"
   | "clients"
   | "sales"
   | "legal"
@@ -270,9 +275,11 @@ export function useRolesState(): RoleState {
   const isStrategyTeam = has(...STRATEGY);
   const canApproveStrategy = isLeadership;
 
+  const handlesClients = assignments.length > 0;
   const departments: Record<Department, boolean> = {
     content: isStaff,
-    clients: canManageClients || has("legal", "finance_ops", "talent", "communications"),
+    relations: isLeadership || has("client_relations", "communications", "sales_head") || handlesClients,
+    clients: canManageClients || has("legal", "finance_ops", "talent", "communications", "client_relations"),
     sales: has("admin", "founder", "managing_director", "sales_head"),
     legal: has("admin", "founder", "managing_director", "legal"),
     ops: isLeadership || has("talent"),

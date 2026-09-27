@@ -58,7 +58,8 @@ export type ContractMoney = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const rpc = supabase.rpc as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const rpc = (fn: string, args: Record<string, unknown>) => (supabase.rpc as any).call(supabase, fn, args);
 
 export async function loadContractMoney(residentId?: string): Promise<ContractMoney[]> {
   const { data, error } = await rpc("contract_finance_summary", residentId ? { _resident_id: residentId } : {});
