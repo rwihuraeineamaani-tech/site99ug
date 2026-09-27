@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import FinancePage from "@/components/finance/FinancePage";
 import { SectionHeading, Metric, Money } from "@/components/system";
 import { catLabel, monthLabel, todayISO } from "@/lib/finance";
+import { loadContractMoney, type ContractMoney } from "@/lib/contractLifecycle";
 
 type Balance = { wallet_id: string; wallet_name: string; balance: number };
 type Row = { category: string; money_in: number; money_out: number };
@@ -15,6 +16,8 @@ export default function FinanceOverview() {
   const [pending, setPending] = useState(0);
   const [pendingAmount, setPendingAmount] = useState(0);
   const [recurring, setRecurring] = useState(0);
+  const [contractMoney, setContractMoney] = useState<ContractMoney[]>([]);
+  const [names, setNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     (async () => {
@@ -30,8 +33,14 @@ export default function FinanceOverview() {
       setPending(reqs.length);
       setPendingAmount(reqs.reduce((t, x) => t + x.amount_ugx, 0));
       setRecurring(((rec.data as { amount_ugx: number }[]) ?? []).reduce((t, x) => t + x.amount_ugx, 0));
+      const [cm, rs] = await Promise.all([loadContractMoney(), supabase.from("residents").select("id, name")]);
+      setContractMoney(cm);
+      setNames(Object.fromEntries(((rs.data as { id: string; name: string }[]) ?? []).map((x) => [x.id, x.name])));
     })();
   }, [month]);
+
+  const ending = contractMoney.filter((c) => c.status === "renewal_due");
+  const owedList = contractMoney.filter((c) => c.status === "ended_unpaid");
 
   const total = balances.reduce((t, b) => t + Number(b.balance ?? 0), 0);
   const inn = rows.reduce((t, r) => t + Number(r.money_in ?? 0), 0);
@@ -88,6 +97,37 @@ export default function FinanceOverview() {
             <div className="display text-2xl mt-2">Build and approve</div>
             <div className="mt-1 text-[11px] text-ink-soft">Salaries, retainers and repeat payments</div>
           </Link>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <SectionHeading index="04" title="Client contracts" hint="renewals and money still owed" />
+        <div className="grid gap-3 md:grid-cols-2">
+          {[
+            { title: "Ending soon — renew within 14 days", list: ending, empty: "No contracts ending in the next 14 days." },
+            { title: "Ended with a balance owed", list: owedList, empty: "Every ended contract is fully paid." },
+          ].map((box) => (
+            <div key={box.title} className="surface rounded-sm p-5">
+              <div className="eyebrow text-ink-faint mb-3">{box.title}</div>
+              {box.list.length ? (
+                <ul className="divide-y divide-rule">
+                  {box.list.map((c) => (
+                    <li key={c.contract_id} className="py-2 flex items-center gap-3 text-sm">
+                      <Link to={`/app/residents/${c.resident_id}`} className="flex-1 min-w-0 truncate underline-offset-2 hover:underline">
+                        {names[c.resident_id] ?? "Client"} · {c.title}
+                      </Link>
+                      <span className="text-[11px] text-ink-soft">{c.ends_on ?? ""}</span>
+                      <Link to={`/app/finance/invoices?resident=${c.resident_id}&contract=${c.contract_id}`} className="text-xs num">
+                        Owed <Money amount={c.outstanding_ugx} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-ink-soft">{box.empty}</p>
+              )}
+            </div>
+          ))}
         </div>
       </section>
 
