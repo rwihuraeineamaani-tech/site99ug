@@ -172,3 +172,29 @@ export function OnboardingBoard() {
     </section>
   );
 }
+
+/** Onboarding steps waiting for the MD — shown on Approvals and the dashboard. */
+export function OnboardingSignoffs() {
+  const { canApprove } = useOnboardingPowers();
+  const [rows, setRows] = useState<(Step & { residents: { name: string } | null })[]>([]);
+  const load = async () => {
+    const { data } = await db.from("resident_onboarding_steps").select("*, residents(name)").eq("requires_md_approval", true).is("approved_at", null).eq("status", "in_progress");
+    setRows(data ?? []);
+  };
+  useEffect(() => { if (canApprove) load(); }, [canApprove]);
+  if (!canApprove || !rows.length) return null;
+  return (
+    <section className="surface rounded-2xl p-5 mb-10">
+      <div className="eyebrow text-ink-faint">Client onboarding · waiting for your sign-off</div>
+      <ul className="mt-3 divide-y divide-rule">
+        {rows.map((s) => (
+          <li key={s.id} className="py-3 flex flex-wrap items-center gap-3 text-sm">
+            <Link to={`/app/residents/${s.resident_id}`} className="font-medium hover:underline underline-offset-4">{s.residents?.name ?? "Client"}</Link>
+            <span className="text-ink-soft">{s.title}</span>
+            <button className="ctl ctl-solid eyebrow px-3 py-1.5 ml-auto" onClick={async () => { const { error } = await db.rpc("approve_onboarding_step", { _step_id: s.id }); if (error) return toast.error(error.message); toast.success("Signed off"); load(); }}>sign off</button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}

@@ -6,6 +6,7 @@ import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip, formatUGX } from "@/components/system";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
+import { OnboardingSignoffs } from "@/components/residents/OnboardingPanel";
 import {
   KIND_LABEL,
   loadApprovals,
@@ -116,6 +117,7 @@ export default function Approvals() {
         <p className="text-sm text-ink-soft">Loading…</p>
       ) : (
         <>
+          <OnboardingSignoffs />
           <SectionHeading index="01" title="Waiting on you" hint={`${mine.length} item${mine.length === 1 ? "" : "s"}`} />
           {mine.length === 0 ? (
             <p className="text-sm text-ink-soft">
