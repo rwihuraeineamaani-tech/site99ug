@@ -6,6 +6,7 @@ import { Metric, PageHeader, SectionHeading, StatusChip } from "@/components/sys
 import { supabase } from "@/integrations/supabase/client";
 import RelationsPanel, { type RelationsView } from "@/components/residents/RelationsPanel";
 import PortalAccessPanel from "@/components/residents/PortalAccessPanel";
+import { OnboardingBoard } from "@/components/residents/OnboardingPanel";
 
 type Member = { user_id: string; display_name: string | null; email: string };
 type Res = { id: string; name: string; status: string | null; handler_user_id: string | null; archived_at: string | null };
@@ -18,7 +19,7 @@ const daysTo = (d: string) => Math.ceil((new Date(d).getTime() - Date.now()) / 8
 
 const TITLES: Record<string, { title: string; lede: string }> = {
   overview: { title: "Client Relations.", lede: "How every client is doing — who needs a call, who is up for renewal and what they're telling us." },
-  onboarding: { title: "Onboarding.", lede: "Welcome new clients: give them their portal login first, then track their onboarding steps." },
+  onboarding: { title: "Onboarding.", lede: "Welcome new clients: give them their portal login first, then work through the checklist. The MD signs off the contract and the handover." },
   log: { title: "Contact log.", lede: "Every call, meeting and message with a client, in one place." },
   followups: { title: "Follow-ups.", lede: "Promises we've made to clients, with who owns them and when they're due." },
   renewals: { title: "Renewals.", lede: "Contracts ending in the next 60 days. A renewal earns the handler a 5% bonus." },
@@ -138,7 +139,7 @@ export default function RelationsPage() {
         </ul>
       )}
 
-      {tab === "onboarding" && <PortalAccessPanel index="01" showOnboarding />}
+      {tab === "onboarding" && (<><PortalAccessPanel index="01" showOnboarding /><div className="mt-14"><OnboardingBoard /></div></>)}
 
       {(tab === "log" || tab === "followups" || tab === "feedback") && (
         <RelationsPanel members={members} residents={residents} view={tab as RelationsView} />

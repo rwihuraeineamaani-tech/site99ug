@@ -83,7 +83,7 @@ export default function OnboardingPanel({ residentId, index = "01" }: { resident
                     <div className="text-sm font-semibold">{s.title}</div>
                     <div className="text-[11px] text-ink-faint">{s.department}{s.requires_md_approval ? " · needs MD sign-off" : ""}{s.note ? ` · ${s.note}` : ""}</div>
                   </div>
-                  <StatusChip value={done(s) ? (s.approved_at ? "signed off" : "complete") : waitingMd && s.status === "ready" ? "waiting for MD" : late ? "overdue" : s.status.replace("_", " ")} tone={done(s) ? "teal" : late ? "stop" : waitingMd && s.status === "ready" ? "amber" : "pending"} />
+                  <StatusChip value={done(s) ? (s.approved_at ? "signed off" : "complete") : waitingMd && s.status === "in_progress" ? "waiting for MD" : late ? "overdue" : s.status.replace("_", " ")} tone={done(s) ? "teal" : late ? "stop" : waitingMd && s.status === "in_progress" ? "amber" : "pending"} />
                 </div>
                 {!done(s) && (
                   <div className="mt-3 ml-8 flex flex-wrap items-center gap-2 text-xs">
@@ -100,8 +100,8 @@ export default function OnboardingPanel({ residentId, index = "01" }: { resident
                     {canRun && !s.requires_md_approval && s.step_key !== "portal" && (
                       <button className="ctl ctl-solid eyebrow px-3 py-1.5" onClick={() => run(db.from("resident_onboarding_steps").update({ status: "complete", completed_at: new Date().toISOString() }).eq("id", s.id), "Step complete")}>mark complete</button>
                     )}
-                    {canRun && s.requires_md_approval && s.status !== "ready" && (
-                      <button className="ctl ctl-solid eyebrow px-3 py-1.5" onClick={() => run(db.from("resident_onboarding_steps").update({ status: "ready" }).eq("id", s.id), "Sent to the MD for sign-off")}>send to MD</button>
+                    {canRun && s.requires_md_approval && s.status !== "in_progress" && (
+                      <button className="ctl ctl-solid eyebrow px-3 py-1.5" onClick={() => run(db.from("resident_onboarding_steps").update({ status: "in_progress" }).eq("id", s.id), "Sent to the MD for sign-off")}>send to MD</button>
                     )}
                     {canApprove && s.requires_md_approval && (
                       <button className="ctl ctl-solid eyebrow px-3 py-1.5" onClick={() => run(db.rpc("approve_onboarding_step", { _step_id: s.id }), "Signed off")}>sign off</button>
@@ -144,7 +144,7 @@ export function OnboardingBoard() {
     return {
       r, total: mine.length, complete: mine.filter(done).length,
       overdue: mine.filter((s) => !done(s) && s.due_on && s.due_on < today()).length,
-      md: mine.filter((s) => s.requires_md_approval && !s.approved_at && s.status === "ready").length,
+      md: mine.filter((s) => s.requires_md_approval && !s.approved_at && s.status === "in_progress").length,
     };
   }).sort((a, b) => (b.md + b.overdue) - (a.md + a.overdue) || (a.total && a.complete === a.total ? 1 : 0) - (b.total && b.complete === b.total ? 1 : 0));
   const waiting = rows.reduce((a, x) => a + x.md, 0);
