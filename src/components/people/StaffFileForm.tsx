@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { SECTIONS, EMPLOYMENT, DOC_KINDS, completeness, loadFile, saveRow, uploadDoc, openDoc, requiredDocs, type Row, type FieldDef } from "@/lib/staffProfile";
+import { SECTIONS, EMPLOYMENT, DOC_KINDS, completeness, statusLabel, loadFile, saveRow, uploadDoc, openDoc, requiredDocs, type Row, type FieldDef } from "@/lib/staffProfile";
 import { supabase } from "@/integrations/supabase/client";
 
 function Field({ f, value, onChange, disabled }: { f: FieldDef; value: unknown; onChange: (v: string) => void; disabled?: boolean }) {
@@ -109,7 +109,7 @@ export default function StaffFileForm({ userId, mode, canSeePrivate = true, canE
       {canSeePrivate && (
         <section className="surface rounded-xl p-4">
           <h3 className="display text-base">Documents</h3>
-          <p className="text-xs text-ink-faint">Required for you: {requiredDocs(nat).join(", ")}. Private to you and HR.</p>
+          <p className="text-xs text-ink-faint">Required for you: {requiredDocs(nat, emp.contract_type as string).join(", ")}. Private to you and HR.</p>
           {!readOnly && (
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <select className="field" value={docKind} onChange={(e) => setDocKind(e.target.value)}>{DOC_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
