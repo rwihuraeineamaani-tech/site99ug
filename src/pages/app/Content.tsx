@@ -187,6 +187,32 @@ export default function ContentPipeline() {
   const [editing, setEditing] = useState<ContentItem | null>(null);
   const [draft, setDraft] = useState(emptyDraft);
   const [busy, setBusy] = useState(false);
+  const [shotOpen, setShotOpen] = useState(false);
+  const [shotDays, setShotDays] = useState<{ id: string; label: string }[]>([]);
+  const [shot, setShot] = useState({ day: "", title: "", type: "Vertical short-form video", notes: "", link: "" });
+  const openShot = async () => {
+    setShot({ day: "", title: "", type: "Vertical short-form video", notes: "", link: "" });
+    setShotOpen(true);
+    const [{ data: d }, { data: r }, { data: p }] = await Promise.all([
+      supabase.from("shoot_days").select("id, shoot_date, resident_id, project_id, status").in("status", ["confirmed", "shooting", "done"]).order("shoot_date", { ascending: false }).limit(60),
+      supabase.from("residents").select("id, name"),
+      supabase.from("projects").select("id, title"),
+    ]);
+    const nm = (x: { resident_id: string | null; project_id: string | null }) =>
+      (r ?? []).find((y) => y.id === x.resident_id)?.name ?? (p ?? []).find((y) => y.id === x.project_id)?.title ?? "—";
+    setShotDays((d ?? []).map((x) => ({ id: x.id, label: `${x.shoot_date ?? "no date"} — ${nm(x)}` })));
+  };
+  const addShot = async () => {
+    setBusy(true);
+    const { error } = await supabase.rpc("add_spontaneous_idea" as never, {
+      _day_id: shot.day, _title: shot.title, _type: shot.type, _notes: shot.notes || null, _link: shot.link || null, _editor: null,
+    } as never);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Shot idea added — it's now with editing");
+    setShotOpen(false);
+    load();
+  };
 
   // step state inside the detail dialog
   const [crew, setCrew] = useState<CrewRow[]>([]);
@@ -549,7 +575,12 @@ export default function ContentPipeline() {
       key: "ref",
       header: "Code",
       hideOnMobile: true,
-      cell: (r) => <span className="num text-xs text-ink-faint">{refCode(r.ref_no)}</span>,
+      cell: (r) => (
+        <span className="num text-xs text-ink-faint">
+          {refCode(r.ref_no)}
+          {(r as { spontaneous?: boolean }).spontaneous && <span className="ml-1 text-signal" title="Added on the shoot day">· on the day</span>}
+        </span>
+      ),
     },
     { key: "title", header: "Item", cell: (r) => <span className="font-medium">{r.title}</span> },
     { key: "owner", header: "Belongs to", hideOnMobile: true, cell: (r) => ownerLabel(r) },
@@ -1142,10 +1173,13 @@ export default function ContentPipeline() {
         lede="Every idea from first thought to posted. The stage only moves when the right person takes the next step."
         actions={
           isStaff ? (
-            <Button onClick={() => { setFresh(emptyNew); setNewOpen(true); }}>
-              <Plus />
-              New idea
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={openShot}>Add a shot idea</Button>
+              <Button onClick={() => { setFresh(emptyNew); setNewOpen(true); }}>
+                <Plus />
+                New idea
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -1242,7 +1276,10 @@ export default function ContentPipeline() {
                       className={`card-lift relative cursor-pointer overflow-hidden rounded-xl border border-rule bg-paper-raised p-3 pl-4 hover:border-ink`}
                     >
                       <span className={`absolute left-0 top-0 bottom-0 w-1.5 ${TONE_SOLID[tone]}`} />
-                      <div className="num text-[10px] tracking-wider text-ink-faint">{refCode(i.ref_no)}</div>
+                      <div className="num text-[10px] tracking-wider text-ink-faint">
+                        {refCode(i.ref_no)}
+                        {(i as { spontaneous?: boolean }).spontaneous && <span className="ml-1.5 rounded bg-signal/10 px-1 text-signal">Added on the shoot day</span>}
+                      </div>
                       <div className="text-sm font-semibold leading-snug">{i.title}</div>
                       <div className="mt-1.5 text-[11px] text-ink-soft">
                         {ownerLabel(i)}
@@ -1285,6 +1322,32 @@ export default function ContentPipeline() {
           })}
         </div>
       )}
+
+      {/* Shot on the day */}
+      <Dialog open={shotOpen} onOpenChange={setShotOpen}>
+        <DialogContent className="max-w-md bg-paper text-ink border-rule">
+          <DialogHeader>
+            <DialogTitle className="display text-xl">Add a shot idea</DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-ink-soft">For an idea that came up and was shot on a shoot day. It goes straight to editing.</p>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Shoot day</span>
+            <select className="mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm" value={shot.day} onChange={(e) => setShot({ ...shot, day: e.target.value })}>
+              <option value="">Pick the shoot day…</option>
+              {shotDays.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
+            </select></label>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Title</span>
+            <input className="mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm" value={shot.title} onChange={(e) => setShot({ ...shot, title: e.target.value })} /></label>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Type</span>
+            <select className="mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm" value={shot.type} onChange={(e) => setShot({ ...shot, type: e.target.value })}>
+              {["Vertical short-form video", "Long-form video", "Carousel", "Poster", "Photo set", "Campaign", "Strategy"].map((t) => <option key={t}>{t}</option>)}
+            </select></label>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Notes</span>
+            <textarea rows={2} className="mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm" value={shot.notes} onChange={(e) => setShot({ ...shot, notes: e.target.value })} /></label>
+          <label className="text-sm"><span className="eyebrow text-ink-faint">Footage link (optional)</span>
+            <input className="mt-1.5 w-full rounded-lg border border-rule bg-paper-raised px-3 py-2 text-sm" value={shot.link} onChange={(e) => setShot({ ...shot, link: e.target.value })} /></label>
+          <Button disabled={busy || !shot.day || !shot.title.trim()} onClick={addShot}>Add and send to editing</Button>
+        </DialogContent>
+      </Dialog>
 
       {/* New idea — lean form */}
       <Dialog open={newOpen} onOpenChange={setNewOpen}>
