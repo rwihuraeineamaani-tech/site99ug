@@ -496,7 +496,7 @@ function ShellFrame({
           light && "deck-light"
         )}
       >
-        {groups.length > 0 && <ShellSidebar groups={groups} />}
+        {groups.length > 0 && <ShellSidebar groups={groups} compact={navDensity === "compact"} />}
 
         <div className="flex-1 flex flex-col min-w-0">
           <header className="sticky top-0 z-40 h-16 rule-b bg-paper/95 backdrop-blur flex items-center gap-2 px-2.5 md:gap-3 md:px-6">
