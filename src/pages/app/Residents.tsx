@@ -30,7 +30,7 @@ export type ResidentRecord = {
 const VIEW_KEY = "site99:residents-view";
 
 export default function ResidentsHub() {
-  const { userId, canSeeFinance } = useMyRoles();
+  const { userId, canSeeFinance, has } = useMyRoles();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<ResidentRecord[]>([]);
   const [logos, setLogos] = useState<Record<string, string>>({});
