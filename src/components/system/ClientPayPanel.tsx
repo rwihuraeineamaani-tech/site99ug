@@ -59,7 +59,7 @@ export default function ClientPayPanel({ residentId, index = "02" }: { residentI
       <SectionHeading index={index} title="Handler" hint="One Handler per client — they are also the contact person" />
       <p className="text-sm text-ink-soft mb-3">
         Pay for handling a client comes from the KPI system.{" "}
-        <Link to="/app/kpi-desk" className="text-signal focus-ring">
+        <Link to="/app/kpi/desk" className="text-signal focus-ring">
           Open the KPI desk
         </Link>
       </p>
