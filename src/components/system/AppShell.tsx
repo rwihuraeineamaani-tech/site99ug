@@ -343,12 +343,7 @@ function ShellSidebar({ groups, compact = false }: { groups: ShellNavGroup[]; co
             <SidebarGroupContent>
               <SidebarMenu className={compact ? "gap-0" : undefined}>
                 {group.items.map((item) => {
-                  const [itemPath, itemQuery] = item.to.split("?");
-                  const active = itemQuery
-                    ? pathname === itemPath && search.includes(itemQuery)
-                    : item.end
-                    ? pathname === item.to && (!item.to.startsWith("/app/system-admin") || !search)
-                    : pathname.startsWith(item.to);
+                  const active = itemIsActive(item, pathname, search);
                   const Icon = item.icon ?? LayoutDashboard;
                   return (
                     <SidebarMenuItem key={`${group.label}-${item.to}-${item.label}`}>
