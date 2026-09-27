@@ -352,12 +352,12 @@ async function people(): Promise<DeptBoard> {
     rows(supabase.from("leadership_tasks").select("status, due_at")),
     rows(supabase.from("staff_profiles" as never).select("*")),
     rows(supabase.from("staff_private" as never).select("*")),
-    rows(supabase.from("staff_employment" as never).select("user_id, contract_end, probation_end")),
+    rows(supabase.from("staff_employment" as never).select("user_id, contract_end, probation_end, contract_type")),
     rows(supabase.from("staff_documents" as never).select("user_id, kind")),
   ]);
   const fileBands = [{ band: "0–49%", people: 0 }, { band: "50–79%", people: 0 }, { band: "80–99%", people: 0 }, { band: "Complete", people: 0 }];
   for (const m of tm) {
-    const c = completeness(sp.find((x) => x.user_id === m.user_id) ?? null, sv.find((x) => x.user_id === m.user_id) ?? null, sdoc.filter((d) => d.user_id === m.user_id) as unknown as { kind: string }[]).pct;
+    const c = completeness(sp.find((x) => x.user_id === m.user_id) ?? null, sv.find((x) => x.user_id === m.user_id) ?? null, sdoc.filter((d) => d.user_id === m.user_id) as unknown as { kind: string }[], true, se.find((x) => x.user_id === m.user_id) ?? {}).pct;
     fileBands[c >= 100 ? 3 : c >= 80 ? 2 : c >= 50 ? 1 : 0].people++;
   }
   const todayIso = iso(new Date());
