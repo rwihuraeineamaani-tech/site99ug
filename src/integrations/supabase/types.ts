@@ -2507,6 +2507,7 @@ export type Database = {
           amount_paid_ugx: number
           approved_at: string | null
           approved_by: string | null
+          cash_request_id: string | null
           category: string
           contract_id: string | null
           created_at: string
@@ -2521,6 +2522,7 @@ export type Database = {
           number: string | null
           party_kind: string
           party_name: string
+          payment_run_line_id: string | null
           period_label: string | null
           recur_day: number | null
           recur_parent_id: string | null
@@ -2539,6 +2541,7 @@ export type Database = {
           amount_paid_ugx?: number
           approved_at?: string | null
           approved_by?: string | null
+          cash_request_id?: string | null
           category?: string
           contract_id?: string | null
           created_at?: string
@@ -2553,6 +2556,7 @@ export type Database = {
           number?: string | null
           party_kind?: string
           party_name: string
+          payment_run_line_id?: string | null
           period_label?: string | null
           recur_day?: number | null
           recur_parent_id?: string | null
@@ -2571,6 +2575,7 @@ export type Database = {
           amount_paid_ugx?: number
           approved_at?: string | null
           approved_by?: string | null
+          cash_request_id?: string | null
           category?: string
           contract_id?: string | null
           created_at?: string
@@ -2585,6 +2590,7 @@ export type Database = {
           number?: string | null
           party_kind?: string
           party_name?: string
+          payment_run_line_id?: string | null
           period_label?: string | null
           recur_day?: number | null
           recur_parent_id?: string | null
@@ -2601,10 +2607,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "invoices_cash_request_id_fkey"
+            columns: ["cash_request_id"]
+            isOneToOne: true
+            referencedRelation: "cash_requests"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "invoices_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_payment_run_line_id_fkey"
+            columns: ["payment_run_line_id"]
+            isOneToOne: true
+            referencedRelation: "payment_run_lines"
             referencedColumns: ["id"]
           },
           {
@@ -5858,6 +5878,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      raise_bill_for_source: {
+        Args: { _id: string; _kind: string }
+        Returns: string
+      }
       raise_recurring_invoices: { Args: never; Returns: number }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
@@ -5958,6 +5982,10 @@ export type Database = {
         Returns: string
       }
       sales_submit_offer: { Args: { _offer_id: string }; Returns: string }
+      set_client_handler: {
+        Args: { _resident_id: string; _user_id: string }
+        Returns: undefined
+      }
       set_client_lifecycle_enforced: { Args: { _on: boolean }; Returns: number }
       set_client_pay: {
         Args: { _people: Json; _resident_id: string; _retainer_ugx: number }
