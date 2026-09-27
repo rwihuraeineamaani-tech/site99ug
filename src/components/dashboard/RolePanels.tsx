@@ -148,6 +148,23 @@ async function legalRows(): Promise<Row[]> {
       .limit(6),
   ]);
   const rows: Row[] = [];
+  const { data: rc } = await supabase
+    .from("resident_contracts")
+    .select("id, title, ends_on, status, residents(name)")
+    .not("ends_on", "is", null)
+    .lte("ends_on", plusDays(60))
+    .in("status", ["active", "renewal_due", "signed"])
+    .order("ends_on", { ascending: true })
+    .limit(6);
+  ((rc ?? []) as unknown as { id: string; title: string; ends_on: string; status: string; residents: { name: string } | null }[]).forEach((r) =>
+    rows.push({
+      id: `rc-${r.id}`,
+      title: r.title,
+      note: `${r.residents?.name ?? "Client"} · ends ${new Date(r.ends_on).toLocaleDateString()}`,
+      state: r.status.replace(/_/g, " "),
+      to: "/app/legal/contracts",
+    })
+  );
   (contracts.data ?? []).forEach((r) =>
     rows.push({
       id: `c-${r.id}`,
