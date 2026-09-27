@@ -150,7 +150,7 @@ export default function ResidentsHub() {
             key={t.key}
             role="tab"
             aria-selected={tab === t.key}
-            onClick={() => setTab(t.key)}
+            onClick={() => setTab(t.key as typeof tab)}
             className={`press focus-ring rounded-full px-4 py-1.5 text-xs ${tab === t.key ? "bg-paper-raised text-ink" : "text-ink-soft"}`}
           >
             {t.label}
