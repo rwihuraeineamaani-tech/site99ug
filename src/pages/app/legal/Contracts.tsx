@@ -467,6 +467,15 @@ export default function Contracts() {
                   ))}
                 </select>
               )}
+              {canWrite && (
+                <button
+                  className={`${ghostBtn} text-signal`}
+                  onClick={() => remove(r)}
+                  aria-label={`Delete ${r.title}`}
+                >
+                  Delete
+                </button>
+              )}
             </li>
           ))}
         </ul>
