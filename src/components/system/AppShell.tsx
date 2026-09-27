@@ -387,8 +387,11 @@ function ShellSidebar({ groups, compact = false }: { groups: ShellNavGroup[]; co
                 })}
               </SidebarMenu>
             </SidebarGroupContent>
+            </CollapsibleContent>
           </SidebarGroup>
-        ))}
+          </Collapsible>
+          );
+        })}
       </SidebarContent>
     </Sidebar>
   );
