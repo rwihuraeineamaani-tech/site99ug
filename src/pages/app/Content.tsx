@@ -191,6 +191,8 @@ export default function ContentPipeline() {
   // step state inside the detail dialog
   const [crew, setCrew] = useState<CrewRow[]>([]);
   const [crewNotes, setCrewNotes] = useState("");
+  const [otherRoleName, setOtherRoleName] = useState("");
+  const [addingOther, setAddingOther] = useState(false);
   const [shootAt, setShootAt] = useState("");
   const [editUrl, setEditUrl] = useState("");
   const [sentDirect, setSentDirect] = useState(false);
@@ -1060,18 +1062,69 @@ export default function ContentPipeline() {
         </div>
       ))}
       {(isFounder || isContact) && (
-        <select
-          className="mt-1 rounded-full border border-dashed border-rule bg-paper-raised px-3 py-1.5 text-xs press focus:border-signal focus-ring"
-          value=""
-          onChange={(e) => e.target.value && addCrewSlot(e.target.value)}
-        >
-          <option value="">+ Add a role</option>
-          {CREW_ROLES.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </select>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          <select
+            className="rounded-full border border-dashed border-rule bg-paper-raised px-3 py-1.5 text-xs press focus:border-signal focus-ring"
+            value={addingOther ? "__other__" : ""}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (!v) return;
+              if (v === "__other__") {
+                setAddingOther(true);
+              } else {
+                setAddingOther(false);
+                addCrewSlot(v);
+              }
+            }}
+          >
+            <option value="">+ Add a role</option>
+            {CREW_ROLES.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+            <option value="__other__">Other…</option>
+          </select>
+          {addingOther && (
+            <>
+              <input
+                className="rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs focus:border-signal focus-ring"
+                placeholder="Name the role (e.g. Driver, Makeup)"
+                value={otherRoleName}
+                onChange={(e) => setOtherRoleName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && otherRoleName.trim()) {
+                    addCrewSlot(`Other: ${otherRoleName.trim()}`);
+                    setOtherRoleName("");
+                    setAddingOther(false);
+                  }
+                }}
+                autoFocus
+              />
+              <Button
+                size="sm"
+                disabled={!otherRoleName.trim() || busy}
+                onClick={() => {
+                  addCrewSlot(`Other: ${otherRoleName.trim()}`);
+                  setOtherRoleName("");
+                  setAddingOther(false);
+                }}
+              >
+                Add
+              </Button>
+              <button
+                type="button"
+                className="text-[11px] text-ink-faint hover:text-signal"
+                onClick={() => {
+                  setAddingOther(false);
+                  setOtherRoleName("");
+                }}
+              >
+                Cancel
+              </button>
+            </>
+          )}
+        </div>
       )}
     </div>
   );
