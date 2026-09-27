@@ -105,7 +105,7 @@ export default function KpiDesk() {
             <span><span className="font-semibold">{nameOf(p)}</span> <span className="text-xs text-ink-faint">{p.member.title}{p.pay?.is_head ? " · Head" : ""}</span></span>
             <span className="flex flex-wrap items-center gap-3 text-sm">
               <span className="num">{p.score}%</span>
-              <StatusChip value={!p.hasTargets ? "No targets" : p.allTargetsMet ? "All hit" : "Missing"} tone={!p.hasTargets ? "neutral" : p.allTargetsMet ? "success" : "warning"} />
+              <StatusChip value={!p.hasTargets ? "No targets" : p.allTargetsMet ? "All hit" : "Missing"} tone={!p.hasTargets ? "neutral" : p.allTargetsMet ? "done" : "warn"} />
               <span className="num text-ink-soft">{p.pay ? ugx(p.expected) : "No salary"}</span>
             </span>
           </button>
@@ -148,7 +148,7 @@ function PersonEditor({ p, month, settings, residents, locked, userId, onSaved }
       {p.targets.map((x) => <div key={x.id} className="flex items-center justify-between gap-2 text-sm">
         <span>{x.label || TARGET_METRICS.find((m) => m.key === x.metric)?.label} · <span className="num">{x.actual}/{Number(x.target_value)}</span></span>
         <span className="flex items-center gap-2">
-          <StatusChip value={x.approval_state} tone={x.approval_state === "approved" ? "success" : "neutral"} />
+          <StatusChip value={x.approval_state} tone={x.approval_state === "approved" ? "done" : "neutral"} />
           {x.metric === "custom" && !locked && <input type="number" aria-label="Actual" defaultValue={x.manual_actual ?? 0} className="h-8 w-20 rounded-md border border-rule bg-paper-sunken px-2 text-sm"
             onBlur={async (e) => { const { error } = await t("kpi_targets").update({ manual_actual: +e.target.value }).eq("id", x.id); done(error, "Updated."); }} />}
           {!locked && <Button size="sm" variant="ghost" onClick={async () => { const { error } = await t("kpi_targets").delete().eq("id", x.id); done(error, "Removed."); }}>Remove</Button>}
