@@ -74,7 +74,7 @@ export default function ClockInCard({ userId }: { userId: string | null }) {
         {!rec?.clock_in_at && rec?.status !== "excused" && (
           <>
             <input className="field min-h-9 py-1.5 text-sm" placeholder="Note (optional, e.g. traffic)" value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} />
-            <button disabled={busy} onClick={clockIn} className="press rounded-full bg-signal px-4 py-2 text-sm font-medium text-signal-foreground focus-ring disabled:opacity-50">Clock in</button>
+            <button disabled={busy} onClick={clockIn} className="press rounded-full bg-signal px-4 py-2 text-sm font-medium text-background focus-ring disabled:opacity-50">Clock in</button>
           </>
         )}
         {rec?.clock_in_at && !rec.clock_out_at && (
