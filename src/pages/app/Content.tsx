@@ -163,7 +163,7 @@ const emptyDraft = {
 const FOUNDER_ROLES = ["admin", "founder", "managing_director", "creative_director"] as const;
 
 export default function ContentPipeline() {
-  const { canEditContent, userId, has } = useMyRoles();
+  const { canEditContent, isStaff, userId, has } = useMyRoles();
   const { isContact: amContact, isHandler: amHandler } = useMyAssignments();
   const navigate = useNavigate();
   const isFounder = has(...FOUNDER_ROLES);
@@ -1089,7 +1089,7 @@ export default function ContentPipeline() {
         title="Pipeline."
         lede="Every idea from first thought to posted. The stage only moves when the right person takes the next step."
         actions={
-          isFounder ? (
+          isStaff ? (
             <Button onClick={() => { setFresh(emptyNew); setNewOpen(true); }}>
               <Plus />
               New idea
@@ -1219,7 +1219,7 @@ export default function ContentPipeline() {
                       {quickButtons(i, "mt-2.5")}
                     </article>
                   ))}
-                  {isFounder && s === "Idea" && (
+                  {isStaff && s === "Idea" && (
                     <button
                       className="press w-full rounded-xl border border-dashed border-rule px-3 py-2.5 text-left text-xs font-semibold text-ink-faint hover:border-signal hover:text-signal hover:bg-paper-sunken focus-ring"
                       onClick={() => { setFresh(emptyNew); setNewOpen(true); }}
