@@ -44,7 +44,7 @@ export default function StaffFileForm({ userId, mode, canSeePrivate = true, canE
   useEffect(() => { load(); }, [userId]);
 
   const nat = (profile.nationality as string) ?? "Ugandan";
-  const comp = completeness(profile, priv, docs, canSeePrivate);
+  const comp = completeness(profile, priv, docs, canSeePrivate, emp);
   const strip = (r: Row) => { const { user_id, created_at, updated_at, ...rest } = r; void user_id; void created_at; void updated_at; return rest; };
 
   const saveAll = async () => {
@@ -74,9 +74,14 @@ export default function StaffFileForm({ userId, mode, canSeePrivate = true, canE
   return (
     <div className="space-y-5">
       <div className="surface rounded-xl p-4">
-        <div className="flex items-center justify-between text-sm"><span className="font-medium">Profile {comp.pct}% complete</span><span className="text-xs text-ink-soft">{nat && !["", "ugandan"].includes(nat.toLowerCase()) ? "Foreign national file" : "Ugandan file"}</span></div>
+        <div className="flex items-center justify-between gap-2 text-sm">
+          <span className="font-medium">Staff file: <span className={comp.status === "incomplete" ? "text-destructive" : comp.status === "partly" ? "text-signal" : "text-primary"}>{statusLabel(comp.status)}</span> · {comp.pct}%</span>
+          <span className="text-xs text-ink-soft">{comp.jobType ?? "Job type not set"} · {nat && !["", "ugandan"].includes(nat.toLowerCase()) ? "Foreign national" : "Ugandan"}</span>
+        </div>
         <div className="mt-2 h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-signal" style={{ width: `${comp.pct}%` }} /></div>
-        {comp.missing.length > 0 && <p className="mt-2 text-xs text-ink-soft">Still needed: {comp.missing.slice(0, 6).join(", ")}{comp.missing.length > 6 ? ` +${comp.missing.length - 6} more` : ""}</p>}
+        {comp.critical.length > 0 && <p className="mt-2 text-xs text-destructive">Needed first: {comp.critical.join(", ")}</p>}
+        {comp.minor.length > 0 && <p className="mt-1 text-xs text-ink-soft">Minor — still to hand in: {comp.minor.join(", ")}</p>}
+        <p className="mt-1 text-[11px] text-ink-soft">{comp.jobNote}</p>
       </div>
 
       {SECTIONS.filter((s) => (!s.show || s.show(nat)) && (s.table !== "staff_private" || canSeePrivate)).map((s) => {
