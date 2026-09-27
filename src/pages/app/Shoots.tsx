@@ -162,13 +162,13 @@ export default function Shoots() {
       .filter(Boolean) as string[];
 
 
-  /** Crewed ideas for this client that aren't on any shoot day yet. */
+  /** Unshot ideas for this client/project that aren't on this day. */
   const spareFor = (day: ShootDay) =>
     items.filter(
       (i) =>
-        i.stage === "Crewed" &&
+        ["Idea", "Approved", "Crewed", "Scheduled"].includes(i.stage) &&
         (day.resident_id ? i.resident_id === day.resident_id : i.project_id === day.project_id) &&
-        !dayItems.some((d) => d.content_id === i.id)
+        !dayItems.some((d) => d.content_id === i.id && d.shoot_day_id === day.id)
     );
 
   /** Units of a piece of gear already taken by other confirmed shoots on the same date. */
@@ -279,11 +279,31 @@ export default function Shoots() {
 
 
 
-  const addItem = (contentId: string) =>
-    open && run(() => supabase.from("shoot_day_items").insert({ shoot_day_id: open.id, content_id: contentId }), "Added");
+  const addItem = (i: Item) => {
+    if (!open) return;
+    if (["Idea", "Approved"].includes(i.stage) && !window.confirm(`"${i.title}" hasn't been crewed yet. Add it anyway? It will count as approved and use the crew already on this day.`)) return;
+    if (i.stage === "Scheduled" && !window.confirm(`"${i.title}" is already on another shoot day. Move it here?`)) return;
+    run(() => supabase.rpc("add_to_shoot_day" as never, { _day_id: open.id, _content_id: i.id } as never) as never, "Added to the day");
+  };
 
   const removeItem = (contentId: string) =>
-    run(() => supabase.from("shoot_day_items").delete().eq("content_id", contentId), "Removed");
+    run(() => supabase.rpc("remove_from_shoot_day" as never, { _content_id: contentId } as never) as never, "Removed — back to waiting");
+
+  const [shotOpen, setShotOpen] = useState(false);
+  const [shot, setShot] = useState({ title: "", type: "Vertical short-form video", notes: "", link: "", editor: "" });
+  const addShot = async () => {
+    if (!open || !shot.title.trim()) return toast.error("Give the idea a title.");
+    await run(
+      () =>
+        supabase.rpc("add_spontaneous_idea" as never, {
+          _day_id: open.id, _title: shot.title, _type: shot.type, _notes: shot.notes || null,
+          _link: shot.link || null, _editor: shot.editor || null,
+        } as never) as never,
+      "Shot idea added — it's now with editing"
+    );
+    setShotOpen(false);
+    setShot({ title: "", type: "Vertical short-form video", notes: "", link: "", editor: "" });
+  };
 
   const toggleGear = (g: Gear, on: boolean) => {
     if (!open) return;
@@ -690,7 +710,9 @@ export default function Shoots() {
                       <span className="num text-[11px] text-ink-faint w-20 shrink-0">{refCode(i.ref_no)}</span>
                       <span className="truncate">{i.title}</span>
                       <span className="text-xs text-ink-faint">{i.content_type}</span>
-                      {canEditContent && open.status === "draft" && (
+                      {(canEditContent || onCrewToday) && ["draft", "confirmed", "shooting"].includes(open.status) &&
+                        dayItems.some((d) => d.content_id === i.id && d.shoot_day_id === open.id && (d as DayItem & { outcome?: string }).outcome !== "shot" && (d as DayItem & { outcome?: string }).outcome !== "partly") &&
+                        !["Editing", "Review", "Handover", "Posted", "Archived"].includes(i.stage) && (
                         <button className="ml-auto text-ink-faint hover:text-signal focus-ring" onClick={() => removeItem(i.id)} aria-label="Remove">
                           <X className="h-4 w-4" />
                         </button>
@@ -699,18 +721,28 @@ export default function Shoots() {
                   ))}
                   {itemsOf(open.id).length === 0 && <li className="text-xs text-ink-soft">No ideas on this day yet.</li>}
                 </ul>
-                {canEditContent && open.status === "draft" && spareFor(open).length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {spareFor(open).map((i) => (
-                      <button
-                        key={i.id}
-                        onClick={() => addItem(i.id)}
-                        className="rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs press focus-ring inline-flex items-center gap-1"
-                      >
-                        <Plus className="h-3 w-3" /> {i.title}
-                      </button>
-                    ))}
+                {(canEditContent || onCrewToday) && ["draft", "confirmed", "shooting"].includes(open.status) && spareFor(open).length > 0 && (
+                  <div className="mt-3">
+                    <div className="text-[11px] text-ink-faint">Add a waiting idea</div>
+                    <div className="mt-1.5 flex flex-wrap gap-2">
+                      {spareFor(open).map((i) => (
+                        <button
+                          key={i.id}
+                          disabled={busy}
+                          onClick={() => addItem(i)}
+                          className="rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs press focus-ring inline-flex items-center gap-1"
+                        >
+                          <Plus className="h-3 w-3" /> {i.title}
+                          {i.stage !== "Crewed" && <span className="text-ink-faint">· {i.stage}</span>}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                )}
+                {(canEditContent || onCrewToday) && ["confirmed", "shooting", "done"].includes(open.status) && (
+                  <Button variant="outline" size="sm" className="mt-3" onClick={() => setShotOpen(true)}>
+                    <Camera className="h-4 w-4" /> Add an idea we shot today
+                  </Button>
                 )}
               </div>
 
