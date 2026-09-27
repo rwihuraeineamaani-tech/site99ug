@@ -24,6 +24,8 @@ import { buildKpi, kpiWindows, loadKpiRaw, type KpiRaw, type KpiScope } from "@/
 import { loadDashboardLayout, defaultLayoutFor, type PanelItem, type PanelKey } from "@/lib/dashboardPanels";
 import { AssignedWorkPanel, SignOffPanel, TeamLoadPanel, useAssignedWork } from "@/components/dashboard/LeadershipPanels";
 import { RolePanel } from "@/components/dashboard/RolePanels";
+import DeptDashboard from "@/components/dashboard/DeptDashboard";
+import { deptFor } from "@/lib/deptMetrics";
 
 type PendingWeek = {
   account_id: string;
@@ -282,22 +284,13 @@ export default function Dashboard() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {positions.length > 1 && <label className="sr-only" htmlFor="dashboard-position">Dashboard view</label>}
-            {positions.length > 1 && <select id="dashboard-position" className="field min-h-9 py-1.5 text-xs" value={viewRole ?? "all"} onChange={(event) => setViewRole(event.target.value === "all" ? null : event.target.value as StaffRole)}><option value="all">All my work</option>{positions.map((position) => <option key={position} value={position}>{ROLE_LABELS[position]}</option>)}</select>}
+            {positions.length > 1 && <select id="dashboard-position" className="field min-h-9 py-1.5 text-xs" value={viewRole ?? "all"} onChange={(event) => setViewRole(event.target.value === "all" ? null : event.target.value as StaffRole)}><option value="all">Main position</option>{positions.map((position) => <option key={position} value={position}>{ROLE_LABELS[position]}</option>)}</select>}
             <Link to="/app/calendar" className="press rounded-full border border-rule px-3.5 py-2 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring">Open calendar →</Link>
           </div>
         }
       />
 
-      <DeckStrip
-        figures={[
-          { label: "To-Do", value: todoItems.length, tone: todoItems.length ? "signal" : "quiet", to: "/app/todo" },
-          { label: "Work with you", value: onMyPlate.length, to: "/app/content" },
-          { label: "Content in progress", value: live.length, to: "/app/content" },
-          myShares.length
-            ? { label: "Clients you handle", value: myShares.length, to: "/app/kpi" }
-            : { label: "Clients", value: clients ?? "—", to: "/app/residents" },
-        ]}
-      />
+      <DeptDashboard dept={deptFor(viewRole, positions)} userId={userId} canSeeFinance={canSeeFinance} />
 
       {(() => {
         const columnPanel = (key: PanelKey) => {
