@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { openDirectChat } from "@/lib/chat";
 import { loadKpiMonth, ugx, type PersonKpi } from "@/lib/kpiPay";
-import { avatarUrls, completeness, toCsv, type Row } from "@/lib/staffProfile";
+import { avatarUrls, completeness, statusLabel, type FileStatus, toCsv, type Row } from "@/lib/staffProfile";
 import StaffFileForm from "@/components/people/StaffFileForm";
 
 type Member = { user_id: string; display_name: string | null; email: string; title: string | null; phone: string | null; avatar_url: string | null };
@@ -40,6 +40,7 @@ export default function People() {
   const [att, setAtt] = useState<Map<string, number | null>>(new Map());
   const [work, setWork] = useState<Map<string, { open: number; late: number }>>(new Map());
   const [clients, setClients] = useState<Map<string, number>>(new Map());
+  const [fileStatus, setFileStatus] = useState<Map<string, FileStatus>>(new Map());
   const [crew, setCrew] = useState<Map<string, number>>(new Map());
   const [dept, setDept] = useState<Map<string, string>>(new Map());
   const [emp, setEmp] = useState<Map<string, Row>>(new Map());
@@ -113,7 +114,9 @@ export default function People() {
       if (kp) setKpi(new Map(kp.people.map((p) => [p.member.user_id, p])));
       if (hrLevel) {
         const sps = (sp.data as unknown as Row[]) ?? [], svs = (sv.data as unknown as Row[]) ?? [], sds = (sd.data as unknown as { user_id: string; kind: string }[]) ?? [];
-        setFiles(new Map(mem.map((x) => [x.user_id, completeness(sps.find((r) => r.user_id === x.user_id) ?? null, svs.find((r) => r.user_id === x.user_id) ?? null, sds.filter((d) => d.user_id === x.user_id)).pct])));
+        const cs = mem.map((x) => [x.user_id, completeness(sps.find((r) => r.user_id === x.user_id) ?? null, svs.find((r) => r.user_id === x.user_id) ?? null, sds.filter((d) => d.user_id === x.user_id), true, emps.find((e) => e.user_id === x.user_id) ?? {})] as const);
+        setFiles(new Map(cs.map(([k, c]) => [k, c.pct])));
+        setFileStatus(new Map(cs.map(([k, c]) => [k, c.status])));
         const n = await t("staff_notes").select("*").order("created_at", { ascending: false });
         setNotes((n.data as unknown as Note[]) ?? []);
       }
@@ -137,7 +140,7 @@ export default function People() {
       if (filter === "late" && !(work.get(m.user_id)?.late)) return false;
       if (filter === "lowkpi" && !((kpi.get(m.user_id)?.score ?? 100) < 50)) return false;
       if (filter === "ending" && !(soon(emp.get(m.user_id)?.contract_end) || soon(emp.get(m.user_id)?.probation_end))) return false;
-      if (filter === "incomplete" && !((files.get(m.user_id) ?? 100) < 100)) return false;
+      if (filter === "incomplete" && fileStatus.get(m.user_id) === "good") return false;
       return true;
     });
   }, [members, q, filter, deptFilter, presence, work, kpi, emp, files, myDept, dept, userId]);
@@ -228,7 +231,7 @@ export default function People() {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-x-3 text-xs text-ink-soft">
                   <span>{clients.get(m.user_id) ?? 0} clients</span><span>{crew.get(m.user_id) ?? 0} crew slots</span>
-                  {hrLevel && <span>File {files.get(m.user_id) ?? 0}%</span>}
+                  {hrLevel && <span className={fileStatus.get(m.user_id) === "incomplete" ? "text-destructive" : fileStatus.get(m.user_id) === "partly" ? "text-signal" : ""}>File: {statusLabel(fileStatus.get(m.user_id) ?? "incomplete")} ({files.get(m.user_id) ?? 0}%)</span>}
                   {(soon(e?.contract_end) || soon(e?.probation_end)) && <span className="text-signal">{soon(e?.contract_end) ? `Contract ends ${e?.contract_end}` : `Probation ends ${e?.probation_end}`}</span>}
                 </div>
               </li>
@@ -248,7 +251,7 @@ export default function People() {
                   <td>{att.get(m.user_id) ?? "—"}</td>
                   <td>{work.get(m.user_id)?.open ?? 0} / {work.get(m.user_id)?.late ?? 0}</td>
                   <td>{clients.get(m.user_id) ?? 0}</td>
-                  {hrLevel && <td>{files.get(m.user_id) ?? 0}%</td>}
+                  {hrLevel && <td>{statusLabel(fileStatus.get(m.user_id) ?? "incomplete")} · {files.get(m.user_id) ?? 0}%</td>}
                   <td className="pr-3"><Actions m={m} /></td>
                 </tr>
               ))}
