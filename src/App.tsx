@@ -1,6 +1,7 @@
 import { AppLayout } from "@/components/system/AppShell";
 import RelationsOverview from "./pages/app/Relations";
 import TalentPage from "./pages/app/Talent";
+import SopsPage from "./pages/app/Sops";
 import TalentPortal from "./pages/app/TalentPortal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
@@ -191,6 +192,7 @@ const AnimatedRoutes = () => {
           path="/app/inbox"
           element={<Navigate to="/app/chat" replace />}
         />
+        <Route path="/app/sops" element={<RequireRole gate="staff"><SopsPage /></RequireRole>} />
         <Route path="/app/todo" element={<RequireRole gate="staff"><TodoPage /></RequireRole>} />
         <Route path="/app/kpi" element={<RequireRole gate="staff"><KpiPage /></RequireRole>} />
         <Route path="/app/kpi/desk" element={<RequireRole gate="staff"><KpiDesk /></RequireRole>} />
