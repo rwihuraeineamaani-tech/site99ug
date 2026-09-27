@@ -44,7 +44,9 @@ import {
   UserPlus,
   Sparkles,
   Calculator,
+  ChevronDown,
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import HeaderClock from "@/components/deck/HeaderClock";
