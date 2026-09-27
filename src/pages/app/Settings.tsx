@@ -26,6 +26,7 @@ import {
   User,
   UserCircle,
   Wallet,
+  FileText,
 } from "lucide-react";
 import { usePushNotifications, type PushPreferences } from "@/hooks/usePushNotifications";
 
