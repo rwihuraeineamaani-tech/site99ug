@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { deptForPath, deptLabel } from "@/lib/sops";
 import { HelpCircle, Lightbulb } from "lucide-react";
 import { helpFor } from "@/lib/help";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -9,6 +10,7 @@ export default function HelpButton() {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const guide = helpFor(pathname);
+  const sopDept = deptForPath(pathname);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
@@ -40,6 +42,10 @@ export default function HelpButton() {
             <ul className="space-y-2 text-sm text-ink-soft">{guide.tips.map((tip) => <li key={tip}>{tip}</li>)}</ul>
           </div>
         ) : null}
+        <Link to={sopDept ? `/app/sops?dept=${sopDept}` : "/app/sops"} onClick={() => setOpen(false)} className="mt-6 block rounded-md border border-signal/40 p-4 text-sm hover:bg-paper-sunken">
+          <b className="text-signal">Read the full procedures →</b>
+          <span className="mt-1 block text-ink-soft">{sopDept ? `${deptLabel(sopDept)} SOPs` : "SOP Library"}: detailed step-by-step instructions.</span>
+        </Link>
         <p className="mt-6 text-xs text-ink-faint">Still stuck? Message a leader in Chat and point them at this page.</p>
       </SheetContent>
     </Sheet>

@@ -16,6 +16,7 @@ import {
   Package,
   LogOut,
   BookOpen,
+  BookMarked,
   HandCoins,
   Banknote,
   Landmark,
@@ -142,6 +143,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
           { to: "/app/announcements", label: "Announcements", icon: Megaphone, badge: communicationUnread.announcements },
         { to: "/app/approvals", label: "Approvals", icon: BadgeCheck, badge: approvalsWaiting },
         { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
+        { to: "/app/sops", label: "SOP Library", icon: BookMarked, end: true },
         { to: "/app/settings", label: "My settings", icon: UserCog },
       ],
     },
@@ -166,7 +168,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/system-admin?tab=dashboards", label: "Dashboards", icon: Gauge },
         { to: "/app/system-admin?tab=workflows", label: "Workflow editor", icon: Workflow },
         { to: "/app/system-admin?tab=versions", label: "Versions & publishing", icon: BadgeCheck },
-        { to: "/app/system-admin?tab=audit", label: "Audit & health", icon: ShieldCheck },
+        { to: "/app/system-admin?tab=audit", label: "Audit & health", icon: ShieldCheck }, { to: "/app/sops?dept=system", label: "SOPs", icon: BookMarked }
       ],
     });
   }
@@ -177,7 +179,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/legal/contracts", label: "Contracts", icon: FileText },
         { to: "/app/legal/partnerships", label: "Partnerships", icon: Handshake },
         { to: "/app/legal/documents", label: "Documents", icon: BookOpen },
-        { to: "/app/legal/compliance", label: "Compliance", icon: ShieldCheck },
+        { to: "/app/legal/compliance", label: "Compliance", icon: ShieldCheck }, { to: "/app/sops?dept=legal", label: "SOPs", icon: BookMarked }
       ]
     : [];
   if (legal.length) groups.push({ label: "Legal", items: legal });
@@ -190,7 +192,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       { to: "/app/talent/bookings", label: "Bookings", icon: CalendarDays },
       { to: "/app/talent/contracts", label: "Contracts & releases", icon: FileText },
       { to: "/app/talent/campaigns", label: "Campaigns", icon: Megaphone },
-      { to: "/app/talent/forecasts", label: "Forecasts", icon: Calculator },
+      { to: "/app/talent/forecasts", label: "Forecasts", icon: Calculator }, { to: "/app/sops?dept=talent", label: "SOPs", icon: BookMarked }
     ],
   });
 
@@ -202,7 +204,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       { to: "/app/relations/log", label: "Contact log", icon: PhoneCall },
       { to: "/app/relations/followups", label: "Follow-ups", icon: ListChecks },
       { to: "/app/relations/renewals", label: "Renewals", icon: RefreshCw },
-      { to: "/app/relations/feedback", label: "Feedback", icon: Star },
+      { to: "/app/relations/feedback", label: "Feedback", icon: Star }, { to: "/app/sops?dept=relations", label: "SOPs", icon: BookMarked }
     ],
   });
 
@@ -212,7 +214,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       { to: "/app/strategy", label: "Overview", end: true, icon: Compass },
       { to: "/app/strategy/map", label: "Map builder", icon: Workflow },
       { to: "/app/strategy/goals", label: "Goals & targets", icon: Target },
-      { to: "/app/strategy/approvals", label: "Approvals", icon: BadgeCheck, badge: strategyWaiting },
+      { to: "/app/strategy/approvals", label: "Approvals", icon: BadgeCheck, badge: strategyWaiting }, { to: "/app/sops?dept=strategy", label: "SOPs", icon: BookMarked }
     ],
   });
 
@@ -224,7 +226,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/ops/deadlines", label: "Deadlines", icon: CalendarClock },
         { to: "/app/ops/report", label: "Weekly report", icon: FileText },
         { to: "/app/ops/announcements", label: "Announcements", icon: Megaphone },
-        { to: "/app/equipment", label: "Equipment", icon: Package },
+        { to: "/app/equipment", label: "Equipment", icon: Package }, { to: "/app/sops?dept=ops", label: "SOPs", icon: BookMarked }
       ]
     : [];
   if (ops.length) groups.push({ label: "Management", items: ops });
@@ -245,9 +247,9 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/finance/invoices", label: "Invoices", icon: FileText },
         { to: "/app/finance/filing", label: "Filing", icon: FileText },
         { to: "/app/finance/reports", label: "Reports", icon: FileText },
-        { to: "/app/finance/lookup", label: "Look up", icon: Search },
+        { to: "/app/finance/lookup", label: "Look up", icon: Search }, { to: "/app/sops?dept=finance", label: "SOPs", icon: BookMarked }
       ]
-    : [{ to: "/app/finance/requests", label: "Requests", icon: HandCoins }];
+    : [{ to: "/app/finance/requests", label: "Requests", icon: HandCoins }, { to: "/app/sops?dept=finance", label: "SOPs", icon: BookMarked }];
   groups.push({ label: "Finance", items: finance });
 
   if (winding.length) groups.push({ label: "Winding down", items: winding });

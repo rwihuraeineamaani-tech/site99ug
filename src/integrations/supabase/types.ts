@@ -5238,6 +5238,133 @@ export type Database = {
           },
         ]
       }
+      sop_reads: {
+        Row: {
+          id: string
+          read_at: string
+          sop_id: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          id?: string
+          read_at?: string
+          sop_id: string
+          user_id: string
+          version: number
+        }
+        Update: {
+          id?: string
+          read_at?: string
+          sop_id?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sop_reads_sop_id_fkey"
+            columns: ["sop_id"]
+            isOneToOne: false
+            referencedRelation: "sops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sop_versions: {
+        Row: {
+          change_note: string | null
+          created_at: string
+          edited_by: string | null
+          id: string
+          owner_role: string | null
+          sections: Json
+          sop_id: string
+          summary: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          change_note?: string | null
+          created_at?: string
+          edited_by?: string | null
+          id?: string
+          owner_role?: string | null
+          sections: Json
+          sop_id: string
+          summary?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          change_note?: string | null
+          created_at?: string
+          edited_by?: string | null
+          id?: string
+          owner_role?: string | null
+          sections?: Json
+          sop_id?: string
+          summary?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sop_versions_sop_id_fkey"
+            columns: ["sop_id"]
+            isOneToOne: false
+            referencedRelation: "sops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sops: {
+        Row: {
+          created_at: string
+          department: string
+          id: string
+          owner_role: string | null
+          published_at: string | null
+          sections: Json
+          sort: number
+          status: string
+          summary: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          id?: string
+          owner_role?: string | null
+          published_at?: string | null
+          sections?: Json
+          sort?: number
+          status?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          id?: string
+          owner_role?: string | null
+          published_at?: string | null
+          sections?: Json
+          sort?: number
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       staff_pay: {
         Row: {
           base_salary_ugx: number
@@ -6430,6 +6557,7 @@ export type Database = {
         Args: { _version_id: string; _workflow_id: string }
         Returns: undefined
       }
+      publish_sop: { Args: { _id: string; _note: string }; Returns: number }
       purge_activity_log: { Args: never; Returns: undefined }
       queue_push: {
         Args: {
