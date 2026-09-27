@@ -6,6 +6,7 @@ import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip, SearchInput, SelectFilter, FilterBar } from "@/components/system";
 import AccountsPanel from "@/components/system/AccountsPanel";
 import ClientPayPanel from "@/components/system/ClientPayPanel";
+import PortalAccessPanel from "@/components/residents/PortalAccessPanel";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { logoUrls, initials } from "@/lib/logo";
 import { ChevronRight, LayoutGrid, Rows3, CalendarClock, Camera, Clapperboard, UserRound, Wallet } from "lucide-react";
@@ -162,7 +163,8 @@ export default function ResidentsHub() {
         <p className="text-sm text-ink-soft">Loading…</p>
       ) : tab === "accounts" ? (
         <>
-          <AccountsPanel showNames index="01" />
+          <PortalAccessPanel index="00" />
+          <div className="mt-14"><AccountsPanel showNames index="01" /></div>
           {canSeeFinance && (
             <div className="mt-14">
               <ClientPayPanel />

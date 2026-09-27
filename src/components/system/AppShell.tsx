@@ -40,6 +40,7 @@ import {
   PhoneCall,
   RefreshCw,
   Star,
+  UserPlus,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -168,6 +169,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
     label: "Client Relations",
     items: [
       { to: "/app/relations", label: "Overview", end: true, icon: HeartHandshake },
+      { to: "/app/relations/onboarding", label: "Onboarding", icon: UserPlus },
       { to: "/app/relations/log", label: "Contact log", icon: PhoneCall },
       { to: "/app/relations/followups", label: "Follow-ups", icon: ListChecks },
       { to: "/app/relations/renewals", label: "Renewals", icon: RefreshCw },

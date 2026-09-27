@@ -6,6 +6,7 @@ import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
 import AccountsPanel from "@/components/system/AccountsPanel";
+import PortalAccessPanel from "@/components/residents/PortalAccessPanel";
 import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
@@ -315,6 +316,9 @@ export default function ResidentRecordPage() {
               <div className="mt-1 truncate">{resident.email ?? "no email yet"}</div>
               <div className="text-[11px] text-ink-faint">{resident.user_id ? "signed up" : "not signed up yet"}</div>
             </div>
+          </div>
+          <div className="mt-14">
+            <PortalAccessPanel residentId={id} index="00" />
           </div>
           <div className="mt-14">
             <AccountsPanel residentId={id} showPending showNames={false} index="01" />
