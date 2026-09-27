@@ -39,6 +39,7 @@ export const CREW_ROLES = [
   "Strategist",
   "Talent",
   "Sound",
+  "Other",
 ];
 
 export const PLATFORMS = ["TikTok", "Instagram", "YouTube", "Facebook", "X", "LinkedIn", "WhatsApp"];
