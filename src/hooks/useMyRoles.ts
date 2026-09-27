@@ -198,6 +198,7 @@ export function useRolesState(): RoleState {
         setDisplayName(null);
         setRoles([]);
         setClientId(null);
+        setTalentId(null);
         setJobTitle(null);
         setAssignments([]);
         setLoading(false);
