@@ -9,6 +9,8 @@ import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { logoUrls, initials } from "@/lib/logo";
 import { ChevronRight, LayoutGrid, Rows3 } from "lucide-react";
+import { clientTone } from "@/lib/contractLifecycle";
+import ClientLifecycleSwitch from "@/components/residents/ClientLifecycleSwitch";
 
 export type ResidentRecord = {
   id: string;
@@ -28,7 +30,7 @@ export type ResidentRecord = {
 const VIEW_KEY = "site99:residents-view";
 
 export default function ResidentsHub() {
-  const { userId, canSeeFinance } = useMyRoles();
+  const { userId, canSeeFinance, has } = useMyRoles();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<ResidentRecord[]>([]);
   const [logos, setLogos] = useState<Record<string, string>>({});
@@ -110,6 +112,7 @@ export default function ResidentsHub() {
         <p className="text-sm text-ink-soft">Loading…</p>
       ) : (
         <>
+          <ClientLifecycleSwitch canSwitch={has("founder", "admin")} />
           <AccountsPanel showNames index="00" />
 
           {canSeeFinance && (
@@ -169,7 +172,7 @@ export default function ResidentsHub() {
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      {r.status && <StatusChip value={r.status} tone={r.status === "active" ? "teal" : "neutral"} />}
+                      {r.status && <StatusChip value={r.status} tone={clientTone(r.status)} />}
                       {mine(r) && <StatusChip value="yours" tone="violet" />}
                       {r.onboarding_status === "in_progress" && <StatusChip value="onboarding" tone="amber" />}
                       <StatusChip
@@ -202,7 +205,7 @@ export default function ResidentsHub() {
                       </span>
                       <span className="display text-base">{r.name}</span>
                       {r.territory && <span className="text-xs text-ink-faint">{r.territory}</span>}
-                      {r.status && <StatusChip value={r.status} tone={r.status === "active" ? "teal" : "neutral"} />}
+                      {r.status && <StatusChip value={r.status} tone={clientTone(r.status)} />}
                       {mine(r) && <StatusChip value="yours" tone="violet" />}
                       <span className="ml-auto flex items-center gap-4 text-[11px] text-ink-soft">
                         <span className="num">{accountCount[r.id] ?? 0} accounts</span>

@@ -16,6 +16,7 @@ import MoneyPanel from "@/components/residents/MoneyPanel";
 import WebsitePanel from "@/components/residents/WebsitePanel";
 import { logoUrl, initials } from "@/lib/logo";
 import { INVOICE_STATUS_LABEL, INVOICE_TONE, outstanding, type Invoice } from "@/lib/invoices";
+import { CONTRACT_LABEL, CONTRACT_TONE, RENEWABLE, loadContractMoney, startRenewal, type ContractMoney } from "@/lib/contractLifecycle";
 import type { ResidentRecord } from "./Residents";
 
 type Member = { user_id: string; display_name: string | null; email: string; title: string | null };
@@ -42,6 +43,7 @@ type Contract = {
   status: string;
   notes: string | null;
   created_at: string;
+  renewed_from_id?: string | null;
 };
 type OnboardingStep = { id: string; step_key: string; title: string; department: string; owner_user_id: string | null; status: string; due_on: string | null; note: string | null };
 
@@ -64,6 +66,7 @@ export default function ResidentRecordPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [days, setDays] = useState<Day[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [money, setMoney] = useState<ContractMoney[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [onboarding, setOnboarding] = useState<OnboardingStep[]>([]);
   const [notes, setNotes] = useState("");
@@ -99,6 +102,7 @@ export default function ResidentRecordPage() {
     setItems((content as unknown as Item[]) ?? []);
     setDays((sd as unknown as Day[]) ?? []);
     setContracts((cts as unknown as Contract[]) ?? []);
+    setMoney(await loadContractMoney(id));
     setInvoices((inv as Invoice[]) ?? []);
     setOnboarding((onboardingRows as OnboardingStep[]) ?? []);
     setLoading(false);
@@ -117,8 +121,8 @@ export default function ResidentRecordPage() {
 
   const live = useMemo(() => items.filter((i) => LIVE_STAGES.includes(i.stage)), [items]);
   const archive = useMemo(() => items.filter((i) => !LIVE_STAGES.includes(i.stage)), [items]);
-  const active = contracts.filter((c) => c.status === "active");
-  const past = contracts.filter((c) => c.status !== "active");
+  const active = contracts.filter((c) => c.status === "active" || c.status === "renewal_due");
+  const past = contracts.filter((c) => !(c.status === "active" || c.status === "renewal_due"));
 
   const saveNotes = async () => {
     setSavingNotes(true);
@@ -152,22 +156,45 @@ export default function ResidentRecordPage() {
     window.open(data.signedUrl, "_blank", "noopener");
   };
 
-  const contractRow = (c: Contract) => (
-    <li key={c.id} className="px-5 py-4 flex items-center gap-3 flex-wrap">
-      <FileText className="h-4 w-4 text-ink-faint" />
-      <span className="text-sm font-semibold">{c.title}</span>
-      <StatusChip value={c.status} tone={c.status === "active" ? "teal" : "neutral"} />
-      <span className="text-[11px] text-ink-faint num">
-        {day(c.starts_on)} → {c.ends_on ? day(c.ends_on) : "open"}
-      </span>
-      <span className="num text-sm ml-auto">{ugx(c.value_ugx)}</span>
-      {canManageContracts && c.file_path && (
-        <Button size="sm" variant="outline" onClick={() => openFile(c)}>
-          Open
-        </Button>
-      )}
-    </li>
-  );
+  const renew = async (c: Contract) => {
+    const { error } = await startRenewal(c);
+    if (error) return toast.error(error.message);
+    toast.success("Renewal draft created. Mark it Signed in Legal once the client signs.");
+    load();
+  };
+
+  const contractRow = (c: Contract) => {
+    const m = money.find((x) => x.contract_id === c.id);
+    const hasRenewal = contracts.some((x) => x.renewed_from_id === c.id && x.status !== "cancelled");
+    return (
+      <li key={c.id} className="px-5 py-4 flex items-center gap-3 flex-wrap">
+        <FileText className="h-4 w-4 text-ink-faint" />
+        <span className="text-sm font-semibold">{c.title}</span>
+        <StatusChip value={CONTRACT_LABEL[c.status] ?? c.status} tone={CONTRACT_TONE[c.status] ?? "neutral"} />
+        <span className="text-[11px] text-ink-faint num">
+          {day(c.starts_on)} → {c.ends_on ? day(c.ends_on) : "open"}
+        </span>
+        <span className="num text-sm ml-auto">{ugx(c.value_ugx)}</span>
+        {m && (
+          <span className="w-full text-[11px] text-ink-soft num flex flex-wrap gap-x-4">
+            <span>Invoiced {ugx(m.invoiced_ugx)}</span>
+            <span>Paid {ugx(m.paid_ugx)}</span>
+            <span className={m.outstanding_ugx > 0 ? "text-signal font-semibold" : ""}>Still owed {ugx(m.outstanding_ugx)}</span>
+          </span>
+        )}
+        {canManageContracts && RENEWABLE.has(c.status) && !hasRenewal && (
+          <Button size="sm" variant="soft" onClick={() => renew(c)}>
+            Start renewal
+          </Button>
+        )}
+        {canManageContracts && c.file_path && (
+          <Button size="sm" variant="outline" onClick={() => openFile(c)}>
+            Open
+          </Button>
+        )}
+      </li>
+    );
+  };
 
 
   return (
@@ -394,15 +421,19 @@ export default function ResidentRecordPage() {
           )}
 
           <div className="mt-14">
-            <SectionHeading index="07" title="Contracts" hint="managed in Legal" />
+            <SectionHeading index="07" title="Contracts" hint="status follows the dates and payments" />
+            <p className="text-xs text-ink-soft mb-3 max-w-2xl">
+              A client is Active only when onboarding is finished and a signed contract is running. We flag the renewal 14 days before
+              the end. With no renewal, it becomes Complete once everything is paid — otherwise it shows the balance still owed.
+            </p>
             <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
               {active.map(contractRow)}
-              {active.length === 0 && <li className="px-5 py-4 text-sm text-ink-soft">No active contract on file.</li>}
+              {active.length === 0 && <li className="px-5 py-4 text-sm text-ink-soft">No running contract right now.</li>}
             </ul>
 
             {past.length > 0 && (
               <div className="mt-6">
-                <div className="eyebrow text-[10px] text-ink-faint mb-2">Archived</div>
+                <div className="eyebrow text-[10px] text-ink-faint mb-2">Earlier and upcoming</div>
                 <ul className="surface-sunken rounded-2xl overflow-hidden divide-y divide-rule">{past.map(contractRow)}</ul>
               </div>
             )}

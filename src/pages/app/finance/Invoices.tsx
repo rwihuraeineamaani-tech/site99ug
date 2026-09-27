@@ -20,6 +20,7 @@ import {
 } from "@/lib/invoices";
 
 type Contract = {
+  key: string;
   id: string;
   title: string;
   party_name: string;
@@ -78,6 +79,7 @@ export default function Invoices() {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [residents, setResidents] = useState<{ id: string; name: string }[]>([]);
   const [residentFilter, setResidentFilter] = useState(() => searchParams.get("resident") ?? "");
+  const [contractFilter, setContractFilter] = useState(() => (searchParams.get("contract") ? `rc:${searchParams.get("contract")}` : ""));
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -86,12 +88,13 @@ export default function Invoices() {
   const [settle, setSettle] = useState<{ inv: Invoice; wallet: string; amount: string; reference: string; note: string } | null>(null);
 
   const load = useCallback(async () => {
-    const [inv, ln, ct, rs, wl] = await Promise.all([
+    const [inv, ln, ct, rs, wl, rc] = await Promise.all([
       supabase.from("invoices").select("*").order("issue_date", { ascending: false }),
       supabase.from("invoice_lines").select("*").order("sort"),
       supabase.from("contracts").select("id, title, party_name, resident_id, value_ugx, status"),
       supabase.from("residents").select("id, name").order("display_order"),
       supabase.from("wallets").select("id, name, active, sort").eq("active", true).order("sort"),
+      supabase.from("resident_contracts").select("id, title, resident_id, value_ugx, status"),
     ]);
     setRows((inv.data as Invoice[]) ?? []);
     const map: Record<string, InvoiceLine[]> = {};
@@ -99,8 +102,17 @@ export default function Invoices() {
       (map[l.invoice_id] ??= []).push(l);
     });
     setLines(map);
-    setContracts((ct.data as Contract[]) ?? []);
-    setResidents((rs.data as { id: string; name: string }[]) ?? []);
+    const resList = (rs.data as { id: string; name: string }[]) ?? [];
+    const names = new Map(resList.map((r) => [r.id, r.name]));
+    setContracts([
+      ...(((rc.data as Omit<Contract, "key" | "party_name">[]) ?? []).map((c) => ({
+        ...c,
+        key: `rc:${c.id}`,
+        party_name: names.get(c.resident_id ?? "") ?? "Client",
+      }))),
+      ...(((ct.data as Omit<Contract, "key">[]) ?? []).map((c) => ({ ...c, key: `c:${c.id}` }))),
+    ]);
+    setResidents(resList);
     setWallets((wl.data as Wallet[]) ?? []);
   }, []);
 
@@ -113,9 +125,25 @@ export default function Invoices() {
     [residents]
   );
 
+  const invContractKey = (r: Invoice) => {
+    const x = r as Invoice & { resident_contract_id?: string | null; contract_id?: string | null };
+    return x.resident_contract_id ? `rc:${x.resident_contract_id}` : x.contract_id ? `c:${x.contract_id}` : "";
+  };
+  const contractTitle = (r: Invoice) => {
+    const k = invContractKey(r);
+    return k ? contracts.find((c) => c.key === k)?.title ?? null : null;
+  };
+
   const list = useMemo(
-    () => rows.filter((r) => r.direction === tab && (!residentFilter || r.resident_id === residentFilter)),
-    [rows, tab, residentFilter]
+    () =>
+      rows.filter(
+        (r) =>
+          r.direction === tab &&
+          (!residentFilter || r.resident_id === residentFilter) &&
+          (!contractFilter || invContractKey(r) === contractFilter)
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rows, tab, residentFilter, contractFilter]
   );
   const owed = list.filter((r) => r.status !== "paid" && r.status !== "void").reduce((t, r) => t + outstanding(r), 0);
 
@@ -128,15 +156,16 @@ export default function Invoices() {
       )
     : null;
 
-  const prefillFromContract = (id: string) => {
+  const prefillFromContract = (key: string) => {
     setDraft((d) => {
       if (!d) return d;
-      const c = contracts.find((x) => x.id === id);
+      const c = contracts.find((x) => x.key === key);
       if (!c) return { ...d, contract_id: "" };
       return {
         ...d,
-        contract_id: id,
+        contract_id: key,
         party_name: c.party_name,
+        party_kind: c.key.startsWith("rc:") ? "resident" : d.party_kind,
         resident_id: c.resident_id ?? d.resident_id,
         lines: [{ description: c.title, qty: 1, unit: c.value_ugx ?? 0 }],
       };
@@ -180,7 +209,8 @@ export default function Invoices() {
         party_kind: draft.party_kind,
         party_name: draft.party_name.trim(),
         resident_id: draft.resident_id || null,
-        contract_id: draft.contract_id || null,
+        contract_id: draft.contract_id.startsWith("c:") ? draft.contract_id.slice(2) : null,
+        resident_contract_id: draft.contract_id.startsWith("rc:") ? draft.contract_id.slice(3) : null,
         issue_date: draft.issue_date,
         due_date: draft.due_date || null,
         period_label: draft.period_label || null,
@@ -337,6 +367,21 @@ ${inv.note ? `<p class="muted">${esc(inv.note)}</p>` : ""}
             </option>
           ))}
         </select>
+        <select
+          aria-label="Filter by contract"
+          className="rounded-lg border border-rule bg-paper-raised px-3 py-1.5 text-xs outline-none focus:border-signal"
+          value={contractFilter}
+          onChange={(e) => setContractFilter(e.target.value)}
+        >
+          <option value="">All contracts</option>
+          {contracts
+            .filter((c) => !residentFilter || c.resident_id === residentFilter)
+            .map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.party_name} — {c.title}
+              </option>
+            ))}
+        </select>
         <span className="ml-auto text-sm text-ink-soft">
           Outstanding <Money amount={owed} className="font-semibold" />
         </span>
@@ -351,11 +396,13 @@ ${inv.note ? `<p class="muted">${esc(inv.note)}</p>` : ""}
                 <span className="eyebrow text-ink-faint">Prefill from a contract</span>
                 <select className={field} value={draft.contract_id} onChange={(e) => prefillFromContract(e.target.value)}>
                   <option value="">No contract</option>
-                  {contracts.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.party_name} — {c.title}
-                    </option>
-                  ))}
+                  {contracts
+                    .filter((c) => !["cancelled", "complete", "renewed", "archived"].includes(c.status))
+                    .map((c) => (
+                      <option key={c.key} value={c.key}>
+                        {c.party_name} — {c.title}
+                      </option>
+                    ))}
                 </select>
               </label>
             )}
@@ -513,6 +560,7 @@ ${inv.note ? `<p class="muted">${esc(inv.note)}</p>` : ""}
               <span className="num text-xs text-ink-faint">{inv.number ?? "—"}</span>
               <span className="font-medium">{inv.party_name}</span>
               {residentName(inv.resident_id) && <StatusChip tone="blue" value={residentName(inv.resident_id) ?? "Client"} />}
+              {contractTitle(inv) && <StatusChip tone="violet" value={`Contract · ${contractTitle(inv)}`} />}
               <span className="text-sm text-ink-soft">{inv.period_label ?? catLabel(inv.category)}</span>
               <StatusChip tone={INVOICE_TONE[inv.status]} value={INVOICE_STATUS_LABEL[inv.status]} />
               {inv.recurring && <StatusChip tone="violet" value="Monthly" />}
