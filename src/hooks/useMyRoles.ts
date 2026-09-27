@@ -103,6 +103,7 @@ const STRATEGY: StaffRole[] = ["admin", "founder", "managing_director", "strateg
 /** Department sections of the internal system. */
 export type Department =
   | "content"
+  | "relations"
   | "clients"
   | "sales"
   | "legal"
@@ -272,6 +273,7 @@ export function useRolesState(): RoleState {
 
   const departments: Record<Department, boolean> = {
     content: isStaff,
+    relations: isLeadership || has("client_relations", "communications", "sales_head") || handlesClients,
     clients: canManageClients || has("legal", "finance_ops", "talent", "communications"),
     sales: has("admin", "founder", "managing_director", "sales_head"),
     legal: has("admin", "founder", "managing_director", "legal"),

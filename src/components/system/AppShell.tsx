@@ -228,7 +228,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
 const SIDEBAR_SCROLL_KEY = "site99:sidebar-scroll";
 
 function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
-  const { state, isMobile, setOpenMobile } = useSidebar();
+  const { state, isMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
   const { pathname, search } = useLocation();
   const scrollRef = useRef<HTMLDivElement | null>(null);
