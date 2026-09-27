@@ -1065,11 +1065,11 @@ export default function ContentPipeline() {
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <select
             className="rounded-full border border-dashed border-rule bg-paper-raised px-3 py-1.5 text-xs press focus:border-signal focus-ring"
-            value={addingOther ? "__other__" : ""}
+            value={addingOther ? "Other" : ""}
             onChange={(e) => {
               const v = e.target.value;
               if (!v) return;
-              if (v === "__other__") {
+              if (v === "Other") {
                 setAddingOther(true);
               } else {
                 setAddingOther(false);
@@ -1083,7 +1083,6 @@ export default function ContentPipeline() {
                 {r}
               </option>
             ))}
-            <option value="__other__">Other…</option>
           </select>
           {addingOther && (
             <>
