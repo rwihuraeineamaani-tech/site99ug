@@ -618,6 +618,108 @@ export type Database = {
           },
         ]
       }
+      attendance_records: {
+        Row: {
+          clock_in_at: string | null
+          clock_out_at: string | null
+          created_at: string
+          day: string
+          excuse_reason: string | null
+          excused_by: string | null
+          id: string
+          lat: number | null
+          late_minutes: number
+          lng: number | null
+          note: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clock_in_at?: string | null
+          clock_out_at?: string | null
+          created_at?: string
+          day: string
+          excuse_reason?: string | null
+          excused_by?: string | null
+          id?: string
+          lat?: number | null
+          late_minutes?: number
+          lng?: number | null
+          note?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clock_in_at?: string | null
+          clock_out_at?: string | null
+          created_at?: string
+          day?: string
+          excuse_reason?: string | null
+          excused_by?: string | null
+          id?: string
+          lat?: number | null
+          late_minutes?: number
+          lng?: number | null
+          note?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      attendance_settings: {
+        Row: {
+          cutoff_time: string
+          enabled: boolean
+          enforce_cutoff: boolean
+          exempt_user_ids: string[]
+          geo_lat: number | null
+          geo_lng: number | null
+          geo_radius_m: number
+          geofence_enabled: boolean
+          grace_min: number
+          id: number
+          require_clockout: boolean
+          updated_at: string
+          updated_by: string | null
+          work_days: number[]
+        }
+        Insert: {
+          cutoff_time?: string
+          enabled?: boolean
+          enforce_cutoff?: boolean
+          exempt_user_ids?: string[]
+          geo_lat?: number | null
+          geo_lng?: number | null
+          geo_radius_m?: number
+          geofence_enabled?: boolean
+          grace_min?: number
+          id?: number
+          require_clockout?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          work_days?: number[]
+        }
+        Update: {
+          cutoff_time?: string
+          enabled?: boolean
+          enforce_cutoff?: boolean
+          exempt_user_ids?: string[]
+          geo_lat?: number | null
+          geo_lng?: number | null
+          geo_radius_m?: number
+          geofence_enabled?: boolean
+          grace_min?: number
+          id?: number
+          require_clockout?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          work_days?: number[]
+        }
+        Relationships: []
+      }
       availability_blocks: {
         Row: {
           all_day: boolean
@@ -6327,6 +6429,56 @@ export type Database = {
         }[]
       }
       client_pot_balance: { Args: { _resident_id: string }; Returns: number }
+      clock_in: {
+        Args: { _lat?: number; _lng?: number; _note?: string }
+        Returns: {
+          clock_in_at: string | null
+          clock_out_at: string | null
+          created_at: string
+          day: string
+          excuse_reason: string | null
+          excused_by: string | null
+          id: string
+          lat: number | null
+          late_minutes: number
+          lng: number | null
+          note: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "attendance_records"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      clock_out: {
+        Args: never
+        Returns: {
+          clock_in_at: string | null
+          clock_out_at: string | null
+          created_at: string
+          day: string
+          excuse_reason: string | null
+          excused_by: string | null
+          id: string
+          lat: number | null
+          late_minutes: number
+          lng: number | null
+          note: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "attendance_records"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       contract_effective_status: {
         Args: { _c: Database["public"]["Tables"]["resident_contracts"]["Row"] }
@@ -6402,6 +6554,10 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      excuse_attendance: {
+        Args: { _day: string; _reason: string; _user: string }
+        Returns: undefined
       }
       finance_lookup: {
         Args: { _limit?: number; _q: string }
