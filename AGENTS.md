@@ -7,3 +7,4 @@
 - Staff and portal pages render inside one persistent `AppLayout` route (AppShell becomes a pass-through when nested) so the sidebar never remounts on navigation.
 - Talent portal accounts carry only the `user` role and are recognised through `talent_users` (`my_talent_id()`), so talent never gets staff access; confirmed talent bookings raise bills through `raise_bill_for_source('talent_booking')` like every other outgoing payment.
 - Client onboarding runs from one 9-step checklist (`start_resident_onboarding`); steps flagged `requires_md_approval` can only be completed through `approve_onboarding_step` (trigger-enforced), and the handover sign-off marks the client onboarded.
+- SOPs live in `sops` (+ `sop_versions`, `sop_reads`); only System Admin/Founders write them (RLS), and `publish_sop` snapshots each published version so staff re-confirm reading.

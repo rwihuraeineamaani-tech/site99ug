@@ -156,7 +156,6 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   if (departments.clients) dept.push({ to: "/app/residents", label: "Residents", icon: Handshake });
   if (departments.sales) dept.push({ to: "/app/sales", label: "Sales", icon: TrendingUp });
   if (departments.site) dept.push({ to: "/app/site", label: "Site editing", icon: PenSquare });
-  if (dept.length) dept.push({ to: "/app/sops", label: "Department SOPs", icon: BookMarked });
   if (dept.length) groups.push({ label: "Departments", items: dept });
 
   if (has("admin")) {
