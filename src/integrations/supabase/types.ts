@@ -5707,6 +5707,10 @@ export type Database = {
         }
         Returns: string
       }
+      move_shoot_day_item: {
+        Args: { _content_id: string; _to_day_id?: string }
+        Returns: string
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
