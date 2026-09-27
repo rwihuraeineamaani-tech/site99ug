@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { StatusChip } from "@/components/system";
-import { DeckHeader, DeckPanel, DeckList, DeckStrip, DeckColumn, DeckCard } from "@/components/deck";
+import { DeckHeader, DeckPanel, DeckList, DeckColumn, DeckCard } from "@/components/deck";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CalendarEntry, KIND_LABEL, addDays, loadCalendar, weekStart } from "@/lib/calendarFeed";
 
