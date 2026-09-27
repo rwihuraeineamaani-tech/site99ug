@@ -44,7 +44,9 @@ import {
   UserPlus,
   Sparkles,
   Calculator,
+  ChevronDown,
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import HeaderClock from "@/components/deck/HeaderClock";
@@ -259,8 +261,26 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
 
 
 const SIDEBAR_SCROLL_KEY = "site99:sidebar-scroll";
+const SIDEBAR_GROUPS_KEY = "site99:sidebar-groups";
 
-function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
+function itemIsActive(item: ShellNavItem, pathname: string, search: string) {
+  const [itemPath, itemQuery] = item.to.split("?");
+  return itemQuery
+    ? pathname === itemPath && search.includes(itemQuery)
+    : item.end
+    ? pathname === item.to && (!item.to.startsWith("/app/system-admin") || !search)
+    : pathname.startsWith(item.to);
+}
+
+function readOpenGroups(): Record<string, boolean> {
+  try {
+    return JSON.parse(sessionStorage.getItem(SIDEBAR_GROUPS_KEY) || "{}") as Record<string, boolean>;
+  } catch {
+    return {};
+  }
+}
+
+function ShellSidebar({ groups, compact = false }: { groups: ShellNavGroup[]; compact?: boolean }) {
   const { state, isMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
   const { pathname, search } = useLocation();
@@ -277,21 +297,53 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Section containing the current page is always open; "Overview" and the
+  // first group start open; everything else starts closed. Choices are
+  // remembered per browser session so navigating doesn't re-collapse them.
+  const activeLabel = groups.find((g) => g.items.some((i) => itemIsActive(i, pathname, search)))?.label;
+  const [open, setOpen] = useState<Record<string, boolean>>(() => {
+    const saved = readOpenGroups();
+    const next: Record<string, boolean> = {};
+    groups.forEach((g, i) => {
+      next[g.label] = saved[g.label] ?? (g.label === "Overview" || i === 0);
+    });
+    return next;
+  });
+
+  const toggleGroup = (label: string, next: boolean) => {
+    setOpen((prev) => {
+      const merged = { ...prev, [label]: next };
+      sessionStorage.setItem(SIDEBAR_GROUPS_KEY, JSON.stringify(merged));
+      return merged;
+    });
+  };
+
   return (
     <Sidebar collapsible="icon" className="border-r border-rule">
       <SidebarContent ref={scrollRef} className="bg-paper">
-        {groups.map((group) => (
-          <SidebarGroup key={group.label}>
-            {!collapsed && <SidebarGroupLabel className="eyebrow text-ink-faint">{group.label}</SidebarGroupLabel>}
+        {groups.map((group) => {
+          const isOpen = collapsed || open[group.label] || group.label === activeLabel;
+          return (
+          <Collapsible
+            key={group.label}
+            open={isOpen}
+            onOpenChange={(next) => toggleGroup(group.label, next)}
+            className="group/collapsible"
+          >
+          <SidebarGroup className={compact ? "py-1" : undefined}>
+            {!collapsed && (
+              <SidebarGroupLabel asChild className="eyebrow text-ink-faint">
+                <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 hover:text-ink focus-ring">
+                  <span>{group.label}</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform", !isOpen && "-rotate-90")} />
+                </CollapsibleTrigger>
+              </SidebarGroupLabel>
+            )}
+            <CollapsibleContent forceMount={collapsed ? true : undefined}>
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className={compact ? "gap-0" : undefined}>
                 {group.items.map((item) => {
-                  const [itemPath, itemQuery] = item.to.split("?");
-                  const active = itemQuery
-                    ? pathname === itemPath && search.includes(itemQuery)
-                    : item.end
-                    ? pathname === item.to && (!item.to.startsWith("/app/system-admin") || !search)
-                    : pathname.startsWith(item.to);
+                  const active = itemIsActive(item, pathname, search);
                   const Icon = item.icon ?? LayoutDashboard;
                   return (
                     <SidebarMenuItem key={`${group.label}-${item.to}-${item.label}`}>
@@ -301,6 +353,7 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
                           end={item.end}
                                                     className={cn(
                             "group relative flex min-h-11 items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring md:min-h-0",
+                            compact && "md:py-1.5 md:text-[13px]",
                             active
                               ? "bg-acc-violet-soft text-acc-violet"
                               : "text-ink-soft hover:text-ink hover:bg-paper-sunken"
@@ -334,8 +387,11 @@ function ShellSidebar({ groups }: { groups: ShellNavGroup[] }) {
                 })}
               </SidebarMenu>
             </SidebarGroupContent>
+            </CollapsibleContent>
           </SidebarGroup>
-        ))}
+          </Collapsible>
+          );
+        })}
       </SidebarContent>
     </Sidebar>
   );
@@ -407,14 +463,16 @@ function ShellFrame({
   }, [theme]);
 
   // Pull the saved choice once we know who is signed in.
+  const [navDensity, setNavDensity] = useState<"comfortable" | "compact">("comfortable");
   useEffect(() => {
     if (!userId) return;
     let cancel = false;
     (async () => {
-      const { data } = await supabase.from("team_members").select("theme").eq("user_id", userId).maybeSingle();
-      const saved = (data as { theme?: string } | null)?.theme;
+      const { data } = await supabase.from("team_members").select("theme, nav_density").eq("user_id", userId).maybeSingle();
+      const row = data as { theme?: string; nav_density?: string } | null;
       if (cancel) return;
-      if (saved === "dark" || saved === "light" || saved === "system") setTheme(saved);
+      if (row?.theme === "dark" || row?.theme === "light" || row?.theme === "system") setTheme(row.theme);
+      if (row?.nav_density === "compact" || row?.nav_density === "comfortable") setNavDensity(row.nav_density);
     })();
     return () => {
       cancel = true;
@@ -438,7 +496,7 @@ function ShellFrame({
           light && "deck-light"
         )}
       >
-        {groups.length > 0 && <ShellSidebar groups={groups} />}
+        {groups.length > 0 && <ShellSidebar groups={groups} compact={navDensity === "compact"} />}
 
         <div className="flex-1 flex flex-col min-w-0">
           <header className="sticky top-0 z-40 h-16 rule-b bg-paper/95 backdrop-blur flex items-center gap-2 px-2.5 md:gap-3 md:px-6">

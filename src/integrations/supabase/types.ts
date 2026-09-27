@@ -5777,33 +5777,42 @@ export type Database = {
       }
       team_members: {
         Row: {
+          bio: string | null
           created_at: string
           created_by: string | null
           display_name: string | null
           email: string
           id: string
+          nav_density: string | null
+          phone: string | null
           theme: string
           title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          bio?: string | null
           created_at?: string
           created_by?: string | null
           display_name?: string | null
           email: string
           id?: string
+          nav_density?: string | null
+          phone?: string | null
           theme?: string
           title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          bio?: string | null
           created_at?: string
           created_by?: string | null
           display_name?: string | null
           email?: string
           id?: string
+          nav_density?: string | null
+          phone?: string | null
           theme?: string
           title?: string | null
           updated_at?: string
