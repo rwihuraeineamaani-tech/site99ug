@@ -135,36 +135,52 @@ export default function Contracts() {
   }, [rows, q, status, kind]);
 
 
+  const isClientParty = form.party_kind === "resident" || form.party_kind === "client";
+
   const save = async () => {
-    if (!form.title.trim() || !form.party_name.trim()) return toast.error("Give it a title and the other party.");
+    if (isClientParty && !residentId) return toast.error("Pick which client this contract is for.");
+    const partyName = isClientParty ? residents.find((r) => r.id === residentId)?.name ?? "" : form.party_name.trim();
+    if (!form.title.trim() || !partyName) return toast.error("Give it a title and the other party.");
     setBusy(true);
     let file_path: string | null = null;
     if (file) {
       const clean = file.name.replace(/[^\w.\-]+/g, "-");
-      const path = `contracts/${crypto.randomUUID()}-${clean}`;
-      const up = await supabase.storage.from("legal-files").upload(path, file);
+      const path = isClientParty ? `${residentId}/${crypto.randomUUID()}-${clean}` : `contracts/${crypto.randomUUID()}-${clean}`;
+      const up = await supabase.storage.from(isClientParty ? "resident-contracts" : "legal-files").upload(path, file);
       if (up.error) {
         setBusy(false);
         return toast.error(up.error.message);
       }
       file_path = path;
     }
-    const { error } = await supabase.from("contracts").insert({
-      party_kind: form.party_kind,
-      party_name: form.party_name.trim(),
-      title: form.title.trim(),
-      contract_type: form.contract_type,
-      starts_on: form.starts_on || null,
-      ends_on: form.ends_on || null,
-      value_ugx: form.value_ugx ? Math.round(Number(form.value_ugx)) : null,
-      status: form.status,
-      owner_user_id: form.owner_user_id || null,
-      notes: form.notes.trim() || null,
-      file_path,
-    });
+    const { error } = isClientParty
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase.from("resident_contracts") as any).insert({
+          resident_id: residentId,
+          title: form.title.trim(),
+          starts_on: form.starts_on || null,
+          ends_on: form.ends_on || null,
+          value_ugx: form.value_ugx ? Math.round(Number(form.value_ugx)) : null,
+          status: form.status === "draft" ? "draft" : "signed",
+          notes: form.notes.trim() || null,
+          file_path,
+        })
+      : await supabase.from("contracts").insert({
+          party_kind: form.party_kind,
+          party_name: partyName,
+          title: form.title.trim(),
+          contract_type: form.contract_type,
+          starts_on: form.starts_on || null,
+          ends_on: form.ends_on || null,
+          value_ugx: form.value_ugx ? Math.round(Number(form.value_ugx)) : null,
+          status: form.status,
+          owner_user_id: form.owner_user_id || null,
+          notes: form.notes.trim() || null,
+          file_path,
+        });
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Contract saved.");
+    toast.success(isClientParty ? "Contract saved. The client's status now follows its dates and payments." : "Contract saved.");
     setOpen(false);
     setFile(null);
     setForm({ ...form, party_name: "", title: "", value_ugx: "", notes: "", starts_on: "", ends_on: "" });
@@ -175,6 +191,14 @@ export default function Contracts() {
     const table = r.source === "resident" ? "resident_contracts" : "contracts";
     const { error } = await supabase.from(table).update({ status: value }).eq("id", r.id);
     if (error) return toast.error(error.message);
+    load();
+  };
+
+  const renew = async (r: Contract) => {
+    if (!r.resident_id) return;
+    const { error } = await startRenewal({ ...r, resident_id: r.resident_id });
+    if (error) return toast.error(error.message);
+    toast.success("Renewal draft created. Set it to Signed once the client signs.");
     load();
   };
 
