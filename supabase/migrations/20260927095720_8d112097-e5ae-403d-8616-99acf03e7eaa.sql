@@ -1,0 +1,3 @@
+REVOKE EXECUTE ON FUNCTION public.talent_booking_bill(), public.onboarding_step_guard(), public.onboarding_portal_done(), public.raise_bill_for_source(text, uuid), public.bill_paid_sync() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.is_talent_manager(uuid), public.my_talent_id(), public.can_run_onboarding(uuid), public.start_resident_onboarding(uuid, boolean), public.approve_onboarding_step(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_talent_manager(uuid), public.my_talent_id(), public.can_run_onboarding(uuid), public.start_resident_onboarding(uuid, boolean), public.approve_onboarding_step(uuid) TO authenticated;
