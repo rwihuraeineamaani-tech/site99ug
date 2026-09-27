@@ -61,13 +61,13 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
   const [threshold, setThreshold] = useState(1_000_000);
 
   const load = useCallback(async () => {
-    const [{ data: reqs }, { data: lines }, { data: loans }, { data: bills }, { data: tx }] = await Promise.all([
-      supabase.from("cash_requests").select("id, amount_ugx, purpose, requester, status").eq("status", "approved"),
-      supabase.from("payment_run_lines").select("id, payee_name, amount_ugx, category, status").eq("status", "approved"),
+    // One path: requests and monthly-run lines raise a bill when approved, so
+    // everything to pay (except loan payouts) is an approved bill.
+    const [{ data: loans }, { data: bills }, { data: tx }] = await Promise.all([
       supabase.from("loans").select("id, counterparty_name, principal_ugx, status, direction").eq("status", "active"),
       supabase
         .from("invoices")
-        .select("id, party_name, total_ugx, amount_paid_ugx, category, number, status, direction")
+        .select("id, party_name, total_ugx, amount_paid_ugx, category, number, status, direction, cash_request_id, payment_run_line_id, note")
         .eq("direction", "in")
         .in("status", ["approved", "part_paid"]),
       supabase.from("transactions").select("*").order("paid_at", { ascending: false }).limit(40),
@@ -90,23 +90,29 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
     );
     if (settings?.dual_pin_threshold_ugx) setThreshold(settings.dual_pin_threshold_ugx);
 
+    type Bill = {
+      id: string;
+      party_name: string;
+      total_ugx: number;
+      amount_paid_ugx: number;
+      number: string | null;
+      category: string;
+      note: string | null;
+      cash_request_id: string | null;
+      payment_run_line_id: string | null;
+    };
     const list: Due[] = [
-      ...((reqs ?? []) as { id: string; amount_ugx: number; purpose: string; requester: string }[]).map((r) => ({
-        key: `c-${r.id}`,
-        source_kind: "cash_request" as const,
-        source_id: r.id,
-        payee: names[r.requester] ?? "Team member",
-        amount: r.amount_ugx,
-        what: r.purpose,
-      })),
-      ...((lines ?? []) as { id: string; payee_name: string; amount_ugx: number; category: string }[]).map((l) => ({
-        key: `l-${l.id}`,
-        source_kind: "run_line" as const,
-        source_id: l.id,
-        payee: l.payee_name,
-        amount: l.amount_ugx,
-        what: `Monthly ${l.category}`,
-      })),
+      ...((bills ?? []) as unknown as Bill[]).map((b) => {
+        const from = b.cash_request_id ? "Money request" : b.payment_run_line_id ? "Monthly run" : "Bill";
+        return {
+          key: `i-${b.id}`,
+          source_kind: "invoice" as const,
+          source_id: b.id,
+          payee: b.party_name,
+          amount: b.total_ugx - b.amount_paid_ugx,
+          what: `${from}${b.number ? ` · ${b.number}` : ""} · ${b.note || b.category.replace(/_/g, " ")}`,
+        };
+      }),
       ...((loans ?? []) as { id: string; counterparty_name: string; principal_ugx: number; direction: string }[])
         .filter((l) => l.direction === "out")
         .map((l) => ({
@@ -117,16 +123,6 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
           amount: l.principal_ugx,
           what: "Loan to pay out",
         })),
-      ...((bills ?? []) as { id: string; party_name: string; total_ugx: number; amount_paid_ugx: number; number: string | null; category: string }[]).map(
-        (b) => ({
-          key: `i-${b.id}`,
-          source_kind: "invoice" as const,
-          source_id: b.id,
-          payee: b.party_name,
-          amount: b.total_ugx - b.amount_paid_ugx,
-          what: `Bill${b.number ? ` ${b.number}` : ""} · ${b.category.replace(/_/g, " ")}`,
-        })
-      ),
     ];
     setDue(list);
     setTxns(((tx as Txn[]) ?? []));
