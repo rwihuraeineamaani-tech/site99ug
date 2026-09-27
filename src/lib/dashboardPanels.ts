@@ -194,6 +194,7 @@ export const DEFAULT_LAYOUTS: Partial<Record<StaffRole, PanelItem[]>> = {
   talent: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "talent_queue", width: "full" }, { key: "ops_shoots", width: "full" }, { key: "weekgrid", width: "full" }],
   hr: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "people_queue", width: "full" }, { key: "team_load", width: "full" }, { key: "assigned_work", width: "full" }, { key: "weekgrid", width: "full" }],
   communications: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "communications_queue", width: "full" }, { key: "content_pipeline", width: "full" }, { key: "weekgrid", width: "full" }],
+  client_relations: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "communications_queue", width: "full" }, { key: "weekgrid", width: "full" }],
   designer: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "my_content", width: "full" }, { key: "turnaround", width: "full" }, { key: "weekgrid", width: "full" }],
   event_manager: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "events_queue", width: "full" }, { key: "weekgrid", width: "full" }],
   site_editor: [{ key: "today", width: "column" }, { key: "week", width: "column" }, { key: "site_queue", width: "full" }, { key: "weekgrid", width: "full" }],
