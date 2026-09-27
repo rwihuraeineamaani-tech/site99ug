@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.lifecycle_trigger() FROM PUBLIC, anon, authenticated;
