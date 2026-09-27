@@ -388,6 +388,15 @@ export default function ContentPipeline() {
   };
 
   const patch = async (id: string, values: Record<string, unknown>) => {
+    if (values.stage === "Editing") {
+      const cur = items.find((x) => x.id === id);
+      if (
+        cur &&
+        ["Scheduled", "Shooting"].includes(cur.stage) &&
+        !window.confirm("Moving this to Editing will also mark it as shot on its shoot day. Continue?")
+      )
+        return false;
+    }
     const { error } = await supabase.from("content_items").update(values as never).eq("id", id);
     if (error) {
       toast.error(error.message);
