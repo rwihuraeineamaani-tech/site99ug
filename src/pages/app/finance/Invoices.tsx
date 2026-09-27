@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { downloadFinanceDoc, receiptNumber } from "@/lib/financeDocs";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
@@ -291,35 +292,71 @@ export default function Invoices() {
     load();
   };
 
-  const printInvoice = (inv: Invoice) => {
-    const esc = (s: unknown) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c] as string));
-    const ug = (n: number) => `UGX ${Math.round(n).toLocaleString("en-UG")}`;
+  const partyInfo = async (inv: Invoice) => {
+    if (!inv.resident_id) return { address: null, email: null };
+    const { data } = await supabase
+      .from("residents")
+      .select("billing_address, billing_email, primary_email, email")
+      .eq("id", inv.resident_id)
+      .maybeSingle();
+    const r = data as { billing_address?: string; billing_email?: string; primary_email?: string; email?: string } | null;
+    return { address: r?.billing_address ?? null, email: r?.billing_email || r?.primary_email || r?.email || null };
+  };
+
+  const docLines = (inv: Invoice) => {
     const ls = lines[inv.id] ?? [];
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(inv.number ?? "Invoice")}</title>
-<style>@page{size:A4;margin:18mm}body{font:12px/1.6 -apple-system,Helvetica,Arial,sans-serif;color:#111}
-h1{font-size:26px;margin:0}.row{display:flex;justify-content:space-between;gap:24px;margin-top:24px}
-table{width:100%;border-collapse:collapse;margin-top:24px}th,td{padding:8px;border-bottom:1px solid #e5e5e5;text-align:left}
-th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#666}td.n,th.n{text-align:right}
-tr.t td{font-weight:700;border-top:2px solid #111;border-bottom:none}.muted{color:#666;font-size:11px}</style></head><body>
-<h1>Site 99</h1><div class="muted">Kampala, Uganda</div>
-<div class="row"><div><div class="muted">Billed to</div><strong>${esc(inv.party_name)}</strong></div>
-<div style="text-align:right"><div class="muted">Invoice</div><strong>${esc(inv.number ?? "—")}</strong>
-<div class="muted">Issued ${esc(inv.issue_date)}${inv.due_date ? ` · due ${esc(inv.due_date)}` : ""}</div>
-${inv.period_label ? `<div class="muted">${esc(inv.period_label)}</div>` : ""}</div></div>
-<table><thead><tr><th>Description</th><th class="n">Qty</th><th class="n">Unit</th><th class="n">Amount</th></tr></thead><tbody>
-${ls.map((l) => `<tr><td>${esc(l.description)}</td><td class="n">${esc(l.qty)}</td><td class="n">${esc(ug(l.unit_price_ugx))}</td><td class="n">${esc(ug(l.amount_ugx))}</td></tr>`).join("")}
-<tr><td colspan="3">Subtotal</td><td class="n">${esc(ug(inv.subtotal_ugx))}</td></tr>
-<tr><td colspan="3">VAT ${Math.round(inv.vat_rate * 100)}%</td><td class="n">${esc(ug(inv.vat_ugx))}</td></tr>
-<tr class="t"><td colspan="3">Total due</td><td class="n">${esc(ug(inv.total_ugx))}</td></tr>
-</tbody></table>
-${inv.note ? `<p class="muted">${esc(inv.note)}</p>` : ""}
-<p class="muted">Payment by mobile money or bank transfer. Please quote the invoice number on the transfer.</p>
-</body></html>`;
-    const w = window.open("", "_blank", "width=900,height=1200");
-    if (!w) return;
-    w.document.write(html);
-    w.document.close();
-    setTimeout(() => w.print(), 400);
+    return ls.length
+      ? ls.map((l) => ({ description: l.description, tax: Math.round(l.amount_ugx * inv.vat_rate), amount: l.amount_ugx }))
+      : [{ description: inv.period_label || catLabel(inv.category), tax: inv.vat_ugx, amount: inv.subtotal_ugx }];
+  };
+
+  const printInvoice = async (inv: Invoice) => {
+    const p = await partyInfo(inv);
+    await downloadFinanceDoc({
+      kind: "invoice",
+      number: inv.number ?? "DRAFT",
+      partyName: inv.party_name,
+      partyAddress: p.address,
+      partyEmail: p.email,
+      date: inv.issue_date,
+      dueDate: inv.due_date,
+      lines: docLines(inv),
+      subtotal: inv.subtotal_ugx,
+      tax: inv.vat_ugx,
+      total: inv.total_ugx,
+    });
+  };
+
+  const printReceipt = async (inv: Invoice) => {
+    const p = await partyInfo(inv);
+    let q = supabase
+      .from("cashbook_entries")
+      .select("entry_date, reference, wallet_id, amount_ugx, note")
+      .eq("direction", "in")
+      .eq("counterparty_name", inv.party_name)
+      .order("entry_date", { ascending: false })
+      .limit(1);
+    if (inv.number) q = q.ilike("note", `%${inv.number}%`);
+    const { data } = await q;
+    const e = data?.[0];
+    const wallet = wallets.find((w) => w.id === e?.wallet_id);
+    const paidOn = e?.entry_date ?? todayISO();
+    const ratio = inv.total_ugx ? inv.amount_paid_ugx / inv.total_ugx : 1;
+    await downloadFinanceDoc({
+      kind: "receipt",
+      number: receiptNumber(inv.number, paidOn),
+      partyName: inv.party_name,
+      partyAddress: p.address,
+      partyEmail: p.email,
+      date: paidOn,
+      linkedInvoice: inv.number,
+      lines: docLines(inv).map((l) => ({ ...l, tax: Math.round(l.tax * ratio), amount: Math.round(l.amount * ratio) })),
+      subtotal: Math.round(inv.subtotal_ugx * ratio),
+      tax: Math.round(inv.vat_ugx * ratio),
+      total: inv.amount_paid_ugx,
+      paymentMethod: wallet?.name ?? "MTN MOMO",
+      paymentDetails: [e?.reference ? `TRANSACTION ID: ${e.reference}` : "—"],
+    });
   };
 
   const openFile = async (path: string) => {
@@ -594,8 +631,13 @@ ${inv.note ? `<p class="muted">${esc(inv.note)}</p>` : ""}
                   {inv.direction === "out" && (
                     <>
                       <button className={pill} onClick={() => printInvoice(inv)}>
-                        Print / PDF
+                        download PDF
                       </button>
+                      {inv.amount_paid_ugx > 0 && (
+                        <button className={pill} onClick={() => printReceipt(inv)}>
+                          download receipt
+                        </button>
+                      )}
                       {inv.status === "draft" && (
                         <button className={pill} onClick={() => setStatus(inv, "sent")}>
                           Mark sent
