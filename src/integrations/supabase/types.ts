@@ -2163,6 +2163,7 @@ export type Database = {
           shoot_at: string | null
           shooter: string | null
           sort: number
+          spontaneous: boolean
           stage: string
           title: string
           updated_at: string
@@ -2203,6 +2204,7 @@ export type Database = {
           shoot_at?: string | null
           shooter?: string | null
           sort?: number
+          spontaneous?: boolean
           stage?: string
           title: string
           updated_at?: string
@@ -2243,6 +2245,7 @@ export type Database = {
           shoot_at?: string | null
           shooter?: string | null
           sort?: number
+          spontaneous?: boolean
           stage?: string
           title?: string
           updated_at?: string
@@ -6160,6 +6163,21 @@ export type Database = {
     Functions: {
       accept_resident_invite: { Args: never; Returns: boolean }
       accept_resident_portal_invite: { Args: never; Returns: string }
+      add_spontaneous_idea: {
+        Args: {
+          _day_id: string
+          _editor?: string
+          _link?: string
+          _notes?: string
+          _title: string
+          _type: string
+        }
+        Returns: string
+      }
+      add_to_shoot_day: {
+        Args: { _content_id: string; _day_id: string }
+        Returns: undefined
+      }
       admin_search_orders:
         | {
             Args: { _event_id?: string; _limit?: number; _q: string }
@@ -6629,6 +6647,10 @@ export type Database = {
           _wallet_id?: string
         }
         Returns: string
+      }
+      remove_from_shoot_day: {
+        Args: { _content_id: string }
+        Returns: undefined
       }
       resident_options: {
         Args: never
