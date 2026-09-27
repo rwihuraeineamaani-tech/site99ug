@@ -18,6 +18,8 @@ import { logoUrl, initials } from "@/lib/logo";
 import { INVOICE_STATUS_LABEL, INVOICE_TONE, outstanding, type Invoice } from "@/lib/invoices";
 import { CONTRACT_LABEL, CONTRACT_TONE, RENEWABLE, loadContractMoney, startRenewal, type ContractMoney } from "@/lib/contractLifecycle";
 import type { ResidentRecord } from "./Residents";
+import ResidentActions from "@/components/residents/ResidentActions";
+import RelationsPanel from "@/components/residents/RelationsPanel";
 
 type Member = { user_id: string; display_name: string | null; email: string; title: string | null };
 type Item = {
@@ -47,6 +49,9 @@ type Contract = {
 };
 type OnboardingStep = { id: string; step_key: string; title: string; department: string; owner_user_id: string | null; status: string; due_on: string | null; note: string | null };
 
+const RECORD_TABS = ["overview", "onboarding", "content", "shoot days", "money", "contracts", "relations", "notes"] as const;
+type RecordTab = (typeof RECORD_TABS)[number];
+
 const LIVE_STAGES = ["Idea", "Approved", "Crewed", "Scheduled", "Shooting", "Editing", "Review", "Handover"];
 const field = "field text-sm";
 const ugx = (n: number | null) => (n === null ? "—" : `UGX ${n.toLocaleString()}`);
@@ -61,6 +66,7 @@ export default function ResidentRecordPage() {
   const hasSiteRole = has("site_editor");
 
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<RecordTab>("overview");
   const [resident, setResident] = useState<ResidentRecord | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [items, setItems] = useState<Item[]>([]);
@@ -269,9 +275,25 @@ export default function ResidentRecordPage() {
               </Button>
             )}
             <span className="text-[11px] text-ink-faint">Set what we're aiming for and map how the work flows.</span>
+            <ResidentActions resident={resident} members={members} canInvoices={invoices.length > 0} hasSigned={contracts.some((c) => c.status === "signed" || c.status === "active")} onChanged={load} />
           </div>
 
 
+          <div className="mb-8 -mx-1 flex gap-1 overflow-x-auto rounded-full surface-sunken p-1" role="tablist">
+            {RECORD_TABS.map((t) => (
+              <button
+                key={t}
+                role="tab"
+                aria-selected={tab === t}
+                onClick={() => setTab(t)}
+                className={`press focus-ring shrink-0 rounded-full px-4 py-1.5 text-xs ${tab === t ? "bg-paper-raised text-ink" : "text-ink-soft"}`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+          {tab === "overview" && (
+            <>
           <SectionHeading index="00" title="Overview" />
           <div className="surface rounded-2xl p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
             <div>
@@ -294,16 +316,28 @@ export default function ResidentRecordPage() {
               <div className="text-[11px] text-ink-faint">{resident.user_id ? "signed up" : "not signed up yet"}</div>
             </div>
           </div>
+          <div className="mt-14">
+            <AccountsPanel residentId={id} showPending showNames={false} index="01" />
+          </div>
+          <div className="mt-14">
+            <BrandGuidelines residentId={id} residentName={resident.name} index="08" />
+          </div>
 
+          <div className="mt-14">
+            <WebsitePanel residentId={id} index="08b" canEdit={isLeadership || isAdmin || hasSiteRole} />
+          </div>
+            </>
+          )}
+          {tab === "onboarding" && (
+            <>
           <div className="mt-14">
             <SectionHeading index="01" title="Onboarding" hint={onboarding.length ? `${onboarding.filter((s) => s.status === "complete" || s.status === "not_needed").length} of ${onboarding.length} complete` : "complete"} />
             {onboarding.length ? <div className="grid gap-3 md:grid-cols-3">{onboarding.map((step) => <div key={step.id} className="surface rounded-lg p-4"><div className="flex items-start gap-2"><div><div className="eyebrow text-ink-faint">{step.department}</div><div className="text-sm font-semibold mt-1">{step.title}</div></div><StatusChip value={step.status.replace("_", " ")} tone={step.status === "complete" ? "teal" : step.status === "blocked" ? "stop" : "pending"} /></div>{step.status !== "complete" && <Button size="sm" variant="outline" className="mt-4" onClick={async () => { const { error } = await supabase.from("resident_onboarding_steps").update({ status: "complete", completed_by: userId, completed_at: new Date().toISOString() }).eq("id", step.id); if (error) return toast.error(error.message); load(); }}>Mark complete</Button>}</div>)}</div> : <p className="text-sm text-ink-soft">This established Resident has no open onboarding work.</p>}
           </div>
-
-          <div className="mt-14">
-            <AccountsPanel residentId={id} showPending showNames={false} index="01" />
-          </div>
-
+            </>
+          )}
+          {tab === "content" && (
+            <>
           <div className="mt-14">
             <SectionHeading index="02" title="Content in motion" hint={`${live.length} moving`} />
             {live.length === 0 ? (
@@ -368,7 +402,10 @@ export default function ResidentRecordPage() {
               </ul>
             )}
           </div>
-
+            </>
+          )}
+          {tab === "shoot days" && (
+            <>
           <div className="mt-14">
             <SectionHeading index="04" title="Shoot days" hint={`${days.length} in total`} />
             {days.length === 0 ? (
@@ -389,7 +426,10 @@ export default function ResidentRecordPage() {
               </ul>
             )}
           </div>
-
+            </>
+          )}
+          {tab === "money" && (
+            <>
           <div className="mt-14">
             <MoneyPanel
               residentId={id}
@@ -419,7 +459,15 @@ export default function ResidentRecordPage() {
               </Link>
             </div>
           )}
-
+          {(canSeeFinance || isLeadership) && (
+            <div className="mt-14">
+              <ClientPayPanel residentId={id} index="09" />
+            </div>
+          )}
+            </>
+          )}
+          {tab === "contracts" && (
+            <>
           <div className="mt-14">
             <SectionHeading index="07" title="Contracts" hint="status follows the dates and payments" />
             <p className="text-xs text-ink-soft mb-3 max-w-2xl">
@@ -449,22 +497,11 @@ export default function ResidentRecordPage() {
               </span>
             </div>
           </div>
-
-          <div className="mt-14">
-            <BrandGuidelines residentId={id} residentName={resident.name} index="08" />
-          </div>
-
-          <div className="mt-14">
-            <WebsitePanel residentId={id} index="08b" canEdit={isLeadership || isAdmin || hasSiteRole} />
-          </div>
-
-
-          {(canSeeFinance || isLeadership) && (
-            <div className="mt-14">
-              <ClientPayPanel residentId={id} index="09" />
-            </div>
+            </>
           )}
-
+          {tab === "relations" && <RelationsPanel residentId={id} members={members} />}
+          {tab === "notes" && (
+            <>
           <div className="mt-14">
             <SectionHeading index="10" title="Notes" hint="Internal only" />
             <div className="surface rounded-2xl p-5 space-y-3">
@@ -483,6 +520,8 @@ export default function ResidentRecordPage() {
               )}
             </div>
           </div>
+            </>
+          )}
         </>
       )}
     </AppShell>
