@@ -27,7 +27,6 @@ import {
 } from "@/lib/finance";
 
 type Wallet = { id: string; name: string; kind: string; active: boolean; sort: number };
-type Balance = { wallet_id: string; wallet_name: string; balance: number; money_in: number; money_out: number };
 type Entry = {
   id: string;
   wallet_id: string;
@@ -74,7 +73,8 @@ export default function Cashbook() {
   const canLog = canSeeFinance || has("admin", "founder");
 
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [balances, setBalances] = useState<Balance[]>([]);
+  const [opening, setOpening] = useState(0);
+  const [showHelp, setShowHelp] = useState(false);
   const [rows, setRows] = useState<Entry[]>([]);
   const [txns, setTxns] = useState<Record<string, Txn>>({});
   const [residents, setResidents] = useState<Resident[]>([]);
@@ -82,13 +82,12 @@ export default function Cashbook() {
   const [loading, setLoading] = useState(true);
 
   const [month, setMonth] = useState(todayISO().slice(0, 7));
-  const [walletFilter, setWalletFilter] = useState("all");
   const [dirFilter, setDirFilter] = useState("all");
   const [kindFilter, setKindFilter] = useState("all");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [q, setQ] = useState("");
 
-  const [open, setOpen] = useState<"entry" | "transfer" | null>(null);
+  const [open, setOpen] = useState<"entry" | null>(null);
   const [busy, setBusy] = useState(false);
 
   // entry form
@@ -104,18 +103,15 @@ export default function Cashbook() {
   const [reference, setReference] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  // transfer form
-  const [fromW, setFromW] = useState("");
-  const [toW, setToW] = useState("");
-  const [tAmount, setTAmount] = useState("");
-  const [tDate, setTDate] = useState(todayISO());
-  const [tNote, setTNote] = useState("");
-
   const load = useCallback(async () => {
     const { from, to } = monthBounds(month);
     const [w, b, e, r, p, t] = await Promise.all([
       supabase.from("wallets").select("id, name, kind, active, sort").order("sort"),
-      supabase.rpc("wallet_balances"),
+      supabase
+        .from("cashbook_entries")
+        .select("direction, amount_ugx, category")
+        .lt("entry_date", from)
+        .limit(100000),
       supabase
         .from("cashbook_entries")
         .select("*")
@@ -132,7 +128,11 @@ export default function Cashbook() {
         .lt("paid_at", `${to}T00:00:00`),
     ]);
     setWallets((w.data as Wallet[]) ?? []);
-    setBalances((b.data as Balance[]) ?? []);
+    setOpening(
+      ((b.data as { direction: string; amount_ugx: number; category: string }[]) ?? [])
+        .filter((x) => x.category !== "transfer")
+        .reduce((sum, x) => sum + (x.direction === "in" ? 1 : -1) * Number(x.amount_ugx), 0)
+    );
     setRows((e.data as Entry[]) ?? []);
     setResidents(((r.data as Resident[]) ?? []).map((x) => ({ id: x.id, name: x.name })));
     setProjects((p.data as Project[]) ?? []);
@@ -147,12 +147,11 @@ export default function Cashbook() {
     load();
   }, [load]);
 
-  const walletName = (id: string) => wallets.find((w) => w.id === id)?.name ?? "—";
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return rows.filter((r) => {
-      if (walletFilter !== "all" && r.wallet_id !== walletFilter) return false;
+      if (r.category === "transfer") return false;
       if (dirFilter !== "all" && r.direction !== dirFilter) return false;
       if (kindFilter !== "all") {
         if (r.direction !== "out") return false;
@@ -166,7 +165,19 @@ export default function Cashbook() {
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(needle));
     });
-  }, [rows, walletFilter, dirFilter, kindFilter, sourceFilter, q, txns]);
+  }, [rows, dirFilter, kindFilter, sourceFilter, q, txns]);
+
+  /** Oldest first, with a running balance carried from the opening balance. */
+  const ledger = useMemo(() => {
+    const asc = [...filtered].reverse();
+    let bal = opening;
+    return asc.map((r) => {
+      bal += r.direction === "in" ? r.amount_ugx : -r.amount_ugx;
+      return { r, bal };
+    });
+  }, [filtered, opening]);
+  const balanceOf = useMemo(() => Object.fromEntries(ledger.map((l) => [l.r.id, l.bal])), [ledger]);
+  const closing = ledger.length ? ledger[ledger.length - 1].bal : opening;
 
   const totals = useMemo(() => {
     let inn = 0;
@@ -207,7 +218,6 @@ export default function Cashbook() {
 
   const fromBoard = filtered.filter((r) => r.transaction_id);
   const unlinkedTxns = Object.values(txns).filter((t) => !rows.some((r) => r.transaction_id === t.id));
-  const total = balances.reduce((s, b) => s + Number(b.balance ?? 0), 0);
 
   const resetEntry = () => {
     setAmount("");
@@ -221,7 +231,7 @@ export default function Cashbook() {
   const saveEntry = async () => {
     if (!(await requirePin())) return;
     const amt = Math.round(Number(amount));
-    if (!walletId || !amt || amt <= 0) return toast.error("Pick a wallet and a real amount.");
+    if (!walletId || !amt || amt <= 0) return toast.error("Enter a real amount.");
     if (!who.trim()) return toast.error(direction === "in" ? "Who sent the money?" : "Who was paid?");
     setBusy(true);
     let path: string | null = null;
@@ -256,27 +266,6 @@ export default function Cashbook() {
     load();
   };
 
-  const saveTransfer = async () => {
-    if (!(await requirePin())) return;
-    const amt = Math.round(Number(tAmount));
-    if (!fromW || !toW || fromW === toW || !amt) return toast.error("Pick two different wallets and an amount.");
-    setBusy(true);
-    const { error } = await supabase.rpc("transfer_between_wallets", {
-      _from: fromW,
-      _to: toW,
-      _amount: amt,
-      _entry_date: tDate,
-      _note: tNote || undefined,
-    });
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Transfer recorded.");
-    setTAmount("");
-    setTNote("");
-    setOpen(null);
-    load();
-  };
-
   const reverse = async (row: Entry) => {
     if (!(await requirePin())) return;
     const reason = window.prompt("Why is this being reversed?");
@@ -299,9 +288,10 @@ export default function Cashbook() {
       csv([
         [
           "Date",
-          "Wallet",
-          "In/Out",
-          "Amount UGX",
+          "Particulars",
+          "Debit (in) UGX",
+          "Credit (out) UGX",
+          "Balance UGX",
           "Category",
           "Capital or running",
           "Tax treatment",
@@ -316,9 +306,10 @@ export default function Cashbook() {
           const rule = taxRule(r.category);
           return [
             r.entry_date,
-            walletName(r.wallet_id),
-            r.direction,
-            r.amount_ugx,
+            r.counterparty_name,
+            r.direction === "in" ? r.amount_ugx : "",
+            r.direction === "out" ? r.amount_ugx : "",
+            balanceOf[r.id] ?? "",
             catLabel(r.category),
             r.direction === "in" ? (rule.income === "taxable" ? "Taxable income" : "Not income") : SPEND_LABEL[rule.spend],
             rule.treatment,
@@ -344,9 +335,6 @@ export default function Cashbook() {
       actions={
         canLog ? (
           <>
-            <button className={pill} onClick={() => setOpen("transfer")}>
-              Move between wallets
-            </button>
             <button className={solid} onClick={() => setOpen("entry")}>
               Log an entry
             </button>
@@ -354,26 +342,9 @@ export default function Cashbook() {
         ) : null
       }
     >
+@@HELP@@
       <section className="mb-10">
-        <SectionHeading index="01" title="What's in the wallets" hint={`Total ${total.toLocaleString("en-UG")} UGX`} />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {balances.map((b) => (
-            <div key={b.wallet_id} className="surface card-lift rounded-sm p-4">
-              <div className="eyebrow text-ink-faint">{b.wallet_name}</div>
-              <div className="display text-2xl mt-2">
-                <Money amount={b.balance} />
-              </div>
-              <div className="mt-1 text-[11px] text-ink-soft">
-                In {Number(b.money_in).toLocaleString("en-UG")} · Out {Number(b.money_out).toLocaleString("en-UG")}
-              </div>
-            </div>
-          ))}
-          {!balances.length && !loading && <p className="text-sm text-ink-soft">No wallets yet.</p>}
-        </div>
-      </section>
-
-      <section className="mb-10">
-        <SectionHeading index="02" title="This month at a glance" hint="Capital, running costs and income" />
+        <SectionHeading index="01" title="This month at a glance" hint="Capital, running costs and income" />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
             { label: "Money in", value: totals.inn, hint: `${totals.taxable.toLocaleString("en-UG")} taxable` },
@@ -395,8 +366,8 @@ export default function Cashbook() {
 
       <section className="mb-10">
         <SectionHeading
-          index="03"
-          title="Entries"
+          index="02"
+          title="The cashbook"
           hint={`In ${totals.inn.toLocaleString("en-UG")} · Out ${totals.out.toLocaleString("en-UG")}`}
         />
         <div className="flex flex-wrap items-end gap-3 mb-5">
@@ -404,12 +375,6 @@ export default function Cashbook() {
             <span className="eyebrow text-ink-faint">Month</span>
             <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className={field} />
           </label>
-          <SelectFilter
-            label="Wallet"
-            value={walletFilter}
-            onChange={setWalletFilter}
-            options={[{ value: "all", label: "All wallets" }, ...wallets.map((w) => ({ value: w.id, label: w.name }))]}
-          />
           <SelectFilter
             label="Direction"
             value={dirFilter}
@@ -449,63 +414,103 @@ export default function Cashbook() {
           </button>
         </div>
 
-        <div className="rule-t">
-          {filtered.map((r) => {
-            const rule = taxRule(r.category);
-            const txn = r.transaction_id ? txns[r.transaction_id] : undefined;
-            return (
-              <div key={r.id} className="rule-b py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                <span className="num text-xs text-ink-soft w-24">{dayLabel(r.entry_date)}</span>
-                <span className="text-sm font-medium min-w-[140px]">{r.counterparty_name || "—"}</span>
-                <StatusChip tone={r.direction === "in" ? "teal" : "amber"} value={r.direction === "in" ? "In" : "Out"} />
-                <span className="text-xs text-ink-soft">{catLabel(r.category)}</span>
-                {r.direction === "out" ? (
-                  <StatusChip tone={spendTone(rule.spend)} value={spendChip(rule.spend)} />
-                ) : (
-                  <StatusChip
-                    tone={rule.income === "taxable" ? "violet" : "neutral"}
-                    value={rule.income === "taxable" ? "Taxable" : "Not income"}
-                  />
-                )}
-                <span className="text-xs text-ink-faint">{walletName(r.wallet_id)}</span>
-                {r.reference && <span className="text-[11px] text-ink-faint num">Ref {r.reference}</span>}
-                {r.reverses_id && <StatusChip tone="stop" value="Reversal" />}
-                <span className="ml-auto flex items-center gap-3">
-                  <Money amount={r.direction === "in" ? r.amount_ugx : -r.amount_ugx} signed />
-                  {r.attachment_path && (
-                    <button className={pill} onClick={() => openReceipt(r.attachment_path as string)}>
-                      Receipt
-                    </button>
-                  )}
-                  {canLog && !r.reverses_id && (
-                    <button className={pill} onClick={() => reverse(r)}>
-                      Reverse
-                    </button>
-                  )}
-                </span>
-                {r.transaction_id && (
-                  <p className="w-full text-[11px] text-ink-faint flex flex-wrap items-center gap-2">
-                    <span className="eyebrow text-signal">Payment board</span>
-                    <span className="num">{txn?.txn_ref ?? "Recorded payment"}</span>
-                    {txn?.source_kind && <span>· {SOURCE_LABEL[txn.source_kind] ?? txn.source_kind}</span>}
-                    {txn?.method && <span>· {txn.method}</span>}
-                    {txn?.method_reference && <span className="num">· {txn.method_reference}</span>}
-                    <Link to="/app/finance/payments" className="text-signal focus-ring">
-                      Open the payment →
-                    </Link>
-                  </p>
-                )}
-                {r.note && <p className="w-full text-xs text-ink-soft">{r.note}</p>}
-              </div>
-            );
-          })}
-          {!filtered.length && <p className="py-6 text-sm text-ink-soft">Nothing recorded for this month yet.</p>}
+        <div className="surface rounded-sm overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead>
+              <tr className="rule-b text-left">
+                <th className="eyebrow text-ink-faint px-3 py-2 w-24">Date</th>
+                <th className="eyebrow text-ink-faint px-3 py-2">Particulars</th>
+                <th className="eyebrow text-ink-faint px-3 py-2">Ref</th>
+                <th className="eyebrow text-ink-faint px-3 py-2 text-right">Debit (in)</th>
+                <th className="eyebrow text-ink-faint px-3 py-2 text-right">Credit (out)</th>
+                <th className="eyebrow text-ink-faint px-3 py-2 text-right">Balance</th>
+                <th className="px-3 py-2" />
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="rule-b bg-paper-sunk/40">
+                <td className="px-3 py-2 num text-xs text-ink-soft">{dayLabel(monthBounds(month).from)}</td>
+                <td className="px-3 py-2 font-medium" colSpan={4}>Balance brought forward</td>
+                <td className="px-3 py-2 text-right num font-semibold">{opening.toLocaleString("en-UG")}</td>
+                <td />
+              </tr>
+              {[...filtered].reverse().map((r) => {
+                const rule = taxRule(r.category);
+                const txn = r.transaction_id ? txns[r.transaction_id] : undefined;
+                const bal = balanceOf[r.id];
+                return (
+                  <tr key={r.id} className="rule-b align-top">
+                    <td className="px-3 py-2 num text-xs text-ink-soft whitespace-nowrap">{dayLabel(r.entry_date)}</td>
+                    <td className="px-3 py-2">
+                      <div className="font-medium">{r.counterparty_name || "—"}</div>
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-ink-soft">
+                        <span>{catLabel(r.category)}</span>
+                        {r.direction === "out" ? (
+                          <StatusChip tone={spendTone(rule.spend)} value={spendChip(rule.spend)} />
+                        ) : (
+                          <StatusChip
+                            tone={rule.income === "taxable" ? "violet" : "neutral"}
+                            value={rule.income === "taxable" ? "Taxable" : "Not income"}
+                          />
+                        )}
+                        {r.reverses_id && <StatusChip tone="stop" value="Reversal" />}
+                        {r.transaction_id && (
+                          <Link to="/app/finance/payments" className="text-signal focus-ring">
+                            Payment board{txn?.method ? ` · ${txn.method}` : ""}
+                          </Link>
+                        )}
+                      </div>
+                      {r.note && <div className="mt-1 text-xs text-ink-soft">{r.note}</div>}
+                    </td>
+                    <td className="px-3 py-2 num text-[11px] text-ink-faint">
+                      {r.reference || txn?.txn_ref || "—"}
+                    </td>
+                    <td className="px-3 py-2 text-right num">
+                      {r.direction === "in" ? r.amount_ugx.toLocaleString("en-UG") : ""}
+                    </td>
+                    <td className="px-3 py-2 text-right num">
+                      {r.direction === "out" ? r.amount_ugx.toLocaleString("en-UG") : ""}
+                    </td>
+                    <td className={`px-3 py-2 text-right num font-semibold ${bal < 0 ? "text-signal" : ""}`}>
+                      {bal?.toLocaleString("en-UG")}
+                    </td>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">
+                      {r.attachment_path && (
+                        <button className={pill} onClick={() => openReceipt(r.attachment_path as string)}>
+                          receipt
+                        </button>
+                      )}
+                      {canLog && !r.reverses_id && (
+                        <button className={`${pill} ml-1`} onClick={() => reverse(r)}>
+                          reverse
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+              {!filtered.length && (
+                <tr>
+                  <td colSpan={7} className="px-3 py-6 text-sm text-ink-soft">Nothing recorded for this month yet.</td>
+                </tr>
+              )}
+            </tbody>
+            <tfoot>
+              <tr className="font-semibold">
+                <td className="px-3 py-2" colSpan={3}>Totals · balance carried forward</td>
+                <td className="px-3 py-2 text-right num">{totals.inn.toLocaleString("en-UG")}</td>
+                <td className="px-3 py-2 text-right num">{totals.out.toLocaleString("en-UG")}</td>
+                <td className="px-3 py-2 text-right num">{closing.toLocaleString("en-UG")}</td>
+                <td />
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </section>
 
       <section className="mb-10">
         <SectionHeading
-          index="04"
+          index="03"
           title="Tied to the payment board"
           hint={`${fromBoard.length} of ${filtered.length} entries`}
         />
@@ -530,7 +535,7 @@ export default function Cashbook() {
       </section>
 
       <section className="mb-10">
-        <SectionHeading index="05" title="The tax view" hint="Uganda — capital, deductible, VAT and withholding" />
+        <SectionHeading index="04" title="The tax view" hint="Uganda — capital, deductible, VAT and withholding" />
         {!taxRows.length ? (
           <p className="surface rounded-sm p-5 text-sm text-ink-soft">Log an entry and its tax treatment shows here.</p>
         ) : (
@@ -578,7 +583,7 @@ export default function Cashbook() {
       </section>
 
       <section className="mb-10">
-        <SectionHeading index="06" title="The rules, in plain English" hint="Why a category matters" />
+        <SectionHeading index="05" title="The rules, in plain English" hint="Why a category matters" />
         <div className="grid gap-3 md:grid-cols-2">
           {TAX_HEADLINES.map((h) => (
             <div key={h.title} className="surface rounded-sm p-5">
@@ -614,16 +619,6 @@ export default function Cashbook() {
               ))}
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="text-xs">
-                <span className="eyebrow text-ink-faint">Wallet</span>
-                <select className={field} value={walletId} onChange={(e) => setWalletId(e.target.value)}>
-                  {wallets.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
               <label className="text-xs">
                 <span className="eyebrow text-ink-faint">Amount (UGX)</span>
                 <input className={field} inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
@@ -747,60 +742,6 @@ export default function Cashbook() {
         </div>
       )}
 
-      {open === "transfer" && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-ink/40 p-4" onClick={() => setOpen(null)}>
-          <div className="surface w-full max-w-md rounded-sm p-6" onClick={(e) => e.stopPropagation()}>
-            <SectionHeading index="—" title="Move between wallets" />
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="text-xs">
-                <span className="eyebrow text-ink-faint">From</span>
-                <select className={field} value={fromW} onChange={(e) => setFromW(e.target.value)}>
-                  <option value="">Pick one</option>
-                  {wallets.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-xs">
-                <span className="eyebrow text-ink-faint">To</span>
-                <select className={field} value={toW} onChange={(e) => setToW(e.target.value)}>
-                  <option value="">Pick one</option>
-                  {wallets.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-xs">
-                <span className="eyebrow text-ink-faint">Amount (UGX)</span>
-                <input className={field} inputMode="numeric" value={tAmount} onChange={(e) => setTAmount(e.target.value)} />
-              </label>
-              <label className="text-xs">
-                <span className="eyebrow text-ink-faint">Date</span>
-                <input type="date" className={field} value={tDate} onChange={(e) => setTDate(e.target.value)} />
-              </label>
-              <label className="text-xs sm:col-span-2">
-                <span className="eyebrow text-ink-faint">Note</span>
-                <input className={field} value={tNote} onChange={(e) => setTNote(e.target.value)} />
-              </label>
-            </div>
-            <p className="mt-3 text-[11px] text-ink-faint">
-              A transfer is our own money changing hands. It is not income and not a cost, so it never touches tax.
-            </p>
-            <div className="mt-5 flex justify-end gap-2">
-              <button className={pill} onClick={() => setOpen(null)}>
-                Cancel
-              </button>
-              <button className={solid} onClick={saveTransfer} disabled={busy}>
-                {busy ? "Saving…" : "Record it"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </FinancePage>
   );
 }
