@@ -353,6 +353,7 @@ function ShellSidebar({ groups, compact = false }: { groups: ShellNavGroup[]; co
                           end={item.end}
                                                     className={cn(
                             "group relative flex min-h-11 items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring md:min-h-0",
+                            compact && "md:py-1.5 md:text-[13px]",
                             active
                               ? "bg-acc-violet-soft text-acc-violet"
                               : "text-ink-soft hover:text-ink hover:bg-paper-sunken"
