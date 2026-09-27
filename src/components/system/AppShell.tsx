@@ -463,14 +463,16 @@ function ShellFrame({
   }, [theme]);
 
   // Pull the saved choice once we know who is signed in.
+  const [navDensity, setNavDensity] = useState<"comfortable" | "compact">("comfortable");
   useEffect(() => {
     if (!userId) return;
     let cancel = false;
     (async () => {
-      const { data } = await supabase.from("team_members").select("theme").eq("user_id", userId).maybeSingle();
-      const saved = (data as { theme?: string } | null)?.theme;
+      const { data } = await supabase.from("team_members").select("theme, nav_density").eq("user_id", userId).maybeSingle();
+      const row = data as { theme?: string; nav_density?: string } | null;
       if (cancel) return;
-      if (saved === "dark" || saved === "light" || saved === "system") setTheme(saved);
+      if (row?.theme === "dark" || row?.theme === "light" || row?.theme === "system") setTheme(row.theme);
+      if (row?.nav_density === "compact" || row?.nav_density === "comfortable") setNavDensity(row.nav_density);
     })();
     return () => {
       cancel = true;
