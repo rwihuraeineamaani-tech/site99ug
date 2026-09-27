@@ -58,6 +58,7 @@
     "framer-motion": "^12.38.0",
     "html5-qrcode": "^2.3.8",
     "input-otp": "^1.4.2",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.462.0",
     "motion": "^13.2.0",
     "nanoid": "^6.0.1",
