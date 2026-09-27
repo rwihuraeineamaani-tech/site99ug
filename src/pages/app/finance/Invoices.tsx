@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { downloadFinanceDoc, receiptNumber } from "@/lib/financeDocs";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
