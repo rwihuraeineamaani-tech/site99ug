@@ -1,5 +1,7 @@
 import { AppLayout } from "@/components/system/AppShell";
 import RelationsOverview from "./pages/app/Relations";
+import TalentPage from "./pages/app/Talent";
+import TalentPortal from "./pages/app/TalentPortal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
@@ -129,6 +131,8 @@ const AnimatedRoutes = () => {
           }
         />
         <Route element={<AppLayout />}>
+        <Route path="/app/talent" element={<RequireRole gate="talent"><TalentPage /></RequireRole>} />
+        <Route path="/app/talent/:tab" element={<RequireRole gate="talent"><TalentPage /></RequireRole>} />
         <Route path="/app/relations" element={<RequireRole gate="relations"><RelationsOverview /></RequireRole>} />
         <Route path="/app/relations/:tab" element={<RequireRole gate="relations"><RelationsOverview /></RequireRole>} />
         <Route
@@ -473,6 +477,8 @@ const AnimatedRoutes = () => {
         />
         </Route>
         <Route element={<AppLayout />}>
+        <Route path="/talent-portal" element={<RequireRole gate="talent_portal"><TalentPortal /></RequireRole>} />
+        <Route path="/talent-portal/:tab" element={<RequireRole gate="talent_portal"><TalentPortal /></RequireRole>} />
         <Route path="/portal" element={<RequireRole gate="client"><PortalOverview /></RequireRole>} />
         <Route path="/portal/work" element={<RequireRole gate="client"><PortalWork /></RequireRole>} />
         <Route path="/portal/shoots" element={<RequireRole gate="client"><PortalShoots /></RequireRole>} />
