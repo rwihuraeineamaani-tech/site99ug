@@ -217,6 +217,19 @@ export default function Contracts() {
     load();
   };
 
+  const remove = async (r: Contract) => {
+    if (!window.confirm(`Delete "${r.title}"? This cannot be undone.`)) return;
+    const table = r.source === "resident" ? "resident_contracts" : "contracts";
+    const { error } = await supabase.from(table).delete().eq("id", r.id);
+    if (error) return toast.error(error.message);
+    if (r.file_path) {
+      const bucket = r.source === "resident" ? "resident-contracts" : "legal-files";
+      await supabase.storage.from(bucket).remove([r.file_path]);
+    }
+    toast.success("Contract deleted.");
+    load();
+  };
+
   const renew = async (r: Contract) => {
     if (!r.resident_id) return;
     const { error } = await startRenewal({ ...r, resident_id: r.resident_id });
@@ -453,6 +466,15 @@ export default function Contracts() {
                     </option>
                   ))}
                 </select>
+              )}
+              {canWrite && (
+                <button
+                  className={`${ghostBtn} text-signal`}
+                  onClick={() => remove(r)}
+                  aria-label={`Delete ${r.title}`}
+                >
+                  Delete
+                </button>
               )}
             </li>
           ))}
