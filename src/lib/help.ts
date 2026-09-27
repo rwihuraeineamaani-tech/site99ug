@@ -140,6 +140,11 @@ const GUIDES: Record<string, HelpGuide> = {
       "Build the map in the editor, then send the version for Founder sign-off.",
     ],
   },
+  "/app/ops/attendance": {
+    title: "Clock-in",
+    what: "Who clocked in today, the MD's clock-in rules, excused days and the monthly report.",
+    steps: ["Staff press Clock in on their dashboard when they arrive.", "The MD sets the cut-off time, grace minutes, working days and who is exempt.", "Excuse sick days, leave or meetings so they don't count against anyone.", "On-time days count a little (5 by default) towards each person's KPI score."],
+  },
   "/app/ops": {
     title: "Management",
     what: "People, workload, deadlines, weekly reports, announcements and equipment.",
