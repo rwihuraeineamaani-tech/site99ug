@@ -73,7 +73,7 @@ export function useNotificationFeed() {
     jobs.push(
       (async () => {
         const items: ApprovalNotice[] = [];
-        const pulls: Promise<void>[] = [];
+        const pulls: PromiseLike<void>[] = [];
 
         if (isMd)
           pulls.push(
