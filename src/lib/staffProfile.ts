@@ -70,9 +70,11 @@ export const SECTIONS: Section[] = [
   ] },
 ];
 
+export const JOB_TYPES = ["Permanent", "Fixed-term", "Probation", "Part-time", "Intern", "Freelance", "Consultant", "Volunteer"] as const;
+
 export const EMPLOYMENT: FieldDef[] = [
   { key: "start_date", label: "Start date", type: "date" },
-  { key: "contract_type", label: "Contract type", type: "select", options: ["Permanent", "Fixed-term", "Probation", "Intern", "Freelance"] },
+  { key: "contract_type", label: "Job type", type: "select", options: [...JOB_TYPES], hint: "What each person must hand in changes with the job type." },
   { key: "probation_end", label: "Probation ends", type: "date" },
   { key: "contract_end", label: "Contract ends", type: "date" },
   { key: "department", label: "Department" },
@@ -80,32 +82,76 @@ export const EMPLOYMENT: FieldDef[] = [
   { key: "notice_days", label: "Notice period (days)", type: "number" },
 ];
 
-export const DOC_KINDS = ["National ID / Passport", "CV", "Academic papers", "LC1 letter", "Police clearance", "Signed contract", "Work permit", "Other"];
-export const requiredDocs = (n?: string | null) => (isUgandan(n) ? ["National ID / Passport", "CV", "LC1 letter"] : ["National ID / Passport", "CV", "Work permit"]);
+export const DOC_KINDS = ["National ID / Passport", "CV", "Academic papers", "LC1 letter", "Police clearance", "Signed contract", "Work permit", "Internship letter from school", "Other"];
+
+/** Rules per job type (Ugandan practice): what is required on top of bio data and payment details. */
+type JobRule = { docs: string[]; ugFields: string[]; note: string };
+const JOB_RULES: Record<string, JobRule> = {
+  Permanent: { docs: ["CV", "LC1 letter", "Academic papers", "Signed contract"], ugFields: ["nssf_no", "tin"], note: "Full employee: NSSF and TIN needed for PAYE and NSSF." },
+  "Fixed-term": { docs: ["CV", "LC1 letter", "Signed contract"], ugFields: ["nssf_no", "tin"], note: "Employee on a set term: NSSF and TIN needed; contract end date must be set." },
+  Probation: { docs: ["CV", "LC1 letter", "Signed contract"], ugFields: ["nssf_no"], note: "On probation: NSSF needed; probation end date must be set." },
+  "Part-time": { docs: ["CV", "Signed contract"], ugFields: ["nssf_no"], note: "Part-time employee: NSSF needed." },
+  Intern: { docs: ["CV", "Internship letter from school"], ugFields: [], note: "Intern: no NSSF/TIN needed; the school's internship letter is." },
+  Freelance: { docs: ["CV", "Signed contract"], ugFields: ["tin"], note: "Freelancer: TIN needed for withholding tax; no NSSF." },
+  Consultant: { docs: ["CV", "Signed contract"], ugFields: ["tin"], note: "Consultant: TIN needed for withholding tax; no NSSF." },
+  Volunteer: { docs: [], ugFields: [], note: "Volunteer: ID and bio data only." },
+};
+const DEFAULT_RULE: JobRule = { docs: ["CV"], ugFields: [], note: "Job type not set yet — HR should choose it." };
+export const jobRule = (type?: string | null) => (type && JOB_RULES[type]) || DEFAULT_RULE;
+
+export const requiredDocs = (n?: string | null, jobType?: string | null) => {
+  const r = jobRule(jobType);
+  const base = ["National ID / Passport", ...r.docs.filter((d) => isUgandan(n) || d !== "LC1 letter")];
+  if (!isUgandan(n) && jobType !== "Volunteer") base.push("Work permit");
+  return Array.from(new Set(base));
+};
 
 export type Row = Record<string, unknown>;
+const filled = (v: unknown) => v !== null && v !== undefined && String(v).trim() !== "";
 
-export function completeness(profile: Row | null, priv: Row | null, docs: { kind: string }[] = [], hasPrivate = true) {
+export type FileStatus = "good" | "partly" | "incomplete";
+
+/** Bio data + payment details are crucial. Documents and job-type extras are a minor warning only. */
+export function completeness(profile: Row | null, priv: Row | null, docs: { kind: string }[] = [], hasPrivate = true, employment: Row | null = null) {
   const nat = (profile?.nationality as string) ?? "Ugandan";
+  const jobType = (employment?.contract_type as string) ?? null;
+  const rule = jobRule(jobType);
+  const critical: string[] = [];
+  const minor: string[] = [];
   let total = 0, done = 0;
-  const missing: string[] = [];
   for (const s of SECTIONS) {
     if (s.show && !s.show(nat)) continue;
     if (s.table === "staff_private" && !hasPrivate) continue;
     const src = s.table === "staff_private" ? priv : profile;
     for (const f of s.fields.filter((x) => x.required)) {
       total++;
-      if (src?.[f.key] !== null && src?.[f.key] !== undefined && String(src[f.key]).trim() !== "") done++;
-      else missing.push(f.label);
+      if (filled(src?.[f.key])) done++; else critical.push(f.label);
     }
   }
-  for (const k of requiredDocs(nat)) {
+  if (hasPrivate) {
     total++;
-    if (docs.some((d) => d.kind === k)) done++;
-    else missing.push(`Document: ${k}`);
+    const bank = filled(priv?.bank_name) && filled(priv?.account_name) && filled(priv?.account_no);
+    const momo = filled(priv?.momo_network) && filled(priv?.momo_number);
+    if (bank || momo) done++; else critical.push("Payment details (bank account or mobile money)");
+    if (isUgandan(nat)) for (const k of rule.ugFields) {
+      total++;
+      if (filled(priv?.[k])) done++; else minor.push(k === "nssf_no" ? "NSSF number" : "URA TIN");
+    }
   }
-  return { pct: total ? Math.round((done / total) * 100) : 0, missing };
+  for (const k of requiredDocs(nat, jobType)) {
+    total++;
+    if (docs.some((d) => d.kind === k)) done++; else minor.push(`Document: ${k}`);
+  }
+  if (employment) {
+    if (!jobType) minor.push("Job type (HR)");
+    if (["Fixed-term", "Intern", "Freelance", "Consultant"].includes(jobType ?? "") && !filled(employment.contract_end)) minor.push("Contract end date (HR)");
+    if (jobType === "Probation" && !filled(employment.probation_end)) minor.push("Probation end date (HR)");
+  }
+  const status: FileStatus = critical.length ? "incomplete" : minor.length ? "partly" : "good";
+  return { pct: total ? Math.round((done / total) * 100) : 0, missing: [...critical, ...minor], critical, minor, status, jobType, jobNote: rule.note };
 }
+
+export const statusLabel = (s: FileStatus) => (s === "good" ? "Good" : s === "partly" ? "OK — partly done" : "Incomplete");
 
 const t = (n: string) => supabase.from(n as never);
 
