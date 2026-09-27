@@ -22,6 +22,8 @@ const ALLOWED_ROLES = [
   "site_editor",
   "operations_manager",
   "talent",
+  "talent_director",
+  "client_relations",
   "communications",
   "hr",
   "designer",

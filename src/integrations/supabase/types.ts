@@ -1073,6 +1073,205 @@ export type Database = {
           },
         ]
       }
+      campaign_forecasts: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          inputs: Json
+          name: string
+          outputs: Json
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          inputs?: Json
+          name: string
+          outputs?: Json
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          inputs?: Json
+          name?: string
+          outputs?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_forecasts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_results: {
+        Row: {
+          campaign_id: string
+          clicks: number
+          conversions: number
+          created_at: string
+          created_by: string | null
+          engagements: number
+          id: string
+          impressions: number
+          platform: string | null
+          reach: number
+          recorded_on: string
+          revenue_ugx: number
+          talent_id: string | null
+        }
+        Insert: {
+          campaign_id: string
+          clicks?: number
+          conversions?: number
+          created_at?: string
+          created_by?: string | null
+          engagements?: number
+          id?: string
+          impressions?: number
+          platform?: string | null
+          reach?: number
+          recorded_on?: string
+          revenue_ugx?: number
+          talent_id?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          clicks?: number
+          conversions?: number
+          created_at?: string
+          created_by?: string | null
+          engagements?: number
+          id?: string
+          impressions?: number
+          platform?: string | null
+          reach?: number
+          recorded_on?: string
+          revenue_ugx?: number
+          talent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_results_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_results_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talent"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_talent: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          fee_ugx: number
+          id: string
+          posts: number
+          talent_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          fee_ugx?: number
+          id?: string
+          posts?: number
+          talent_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          fee_ugx?: number
+          id?: string
+          posts?: number
+          talent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_talent_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_talent_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talent"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          budget_ugx: number
+          created_at: string
+          created_by: string | null
+          ends_on: string | null
+          id: string
+          name: string
+          notes: string | null
+          objective: string | null
+          platforms: string[]
+          resident_id: string | null
+          starts_on: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          budget_ugx?: number
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          objective?: string | null
+          platforms?: string[]
+          resident_id?: string | null
+          starts_on?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          budget_ugx?: number
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          objective?: string | null
+          platforms?: string[]
+          resident_id?: string | null
+          starts_on?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cash_requests: {
         Row: {
           amount_ugx: number
@@ -2649,6 +2848,7 @@ export type Database = {
           sent_at: string | null
           status: string
           subtotal_ugx: number
+          talent_booking_id: string | null
           total_ugx: number
           updated_at: string
           vat_rate: number
@@ -2683,6 +2883,7 @@ export type Database = {
           sent_at?: string | null
           status?: string
           subtotal_ugx?: number
+          talent_booking_id?: string | null
           total_ugx?: number
           updated_at?: string
           vat_rate?: number
@@ -2717,6 +2918,7 @@ export type Database = {
           sent_at?: string | null
           status?: string
           subtotal_ugx?: number
+          talent_booking_id?: string | null
           total_ugx?: number
           updated_at?: string
           vat_rate?: number
@@ -2763,6 +2965,13 @@ export type Database = {
             columns: ["resident_id"]
             isOneToOne: false
             referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_talent_booking_id_fkey"
+            columns: ["talent_booking_id"]
+            isOneToOne: true
+            referencedRelation: "talent_bookings"
             referencedColumns: ["id"]
           },
         ]
@@ -4015,6 +4224,8 @@ export type Database = {
       }
       resident_onboarding_steps: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           completed_at: string | null
           completed_by: string | null
           created_at: string
@@ -4023,13 +4234,17 @@ export type Database = {
           id: string
           note: string | null
           owner_user_id: string | null
+          requires_md_approval: boolean
           resident_id: string
+          sort: number
           status: string
           step_key: string
           title: string
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           completed_at?: string | null
           completed_by?: string | null
           created_at?: string
@@ -4038,13 +4253,17 @@ export type Database = {
           id?: string
           note?: string | null
           owner_user_id?: string | null
+          requires_md_approval?: boolean
           resident_id: string
+          sort?: number
           status?: string
           step_key: string
           title: string
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           completed_at?: string | null
           completed_by?: string | null
           created_at?: string
@@ -4053,7 +4272,9 @@ export type Database = {
           id?: string
           note?: string | null
           owner_user_id?: string | null
+          requires_md_approval?: boolean
           resident_id?: string
+          sort?: number
           status?: string
           step_key?: string
           title?: string
@@ -5211,6 +5432,222 @@ export type Database = {
         }
         Relationships: []
       }
+      talent: {
+        Row: {
+          active: boolean
+          category: string | null
+          created_at: string
+          created_by: string | null
+          day_rate_ugx: number
+          email: string | null
+          followers_total: number
+          handles: Json
+          id: string
+          kind: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          day_rate_ugx?: number
+          email?: string | null
+          followers_total?: number
+          handles?: Json
+          id?: string
+          kind?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          day_rate_ugx?: number
+          email?: string | null
+          followers_total?: number
+          handles?: Json
+          id?: string
+          kind?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      talent_bookings: {
+        Row: {
+          booked_on: string
+          brief: string | null
+          campaign_id: string | null
+          created_at: string
+          created_by: string | null
+          fee_ugx: number
+          id: string
+          paid_at: string | null
+          resident_id: string | null
+          shoot_day_id: string | null
+          status: string
+          talent_id: string
+          updated_at: string
+        }
+        Insert: {
+          booked_on?: string
+          brief?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          fee_ugx?: number
+          id?: string
+          paid_at?: string | null
+          resident_id?: string | null
+          shoot_day_id?: string | null
+          status?: string
+          talent_id: string
+          updated_at?: string
+        }
+        Update: {
+          booked_on?: string
+          brief?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          fee_ugx?: number
+          id?: string
+          paid_at?: string | null
+          resident_id?: string | null
+          shoot_day_id?: string | null
+          status?: string
+          talent_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_bookings_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_bookings_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_bookings_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_bookings_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talent"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      talent_contracts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          ends_on: string | null
+          file_path: string | null
+          id: string
+          starts_on: string | null
+          status: string
+          talent_id: string
+          territory: string | null
+          title: string
+          updated_at: string
+          usage_terms: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          file_path?: string | null
+          id?: string
+          starts_on?: string | null
+          status?: string
+          talent_id: string
+          territory?: string | null
+          title: string
+          updated_at?: string
+          usage_terms?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          file_path?: string | null
+          id?: string
+          starts_on?: string | null
+          status?: string
+          talent_id?: string
+          territory?: string | null
+          title?: string
+          updated_at?: string
+          usage_terms?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_contracts_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talent"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      talent_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          talent_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          talent_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          talent_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_users_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talent"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           created_at: string
@@ -5633,6 +6070,10 @@ export type Database = {
         Returns: boolean
       }
       approve_cash_request: { Args: { _id: string }; Returns: string }
+      approve_onboarding_step: {
+        Args: { _step_id: string }
+        Returns: undefined
+      }
       approve_payment_run: {
         Args: { _line_ids?: string[]; _run_id: string }
         Returns: undefined
@@ -5697,6 +6138,7 @@ export type Database = {
         Args: { _resident_id: string; _user_id: string }
         Returns: boolean
       }
+      can_run_onboarding: { Args: { _user_id: string }; Returns: boolean }
       can_see_finance: { Args: { _user_id: string }; Returns: boolean }
       can_touch_account: { Args: { _account_id: string }; Returns: boolean }
       can_touch_resident_accounts: {
@@ -5903,6 +6345,7 @@ export type Database = {
       is_staff: { Args: { _user_id?: string }; Returns: boolean }
       is_strategy_team: { Args: { _uid: string }; Returns: boolean }
       is_system_admin: { Args: { _user_id?: string }; Returns: boolean }
+      is_talent_manager: { Args: { _user_id: string }; Returns: boolean }
       list_public_residents: {
         Args: never
         Returns: {
@@ -5968,6 +6411,7 @@ export type Database = {
           resident_name: string
         }[]
       }
+      my_talent_id: { Args: never; Returns: string }
       next_invoice_number: { Args: never; Returns: string }
       open_direct_chat: { Args: { _target_user: string }; Returns: string }
       ops_overview: { Args: never; Returns: Json }
@@ -6153,6 +6597,10 @@ export type Database = {
         }
         Returns: string
       }
+      start_resident_onboarding: {
+        Args: { _established?: boolean; _id: string }
+        Returns: number
+      }
       start_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       tier_available_counts: {
         Args: { _event_id: string }
@@ -6219,6 +6667,7 @@ export type Database = {
         | "designer"
         | "hr"
         | "client_relations"
+        | "talent_director"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -6370,6 +6819,7 @@ export const Constants = {
         "designer",
         "hr",
         "client_relations",
+        "talent_director",
       ],
     },
   },

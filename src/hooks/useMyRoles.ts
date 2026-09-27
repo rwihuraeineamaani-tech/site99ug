@@ -19,6 +19,7 @@ export type StaffRole =
   | "site_editor"
   | "operations_manager"
   | "talent"
+  | "talent_director"
   | "communications"
   | "client_relations"
   | "hr"
@@ -38,6 +39,7 @@ export const TEAM_ROLES: StaffRole[] = [
   "strategist",
   "legal",
   "talent",
+  "talent_director",
   "communications",
   "client_relations",
   "hr",
@@ -71,6 +73,7 @@ export const ROLE_LABELS: Record<StaffRole, string> = {
   site_editor: "Site editor",
   operations_manager: "Operations Manager",
   talent: "Talent",
+  talent_director: "Director of Talent & Commercial Initiatives",
   communications: "Communications",
   client_relations: "Client Relations",
   hr: "Human Resources",
@@ -94,6 +97,7 @@ export const ROLE_HINTS: Record<StaffRole, string> = {
   site_editor: "Projects, residents, announcements",
   operations_manager: "Delivery, turnaround time, workload, shoots and equipment",
   talent: "Talent bookings, shoots, releases and usage deadlines",
+  talent_director: "Talent roster, bookings, campaigns and forecasts",
   communications: "Briefs, announcements, messages and publishing schedule",
   client_relations: "Client health, contact log, follow-ups, renewals and feedback",
   hr: "Team onboarding, workload, deadlines and assigned work",
@@ -108,6 +112,7 @@ const STRATEGY: StaffRole[] = ["admin", "founder", "managing_director", "strateg
 export type Department =
   | "content"
   | "relations"
+  | "talent"
   | "clients"
   | "sales"
   | "legal"
@@ -132,6 +137,8 @@ export type RoleState = {
   canAssignWork: boolean;
   isClient: boolean;
   clientId: string | null;
+  /** talent profile linked to this login (talent portal) */
+  talentId: string | null;
   canSeeFinance: boolean;
   canManageTeam: boolean;
   canManageClients: boolean;
@@ -167,6 +174,7 @@ export function useRolesState(): RoleState {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [clientId, setClientId] = useState<string | null>(null);
+  const [talentId, setTalentId] = useState<string | null>(null);
   const [jobTitle, setJobTitle] = useState<string | null>(null);
   const [assignments, setAssignments] = useState<{ resident_id: string; kind: "contact" | "handler" }[]>([]);
   const [tick, setTick] = useState(0);
@@ -190,6 +198,7 @@ export function useRolesState(): RoleState {
         setDisplayName(null);
         setRoles([]);
         setClientId(null);
+        setTalentId(null);
         setJobTitle(null);
         setAssignments([]);
         setLoading(false);
@@ -207,11 +216,14 @@ export function useRolesState(): RoleState {
       setEmail(data.user.email ?? null);
       setDisplayName((data.user.user_metadata?.display_name as string | undefined) ?? null);
 
-      const [{ data: rows }, { data: member }, { data: mine }] = await Promise.all([
+      const [{ data: rows }, { data: member }, { data: mine }, { data: tl }] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", data.user.id),
         supabase.from("team_members").select("display_name, title").eq("user_id", data.user.id).maybeSingle(),
         supabase.from("client_assignments").select("resident_id, kind").eq("user_id", data.user.id),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (supabase as any).from("talent_users").select("talent_id").eq("user_id", data.user.id).maybeSingle(),
       ]);
+      setTalentId((tl as { talent_id?: string } | null)?.talent_id ?? null);
       if (cancelled) return;
       const list = ((rows ?? []).map((r) => r.role) as AppRole[]) ?? [];
       setRoles(list);
@@ -278,6 +290,7 @@ export function useRolesState(): RoleState {
   const handlesClients = assignments.length > 0;
   const departments: Record<Department, boolean> = {
     content: isStaff,
+    talent: isLeadership || has("talent_director", "talent"),
     relations: isLeadership || has("client_relations", "communications", "sales_head") || handlesClients,
     clients: canManageClients || has("legal", "finance_ops", "talent", "communications", "client_relations"),
     sales: has("admin", "founder", "managing_director", "sales_head"),
@@ -288,7 +301,7 @@ export function useRolesState(): RoleState {
     events: canViewEvents || canScan,
   };
 
-  const landingPath = isStaff ? "/app" : isClient ? "/portal" : has("resident") ? "/residents/portal" : "/";
+  const landingPath = isStaff ? "/app" : isClient ? "/portal" : talentId ? "/talent-portal" : has("resident") ? "/residents/portal" : "/";
 
   const positions = POSITION_ROLES.filter((role) => roles.includes(role));
   const primaryRole = positions[0] ?? TEAM_ROLES.find((r) => roles.includes(r) && r !== "team_member");
@@ -315,6 +328,7 @@ export function useRolesState(): RoleState {
     canAssignWork,
     isClient,
     clientId,
+    talentId,
     canSeeFinance,
     canManageTeam: isLeadership,
     canManageClients,

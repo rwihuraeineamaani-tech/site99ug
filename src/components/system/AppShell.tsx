@@ -41,6 +41,8 @@ import {
   RefreshCw,
   Star,
   UserPlus,
+  Sparkles,
+  Calculator,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -82,7 +84,7 @@ export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: ty
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
 
 function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
-  const { isStaff, isClient, departments, canScan, isLeadership, canSeeFinance, canAssignWork, has } = useMyRoles();
+  const { isStaff, isClient, talentId, departments, canScan, isLeadership, canSeeFinance, canAssignWork, has } = useMyRoles();
   const strategyWaiting = useStrategyWaiting(isLeadership);
   const approvalsWaiting = useApprovalsWaiting();
   const { items: todoItems } = useTodo();
@@ -90,6 +92,21 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
   const communicationUnread = useCommunicationUnread();
 
   if (nav) return [{ label: "Menu", items: nav }];
+
+  if (talentId && !isStaff && !isClient) {
+    return [
+      {
+        label: "Talent portal",
+        items: [
+          { to: "/talent-portal", label: "Overview", end: true, icon: LayoutDashboard },
+          { to: "/talent-portal/bookings", label: "Bookings", icon: Camera },
+          { to: "/talent-portal/contracts", label: "Contracts & releases", icon: FileText },
+          { to: "/talent-portal/earnings", label: "Earnings", icon: Wallet },
+          { to: "/talent-portal/campaigns", label: "Campaign results", icon: TrendingUp },
+        ],
+      },
+    ];
+  }
 
   if (isClient && !isStaff) {
     return [
@@ -164,6 +181,18 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
       ]
     : [];
   if (legal.length) groups.push({ label: "Legal", items: legal });
+
+  if (departments.talent) groups.push({
+    label: "Talent & Campaigns",
+    items: [
+      { to: "/app/talent", label: "Overview", end: true, icon: Sparkles },
+      { to: "/app/talent/roster", label: "Roster", icon: Users },
+      { to: "/app/talent/bookings", label: "Bookings", icon: CalendarDays },
+      { to: "/app/talent/contracts", label: "Contracts & releases", icon: FileText },
+      { to: "/app/talent/campaigns", label: "Campaigns", icon: Megaphone },
+      { to: "/app/talent/forecasts", label: "Forecasts", icon: Calculator },
+    ],
+  });
 
   if (departments.relations) groups.push({
     label: "Client Relations",
