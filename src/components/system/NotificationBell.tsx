@@ -1,13 +1,11 @@
-import { Bell, BellRing, CalendarClock, Check, CheckCircle2, Megaphone, MessageSquare, FileText } from "lucide-react";
+import { Bell, BellRing, CalendarClock, Check, CheckCheck, CheckCircle2, Megaphone, MessageSquare, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useCalendarReminders } from "@/hooks/useCalendarReminders";
-import { useChatUnread } from "@/hooks/useChatUnread";
-import { useCommunicationUnread } from "@/hooks/useCommunicationUnread";
-import { useApprovalsWaiting } from "@/hooks/useApprovalsWaiting";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useNotificationFeed } from "@/hooks/useNotificationFeed";
 import { useAppBadge } from "@/hooks/useAppBadge";
 
 const pushCopy: Record<string, string> = {
@@ -18,23 +16,33 @@ const pushCopy: Record<string, string> = {
   "not-configured": "Alerts are not set up yet",
 };
 
+const timeAgo = (iso: string) => {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.round(hrs / 24)}d ago`;
+};
+
+function Section({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
+  if (!count) return null;
+  return (
+    <div>
+      <div className="bg-paper-sunken px-4 py-1.5 eyebrow text-[9px] text-ink-faint">{title} · {count}</div>
+      <div className="divide-y divide-rule">{children}</div>
+    </div>
+  );
+}
+
 export default function NotificationBell() {
   const { userId } = useMyRoles();
   const { reminders, dismiss } = useCalendarReminders();
-  const chat = useChatUnread();
-  const { briefs, announcements } = useCommunicationUnread();
-  const approvals = useApprovalsWaiting();
+  const { chats, reads, approvals, total: feedTotal, markAllRead } = useNotificationFeed();
   const { status, busy, enable } = usePushNotifications(userId);
 
-  const total = reminders.length + chat + briefs + announcements + approvals;
+  const total = feedTotal + reminders.length;
   useAppBadge(total);
-
-  const rows = [
-    { key: "chat", count: chat, label: "New messages", to: "/app/chat", icon: MessageSquare },
-    { key: "briefs", count: briefs, label: "Briefs to read", to: "/app/briefs", icon: FileText },
-    { key: "announcements", count: announcements, label: "Announcements", to: "/app/announcements", icon: Megaphone },
-    { key: "approvals", count: approvals, label: "Waiting for your approval", to: "/app/approvals", icon: CheckCircle2 },
-  ].filter((row) => row.count > 0);
 
   return (
     <Popover>
@@ -48,33 +56,74 @@ export default function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
-        <div className="rule-b px-4 py-3">
-          <div className="eyebrow text-[10px] text-signal">Notifications</div>
-          <div className="mt-1 text-sm font-semibold">{total > 0 ? `${total} need${total === 1 ? "s" : ""} you` : "You are all caught up"}</div>
+      <PopoverContent align="end" className="w-96 p-0">
+        <div className="rule-b flex items-center justify-between px-4 py-3">
+          <div>
+            <div className="eyebrow text-[10px] text-signal">Notifications</div>
+            <div className="mt-1 text-sm font-semibold">{total > 0 ? `${total} need${total === 1 ? "s" : ""} you` : "You are all caught up"}</div>
+          </div>
+          {reads.length > 0 && (
+            <button onClick={markAllRead} className="flex items-center gap-1 text-[11px] text-ink-faint underline underline-offset-4 hover:text-signal">
+              <CheckCheck className="h-3.5 w-3.5" /> mark all read
+            </button>
+          )}
         </div>
 
-        <div className="max-h-80 divide-y divide-rule overflow-y-auto">
-          {rows.map(({ key, count, label, to, icon: Icon }) => (
-            <Link key={key} to={to} className="flex items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
-              <Icon className="h-4 w-4 shrink-0 text-signal" />
-              <span className="flex-1 truncate text-sm">{label}</span>
-              <span className="rounded-full bg-signal px-1.5 py-0.5 text-[10px] font-bold text-paper">{count}</span>
-            </Link>
-          ))}
+        <div className="max-h-[26rem] overflow-y-auto">
+          <Section title="Messages" count={chats.length}>
+            {chats.map((c) => (
+              <Link key={c.id} to="/app/chat" className="flex items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
+                <MessageSquare className="h-4 w-4 shrink-0 text-signal" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="truncate text-sm font-medium">{c.name}</span>
+                    <span className="shrink-0 text-[10px] text-ink-faint">{timeAgo(c.at)}</span>
+                  </div>
+                  <p className="truncate text-[11px] text-ink-soft">{c.preview}</p>
+                </div>
+                <span className="rounded-full bg-signal px-1.5 py-0.5 text-[10px] font-bold text-paper">{c.unread}</span>
+              </Link>
+            ))}
+          </Section>
 
-          {reminders.map(({ item, occurrence }) => (
-            <div key={`${item.id}-${occurrence}`} className="flex gap-3 px-4 py-3">
-              <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-              <div className="min-w-0 flex-1">
-                <Link to="/app/calendar" className="block truncate text-sm font-medium hover:text-signal">{item.title}</Link>
-                <p className="text-[11px] text-ink-soft">{occurrence} · {item.all_day ? "All day" : item.start_time?.slice(0, 5)}</p>
+          <Section title="Waiting for your approval" count={approvals.length}>
+            {approvals.map((a) => (
+              <Link key={a.key} to={a.to} className="flex items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-signal" />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{a.title}</div>
+                  <p className="truncate text-[11px] text-ink-soft">{a.sub}</p>
+                </div>
+              </Link>
+            ))}
+          </Section>
+
+          <Section title="To read" count={reads.length}>
+            {reads.map((r) => (
+              <Link key={`${r.kind}-${r.id}`} to={r.kind === "brief" ? "/app/briefs" : "/app/announcements"} className="flex items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
+                {r.kind === "brief" ? <FileText className="h-4 w-4 shrink-0 text-signal" /> : <Megaphone className="h-4 w-4 shrink-0 text-signal" />}
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{r.title}</div>
+                  <p className="text-[11px] text-ink-soft">{r.kind === "brief" ? "Brief" : "Announcement"}</p>
+                </div>
+              </Link>
+            ))}
+          </Section>
+
+          <Section title="Calendar" count={reminders.length}>
+            {reminders.map(({ item, occurrence }) => (
+              <div key={`${item.id}-${occurrence}`} className="flex gap-3 px-4 py-3">
+                <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
+                <div className="min-w-0 flex-1">
+                  <Link to="/app/calendar" className="block truncate text-sm font-medium hover:text-signal">{item.title}</Link>
+                  <p className="text-[11px] text-ink-soft">{occurrence} · {item.all_day ? "All day" : item.start_time?.slice(0, 5)}</p>
+                </div>
+                <Button variant="ghost" size="icon-sm" onClick={() => dismiss(item.id, occurrence)} aria-label={`Dismiss ${item.title}`}>
+                  <Check className="h-4 w-4" />
+                </Button>
               </div>
-              <Button variant="ghost" size="icon-sm" onClick={() => dismiss(item.id, occurrence)} aria-label={`Dismiss ${item.title}`}>
-                <Check className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
+            ))}
+          </Section>
 
           {total === 0 && <p className="px-4 py-6 text-sm text-ink-soft">Nothing needs your attention right now.</p>}
         </div>
