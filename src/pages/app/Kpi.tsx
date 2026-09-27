@@ -69,7 +69,7 @@ function MyKpi({ p }: { p: PersonKpi }) {
               <span className="flex items-center gap-2">
                 <span className="num text-ink-soft">{t.actual} / {Number(t.target_value)}</span>
                 {!t.counts && <StatusChip value={t.approval_state === "rejected" ? "Not approved" : "Awaiting Founders"} tone="neutral" />}
-                {t.counts && <StatusChip value={t.met ? "Hit" : "Not yet"} tone={t.met ? "success" : "warning"} />}
+                {t.counts && <StatusChip value={t.met ? "Hit" : "Not yet"} tone={t.met ? "done" : "warn"} />}
               </span>
             </div>
             <div className="mt-1 h-1.5 rounded-full bg-paper-sunken"><div className="h-full rounded-full bg-signal" style={{ width: `${pct}%` }} /></div>
