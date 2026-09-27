@@ -84,7 +84,7 @@ export default function ResidentRecordPage() {
 
   const load = async () => {
     const [{ data: res }, { data: team }, { data: content }, { data: sd }, { data: cts }, { data: inv }, { data: onboardingRows }] = await Promise.all([
-      supabase.from("residents").select("id,name,territory,since,status,email,user_id,avatar_url,contact_user_id,handler_user_id,notes,onboarding_status").eq("id", id),
+      supabase.from("residents").select("id,name,territory,since,status,email,user_id,avatar_url,contact_user_id,handler_user_id,notes,onboarding_status,archived_at").eq("id", id),
       supabase.from("team_members").select("user_id, display_name, email, title"),
       supabase
         .from("content_items")
