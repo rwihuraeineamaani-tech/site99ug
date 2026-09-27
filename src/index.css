@@ -442,9 +442,18 @@
     70% { box-shadow: 0 0 0 8px hsl(var(--signal) / 0); }
     100% { box-shadow: 0 0 0 0 hsl(var(--signal) / 0); }
   }
+  .access-logo-float {
+    animation: access-logo-float 2.8s ease-in-out infinite;
+    filter: drop-shadow(0 14px 18px hsl(var(--site-black) / 0.3));
+  }
+  @keyframes access-logo-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
   @media (prefers-reduced-motion: reduce) {
     .rise { opacity: 1; animation: none; }
     .pulse-dot { animation: none; }
+    .access-logo-float { animation: none; }
   }
 }
 
