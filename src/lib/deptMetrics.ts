@@ -158,7 +158,7 @@ async function exec(): Promise<DeptBoard> {
   const active = res.filter((r) => !r.archived_at && (r.lifecycle_status ?? r.status) === "active").length;
   const months = monthKeys();
   const clients = months.map((m) => ({ month: monLabel(m), clients: res.filter((r) => (r.onboarded_at ?? r.created_at ?? "").slice(0, 7) <= m && (!r.archived_at || r.archived_at.slice(0, 7) > m)).length }));
-  const goalStat = ["on_track", "at_risk", "achieved", "missed"].map((s) => ({ status: s.replace("_", " "), goals: goals.filter((g) => g.status === s).length }));
+  const goalStat = [...new Set(goals.map((g) => g.status ?? "unset"))].map((s) => ({ status: String(s).replace("_", " "), goals: goals.filter((g) => (g.status ?? "unset") === s).length }));
   const last = weeks[11], prev = weeks[10];
   return {
     figures: [
@@ -245,14 +245,14 @@ async function strategy(): Promise<DeptBoard> {
   const by = new Map<string, { client: string; goals: number; onTrack: number }>();
   for (const g of goals) {
     const k = g.resident_id; const c = by.get(k) ?? { client: names.get(k) ?? "Client", goals: 0, onTrack: 0 };
-    c.goals++; if (["on_track", "achieved"].includes(g.status)) c.onTrack++; by.set(k, c);
+    c.goals++; if (["on_track", "achieved", "active", "complete"].includes(g.status)) c.onTrack++; by.set(k, c);
   }
   const clients = [...by.values()].sort((a, b) => b.goals - a.goals).slice(0, 10);
   const states = ["draft", "submitted", "approved", "changes_requested"].map((s) => ({ state: s.replace("_", " "), maps: maps.filter((m) => (m.review_state ?? "draft") === s).length }));
   return {
     figures: [
       { label: "Client goals", value: goals.length, to: "/app/strategy" },
-      { label: "On track", value: goals.filter((g) => g.status === "on_track" || g.status === "achieved").length },
+      { label: "On track", value: goals.filter((g) => ["on_track", "achieved", "active", "complete"].includes(g.status)).length },
       { label: "At risk", value: goals.filter((g) => g.status === "at_risk").length },
       { label: "Maps awaiting sign-off", value: maps.filter((m) => m.review_state === "submitted").length, to: "/app/strategy/approvals" },
     ],
@@ -301,7 +301,7 @@ async function relations(): Promise<DeptBoard> {
   const weeks = keys.map((k) => ({ week: wkLabel(k), due: 0, done: 0 }));
   for (const f of fu) { const a = bucket(keys, f.due_date); if (a >= 0) weeks[a].due++; const b = bucket(keys, f.done_at); if (b >= 0) weeks[b].done++; }
   const live = res.filter((r) => !r.archived_at);
-  const life = ["onboarding", "active", "renewal", "ended"].map((s) => ({ stage: s, clients: live.filter((r) => (r.lifecycle_status ?? "") === s).length }));
+  const life = [...new Set(live.map((r) => r.lifecycle_status ?? "unset"))].map((s) => ({ stage: String(s), clients: live.filter((r) => (r.lifecycle_status ?? "unset") === s).length }));
   const today = iso(new Date());
   return {
     figures: [
