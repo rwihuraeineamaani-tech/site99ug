@@ -44,7 +44,7 @@ export function estimateImpact(i: ImpactInput): ImpactOutput {
   // Repeat posts reach mostly the same people: each extra post adds 35% of the first post's reach.
   const postFactor = 1 + (posts - 1) * 0.35;
   const organic = followers * reachRate * postFactor;
-  // Paid boost: roughly UGX 15 per 1,000... expressed as 1 extra view per UGX 7.5 (≈ UGX 7,500 CPM).
+  // Paid boost: about UGX 7,500 per 1,000 views, i.e. one extra view per UGX 7.5.
   const paid = Math.max(0, i.extraBudget) / 7.5;
   const reach = Math.round(organic + paid);
   const engagements = Math.round(reach * engagementRate);

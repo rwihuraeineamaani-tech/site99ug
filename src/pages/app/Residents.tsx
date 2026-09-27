@@ -120,7 +120,8 @@ export default function ResidentsHub() {
       rows.filter((r) => {
         if (!showArchived && r.archived_at) return false;
         if (showArchived && !r.archived_at) return false;
-        if (!showArchived && status !== "all" && (r.status ?? "") !== status) return false;
+        if (!showArchived && status === "__onboarding") { if (r.status !== "Onboarding" && r.onboarding_status !== "in_progress") return false; }
+        else if (!showArchived && status !== "all" && (r.status ?? "") !== status) return false;
         if (!q.trim()) return true;
         return `${r.name} ${r.territory ?? ""} ${r.email ?? ""}`.toLowerCase().includes(q.trim().toLowerCase());
       }),
@@ -182,9 +183,16 @@ export default function ResidentsHub() {
                 label="Status"
                 value={status}
                 onChange={setStatus}
-                options={[{ value: "all", label: "All statuses" }, ...statuses.map((s) => ({ value: s, label: s }))]}
+                options={[{ value: "all", label: "All statuses" }, { value: "__onboarding", label: "Being onboarded" }, ...statuses.map((s) => ({ value: s, label: s }))]}
               />
             )}
+            <button
+              onClick={() => { setShowArchived(false); setStatus(status === "__onboarding" ? "Active" : "__onboarding"); }}
+              aria-pressed={status === "__onboarding"}
+              className={`press focus-ring rounded-full px-3 py-1.5 text-[11px] ${status === "__onboarding" && !showArchived ? "bg-paper-raised text-ink" : "surface-sunken text-ink-soft"}`}
+            >
+              onboarding
+            </button>
             <button
               onClick={() => setShowArchived((v) => !v)}
               aria-pressed={showArchived}

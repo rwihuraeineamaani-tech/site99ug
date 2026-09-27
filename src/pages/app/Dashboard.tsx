@@ -1,3 +1,4 @@
+import { OnboardingSignoffs } from "@/components/residents/OnboardingPanel";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -271,6 +272,7 @@ export default function Dashboard() {
   return (
     <AppShell>
       <Seo title="Command deck — Site 99" description="Site 99 operating system." path="/app" noindex />
+      <OnboardingSignoffs />
 
       <DeckHeader
         name={displayName || email || "there"}

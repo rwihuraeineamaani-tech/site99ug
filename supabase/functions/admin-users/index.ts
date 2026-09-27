@@ -121,6 +121,51 @@ Deno.serve(async (req) => {
       return json({ ok: true, user_id: uid, reused });
     }
 
+    // Talent portal logins: Talent Director and leadership.
+    if (action === "talent_login_create" || action === "talent_login_reset") {
+      const talentId = String(body.talent_id ?? "");
+      if (!talentId) return json({ error: "Pick the talent" });
+      const { data: ok } = await admin.rpc("is_talent_manager", { _user_id: callerId });
+      if (!ok) return json({ error: "Only the Talent Director or leadership can manage talent logins" });
+      const password = String(body.password ?? "");
+      if (password.length < 8) return json({ error: "Password must be at least 8 characters" });
+      const friendly = (m?: string) =>
+        /weak|known to be|easy to guess|pwned|breach/i.test(m ?? "") ? "That password is too easy to guess. Use the suggest button." : m ?? "Could not save the login";
+      const isPortalOnly = async (uid: string) => {
+        const { data: tr } = await admin.from("user_roles").select("role").eq("user_id", uid);
+        return !(tr ?? []).some((r) => r.role !== "user");
+      };
+      if (action === "talent_login_reset") {
+        const userId = String(body.user_id ?? "");
+        const { data: link } = await admin.from("talent_users").select("id").eq("talent_id", talentId).eq("user_id", userId).maybeSingle();
+        if (!link) return json({ error: "That login doesn't belong to this person" });
+        if (!(await isPortalOnly(userId))) return json({ error: "That is a staff or client account — reset it from System Admin" });
+        const { error } = await admin.auth.admin.updateUserById(userId, { password });
+        if (error) return json({ error: friendly(error.message) });
+        return json({ ok: true });
+      }
+      const email = String(body.email ?? "").trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "Valid email required" });
+      const { data: t } = await admin.from("talent").select("name").eq("id", talentId).maybeSingle();
+      if (!t) return json({ error: "Talent not found" });
+      const { data: created, error: createErr } = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { display_name: t.name } });
+      let uid = created?.user?.id ?? "";
+      if (createErr || !uid) {
+        if (!/already/i.test(createErr?.message ?? "")) return json({ error: friendly(createErr?.message) });
+        const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+        const existing = (list?.users ?? []).find((u) => (u.email ?? "").toLowerCase() === email);
+        if (!existing) return json({ error: "That email is already registered elsewhere." });
+        if (!(await isPortalOnly(existing.id))) return json({ error: "That email belongs to a staff or client account. Use a different email." });
+        uid = existing.id;
+        const { error: updErr } = await admin.auth.admin.updateUserById(uid, { password, email_confirm: true });
+        if (updErr) return json({ error: friendly(updErr.message) });
+      }
+      await admin.from("user_roles").upsert([{ user_id: uid, role: "user" }], { onConflict: "user_id,role" });
+      const { error: linkErr } = await admin.from("talent_users").upsert({ talent_id: talentId, user_id: uid, email, invited_by: callerId }, { onConflict: "email" });
+      if (linkErr) return json({ error: linkErr.message });
+      return json({ ok: true, user_id: uid });
+    }
+
     // Account and role changes are reserved for the explicit System admin role.
     const { data: isSystemAdmin } = await admin.rpc("is_system_admin", { _user_id: callerId });
     if (!isSystemAdmin) return json({ error: "System admin only" }, 403);

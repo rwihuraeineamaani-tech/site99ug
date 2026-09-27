@@ -7,6 +7,7 @@ import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
 import AccountsPanel from "@/components/system/AccountsPanel";
 import PortalAccessPanel from "@/components/residents/PortalAccessPanel";
+import OnboardingPanel from "@/components/residents/OnboardingPanel";
 import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
@@ -332,14 +333,7 @@ export default function ResidentRecordPage() {
           </div>
             </>
           )}
-          {tab === "onboarding" && (
-            <>
-          <div className="mt-14">
-            <SectionHeading index="01" title="Onboarding" hint={onboarding.length ? `${onboarding.filter((s) => s.status === "complete" || s.status === "not_needed").length} of ${onboarding.length} complete` : "complete"} />
-            {onboarding.length ? <div className="grid gap-3 md:grid-cols-3">{onboarding.map((step) => <div key={step.id} className="surface rounded-lg p-4"><div className="flex items-start gap-2"><div><div className="eyebrow text-ink-faint">{step.department}</div><div className="text-sm font-semibold mt-1">{step.title}</div></div><StatusChip value={step.status.replace("_", " ")} tone={step.status === "complete" ? "teal" : step.status === "blocked" ? "stop" : "pending"} /></div>{step.status !== "complete" && <Button size="sm" variant="outline" className="mt-4" onClick={async () => { const { error } = await supabase.from("resident_onboarding_steps").update({ status: "complete", completed_by: userId, completed_at: new Date().toISOString() }).eq("id", step.id); if (error) return toast.error(error.message); load(); }}>Mark complete</Button>}</div>)}</div> : <p className="text-sm text-ink-soft">This established Resident has no open onboarding work.</p>}
-          </div>
-            </>
-          )}
+          {tab === "onboarding" && <div className="mt-14"><OnboardingPanel residentId={id} /></div>}
           {tab === "content" && (
             <>
           <div className="mt-14">

@@ -23,6 +23,18 @@ export function useApprovalsWaiting() {
       if (isMd)
         jobs.push(
           n(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (supabase as any)
+              .from("resident_onboarding_steps")
+              .select("id", { count: "exact", head: true })
+              .eq("requires_md_approval", true)
+              .is("approved_at", null)
+              .eq("status", "in_progress")
+          )
+        );
+      if (isMd)
+        jobs.push(
+          n(
             supabase
               .from("cash_requests")
               .select("id", { count: "exact", head: true })
