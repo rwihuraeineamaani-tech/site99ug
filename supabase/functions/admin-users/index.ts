@@ -55,12 +55,73 @@ Deno.serve(async (req) => {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
+    const body = await req.json().catch(() => ({}));
+    const action = String(body.action ?? "");
+
+    // Client portal logins: Client Relations, leadership and the client's Handler may create or reset them.
+    if (action === "client_login_create" || action === "client_login_reset") {
+      const residentId = String(body.resident_id ?? "");
+      if (!residentId) return json({ error: "Pick the client" });
+      const { data: callerRoles } = await admin.from("user_roles").select("role").eq("user_id", callerId);
+      const cr = (callerRoles ?? []).map((r) => r.role as string);
+      const { data: res } = await admin.from("residents").select("id, handler_user_id, contact_user_id").eq("id", residentId).maybeSingle();
+      if (!res) return json({ error: "Client not found" });
+      const allowed =
+        cr.some((r) => ["admin", "founder", "managing_director", "operations_manager", "client_relations", "communications", "sales_head"].includes(r)) ||
+        res.handler_user_id === callerId || res.contact_user_id === callerId;
+      if (!allowed) return json({ error: "Only Client Relations, leadership or this client's Handler can manage portal logins" });
+      const password = String(body.password ?? "");
+      if (password.length < 8) return json({ error: "Password must be at least 8 characters" });
+      const friendly = (m?: string) =>
+        /weak|known to be|easy to guess|pwned|breach/i.test(m ?? "")
+          ? "That password is too easy to guess. Use the suggest button for a strong one."
+          : m ?? "Could not save the login";
+
+      if (action === "client_login_reset") {
+        const userId = String(body.user_id ?? "");
+        const { data: link } = await admin.from("resident_users").select("id").eq("resident_id", residentId).eq("user_id", userId).maybeSingle();
+        if (!link) return json({ error: "That login doesn't belong to this client" });
+        const { data: tr } = await admin.from("user_roles").select("role").eq("user_id", userId);
+        if ((tr ?? []).some((r) => r.role !== "client")) return json({ error: "That is a staff account — reset it from System Admin" });
+        const { error } = await admin.auth.admin.updateUserById(userId, { password });
+        if (error) return json({ error: friendly(error.message) });
+        return json({ ok: true });
+      }
+
+      const email = String(body.email ?? "").trim().toLowerCase();
+      const displayName = String(body.display_name ?? "").trim() || null;
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "Valid email required" });
+      const { data: created, error: createErr } = await admin.auth.admin.createUser({
+        email, password, email_confirm: true, user_metadata: { display_name: displayName },
+      });
+      let uid = created?.user?.id ?? "";
+      let reused = false;
+      if (createErr || !uid) {
+        if (!/already/i.test(createErr?.message ?? "")) return json({ error: friendly(createErr?.message) });
+        const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+        const existing = (list?.users ?? []).find((u) => (u.email ?? "").toLowerCase() === email);
+        if (!existing) return json({ error: "That email is already registered elsewhere." });
+        const { data: tr } = await admin.from("user_roles").select("role").eq("user_id", existing.id);
+        if ((tr ?? []).some((r) => r.role !== "client")) return json({ error: "That email belongs to a staff account. Use a different email." });
+        uid = existing.id;
+        reused = true;
+        const { error: updErr } = await admin.auth.admin.updateUserById(uid, { password, email_confirm: true });
+        if (updErr) return json({ error: friendly(updErr.message) });
+      }
+      await admin.from("team_members").upsert({ user_id: uid, email, display_name: displayName, created_by: callerId }, { onConflict: "user_id" });
+      await admin.from("user_roles").upsert([{ user_id: uid, role: "client" }], { onConflict: "user_id,role" });
+      const { error: linkErr } = await admin.from("resident_users").upsert(
+        { resident_id: residentId, user_id: uid, email, invited_by: callerId, accepted_at: new Date().toISOString() },
+        { onConflict: "email" }
+      );
+      if (linkErr) return json({ error: linkErr.message });
+      await admin.from("activity_log").insert({ actor_id: callerId, actor_kind: "staff", area: "Client Relations", action: "Gave portal access", summary: `Portal login for ${email}`, path: `/app/residents/${residentId}`, entity_type: "resident", entity_id: residentId, detail: {} });
+      return json({ ok: true, user_id: uid, reused });
+    }
+
     // Account and role changes are reserved for the explicit System admin role.
     const { data: isSystemAdmin } = await admin.rpc("is_system_admin", { _user_id: callerId });
     if (!isSystemAdmin) return json({ error: "System admin only" }, 403);
-
-    const body = await req.json().catch(() => ({}));
-    const action = String(body.action ?? "");
 
     const sanitizeRoles = (input: unknown): Role[] => {
       if (!Array.isArray(input)) return [];
