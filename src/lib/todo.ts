@@ -24,9 +24,8 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
       supabase.from("shoot_day_items").select("shoot_day_id,content_id"),
       supabase.from("content_crew").select("content_id,user_id").eq("user_id", ctx.userId),
     ]),
-    ctx.isLeadership
-      ? supabase.from("compliance_items").select("id,name,renews_on,status").neq("status", "complete")
-      : Promise.resolve({ data: [] }),
+    // Company deadlines have no single owner, so they live on Operations' page rather than on everyone's To-Do.
+    Promise.resolve({ data: [] }),
     supabase.from("sales_followups").select("id,opportunity_id,title,due_at,status,sales_opportunities(organisation_name)").eq("assigned_user_id", ctx.userId).eq("status", "open"),
     Promise.all([
       supabase.from("leadership_task_assignees").select("task_id").eq("user_id", ctx.userId),
@@ -34,15 +33,25 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
     ]),
   ]);
   const clients = new Map(resLinks.map((r) => [r.id, r.name]));
+  const amContact = (id: string | null) => !!id && resLinks.some((r) => r.id === id && r.contact_user_id === ctx.userId);
+  const amHandler = (id: string | null) => !!id && resLinks.some((r) => r.id === id && r.handler_user_id === ctx.userId);
+  // Founders only get the decisions that are theirs alone; steps owned by a contact, handler or editor stay with that person.
+  const FOUNDER_ONLY = new Set(["Approve or reject", "Sign off the cut"]);
   const waiting = buildWaiting({
     userId: ctx.userId,
     flow,
     resLinks,
     myCrew,
     isFounder: ctx.isFounder,
-    amContact: (id) => !!id && resLinks.some((r) => r.id === id && r.contact_user_id === ctx.userId),
-    amHandler: (id) => !!id && resLinks.some((r) => r.id === id && r.handler_user_id === ctx.userId),
-  }).map<TodoItem>((job) => ({
+    amContact,
+    amHandler,
+  })
+    .filter((job) => {
+      if (!ctx.isFounder || FOUNDER_ONLY.has(job.why) || job.why === "Edit and deliver") return true;
+      const rid = job.item.resident_id;
+      return ["Add the numbers", "Post it"].includes(job.why) ? amHandler(rid) : amContact(rid);
+    })
+    .map<TodoItem>((job) => ({
     id: `content-${job.item.id}-${job.why}`,
     kind: "content",
     move: job.why,
@@ -68,7 +77,7 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
   const crewIds = new Set(((crewResult.data as { content_id: string; user_id: string }[]) ?? []).map((r) => r.content_id));
   const myDays = new Set(((dayItemsResult.data as { shoot_day_id: string; content_id: string }[]) ?? []).filter((r) => crewIds.has(r.content_id)).map((r) => r.shoot_day_id));
   const shoots = ((shootsResult.data as { id: string; resident_id: string | null; status: string; shoot_date: string | null }[]) ?? [])
-    .filter((day) => myDays.has(day.id) || ctx.isLeadership)
+    .filter((day) => myDays.has(day.id) || amContact(day.resident_id))
     .map<TodoItem>((day) => ({
       id: `shoot-${day.id}`,
       kind: "shoots",
