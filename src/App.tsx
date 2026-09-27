@@ -59,6 +59,7 @@ import OpsOverview from "./pages/app/ops/Overview.tsx";
 import OpsPeople from "./pages/app/ops/People.tsx";
 import OpsWorkload from "./pages/app/ops/Workload.tsx";
 import OpsDeadlines from "./pages/app/ops/Deadlines.tsx";
+import OpsAttendance from "./pages/app/ops/Attendance.tsx";
 import OpsWeeklyReport from "./pages/app/ops/WeeklyReport.tsx";
 import OpsAnnouncements from "./pages/app/ops/Announcements.tsx";
 import FinanceOverview from "./pages/app/finance/Overview.tsx";
@@ -345,6 +346,14 @@ const AnimatedRoutes = () => {
           element={
             <RequireRole gate="ops">
               <OpsDeadlines />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/app/ops/attendance"
+          element={
+            <RequireRole gate="ops">
+              <OpsAttendance />
             </RequireRole>
           }
         />
