@@ -16,6 +16,15 @@ import {
   dueLabel,
   dueTone,
 } from "@/lib/legal";
+import {
+  CONTRACT_LABEL,
+  CONTRACT_TONE,
+  MANUAL_CONTRACT_STATUSES,
+  RENEWABLE,
+  loadContractMoney,
+  startRenewal,
+  type ContractMoney,
+} from "@/lib/contractLifecycle";
 
 type Contract = {
   id: string;
@@ -34,8 +43,6 @@ type Contract = {
   source: "legal" | "resident";
 };
 
-const RESIDENT_STATUSES = ["active", "archived"] as const;
-
 type Member = { user_id: string; display_name: string | null; email: string };
 
 export default function Contracts() {
@@ -52,6 +59,10 @@ export default function Contracts() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [residents, setResidents] = useState<{ id: string; name: string }[]>([]);
+  const [residentId, setResidentId] = useState("");
+  const [renewedIds, setRenewedIds] = useState<Set<string>>(new Set());
+  const [money, setMoney] = useState<Record<string, ContractMoney>>({});
 
   const [form, setForm] = useState({
     party_kind: "client",
@@ -77,7 +88,7 @@ export default function Contracts() {
       supabase.from("team_members").select("user_id, display_name, email"),
       supabase
         .from("resident_contracts")
-        .select("id, resident_id, title, file_path, starts_on, ends_on, value_ugx, status, notes")
+        .select("id, resident_id, title, file_path, starts_on, ends_on, value_ugx, status, notes, renewed_from_id")
         .order("ends_on", { ascending: true, nullsFirst: false }),
       supabase.from("residents").select("id, name"),
     ]);
@@ -110,9 +121,21 @@ export default function Contracts() {
       source: "resident" as const,
     }));
     setRows([...legal, ...resident]);
+    setResidents(((res.data as { id: string; name: string }[]) ?? []).sort((a, b) => a.name.localeCompare(b.name)));
+    setRenewedIds(
+      new Set(
+        ((rc.data as { renewed_from_id?: string | null; status: string }[]) ?? [])
+          .filter((x) => x.renewed_from_id && x.status !== "cancelled")
+          .map((x) => x.renewed_from_id as string)
+      )
+    );
     setMembers((m.data as Member[]) ?? []);
+    if (canSeeMoney) {
+      const list = await loadContractMoney();
+      setMoney(Object.fromEntries(list.map((x) => [x.contract_id, x])));
+    }
     setLoading(false);
-  }, []);
+  }, [canSeeMoney]);
 
   useEffect(() => {
     load();
@@ -232,14 +255,28 @@ export default function Contracts() {
               Title
               <input className={field} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </label>
-            <label className="text-xs text-ink-soft">
-              Other party
-              <input
-                className={field}
-                value={form.party_name}
-                onChange={(e) => setForm({ ...form, party_name: e.target.value })}
-              />
-            </label>
+            {isClientParty ? (
+              <label className="text-xs text-ink-soft">
+                Client
+                <select className={field} value={residentId} onChange={(e) => setResidentId(e.target.value)}>
+                  <option value="">Pick a client…</option>
+                  {residents.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : (
+              <label className="text-xs text-ink-soft">
+                Other party
+                <input
+                  className={field}
+                  value={form.party_name}
+                  onChange={(e) => setForm({ ...form, party_name: e.target.value })}
+                />
+              </label>
+            )}
             <label className="text-xs text-ink-soft">
               Who they are
               <select className={field} value={form.party_kind} onChange={(e) => setForm({ ...form, party_kind: e.target.value })}>
@@ -376,23 +413,43 @@ export default function Contracts() {
               {canSeeMoney && (
                 <div className="text-sm num w-28 text-right">{r.value_ugx ? <Money amount={r.value_ugx} /> : "—"}</div>
               )}
+              {canSeeMoney && r.source === "resident" && money[r.id] && (
+                <div className={`text-xs num w-32 text-right ${money[r.id].outstanding_ugx > 0 ? "text-signal font-semibold" : "text-ink-soft"}`}>
+                  {money[r.id].outstanding_ugx > 0 ? (
+                    <>
+                      Owed <Money amount={money[r.id].outstanding_ugx} />
+                    </>
+                  ) : (
+                    "Fully paid"
+                  )}
+                </div>
+              )}
               <div className="text-xs text-ink-soft w-32 truncate">{memberName(r.owner_user_id)}</div>
-              <StatusChip value={r.status} />
+              {r.source === "resident" ? (
+                <StatusChip value={CONTRACT_LABEL[r.status] ?? r.status} tone={CONTRACT_TONE[r.status] ?? "neutral"} />
+              ) : (
+                <StatusChip value={r.status} />
+              )}
               {r.file_path && (
                 <button className={ghostBtn} onClick={() => openFile(r)}>
                   Open file
                 </button>
               )}
-              {canWrite && (
+              {canWrite && r.source === "resident" && RENEWABLE.has(r.status) && !renewedIds.has(r.id) && (
+                <button className={ghostBtn} onClick={() => renew(r)}>
+                  Start renewal
+                </button>
+              )}
+              {canWrite && (r.source !== "resident" || ["draft", "signed", "cancelled"].includes(r.status)) && (
                 <select
                   aria-label="Change status"
                   className="press rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs focus-ring"
                   value={r.status}
                   onChange={(e) => setStatusOn(r, e.target.value)}
                 >
-                  {(r.source === "resident" ? RESIDENT_STATUSES : CONTRACT_STATUSES).map((s) => (
+                  {(r.source === "resident" ? MANUAL_CONTRACT_STATUSES : CONTRACT_STATUSES).map((s) => (
                     <option key={s} value={s}>
-                      {s}
+                      {r.source === "resident" ? CONTRACT_LABEL[s] : s}
                     </option>
                   ))}
                 </select>
