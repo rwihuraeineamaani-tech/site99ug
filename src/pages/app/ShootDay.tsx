@@ -97,6 +97,7 @@ export default function ShootDayRun() {
   const [bd, setBd] = useState({ amount: "", note: "" });
 
   const [payOpen, setPayOpen] = useState(false);
+  const [otherDays, setOtherDays] = useState<{ id: string; shoot_date: string | null; status: string }[]>([]);
   const [pd, setPd] = useState({
     amount: "",
     method: "mobile money" as string,
@@ -123,6 +124,16 @@ export default function ShootDayRun() {
     ]);
     setSpend(sp as SpendLine[]);
     setDayFunds(funds);
+    {
+      let q = supabase
+        .from("shoot_days")
+        .select("id, shoot_date, status")
+        .in("status", ["draft", "confirmed", "shooting"])
+        .neq("id", dayId);
+      q = dd.resident_id ? q.eq("resident_id", dd.resident_id) : q.eq("project_id", dd.project_id ?? "");
+      const { data: od } = await q.order("shoot_date", { ascending: true, nullsFirst: false });
+      setOtherDays((od ?? []) as { id: string; shoot_date: string | null; status: string }[]);
+    }
 
 
     const contentIds = (rows ?? []).map((r) => (r as { content_id: string }).content_id);
@@ -251,6 +262,20 @@ export default function ShootDayRun() {
       toast.error(e instanceof Error ? e.message : "Could not save that.");
       void load();
     }
+  };
+
+  const moveTo = async (p: Piece, target: string) => {
+    const label = target === "new" ? "a new shoot day" : "that shoot day";
+    if (!window.confirm(`Move "${p.title}" to ${label}? Its pipeline date will follow.`)) return;
+    const { data, error } = await supabase.rpc("move_shoot_day_item" as never, {
+      _content_id: p.contentId,
+      _to_day_id: target === "new" ? null : target,
+    } as never);
+    if (error) return toast.error(error.message);
+    toast.success("Idea moved", {
+      action: { label: "Open that day", onClick: () => nav(`/app/shoots/${data as unknown as string}`) },
+    });
+    void load();
   };
 
   const saveDetail = async (p: Piece) => {
@@ -429,6 +454,24 @@ export default function ShootDayRun() {
                         </button>
                       ))}
                     </div>
+                    {p.outcome !== "shot" && (
+                      <label className="mt-3 flex flex-wrap items-center gap-2 text-xs text-ink-soft">
+                        <span>Reschedule to</span>
+                        <select
+                          className="rounded-lg border border-rule bg-paper-raised px-2 py-1.5 text-sm"
+                          value=""
+                          onChange={(e) => e.target.value && moveTo(p, e.target.value)}
+                        >
+                          <option value="">Pick a shoot day…</option>
+                          {otherDays.map((d) => (
+                            <option key={d.id} value={d.id}>
+                              {d.shoot_date ?? "No date yet"} · {STATUS_LABEL[d.status] ?? d.status}
+                            </option>
+                          ))}
+                          <option value="new">+ A new shoot day</option>
+                        </select>
+                      </label>
+                    )}
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                       <label className="text-sm">
                         <span className="eyebrow text-ink-faint">Note</span>
