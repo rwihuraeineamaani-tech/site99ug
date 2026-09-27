@@ -1948,6 +1948,27 @@ export type Database = {
           },
         ]
       }
+      contract_lifecycle_settings: {
+        Row: {
+          enforce_client_status: boolean
+          id: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          enforce_client_status?: boolean
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          enforce_client_status?: boolean
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       contracts: {
         Row: {
           contract_type: string
@@ -2504,6 +2525,7 @@ export type Database = {
           recur_day: number | null
           recur_parent_id: string | null
           recurring: boolean
+          resident_contract_id: string | null
           resident_id: string | null
           sent_at: string | null
           status: string
@@ -2535,6 +2557,7 @@ export type Database = {
           recur_day?: number | null
           recur_parent_id?: string | null
           recurring?: boolean
+          resident_contract_id?: string | null
           resident_id?: string | null
           sent_at?: string | null
           status?: string
@@ -2566,6 +2589,7 @@ export type Database = {
           recur_day?: number | null
           recur_parent_id?: string | null
           recurring?: boolean
+          resident_contract_id?: string | null
           resident_id?: string | null
           sent_at?: string | null
           status?: string
@@ -2588,6 +2612,13 @@ export type Database = {
             columns: ["recur_parent_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_resident_contract_id_fkey"
+            columns: ["resident_contract_id"]
+            isOneToOne: false
+            referencedRelation: "resident_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -2648,6 +2679,7 @@ export type Database = {
           note: string | null
           percent: number
           resident_id: string | null
+          status: string
           updated_at: string
           user_id: string
         }
@@ -2663,6 +2695,7 @@ export type Database = {
           note?: string | null
           percent: number
           resident_id?: string | null
+          status?: string
           updated_at?: string
           user_id: string
         }
@@ -2678,6 +2711,7 @@ export type Database = {
           note?: string | null
           percent?: number
           resident_id?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -3772,12 +3806,16 @@ export type Database = {
       }
       resident_contracts: {
         Row: {
+          completed_at: string | null
           created_at: string
           created_by: string | null
           ends_on: string | null
           file_path: string | null
           id: string
           notes: string | null
+          renewal_alerted_at: string | null
+          renewal_due_on: string | null
+          renewed_from_id: string | null
           resident_id: string
           starts_on: string | null
           status: string
@@ -3786,12 +3824,16 @@ export type Database = {
           value_ugx: number | null
         }
         Insert: {
+          completed_at?: string | null
           created_at?: string
           created_by?: string | null
           ends_on?: string | null
           file_path?: string | null
           id?: string
           notes?: string | null
+          renewal_alerted_at?: string | null
+          renewal_due_on?: string | null
+          renewed_from_id?: string | null
           resident_id: string
           starts_on?: string | null
           status?: string
@@ -3800,12 +3842,16 @@ export type Database = {
           value_ugx?: number | null
         }
         Update: {
+          completed_at?: string | null
           created_at?: string
           created_by?: string | null
           ends_on?: string | null
           file_path?: string | null
           id?: string
           notes?: string | null
+          renewal_alerted_at?: string | null
+          renewal_due_on?: string | null
+          renewed_from_id?: string | null
           resident_id?: string
           starts_on?: string | null
           status?: string
@@ -3814,6 +3860,13 @@ export type Database = {
           value_ugx?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "resident_contracts_renewed_from_id_fkey"
+            columns: ["renewed_from_id"]
+            isOneToOne: false
+            referencedRelation: "resident_contracts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "resident_contracts_resident_id_fkey"
             columns: ["resident_id"]
@@ -5535,6 +5588,35 @@ export type Database = {
       }
       client_pot_balance: { Args: { _resident_id: string }; Returns: number }
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
+      contract_effective_status: {
+        Args: { _c: Database["public"]["Tables"]["resident_contracts"]["Row"] }
+        Returns: string
+      }
+      contract_finance_summary: {
+        Args: { _resident_id?: string }
+        Returns: {
+          contract_id: string
+          ends_on: string
+          invoiced_ugx: number
+          outstanding_ugx: number
+          paid_ugx: number
+          renewal_due_on: string
+          resident_id: string
+          starts_on: string
+          status: string
+          title: string
+          value_ugx: number
+        }[]
+      }
+      contract_money: {
+        Args: { _contract_id: string }
+        Returns: {
+          invoiced_ugx: number
+          outstanding_ugx: number
+          paid_ugx: number
+          value_ugx: number
+        }[]
+      }
       create_leadership_task: {
         Args: {
           _assignee_ids: string[]
@@ -5745,6 +5827,16 @@ export type Database = {
       open_direct_chat: { Args: { _target_user: string }; Returns: string }
       ops_overview: { Args: never; Returns: Json }
       prepare_due_push_reminders: { Args: { _now?: string }; Returns: number }
+      preview_client_lifecycle: {
+        Args: never
+        Returns: {
+          current_status: string
+          name: string
+          new_status: string
+          reason: string
+          resident_id: string
+        }[]
+      }
       publish_approval_workflow: {
         Args: { _version_id: string; _workflow_id: string }
         Returns: undefined
@@ -5774,6 +5866,11 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      recompute_all_lifecycles: { Args: never; Returns: number }
+      recompute_resident_lifecycle: {
+        Args: { _resident_id: string }
+        Returns: string
       }
       record_loan_repayment: {
         Args: {
@@ -5851,6 +5948,7 @@ export type Database = {
         Args: { _reason: string; _txn_id: string }
         Returns: string
       }
+      run_contract_lifecycle_daily: { Args: never; Returns: undefined }
       sales_move_opportunity: {
         Args: { _id: string; _reason?: string; _stage: string }
         Returns: undefined
@@ -5860,6 +5958,7 @@ export type Database = {
         Returns: string
       }
       sales_submit_offer: { Args: { _offer_id: string }; Returns: string }
+      set_client_lifecycle_enforced: { Args: { _on: boolean }; Returns: number }
       set_client_pay: {
         Args: { _people: Json; _resident_id: string; _retainer_ugx: number }
         Returns: undefined
