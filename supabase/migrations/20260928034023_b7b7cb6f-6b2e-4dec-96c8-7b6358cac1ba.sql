@@ -1,0 +1,1 @@
+ALTER TABLE public.content_items ADD COLUMN IF NOT EXISTS scheduled_post_at timestamptz; NOTIFY pgrst, 'reload schema';
