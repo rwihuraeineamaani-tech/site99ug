@@ -2261,6 +2261,7 @@ export type Database = {
           project_id: string | null
           ref_no: number
           resident_id: string | null
+          scheduled_post_at: string | null
           sent_direct: boolean
           shoot_at: string | null
           shooter: string | null
@@ -2302,6 +2303,7 @@ export type Database = {
           project_id?: string | null
           ref_no?: number
           resident_id?: string | null
+          scheduled_post_at?: string | null
           sent_direct?: boolean
           shoot_at?: string | null
           shooter?: string | null
@@ -2343,6 +2345,7 @@ export type Database = {
           project_id?: string | null
           ref_no?: number
           resident_id?: string | null
+          scheduled_post_at?: string | null
           sent_direct?: boolean
           shoot_at?: string | null
           shooter?: string | null
