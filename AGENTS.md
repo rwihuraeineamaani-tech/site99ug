@@ -13,3 +13,4 @@
 
 - Clock-in lives in `attendance_settings` (single row, MD/System Admin edit) + `attendance_records`; staff only write through `clock_in`/`clock_out` RPCs that compute lateness in Kampala time server-side, and it feeds the KPI as the low-weight `attendance` component — so times can't be faked.
 - Staff files use three visibility levels enforced by RLS: `can_view_people` (HR-level, Ops Manager, heads via `staff_pay.is_head`) sees profiles/employment/work; `is_hr_level` (HR, MD, Founders, System Admin) alone reads `staff_private`, documents and `staff_notes`; everyone reads/edits their own file — so private IDs and bank details never reach team-level viewers.
+- AI video recommendations run in the `content-recommendations` edge function (Lovable AI, signed-in staff only) and are shown, not saved, so the model key and prompt never reach the browser.

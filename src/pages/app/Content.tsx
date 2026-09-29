@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Lock, ExternalLink } from "lucide-react";
 
 import { useMyAssignments } from "@/hooks/useMyAssignments";
+import AiRecommendations from "@/components/content/AiRecommendations";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import {
   STAGES,
@@ -1026,6 +1027,13 @@ export default function ContentPipeline() {
           >
             Save numbers & archive
           </Button>
+          <AiRecommendations
+            title={editing.title}
+            platforms={editing.platforms}
+            postedWhen={editing.posted_at}
+            metrics={metrics}
+            note={metricNote}
+          />
         </div>
       );
     }
