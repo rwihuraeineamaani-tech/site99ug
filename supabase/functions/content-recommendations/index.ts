@@ -67,10 +67,8 @@ Team's view on why it performed: ${clip(body.note, 1500) || "—"}`;
     const { result, runIdFetch } = createResponsesCall(
       req,
       { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra" },
-      [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: prompt },
-      ],
+      [{ role: "user", content: prompt }],
+      SYSTEM,
     );
     const text = (await result.text).trim();
     const runId = runIdFetch.getRunId();
