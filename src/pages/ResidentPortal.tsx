@@ -11,6 +11,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProjectLightbox } from "@/components/ProjectLightbox";
 import type { Project } from "@/hooks/useProjects";
 import { toast } from "sonner";
+import AccessLoading from "@/components/system/AccessLoading";
 
 type Tab = "overview" | "projects" | "briefs" | "announcements" | "profile";
 
@@ -53,11 +54,7 @@ export default function ResidentPortal() {
   };
 
   if (!authChecked || me.isLoading) {
-    return (
-      <Layout hideFooter>
-        <div className="min-h-screen pt-32 px-6 mono text-xs">Loading…</div>
-      </Layout>
-    );
+    return <AccessLoading />;
   }
 
   if (!me.data) {
