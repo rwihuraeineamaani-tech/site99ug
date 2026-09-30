@@ -49,6 +49,12 @@ export default function Login() {
       }
       if (roles.includes("client")) return navigate("/portal", { replace: true });
       if (roles.includes("resident")) return navigate("/residents/portal", { replace: true });
+      const { data: talentLink } = await supabase
+        .from("talent_users")
+        .select("talent_id")
+        .eq("user_id", uid)
+        .maybeSingle();
+      if (talentLink) return navigate("/talent-portal", { replace: true });
       if (!silent) toast.error("This account has no access yet. Ask Site 99 to open it for you.");
     };
 
@@ -106,7 +112,15 @@ export default function Login() {
       if (staff) navigate(from && from !== "/login" ? from : "/app", { replace: true });
       else if (roles.includes("client")) navigate("/portal", { replace: true });
       else if (roles.includes("resident")) navigate("/residents/portal", { replace: true });
-      else toast.error("This account has no access yet. Ask Site 99 to open it for you.");
+      else {
+        const { data: talentLink } = await supabase
+          .from("talent_users")
+          .select("talent_id")
+          .eq("user_id", uid)
+          .maybeSingle();
+        if (talentLink) navigate("/talent-portal", { replace: true });
+        else toast.error("This account has no access yet. Ask Site 99 to open it for you.");
+      }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Sign in failed");
     } finally {
