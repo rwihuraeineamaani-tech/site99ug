@@ -1,9 +1,7 @@
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useMyRoles, type Department } from "@/hooks/useMyRoles";
-import logoAsset from "@/assets/site99-logo-red.png.asset.json";
-
-const logo = logoAsset.url;
+import AccessLoading from "@/components/system/AccessLoading";
 
 type Gate = "staff" | "client" | "resident" | "talent_portal" | "admin" | "leadership" | "finance" | Department;
 
@@ -15,15 +13,7 @@ export function RequireRole({ gate, children }: { gate: Gate; children: ReactNod
   const location = useLocation();
 
   if (loading) {
-    return (
-      <div className="deck min-h-screen bg-paper text-ink grid place-items-center" role="status" aria-label="Opening Site 99">
-        <img
-          src={logo}
-          alt="Site 99"
-          className="access-logo-float h-36 w-36 object-contain sm:h-44 sm:w-44"
-        />
-      </div>
-    );
+    return <AccessLoading />;
   }
 
   if (!userId) {

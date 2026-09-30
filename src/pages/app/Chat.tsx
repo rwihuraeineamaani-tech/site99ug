@@ -93,7 +93,7 @@ export default function ChatPage() {
         </Dialog>
       } />
 
-      <div className="grid min-h-[620px] overflow-hidden rounded-lg border border-rule bg-paper-raised lg:grid-cols-[320px_1fr]">
+      <div className="grid min-h-[calc(100dvh-12rem)] overflow-hidden rounded-lg border border-rule bg-paper-raised lg:min-h-[620px] lg:grid-cols-[320px_1fr]">
         <aside className={cn("border-rule lg:border-r", threadId && "hidden lg:block")}>
           <div className="border-b border-rule px-4 py-3 eyebrow text-ink-faint">People · {threads.length}</div>
           {loading ? <p className="p-4 text-sm text-ink-soft">Loading…</p> : threads.length === 0 ? <div className="p-8 text-center"><Users className="mx-auto h-6 w-6 text-ink-faint" /><p className="mt-2 text-sm text-ink-soft">No conversations yet.</p></div> : threads.map((thread) => (
@@ -104,11 +104,11 @@ export default function ChatPage() {
           ))}
         </aside>
 
-        <section className={cn("flex min-h-[620px] flex-col", !threadId && "hidden lg:flex")}>
+        <section className={cn("flex min-h-[calc(100dvh-12rem)] flex-col lg:min-h-[620px]", !threadId && "hidden lg:flex")}>
           {selected && <div className="flex items-center gap-3 border-b border-rule px-4 py-3"><Button variant="ghost" size="sm" className="lg:hidden" onClick={() => navigate(base)}>Back</Button><div><div className="font-semibold">{selected.person.display_name}</div><div className="text-xs text-ink-faint">{selected.person.subtitle} · {selected.person.person_kind}</div></div></div>}
           {!selected ? <ConversationEmptyState icon={<MessageCircle className="h-8 w-8" />} title="Choose a conversation" description="Open a person from the list, or start a new chat." /> : <>
             <Conversation className="min-h-0 flex-1"><ConversationContent className="gap-4 p-5">{messages.length === 0 && <ConversationEmptyState title="No messages yet" description={`Say hello to ${selected.person.display_name}.`} />}{messages.map((message) => { const mine = message.sender_id === userId; return <Message key={message.id} from={mine ? "user" : "assistant"}><MessageContent className={mine ? "bg-signal text-paper" : ""}><p className="whitespace-pre-wrap">{message.body}</p></MessageContent><span className={cn("text-[10px] text-ink-faint", mine && "ml-auto")}>{new Date(message.created_at).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span></Message>; })}</ConversationContent><ConversationScrollButton /></Conversation>
-            <div className="border-t border-rule p-4"><PromptInput onSubmit={send} className="border-rule bg-paper"><PromptInputTextarea placeholder={`Message ${selected.person.display_name}…`} /><PromptInputFooter className="justify-end"><PromptInputSubmit status={sending ? "submitted" : undefined} disabled={sending} /></PromptInputFooter></PromptInput></div>
+            <div className="sticky bottom-0 border-t border-rule bg-paper-raised p-3 pb-[calc(.75rem+env(safe-area-inset-bottom))] sm:p-4"><PromptInput onSubmit={send} className="border-rule bg-paper"><PromptInputTextarea placeholder={`Message ${selected.person.display_name}…`} /><PromptInputFooter className="justify-end"><PromptInputSubmit status={sending ? "submitted" : undefined} disabled={sending} /></PromptInputFooter></PromptInput></div>
           </>}
         </section>
       </div>

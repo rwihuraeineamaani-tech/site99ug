@@ -147,11 +147,11 @@ export default function ResidentsHub() {
         lede={`${activeCount} active clients. Open any card for their full record — content, shoots, money, contracts and relations.`}
       />
       {has("admin", "founder", "managing_director", "operations_manager", "communications", "client_relations") && (
-        <div className="-mt-4 mb-6"><AddResidentDialog /></div>
+        <div className="-mt-2 mb-5 [&>button]:w-full sm:-mt-4 sm:mb-6 sm:[&>button]:w-auto"><AddResidentDialog /></div>
       )}
 
 
-      <div className="mb-8 flex flex-wrap gap-1 rounded-full surface-sunken p-1 w-fit" role="tablist">
+      <div className="no-scrollbar mb-6 flex max-w-full gap-1 overflow-x-auto rounded-full surface-sunken p-1 sm:mb-8 sm:w-fit" role="tablist">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -223,7 +223,7 @@ export default function ResidentsHub() {
           {list.length === 0 ? (
             <p className="mt-4 text-sm text-ink-soft">Nothing matches that.</p>
           ) : view === "cards" ? (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
               {list.map((r) => {
                 const x = sum[r.id];
                 const left = x?.endsOn ? daysLeft(x.endsOn) : null;

@@ -10,9 +10,9 @@ const TikTokIcon = ({ className }: { className?: string }) => (
 
 export const Footer = () => (
   <footer className="border-t border-border bg-background text-foreground">
-    <div className="px-8 md:px-16 py-12 md:py-16 grid grid-cols-2 md:grid-cols-4 gap-8 label">
+    <div className="grid grid-cols-1 gap-9 px-5 py-10 label sm:grid-cols-2 sm:px-8 md:grid-cols-4 md:px-16 md:py-16">
       <div className="col-span-2 md:col-span-1">
-        <img src={logo} alt="Site 99" className="h-24 md:h-32 w-auto object-contain" />
+        <img src={logo} alt="Site 99" className="h-20 w-auto object-contain md:h-32" />
         <p className="mt-4 normal-case tracking-normal text-muted-foreground font-sans text-sm">
           A creative residency. Narrative control as a service.
         </p>
@@ -64,7 +64,7 @@ export const Footer = () => (
         </ul>
       </div>
     </div>
-    <div className="border-t border-border px-8 md:px-16 py-5 flex flex-col md:flex-row justify-between gap-2 label text-[11px] text-muted-foreground">
+    <div className="flex flex-col justify-between gap-2 border-t border-border px-5 py-5 label text-[11px] text-muted-foreground sm:px-8 md:flex-row md:px-16">
       <span>© {new Date().getFullYear()} Site 99. All rights reserved.</span>
       <span>site99ug.com</span>
     </div>

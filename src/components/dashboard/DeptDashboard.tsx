@@ -61,7 +61,7 @@ function BigChart({ c, canMoney }: { c: ChartSpec; canMoney: boolean }) {
   })();
   const height = c.kind === "hbar" ? Math.max(240, c.data.length * 40) : c.wide ? 320 : 260;
   return (
-    <section className={`tile rounded-2xl p-4 sm:p-5 ${c.wide ? "lg:col-span-2" : ""}`}>
+    <section className={`tile min-w-0 rounded-2xl p-3 sm:p-5 ${c.wide ? "lg:col-span-2" : ""}`}>
       <header className="mb-3 flex items-start justify-between gap-3">
         <h3 className="font-display text-lg leading-tight">{c.title}</h3>
         <div className="flex shrink-0 items-center gap-2">
@@ -75,7 +75,7 @@ function BigChart({ c, canMoney }: { c: ChartSpec; canMoney: boolean }) {
       ) : empty ? (
         <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-rule px-6 text-center text-sm text-ink-soft">No records yet. This chart will fill in as work is recorded.</div>
       ) : (
-        <div style={{ height }}><ResponsiveContainer width="100%" height="100%">{chart}</ResponsiveContainer></div>
+        <div className="-mx-2 overflow-hidden sm:mx-0" style={{ height }}><ResponsiveContainer width="100%" height="100%">{chart}</ResponsiveContainer></div>
       )}
       {open && (
         <dl className="mt-4 grid gap-3 border-t border-rule pt-4 text-sm sm:grid-cols-2">
@@ -104,7 +104,7 @@ export default function DeptDashboard({ dept, userId, canSeeFinance }: { dept: D
           <p className="text-sm text-ink-soft">{INTRO[dept]}</p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="no-scrollbar -mx-3 flex snap-x gap-3 overflow-x-auto px-3 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 lg:grid-cols-4">
         {(board?.figures ?? Array.from({ length: 4 }, () => null)).map((f, i) => {
           const body = f ? (
             <>
@@ -113,7 +113,7 @@ export default function DeptDashboard({ dept, userId, canSeeFinance }: { dept: D
               {f.delta != null && !(f.money && !canSeeFinance) && <p className={`mt-1 text-xs ${f.delta >= 0 ? "text-signal" : "text-ink-soft"}`}>{f.delta >= 0 ? "▲" : "▼"} {Math.abs(f.delta)}% vs last week</p>}
             </>
           ) : <div className="h-16 animate-pulse rounded bg-rule/40" />;
-          return f?.to ? <Link key={i} to={f.to} className="tile rounded-2xl p-4 hover:border-signal/50 focus-ring">{body}</Link> : <div key={i} className="tile rounded-2xl p-4">{body}</div>;
+          return f?.to ? <Link key={i} to={f.to} className="tile w-[72vw] max-w-72 shrink-0 snap-start rounded-2xl p-4 hover:border-signal/50 focus-ring sm:w-auto sm:max-w-none">{body}</Link> : <div key={i} className="tile w-[72vw] max-w-72 shrink-0 snap-start rounded-2xl p-4 sm:w-auto sm:max-w-none">{body}</div>;
         })}
       </div>
       <div className="grid gap-4 lg:grid-cols-2">

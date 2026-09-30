@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Seo from "@/components/Seo";
 import { toast } from "sonner";
 import { TEAM_ROLES } from "@/hooks/useMyRoles";
+import AccessLoading from "@/components/system/AccessLoading";
 
 type Mode = "signin" | "forgot" | "signup";
 
@@ -16,14 +17,23 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   // Send whoever is already signed in to the right place.
   useEffect(() => {
     let cancelled = false;
     const route = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (cancelled || !data.user) return;
-      await landFor(data.user.id, true);
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (cancelled) return;
+        if (!data.user) {
+          setCheckingSession(false);
+          return;
+        }
+        await landFor(data.user.id, true);
+      } catch {
+        if (!cancelled) setCheckingSession(false);
+      }
     };
 
     const landFor = async (uid: string, silent = false) => {
@@ -56,6 +66,7 @@ export default function Login() {
         .maybeSingle();
       if (talentLink) return navigate("/talent-portal", { replace: true });
       if (!silent) toast.error("This account has no access yet. Ask Site 99 to open it for you.");
+      setCheckingSession(false);
     };
 
     route();
@@ -129,8 +140,10 @@ export default function Login() {
   };
 
 
+  if (checkingSession) return <AccessLoading />;
+
   return (
-    <div className="min-h-screen bg-paper text-ink grid lg:grid-cols-2">
+    <div className="deck min-h-svh bg-paper text-ink grid lg:grid-cols-2">
       <Seo title="Sign in — Site 99" description="Sign in to the Site 99 operating system." path="/login" />
 
       <section className="hidden lg:flex flex-col justify-between border-r border-rule p-12">
@@ -147,8 +160,8 @@ export default function Login() {
         <div className="eyebrow text-ink-faint">Kampala · Uganda</div>
       </section>
 
-      <section className="flex items-center px-6 md:px-16 py-16">
-        <div className="w-full max-w-sm">
+      <section className="flex min-h-svh items-center px-5 py-10 sm:px-8 md:px-16 lg:min-h-0 lg:py-16">
+        <div className="mx-auto w-full max-w-sm">
           <div className="eyebrow text-signal mb-4">
             {mode === "signin" ? "Portal" : mode === "signup" ? "New resident" : "Reset password"}
           </div>

@@ -72,9 +72,9 @@ export const Nav = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-8 md:px-16 py-5">
+      <header className="fixed left-0 right-0 top-0 z-[100] flex items-center justify-between px-4 py-3 pt-[calc(.75rem+env(safe-area-inset-top))] md:px-16 md:py-5">
         <Link to="/" className="flex items-center gap-2 isolate" data-hover style={{ mixBlendMode: "normal" }}>
-          <img src={new URL('../assets/site99-logo.png', import.meta.url).href} alt="Site 99" className={`w-auto transition-all duration-300 ${scrolled ? "h-14 md:h-20" : "h-24 md:h-36"}`} style={{ mixBlendMode: "normal", opacity: 1 }} />
+          <img src={new URL('../assets/site99-logo.png', import.meta.url).href} alt="Site 99" className={`w-auto transition-all duration-300 ${scrolled ? "h-12 md:h-20" : "h-16 md:h-36"}`} style={{ mixBlendMode: "normal", opacity: 1 }} />
         </Link>
 
 
@@ -151,7 +151,7 @@ export const Nav = () => {
 
         <button
           onClick={() => setOpen((o) => !o)}
-          className={`relative z-[200] flex items-center gap-3 mono text-xs uppercase tracking-[0.25em] font-sans text-site-white rounded-full px-4 py-2 transition-all duration-300 ${(pathname !== "/" || scrolled) ? "bg-site-black/85 backdrop-blur-md border border-white/10" : "bg-transparent border border-transparent mix-blend-difference"}`}
+          className={`relative z-[200] flex min-h-11 min-w-11 items-center justify-center gap-3 rounded-full px-2 mono text-xs uppercase tracking-[0.25em] font-sans text-site-white transition-all duration-300 md:px-4 ${(pathname !== "/" || scrolled) ? "bg-site-black/85 backdrop-blur-md border border-site-white/10" : "bg-transparent border border-transparent mix-blend-difference"}`}
           data-hover
           aria-label="Toggle menu"
         >
@@ -176,13 +176,13 @@ export const Nav = () => {
             animate={{ clipPath: "circle(150% at 100% 0%)" }}
             exit={{ clipPath: "circle(0% at 100% 0%)" }}
             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[150] bg-site-red text-site-black overflow-y-auto overscroll-contain"
+            className="fixed inset-0 z-[150] overflow-y-auto overscroll-contain bg-site-red text-site-black"
           >
             <button
               onClick={() => setOpen(false)}
               aria-label="Close menu"
               data-hover
-              className="fixed top-5 right-4 md:right-6 z-[160] flex items-center gap-3 mono text-xs uppercase tracking-[0.25em] text-site-black"
+              className="fixed right-4 top-[calc(1rem+env(safe-area-inset-top))] z-[160] flex min-h-11 min-w-11 items-center justify-center gap-3 mono text-xs uppercase tracking-[0.25em] text-site-black md:right-6"
             >
               <span className="hidden md:inline">Close</span>
               <span className="relative w-8 h-8 flex items-center justify-center">
@@ -190,8 +190,8 @@ export const Nav = () => {
                 <span className="absolute block w-8 h-px bg-current -rotate-45" />
               </span>
             </button>
-            <div className="min-h-full w-full flex flex-col justify-between gap-10 p-6 md:p-12 pt-28 pb-10">
-              <nav className="flex-1 flex flex-col justify-center gap-2 md:gap-4">
+            <div className="flex min-h-full w-full flex-col justify-between gap-8 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(5.5rem+env(safe-area-inset-top))] md:gap-10 md:p-12 md:pt-28">
+              <nav className="flex flex-1 flex-col justify-center gap-1 md:gap-4">
                 {links.map((l, i) => (
                   <motion.div
                     key={l.to}
@@ -201,7 +201,7 @@ export const Nav = () => {
                   >
                     <Link
                       to={l.to}
-                      className="group flex items-baseline gap-6 md:gap-12 border-b border-site-black/30 pb-2 md:pb-4"
+                      className="group flex min-h-12 items-baseline gap-4 border-b border-site-black/30 py-2 md:gap-12 md:pb-4"
                       data-hover
                     >
                       <span className="mono text-xs md:text-sm">{l.n}</span>

@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 
 export function FilterBar({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-2 mb-6", className)}>{children}</div>
+    <div className={cn("no-scrollbar -mx-3 mb-6 flex max-w-[calc(100%+1.5rem)] items-center gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:max-w-full sm:flex-wrap sm:px-0", className)}>{children}</div>
   );
 }
 
@@ -24,7 +24,7 @@ export function SearchInput({
   className?: string;
 }) {
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative w-[min(82vw,20rem)] shrink-0 sm:w-auto sm:min-w-[13rem] sm:flex-1", className)}>
       <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
       <input
         type="search"
@@ -32,7 +32,7 @@ export function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
-        className={cn(controlBase, "pl-10 placeholder:text-ink-faint min-w-[13rem] w-full")}
+        className={cn(controlBase, "w-full pl-10 placeholder:text-ink-faint")}
       />
     </div>
   );
@@ -58,7 +58,7 @@ export function SelectFilter({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className={cn(
-        controlBase,
+        controlBase, "shrink-0",
         "pr-8 cursor-pointer appearance-none bg-[length:14px] bg-no-repeat bg-[right_0.9rem_center]",
         "bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23777%22 stroke-width=%223%22><path d=%22M6 9l6 6 6-6%22/></svg>')]",
         !isAll && "border-signal/50 bg-acc-violet-soft text-acc-violet font-semibold",
@@ -89,7 +89,7 @@ export function Segmented<T extends string>({
   return (
     <div
       className={cn(
-        "relative inline-flex h-10 items-center rounded-full border border-rule bg-paper-sunken p-1",
+        "no-scrollbar relative inline-flex min-h-11 max-w-full items-center overflow-x-auto rounded-full border border-rule bg-paper-sunken p-1",
         className
       )}
     >
@@ -107,7 +107,7 @@ export function Segmented<T extends string>({
           type="button"
           onClick={() => onChange(o.value)}
           className={cn(
-            "relative z-10 flex-1 eyebrow text-[10px] px-4 h-8 rounded-full transition-colors focus-ring",
+            "relative z-10 min-h-9 flex-1 whitespace-nowrap rounded-full px-4 eyebrow text-[10px] transition-colors focus-ring",
             value === o.value ? "text-paper" : "text-ink-soft hover:text-ink"
           )}
         >

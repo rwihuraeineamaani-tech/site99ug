@@ -46,6 +46,7 @@ import {
   Sparkles,
   Calculator,
   ChevronDown,
+  Home,
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,6 +74,7 @@ import logo from "@/assets/site99-logo.png";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -83,6 +85,8 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import AccessLoading from "@/components/system/AccessLoading";
 
 export type ShellNavItem = { to: string; label: string; end?: boolean; icon?: typeof LayoutDashboard; badge?: number };
 type ShellNavGroup = { label: string; items: ShellNavItem[] };
@@ -288,11 +292,15 @@ function readOpenGroups(): Record<string, boolean> {
   }
 }
 
-function ShellSidebar({ groups, compact = false }: { groups: ShellNavGroup[]; compact?: boolean }) {
-  const { state, isMobile } = useSidebar();
+function ShellSidebar({ groups, compact = false, profileTo, onSignOut }: { groups: ShellNavGroup[]; compact?: boolean; profileTo: string; onSignOut: () => void }) {
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
   const { pathname, search } = useLocation();
   const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [pathname, search, isMobile, setOpenMobile]);
 
   // The shell remounts on every route change, so keep the menu where it was.
   useEffect(() => {
@@ -328,7 +336,7 @@ function ShellSidebar({ groups, compact = false }: { groups: ShellNavGroup[]; co
 
   return (
     <Sidebar collapsible="icon" className="border-r border-rule">
-      <SidebarContent ref={scrollRef} className="bg-paper">
+      <SidebarContent ref={scrollRef} className="bg-paper pt-[env(safe-area-inset-top)]">
         {groups.map((group) => {
           const isOpen = collapsed || open[group.label] || group.label === activeLabel;
           return (
@@ -401,6 +409,16 @@ function ShellSidebar({ groups, compact = false }: { groups: ShellNavGroup[]; co
           );
         })}
       </SidebarContent>
+      {isMobile && (
+        <SidebarFooter className="border-t border-rule bg-paper p-3 pb-[calc(.75rem+env(safe-area-inset-bottom))]">
+          <Link to={profileTo} className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium text-ink-soft hover:bg-paper-sunken hover:text-ink focus-ring">
+            <UserCog className="h-4 w-4" /> Profile & settings
+          </Link>
+          <Button variant="ghost" className="min-h-11 justify-start gap-3 px-3 text-ink-soft" onClick={onSignOut}>
+            <LogOut className="h-4 w-4" /> Sign out
+          </Button>
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }
@@ -409,7 +427,9 @@ const ShellCtx = createContext<((eyebrow: string) => void) | null>(null);
 
 /** Stays mounted across every /app page so the menu never rebuilds or jumps. */
 export function AppLayout() {
+  const { loading } = useMyRoles();
   const [eyebrow, setEyebrow] = useState("Operating system");
+  if (loading) return <AccessLoading />;
   return (
     <ShellCtx.Provider value={setEyebrow}>
       <ShellFrame eyebrow={eyebrow}>
@@ -446,7 +466,7 @@ function ShellFrame({
   nav?: ShellNavItem[];
 }) {
   const navigate = useNavigate();
-  const { displayName, email, title, userId, isStaff } = useMyRoles();
+  const { displayName, email, title, userId, isStaff, isClient, talentId } = useMyRoles();
   const groups = useNavGroups(nav);
   useActivityTracker(isStaff ? "staff" : "client");
 
@@ -456,6 +476,10 @@ function ShellFrame({
   };
 
   const name = displayName || email || "Site 99";
+  const homeTo = isStaff ? "/app" : isClient ? "/portal" : talentId ? "/talent-portal" : "/";
+  const workTo = isStaff ? "/app/todo" : isClient ? "/portal/work" : talentId ? "/talent-portal/bookings" : homeTo;
+  const chatTo = isStaff ? "/app/chat" : isClient ? "/portal/chat" : talentId ? "/talent-portal/contracts" : homeTo;
+  const profileTo = isStaff ? "/app/settings" : homeTo;
 
   // Appearance: dark by default, per-person preference remembered on the account.
   const [theme, setThemeState] = useState<ThemeMode>(readTheme());
@@ -504,13 +528,13 @@ function ShellFrame({
           light && "deck-light"
         )}
       >
-        {groups.length > 0 && <ShellSidebar groups={groups} compact={navDensity === "compact"} />}
+        {groups.length > 0 && <ShellSidebar groups={groups} compact={navDensity === "compact"} profileTo={profileTo} onSignOut={signOut} />}
 
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-40 h-16 rule-b bg-paper/95 backdrop-blur flex items-center gap-2 px-2.5 md:gap-3 md:px-6">
+          <header className="sticky top-0 z-40 h-[calc(3.5rem+env(safe-area-inset-top))] rule-b bg-paper/95 px-2.5 pt-[env(safe-area-inset-top)] backdrop-blur flex items-center gap-2 md:h-16 md:gap-3 md:px-6 md:pt-0">
             {groups.length > 0 && <SidebarTrigger className="focus-ring" />}
             <Link to="/" className="shrink-0 focus-ring rounded-md">
-              <img src={logo} alt="Site 99" className="h-9 w-auto md:h-12" />
+              <img src={logo} alt="Site 99" className="h-8 w-auto md:h-12" />
             </Link>
             <span className="hidden sm:block h-8 w-px bg-rule" aria-hidden />
             <div className="hidden min-w-0 flex-col justify-center sm:flex">
@@ -521,18 +545,18 @@ function ShellFrame({
                 {title || eyebrow}
               </span>
             </div>
-            <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-3 md:gap-5">
-              <HelpButton />
-              {userId && <NotificationBell />}
+            <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2 xl:gap-5">
+              <span className="hidden lg:inline-flex"><HelpButton /></span>
+              {userId && <span className="hidden lg:inline-flex"><NotificationBell /></span>}
               <Link
                 to="/app/calendar"
-                className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-rule px-3 py-1.5 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"
+                className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-rule px-3 py-1.5 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"
               >
                 <CalendarDays className="h-3.5 w-3.5" />
                 Calendar
               </Link>
-              <HeaderClock />
-              <span className="hidden md:block h-8 w-px bg-rule" aria-hidden />
+              <span className="hidden xl:inline-flex"><HeaderClock /></span>
+              <span className="hidden lg:block h-8 w-px bg-rule" aria-hidden />
               <Link
                 to="/app/settings"
                 title="My settings"
@@ -548,7 +572,7 @@ function ShellFrame({
               </Link>
               <button
                 onClick={signOut}
-                className="hidden min-h-11 items-center gap-1 px-2 text-ink-soft hover:text-signal focus-ring sm:inline-flex"
+                className="hidden min-h-11 items-center gap-1 px-2 text-ink-soft hover:text-signal focus-ring xl:inline-flex"
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign out</span>
@@ -557,10 +581,29 @@ function ShellFrame({
           </header>
 
 
-          <main className="flex-1 min-w-0 px-3 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-5 sm:px-4 md:px-8 md:py-8">{children}</main>
+          <main className="mobile-page flex-1 min-w-0 overflow-x-clip px-3 pb-[calc(5.75rem+env(safe-area-inset-bottom))] pt-4 sm:px-4 md:px-8 md:py-8">{children}</main>
+
+          {groups.length > 0 && (
+            <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-rule bg-paper/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" aria-label="Quick navigation">
+              <MobileNavItem to={homeTo} label="Home" icon={Home} />
+              <MobileNavItem to={workTo} label={isStaff ? "To-Do" : talentId ? "Bookings" : "Work"} icon={ListChecks} />
+              <MobileNavItem to={chatTo} label={talentId && !isStaff ? "Contracts" : "Chat"} icon={talentId && !isStaff ? FileText : MessageCircle} />
+              <div className="grid min-h-14 place-items-center"><NotificationBell /></div>
+              <MobileNavItem to={profileTo} label="Profile" icon={UserCog} />
+            </nav>
+          )}
         </div>
       </div>
     </SidebarProvider>
+  );
+}
+
+function MobileNavItem({ to, label, icon: Icon }: { to: string; label: string; icon: typeof Home }) {
+  return (
+    <NavLink to={to} end={to === "/app" || to === "/portal" || to === "/talent-portal"} className={({ isActive }) => cn("flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-[10px] font-medium text-ink-faint focus-ring", isActive && "text-signal")}>
+      <Icon className="h-4 w-4" />
+      <span className="max-w-full truncate">{label}</span>
+    </NavLink>
   );
 }
 

@@ -7,3 +7,4 @@
 - [x] Move People & access under System administration in the menu and expand its tabs
 - [ ] Lock all Finance buttons behind the payment PIN, with a link to set one up
 - [ ] Verify permissions, workflows, mobile layouts, typecheck, build, and browser behavior
+- [x] Complete the approved whole-app mobile upgrade across public and signed-in screens
