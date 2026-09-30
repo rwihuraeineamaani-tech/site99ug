@@ -3,10 +3,8 @@
  * One greeting is picked per visit (seeded in sessionStorage) so the page does
  * not shuffle on every render, but every new session feels different.
  *
- * The engine mixes three layers so a visit never feels copy-pasted:
- *   headline — who you are, what time it is, what kind of day it is
- *   note     — what actually needs you, else what today is about
- *   tail     — an occasional one-liner for energy
+ * House style: interesting lines only (no "Good morning" filler) and no
+ * dash separators. Sentences end with periods, asides ride on commas.
  */
 
 export type GreetContext = {
@@ -72,42 +70,31 @@ const OPENERS: Record<string, string[]> = {
     "Still here",
     "The city is asleep, you are not",
     "Past midnight",
-    "Late shift",
     "Burning the midnight",
     "While Kampala sleeps",
   ],
   morning: [
-    "Good morning",
-    "Morning",
     "Up with the sun",
-    "Fresh start",
-    "New day",
     "Early bird",
     "The day is young",
     "Coffee first, then this",
   ],
   afternoon: [
-    "Good afternoon",
-    "Afternoon",
     "Mid-day check-in",
     "Half the day gone",
     "Deep in the day",
     "Still pushing",
   ],
   evening: [
-    "Good evening",
-    "Evening",
     "Winding down",
     "Last stretch",
-    "End of the day",
     "Sunset shift",
+    "The day is almost done",
   ],
   late: [
-    "Good evening",
     "Working late",
     "Still here",
     "One more thing before bed",
-    "The day is almost done",
   ],
 };
 
@@ -137,46 +124,46 @@ const DAY_NOTES: Record<number, string[]> = {
   0: [
     "Sunday. Only do what really needs you today.",
     "Sunday. A good day to rest and plan lightly.",
-    "Sunday — recharge. The week will ask a lot of you.",
+    "Quiet Sunday. Recharge, the week will ask a lot of you.",
     "Quiet Sunday. Let the inbox breathe.",
   ],
   1: [
     "Monday. Set the week up early.",
     "Monday. Whatever you start today sets the tone.",
-    "Monday — win the first hour and the week follows.",
+    "Monday. Win the first hour and the week follows.",
     "Monday. Line up the week before it lines you up.",
   ],
   2: [
     "Tuesday. A good day for steady work.",
     "Tuesday. Keep the week moving.",
-    "Tuesday — the week has settled, now push it.",
+    "Tuesday. The week has settled, now push it.",
   ],
   3: [
     "Wednesday. Halfway through the week.",
     "Wednesday. A good day to check progress.",
-    "Wednesday — halfway there. Keep the pace.",
+    "Wednesday. Halfway there, keep the pace.",
     "Midweek. Look at what is slipping and catch it now.",
   ],
   4: [
     "Thursday. Close things before Friday.",
     "Thursday. Tie up loose ends.",
-    "Thursday — clear the small stuff so Friday is free.",
+    "Thursday. Clear the small stuff so Friday is free.",
   ],
   5: [
     "Friday. Finish things cleanly.",
     "Friday. Wrap up the week well.",
-    "Friday — close what you can, so Monday starts light.",
+    "Friday. Close what you can, so Monday starts light.",
     "Friday. Ship it, then rest easy.",
   ],
   6: [
     "Saturday. Shoot days often fall today.",
     "Saturday. The calendar is usually busy today.",
-    "Saturday — if there is a shoot, it is a good one.",
+    "Saturday. If there is a shoot, it is a good one.",
   ],
 };
 
 const FLAIR = [
-  "Kampala traffic will not post content for you — but you can.",
+  "Kampala traffic will not post content for you, but you can.",
   "Small consistent numbers beat big one-off pushes.",
   "One good idea today is worth ten planned for next month.",
   "The clients who pay the most notice the small things.",
@@ -192,7 +179,7 @@ const FLAIR = [
 
 function seasonNote(month: number, day: number): string | null {
   if (month === 11 && day >= 15)
-    return "Festive season — approvals take longer, so plan ahead.";
+    return "Festive season. Approvals take longer, so plan ahead.";
   if (month === 0 && day <= 10)
     return "New year. A good time to set this year's targets.";
   if (month === 5 && day >= 25)
@@ -201,8 +188,8 @@ function seasonNote(month: number, day: number): string | null {
 }
 
 function monthNote(day: number): string | null {
-  if (day <= 3) return "Start of the month — check targets and retainers.";
-  if (day >= 26) return "Month end — invoices, filing and client numbers need closing.";
+  if (day <= 3) return "Start of the month. Check targets and retainers.";
+  if (day >= 26) return "Month end. Invoices, filing and client numbers need closing.";
   if (day >= 13 && day <= 16) return "Mid-month. Halfway to this month's targets.";
   return null;
 }
@@ -226,8 +213,7 @@ export function buildGreeting(ctx: GreetContext): { headline: string; note: stri
     const styles = [
       `${opener}, ${first}.`,
       `${opener}, ${first}.`,
-      `${opener}, ${first}.`,
-      `${first} — ${opener.toLowerCase()}.`,
+      `${first}, ${opener.toLowerCase()}.`,
     ];
     headline = pick(styles, 11);
   }
@@ -251,11 +237,11 @@ export function buildGreeting(ctx: GreetContext): { headline: string; note: stri
       pick(
         [
           ctx.shootsToday === 1
-            ? "1 shoot today — check the call time and gear."
-            : `${ctx.shootsToday} shoots today — check the call times and gear.`,
+            ? "1 shoot today. Check the call time and gear."
+            : `${ctx.shootsToday} shoots today. Check the call times and gear.`,
           ctx.shootsToday === 1
             ? "Shoot day. Confirm the call time and pack early."
-            : `Shoot day — ${ctx.shootsToday} of them. Confirm the call times.`,
+            : `Shoot day, ${ctx.shootsToday} of them. Confirm the call times.`,
         ],
         6
       )
@@ -281,8 +267,8 @@ export function buildGreeting(ctx: GreetContext): { headline: string; note: stri
         : `${ctx.eventsThisWeek} things on your calendar for the rest of this week.`
     );
   }
-  if (band === "night") tail.push("It is past midnight in Kampala — most of this can wait until morning.");
-  if (!ctx.waiting && !ctx.onMyPlate) tail.push("Your list is clear — a good time to get ahead.");
+  if (band === "night") tail.push("It is past midnight in Kampala. Most of this can wait until morning.");
+  if (!ctx.waiting && !ctx.onMyPlate) tail.push("Your list is clear. A good time to get ahead.");
   if (ctx.roleLabel && chance(4)) tail.push(`You are seeing this as ${ctx.roleLabel}.`);
 
   let note: string;
