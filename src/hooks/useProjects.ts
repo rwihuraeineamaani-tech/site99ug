@@ -20,11 +20,9 @@ export const useProjects = () =>
   useQuery({
     queryKey: ["projects"],
     queryFn: async (): Promise<Project[]> => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .order("display_order", { ascending: true });
+      // Public showcase read through a safe function (visitors can't read the projects table directly).
+      const { data, error } = await (supabase as any).rpc("list_public_projects");
       if (error) throw error;
-      return data as Project[];
+      return ((data as Project[]) ?? []).map((p) => ({ ...p, gallery_urls: p.gallery_urls ?? [] }));
     },
   });

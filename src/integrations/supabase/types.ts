@@ -6928,6 +6928,23 @@ export type Database = {
       is_strategy_team: { Args: { _uid: string }; Returns: boolean }
       is_system_admin: { Args: { _user_id?: string }; Returns: boolean }
       is_talent_manager: { Args: { _user_id: string }; Returns: boolean }
+      list_public_projects: {
+        Args: never
+        Returns: {
+          aspect_ratio: string
+          client: string
+          cover_url: string
+          description: string
+          display_order: number
+          external_url: string
+          gallery_urls: string[]
+          id: string
+          tag: string
+          title: string
+          year: string
+          youtube_url: string
+        }[]
+      }
       list_public_residents: {
         Args: never
         Returns: {
