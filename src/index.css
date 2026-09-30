@@ -93,6 +93,7 @@
   }
   html { overflow-x: hidden; }
   body { min-width: 320px; }
+  img, video, canvas, svg { max-width: 100%; }
   ::selection {
     background: hsl(var(--site-red));
     color: hsl(var(--site-white));
@@ -242,12 +243,22 @@
   .shell-x { padding-left: 1.5rem; padding-right: 1.5rem; }
   @media (min-width: 768px) { .shell-x { padding-left: 3rem; padding-right: 3rem; } }
   @media (max-width: 639px) {
+    html { scroll-padding-top: calc(4rem + env(safe-area-inset-top)); }
+    body { overscroll-behavior-y: none; }
     .deck input:not([type="checkbox"]):not([type="radio"]),
     .deck select,
     .deck textarea { font-size: 16px; }
     .deck [role="tablist"] { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
-    .deck [role="dialog"] { max-width: calc(100vw - 1rem); }
-    .deck table { min-width: 42rem; }
+    .deck [role="dialog"] { max-width: 100vw; }
+    .deck button, .deck a, .deck select, .deck summary { touch-action: manipulation; }
+    .deck table { min-width: 40rem; }
+    .deck :where(.overflow-x-auto) { overscroll-behavior-x: contain; scrollbar-width: none; }
+    .mobile-page > :where(header, section, div) { min-width: 0; }
+    .mobile-page :where(h1, h2, h3, p, dd, td) { overflow-wrap: anywhere; }
+    .public-shell section { overflow-x: clip; }
+    .public-shell :where(input, select, textarea) { font-size: 16px; }
+    .public-shell :where(button, a) { touch-action: manipulation; }
+    .public-shell .shell-x { padding-left: 1.25rem; padding-right: 1.25rem; }
   }
 
   /* --- Tactile controls ------------------------------------------- */

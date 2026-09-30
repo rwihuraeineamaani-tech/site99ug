@@ -133,7 +133,7 @@ export default function Home() {
         path="/"
       />
       {/* HERO — black canvas with northern-lights aurora */}
-      <section ref={heroRef} className="relative min-h-screen h-screen overflow-hidden bg-site-black text-site-white">
+      <section ref={heroRef} className="relative min-h-svh h-svh overflow-hidden bg-site-black text-site-white">
         <motion.div style={{ y: heroY, scale: heroScale, willChange: "transform" }} className="absolute inset-0">
           <div className="absolute inset-0 bg-site-black" />
           {heroImages.map((src, i) => (
@@ -554,7 +554,7 @@ export default function Home() {
 
       {/* RESIDENTS GLIMPSE */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="flex items-end justify-between mb-12 px-8 md:px-16">
+        <div className="mb-8 flex items-end justify-between px-5 sm:px-8 md:mb-12 md:px-16">
           <div>
             <div className="label text-site-red mb-4">N° 03 / Residents</div>
             <h2 className="display text-fluid-xl">In Residency</h2>
@@ -571,15 +571,15 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="grid grid-cols-12 items-center gap-4 border-b border-border px-8 md:px-16 py-6 md:py-8 group hover:bg-site-red transition-colors duration-300 cursor-default"
+              className="grid grid-cols-12 items-center gap-3 border-b border-border px-5 py-5 group hover:bg-site-red transition-colors duration-300 cursor-default sm:px-8 md:gap-4 md:px-16 md:py-8"
             >
               <div className="col-span-1 mono text-xs text-muted-foreground group-hover:text-site-white">
                 {String(i + 1).padStart(2, "0")}
               </div>
-              <div className="col-span-7 md:col-span-6 display text-2xl md:text-4xl group-hover:text-site-white group-hover:translate-x-3 transition-transform duration-500">
+              <div className="col-span-11 break-words display text-xl group-hover:text-site-white transition-transform duration-500 sm:col-span-7 sm:text-2xl md:col-span-6 md:text-4xl md:group-hover:translate-x-3">
                 {r.name}
               </div>
-              <div className="col-span-4 md:col-span-3 mono text-[11px] md:text-xs uppercase tracking-[0.22em] text-site-red group-hover:text-site-white truncate">
+              <div className="col-span-11 col-start-2 mono text-[10px] uppercase tracking-[0.22em] text-site-red group-hover:text-site-white truncate sm:col-span-4 sm:col-start-auto md:col-span-3 md:text-xs">
                 {r.territory || "—"}
               </div>
               <div className="hidden md:block md:col-span-2 text-right mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-site-white">
@@ -591,7 +591,7 @@ export default function Home() {
       </section>
 
       {/* CTA SLAB */}
-      <section className="relative px-8 md:px-16 py-20 md:py-28 text-center bg-site-black text-site-white overflow-hidden">
+      <section className="relative overflow-hidden bg-site-black px-5 py-16 text-center text-site-white sm:px-8 md:px-16 md:py-28">
         <img
           src={ctaAsset.url}
           alt=""
