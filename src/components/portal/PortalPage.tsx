@@ -53,7 +53,7 @@ export default function PortalPage({
       />
 
       {client && (
-        <nav className="-mt-4 mb-8 flex flex-wrap gap-2">
+        <nav className="no-scrollbar -mx-3 -mt-2 mb-6 flex overflow-x-auto px-3 pb-2 sm:mx-0 sm:-mt-4 sm:mb-8 sm:flex-wrap sm:px-0">
           {TABS.map((t) => (
             <NavLink
               key={t.to}
@@ -61,7 +61,7 @@ export default function PortalPage({
               end={t.end}
               className={({ isActive }) =>
                 cn(
-                  "rounded-full border border-hairline px-4 py-1.5 text-sm transition-colors",
+                  "min-h-11 shrink-0 rounded-full border border-rule px-4 py-2.5 text-sm transition-colors",
                   isActive ? "bg-signal/15 text-signal border-signal/40" : "text-ink-soft hover:text-ink"
                 )
               }

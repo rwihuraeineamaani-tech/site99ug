@@ -36,12 +36,13 @@ function Section({ title, count, children }: { title: string; count: number; chi
 }
 
 export default function NotificationBell() {
-  const { userId } = useMyRoles();
+  const { userId, isClient, isStaff } = useMyRoles();
   const { reminders, dismiss } = useCalendarReminders();
   const { chats, reads, approvals, total: feedTotal, markAllRead } = useNotificationFeed();
   const { status, busy, enable } = usePushNotifications(userId);
 
   const total = feedTotal + reminders.length;
+  const appBase = isClient && !isStaff ? "/portal" : "/app";
   useAppBadge(total);
 
   return (
@@ -56,7 +57,7 @@ export default function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-96 p-0">
+      <PopoverContent align="end" sideOffset={10} className="w-[calc(100vw-1rem)] max-w-96 p-0">
         <div className="rule-b flex items-center justify-between px-4 py-3">
           <div>
             <div className="eyebrow text-[10px] text-signal">Notifications</div>
@@ -72,7 +73,7 @@ export default function NotificationBell() {
         <div className="max-h-[26rem] overflow-y-auto">
           <Section title="Messages" count={chats.length}>
             {chats.map((c) => (
-              <Link key={c.id} to="/app/chat" className="flex items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
+              <Link key={c.id} to={`${appBase}/chat`} className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
                 <MessageSquare className="h-4 w-4 shrink-0 text-signal" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
@@ -88,7 +89,7 @@ export default function NotificationBell() {
 
           <Section title="Waiting for your approval" count={approvals.length}>
             {approvals.map((a) => (
-              <Link key={a.key} to={a.to} className="flex items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
+              <Link key={a.key} to={a.to} className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-signal" />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium">{a.title}</div>
@@ -100,7 +101,7 @@ export default function NotificationBell() {
 
           <Section title="To read" count={reads.length}>
             {reads.map((r) => (
-              <Link key={`${r.kind}-${r.id}`} to={r.kind === "brief" ? "/app/briefs" : "/app/announcements"} className="flex items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
+              <Link key={`${r.kind}-${r.id}`} to={r.kind === "brief" ? "/app/briefs" : "/app/announcements"} className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-paper-sunken">
                 {r.kind === "brief" ? <FileText className="h-4 w-4 shrink-0 text-signal" /> : <Megaphone className="h-4 w-4 shrink-0 text-signal" />}
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium">{r.title}</div>
@@ -115,7 +116,7 @@ export default function NotificationBell() {
               <div key={`${item.id}-${occurrence}`} className="flex gap-3 px-4 py-3">
                 <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
                 <div className="min-w-0 flex-1">
-                  <Link to="/app/calendar" className="block truncate text-sm font-medium hover:text-signal">{item.title}</Link>
+                  <Link to={isStaff ? "/app/calendar" : `${appBase}/calendar`} className="block truncate text-sm font-medium hover:text-signal">{item.title}</Link>
                   <p className="text-[11px] text-ink-soft">{occurrence} · {item.all_day ? "All day" : item.start_time?.slice(0, 5)}</p>
                 </div>
                 <Button variant="ghost" size="icon-sm" onClick={() => dismiss(item.id, occurrence)} aria-label={`Dismiss ${item.title}`}>
@@ -130,7 +131,7 @@ export default function NotificationBell() {
 
         <div className="rule-t px-4 py-3">
           {status === "enabled" ? (
-            <p className="text-[11px] text-ink-soft">Alerts are on for this device. Manage them in <Link to="/app/settings?tab=notifications" className="underline hover:text-signal">My settings</Link>.</p>
+            <p className="text-[11px] text-ink-soft">Alerts are on for this device.{isStaff && <> Manage them in <Link to="/app/settings?tab=notifications" className="underline hover:text-signal">My settings</Link>.</>}</p>
           ) : status === "disabled" ? (
             <Button size="sm" className="w-full" disabled={busy} onClick={enable}>{busy ? "Turning on…" : "Turn on alerts"}</Button>
           ) : status === "checking" ? null : (
