@@ -23,13 +23,17 @@ export default function Login() {
   useEffect(() => {
     let cancelled = false;
     const route = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (cancelled) return;
-      if (!data.user) {
-        setCheckingSession(false);
-        return;
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (cancelled) return;
+        if (!data.user) {
+          setCheckingSession(false);
+          return;
+        }
+        await landFor(data.user.id, true);
+      } catch {
+        if (!cancelled) setCheckingSession(false);
       }
-      await landFor(data.user.id, true);
     };
 
     const landFor = async (uid: string, silent = false) => {
