@@ -12,6 +12,7 @@ import { logoUrls, initials } from "@/lib/logo";
 import { ChevronRight, LayoutGrid, Rows3, CalendarClock, Camera, Clapperboard, UserRound, Wallet } from "lucide-react";
 import { clientTone } from "@/lib/contractLifecycle";
 import ClientLifecycleSwitch from "@/components/residents/ClientLifecycleSwitch";
+import AddResidentDialog from "@/components/residents/AddResidentDialog";
 
 export type ResidentRecord = {
   id: string;
@@ -145,6 +146,10 @@ export default function ResidentsHub() {
         title="Residents."
         lede={`${activeCount} active clients. Open any card for their full record — content, shoots, money, contracts and relations.`}
       />
+      {has("admin", "founder", "managing_director", "operations_manager", "communications", "client_relations") && (
+        <div className="-mt-4 mb-6"><AddResidentDialog /></div>
+      )}
+
 
       <div className="mb-8 flex flex-wrap gap-1 rounded-full surface-sunken p-1 w-fit" role="tablist">
         {tabs.map((t) => (
