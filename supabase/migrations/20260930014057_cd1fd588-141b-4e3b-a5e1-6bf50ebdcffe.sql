@@ -1,0 +1,2 @@
+CREATE POLICY "Onboarding team adds residents" ON public.residents FOR INSERT TO authenticated WITH CHECK (public.can_run_onboarding(auth.uid()));
+CREATE POLICY "Onboarding team views residents" ON public.residents FOR SELECT TO authenticated USING (public.can_run_onboarding(auth.uid()));
