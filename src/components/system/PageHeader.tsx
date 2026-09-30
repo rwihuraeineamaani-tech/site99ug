@@ -15,13 +15,13 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={cn("rule-b pb-5 mb-8 flex flex-wrap items-end justify-between gap-4", className)}>
+    <header className={cn("rule-b mb-5 flex flex-col items-stretch gap-4 pb-4 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:pb-5", className)}>
       <div className="min-w-0">
         {eyebrow && <div className="eyebrow text-signal mb-2">{eyebrow}</div>}
-        <h1 className="display text-3xl md:text-5xl leading-[0.95]">{title}</h1>
+        <h1 className="display break-words text-3xl leading-[0.95] md:text-5xl">{title}</h1>
         {lede && <p className="mt-3 text-ink-soft max-w-2xl text-sm md:text-base">{lede}</p>}
       </div>
-      {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
+      {actions && <div className="no-scrollbar flex max-w-full items-center gap-2 overflow-x-auto pb-1 sm:shrink-0 sm:pb-0">{actions}</div>}
     </header>
   );
 }
