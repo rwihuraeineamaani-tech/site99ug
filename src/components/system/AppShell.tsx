@@ -545,18 +545,18 @@ function ShellFrame({
                 {title || eyebrow}
               </span>
             </div>
-            <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-3 md:gap-5">
-              <span className="hidden sm:inline-flex"><HelpButton /></span>
-              {userId && <span className="hidden sm:inline-flex"><NotificationBell /></span>}
+            <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2 xl:gap-5">
+              <span className="hidden lg:inline-flex"><HelpButton /></span>
+              {userId && <span className="hidden lg:inline-flex"><NotificationBell /></span>}
               <Link
                 to="/app/calendar"
-                className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-rule px-3 py-1.5 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"
+                className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-rule px-3 py-1.5 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"
               >
                 <CalendarDays className="h-3.5 w-3.5" />
                 Calendar
               </Link>
-              <span className="hidden sm:inline-flex"><HeaderClock /></span>
-              <span className="hidden md:block h-8 w-px bg-rule" aria-hidden />
+              <span className="hidden xl:inline-flex"><HeaderClock /></span>
+              <span className="hidden lg:block h-8 w-px bg-rule" aria-hidden />
               <Link
                 to="/app/settings"
                 title="My settings"
@@ -572,7 +572,7 @@ function ShellFrame({
               </Link>
               <button
                 onClick={signOut}
-                className="hidden min-h-11 items-center gap-1 px-2 text-ink-soft hover:text-signal focus-ring sm:inline-flex"
+                className="hidden min-h-11 items-center gap-1 px-2 text-ink-soft hover:text-signal focus-ring xl:inline-flex"
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign out</span>
