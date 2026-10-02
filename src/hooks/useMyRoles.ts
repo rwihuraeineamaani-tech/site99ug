@@ -292,7 +292,7 @@ export function useRolesState(): RoleState {
     content: isStaff,
     talent: isLeadership || has("talent_director", "talent"),
     relations: isLeadership || has("client_relations", "communications", "sales_head") || handlesClients,
-    clients: canManageClients || has("legal", "finance_ops", "talent", "communications", "client_relations"),
+    clients: isStaff,
     sales: has("admin", "founder", "managing_director", "sales_head"),
     legal: has("admin", "founder", "managing_director", "legal"),
     ops: isLeadership || has("talent"),

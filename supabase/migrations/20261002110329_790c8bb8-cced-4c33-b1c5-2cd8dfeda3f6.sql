@@ -1,0 +1,1 @@
+CREATE POLICY "Staff view residents" ON public.residents FOR SELECT TO authenticated USING (is_staff(auth.uid()));
