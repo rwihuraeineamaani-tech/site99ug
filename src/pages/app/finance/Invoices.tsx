@@ -30,6 +30,8 @@ type Contract = {
   monthly_retainer_ugx: number | null;
   status: string;
 };
+const monthLabel = (iso: string) =>
+  new Date(`${(iso || new Date().toISOString().slice(0, 10)).slice(0, 10)}T00:00:00`).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 type Wallet = { id: string; name: string; active: boolean; sort: number };
 
 const field =
