@@ -12,6 +12,8 @@ type Contract = {
   starts_on: string | null;
   ends_on: string | null;
   value_ugx: number | null;
+  monthly_retainer_ugx: number | null;
+  months: number | null;
   file_path: string | null;
 };
 
@@ -32,7 +34,7 @@ export default function PortalDocuments() {
       const [ct, st] = await Promise.all([
         supabase
           .from("resident_contracts")
-          .select("id, title, status, starts_on, ends_on, value_ugx, file_path")
+          .select("id, title, status, starts_on, ends_on, value_ugx, monthly_retainer_ugx, months, file_path")
           .eq("resident_id", clientId)
           .order("created_at", { ascending: false }),
         supabase
