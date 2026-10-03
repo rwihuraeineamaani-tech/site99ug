@@ -12,11 +12,13 @@ import { ProjectLightbox } from "@/components/ProjectLightbox";
 import type { Project } from "@/hooks/useProjects";
 import { toast } from "sonner";
 import AccessLoading from "@/components/system/AccessLoading";
+import PortalContract from "@/components/portal/PortalContract";
 
-type Tab = "overview" | "projects" | "briefs" | "announcements" | "profile";
+type Tab = "overview" | "contract" | "projects" | "briefs" | "announcements" | "profile";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "overview", label: "Overview" },
+  { id: "contract", label: "Contract & Billing" },
   { id: "projects", label: "Projects" },
   { id: "briefs", label: "Briefs" },
   { id: "announcements", label: "Announcements" },
@@ -159,6 +161,7 @@ export default function ResidentPortal() {
 
           <div className="min-w-0">
             {tab === "overview" && <Overview r={r} onJump={setTab} />}
+            {tab === "contract" && <PortalContract residentId={r.id} residentName={r.name} />}
             {tab === "projects" && <ProjectsTab residentId={r.id} />}
             {tab === "briefs" && <BriefsTab residentId={r.id} />}
             {tab === "announcements" && <AnnouncementsTab />}
@@ -210,6 +213,18 @@ function Overview({
           </div>
         ))}
       </div>
+
+      <button onClick={() => onJump("contract")} className="group block w-full text-left">
+        <div className={lbl + " mb-3"}>Contract & billing</div>
+        <div className="flex items-baseline justify-between gap-6 border-t border-border pt-5">
+          <h3 className="display text-2xl md:text-3xl group-hover:text-site-red transition-colors">
+            Your contract, invoices and what is owed.
+          </h3>
+          <span className="mono text-[10px] uppercase tracking-[0.3em] text-site-red whitespace-nowrap">
+            Open →
+          </span>
+        </div>
+      </button>
 
       {latest && (
         <button
