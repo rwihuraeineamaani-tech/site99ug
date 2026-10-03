@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { COMPONENTS, DEFAULT_SETTINGS, TARGET_METRICS, loadKpiMonth, monthLabel, monthStart, ugx, type KpiSettings, type PersonKpi } from "@/lib/kpiPay";
 
-export const KPI_MANAGER_ROLES = ["founder", "managing_director", "operations_manager", "hr", "finance_ops"] as const;
+export const KPI_MANAGER_ROLES = ["admin", "founder", "managing_director", "operations_manager", "hr", "finance_ops"] as const;
 
 export default function KpiPage() {
   const roles = useMyRoles();

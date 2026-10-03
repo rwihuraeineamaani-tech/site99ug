@@ -1,3 +1,4 @@
+import { CONTENT_APPROVALS_ENABLED } from "@/lib/approvals";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -517,12 +518,15 @@ export default function ContentPipeline() {
 
     switch (i.stage as Stage) {
       case "Idea":
+        // Content approvals are paused, so the content team or contact moves ideas straight on.
         return isFounder
           ? [
-              { label: "Approve", run: () => move(i.id, crewFilled ? "Crewed" : "Approved") },
+              { label: CONTENT_APPROVALS_ENABLED ? "Approve" : "Move to crewing", run: () => move(i.id, crewFilled ? "Crewed" : "Approved") },
               { label: "Reject", run: () => move(i.id, "Rejected"), ghost: true },
             ]
-          : [];
+          : !CONTENT_APPROVALS_ENABLED && (canEditContent || contact)
+            ? [{ label: "Move to crewing", run: () => move(i.id, "Approved") }]
+            : [];
       case "Approved":
         return isFounder || contact ? [{ label: "Fill the crew", run: openIt }] : [];
       case "Crewed":

@@ -27,7 +27,7 @@ export default function KpiDesk() {
   const [loading, setLoading] = useState(true);
   const [beat, setBeat] = useState(0);
   const manager = roles.has(...KPI_MANAGER_ROLES);
-  const founder = roles.has("founder");
+  const founder = roles.has("founder", "admin");
   const reload = () => setBeat((b) => b + 1);
 
   useEffect(() => {

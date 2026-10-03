@@ -27,8 +27,11 @@ type Contract = {
   party_name: string;
   resident_id: string | null;
   value_ugx: number | null;
+  monthly_retainer_ugx: number | null;
   status: string;
 };
+const monthLabel = (iso: string) =>
+  new Date(`${(iso || new Date().toISOString().slice(0, 10)).slice(0, 10)}T00:00:00`).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 type Wallet = { id: string; name: string; active: boolean; sort: number };
 
 const field =
@@ -94,7 +97,7 @@ export default function Invoices() {
       supabase.from("invoice_lines").select("*").order("sort"),
       supabase.from("residents").select("id, name").order("display_order"),
       supabase.from("wallets").select("id, name, active, sort").eq("active", true).order("sort"),
-      supabase.from("resident_contracts").select("id, title, resident_id, value_ugx, status"),
+      supabase.from("resident_contracts").select("id, title, resident_id, value_ugx, monthly_retainer_ugx, status"),
     ]);
     setRows((inv.data as Invoice[]) ?? []);
     const map: Record<string, InvoiceLine[]> = {};
@@ -167,7 +170,14 @@ export default function Invoices() {
         party_name: c.party_name,
         party_kind: c.key.startsWith("rc:") ? "resident" : d.party_kind,
         resident_id: c.resident_id ?? d.resident_id,
-        lines: [{ description: c.title, qty: 1, unit: c.value_ugx ?? 0 }],
+        period_label: d.period_label || monthLabel(d.issue_date),
+        lines: [
+          {
+            description: `${c.title}, ${monthLabel(d.issue_date)} retainer`,
+            qty: 1,
+            unit: c.monthly_retainer_ugx ?? c.value_ugx ?? 0,
+          },
+        ],
       };
     });
   };

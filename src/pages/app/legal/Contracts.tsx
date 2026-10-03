@@ -25,6 +25,7 @@ import {
   startRenewal,
   type ContractMoney,
 } from "@/lib/contractLifecycle";
+import ContractDetail, { APPROVAL_LABEL, APPROVAL_TONE, monthsBetween } from "@/components/legal/ContractDetail";
 
 type Contract = {
   id: string;
@@ -35,6 +36,8 @@ type Contract = {
   starts_on: string | null;
   ends_on: string | null;
   value_ugx: number | null;
+  monthly_retainer_ugx?: number | null;
+  approval_state?: string;
   status: string;
   owner_user_id: string | null;
   file_path: string | null;
@@ -63,6 +66,7 @@ export default function Contracts() {
   const [residentId, setResidentId] = useState("");
   const [renewedIds, setRenewedIds] = useState<Set<string>>(new Set());
   const [money, setMoney] = useState<Record<string, ContractMoney>>({});
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     party_kind: "client",
@@ -88,7 +92,7 @@ export default function Contracts() {
       supabase.from("team_members").select("user_id, display_name, email"),
       supabase
         .from("resident_contracts")
-        .select("id, resident_id, title, file_path, starts_on, ends_on, value_ugx, status, notes, renewed_from_id")
+        .select("id, resident_id, title, file_path, starts_on, ends_on, value_ugx, monthly_retainer_ugx, approval_state, contract_type, status, notes, renewed_from_id")
         .order("ends_on", { ascending: true, nullsFirst: false }),
       supabase.from("residents").select("id, name"),
     ]);
@@ -102,6 +106,9 @@ export default function Contracts() {
       starts_on: string | null;
       ends_on: string | null;
       value_ugx: number | null;
+      monthly_retainer_ugx: number | null;
+      approval_state: string;
+      contract_type: string | null;
       status: string;
       notes: string | null;
     }[]) ?? []).map((r) => ({
@@ -109,10 +116,12 @@ export default function Contracts() {
       party_kind: "resident",
       party_name: names.get(r.resident_id) ?? "Resident",
       title: r.title,
-      contract_type: "retainer",
+      contract_type: r.contract_type || "retainer",
       starts_on: r.starts_on,
       ends_on: r.ends_on,
       value_ugx: r.value_ugx,
+      monthly_retainer_ugx: r.monthly_retainer_ugx,
+      approval_state: r.approval_state,
       status: r.status,
       owner_user_id: null,
       file_path: r.file_path,
@@ -183,8 +192,10 @@ export default function Contracts() {
           title: form.title.trim(),
           starts_on: form.starts_on || null,
           ends_on: form.ends_on || null,
-          value_ugx: form.value_ugx ? Math.round(Number(form.value_ugx)) : null,
-          status: form.status === "draft" ? "draft" : "signed",
+          monthly_retainer_ugx: form.value_ugx ? Math.round(Number(form.value_ugx)) : null,
+          months: monthsBetween(form.starts_on || null, form.ends_on || null),
+          contract_type: form.contract_type,
+          status: "draft",
           notes: form.notes.trim() || null,
           file_path,
         })
@@ -203,7 +214,7 @@ export default function Contracts() {
         });
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success(isClientParty ? "Contract saved. The client's status now follows its dates and payments." : "Contract saved.");
+    toast.success(isClientParty ? "Draft saved. Open it to add the full details, then send it for Founder approval." : "Contract saved.");
     setOpen(false);
     setFile(null);
     setForm({ ...form, party_name: "", title: "", value_ugx: "", notes: "", starts_on: "", ends_on: "" });
@@ -324,13 +335,19 @@ export default function Contracts() {
             </label>
             {canSeeMoney && (
               <label className="text-xs text-ink-soft">
-                Value (UGX)
+                {isClientParty ? "Monthly retainer (UGX)" : "Value (UGX)"}
                 <input
                   inputMode="numeric"
                   className={field}
                   value={form.value_ugx}
                   onChange={(e) => setForm({ ...form, value_ugx: e.target.value })}
                 />
+                {isClientParty && form.value_ugx && monthsBetween(form.starts_on, form.ends_on) && (
+                  <span className="mt-1 block text-[11px] num">
+                    Contract value {(Number(form.value_ugx) * (monthsBetween(form.starts_on, form.ends_on) ?? 1)).toLocaleString()} UGX over{" "}
+                    {monthsBetween(form.starts_on, form.ends_on)} months.
+                  </span>
+                )}
               </label>
             )}
             <label className="text-xs text-ink-soft">
@@ -400,12 +417,16 @@ export default function Contracts() {
           {shown.map((r) => (
             <li key={`${r.source}-${r.id}`} className="px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
               <div className="min-w-[14rem] flex-1">
-                <div className="font-semibold text-sm flex items-center gap-2">
-                  {r.title}
-                  {r.source === "resident" && (
-                    <span className="eyebrow rounded-full border border-rule px-2 py-0.5 text-[10px] text-ink-soft">
-                      From resident record
-                    </span>
+                <div className="font-semibold text-sm flex flex-wrap items-center gap-2">
+                  {r.source === "resident" ? (
+                    <button className="underline underline-offset-2 text-left focus-ring rounded" onClick={() => setDetailId(r.id)}>
+                      {r.title}
+                    </button>
+                  ) : (
+                    r.title
+                  )}
+                  {r.source === "resident" && r.approval_state && (
+                    <StatusChip value={APPROVAL_LABEL[r.approval_state] ?? r.approval_state} tone={APPROVAL_TONE[r.approval_state] ?? "neutral"} />
                   )}
                 </div>
                 <div className="text-xs text-ink-soft">
@@ -424,7 +445,14 @@ export default function Contracts() {
               </div>
               <StatusChip value={dueLabel(r.ends_on)} tone={dueTone(r.ends_on)} />
               {canSeeMoney && (
-                <div className="text-sm num w-28 text-right">{r.value_ugx ? <Money amount={r.value_ugx} /> : "—"}</div>
+                <div className="text-sm num w-36 text-right">
+                  {r.value_ugx ? <Money amount={r.value_ugx} /> : "Not set"}
+                  {r.monthly_retainer_ugx ? (
+                    <div className="text-[11px] text-ink-faint">
+                      <Money amount={r.monthly_retainer_ugx} /> a month
+                    </div>
+                  ) : null}
+                </div>
               )}
               {canSeeMoney && r.source === "resident" && money[r.id] && (
                 <div className={`text-xs num w-32 text-right ${money[r.id].outstanding_ugx > 0 ? "text-signal font-semibold" : "text-ink-soft"}`}>
@@ -480,6 +508,7 @@ export default function Contracts() {
           ))}
         </ul>
       )}
+      <ContractDetail contractId={detailId} onClose={() => setDetailId(null)} onChanged={load} />
     </SectionPage>
   );
 }

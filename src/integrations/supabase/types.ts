@@ -4260,57 +4260,111 @@ export type Database = {
       }
       resident_contracts: {
         Row: {
+          approval_state: string
+          approved_at: string | null
+          approved_by: string | null
+          client_signatory: string | null
           completed_at: string | null
+          contract_type: string | null
           created_at: string
           created_by: string | null
+          due_days: number | null
           ends_on: string | null
           file_path: string | null
           id: string
+          invoice_day: number | null
+          monthly_retainer_ugx: number | null
+          months: number | null
           notes: string | null
+          notice_days: number | null
+          payment_terms: string | null
           renewal_alerted_at: string | null
           renewal_due_on: string | null
+          renewal_terms: string | null
           renewed_from_id: string | null
           resident_id: string
+          return_note: string | null
+          services: Json
+          site99_signatory: string | null
           starts_on: string | null
           status: string
+          submitted_at: string | null
+          submitted_by: string | null
           title: string
           updated_at: string
+          updated_by: string | null
           value_ugx: number | null
         }
         Insert: {
+          approval_state?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          client_signatory?: string | null
           completed_at?: string | null
+          contract_type?: string | null
           created_at?: string
           created_by?: string | null
+          due_days?: number | null
           ends_on?: string | null
           file_path?: string | null
           id?: string
+          invoice_day?: number | null
+          monthly_retainer_ugx?: number | null
+          months?: number | null
           notes?: string | null
+          notice_days?: number | null
+          payment_terms?: string | null
           renewal_alerted_at?: string | null
           renewal_due_on?: string | null
+          renewal_terms?: string | null
           renewed_from_id?: string | null
           resident_id: string
+          return_note?: string | null
+          services?: Json
+          site99_signatory?: string | null
           starts_on?: string | null
           status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
           title: string
           updated_at?: string
+          updated_by?: string | null
           value_ugx?: number | null
         }
         Update: {
+          approval_state?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          client_signatory?: string | null
           completed_at?: string | null
+          contract_type?: string | null
           created_at?: string
           created_by?: string | null
+          due_days?: number | null
           ends_on?: string | null
           file_path?: string | null
           id?: string
+          invoice_day?: number | null
+          monthly_retainer_ugx?: number | null
+          months?: number | null
           notes?: string | null
+          notice_days?: number | null
+          payment_terms?: string | null
           renewal_alerted_at?: string | null
           renewal_due_on?: string | null
+          renewal_terms?: string | null
           renewed_from_id?: string | null
           resident_id?: string
+          return_note?: string | null
+          services?: Json
+          site99_signatory?: string | null
           starts_on?: string | null
           status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
           title?: string
           updated_at?: string
+          updated_by?: string | null
           value_ugx?: number | null
         }
         Relationships: [
@@ -6596,6 +6650,7 @@ export type Database = {
         Returns: boolean
       }
       approve_cash_request: { Args: { _id: string }; Returns: string }
+      approve_contract: { Args: { _id: string }; Returns: undefined }
       approve_onboarding_step: {
         Args: { _step_id: string }
         Returns: undefined
@@ -6751,6 +6806,7 @@ export type Database = {
         }
       }
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
+      content_approvals_enabled: { Args: never; Returns: boolean }
       contract_effective_status: {
         Args: { _c: Database["public"]["Tables"]["resident_contracts"]["Row"] }
         Returns: string
@@ -6761,6 +6817,8 @@ export type Database = {
           contract_id: string
           ends_on: string
           invoiced_ugx: number
+          monthly_retainer_ugx: number
+          months: number
           outstanding_ugx: number
           paid_ugx: number
           renewal_due_on: string
@@ -6780,6 +6838,7 @@ export type Database = {
           value_ugx: number
         }[]
       }
+      contract_months: { Args: { _e: string; _s: string }; Returns: number }
       create_leadership_task: {
         Args: {
           _assignee_ids: string[]
@@ -7137,6 +7196,10 @@ export type Database = {
         }
         Returns: string
       }
+      return_contract: {
+        Args: { _id: string; _note: string }
+        Returns: undefined
+      }
       reverse_cashbook_entry: {
         Args: { _id: string; _reason: string }
         Returns: string
@@ -7207,6 +7270,10 @@ export type Database = {
         Returns: number
       }
       start_shoot_day: { Args: { _day_id: string }; Returns: undefined }
+      submit_contract_for_approval: {
+        Args: { _id: string }
+        Returns: undefined
+      }
       tier_available_counts: {
         Args: { _event_id: string }
         Returns: {

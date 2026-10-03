@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.submit_contract_for_approval(uuid), public.approve_contract(uuid), public.return_contract(uuid, text), public.contract_finance_summary(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.resident_contract_guard(), public.content_skip_idea_approval() FROM PUBLIC, anon, authenticated;
