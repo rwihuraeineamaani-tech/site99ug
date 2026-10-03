@@ -6,7 +6,7 @@ import { PageHeader, Segmented, StatusChip } from "@/components/system";
 import StatCard from "@/components/admin/StatCard";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
-import { COMPONENTS, DEFAULT_SETTINGS, TARGET_METRICS, loadKpiMonth, monthLabel, monthStart, ugx, type KpiSettings, type PersonKpi } from "@/lib/kpiPay";
+import { COMPONENTS, DEFAULT_SETTINGS, TARGET_METRICS, loadKpiMonth, weightsFor, monthLabel, monthStart, ugx, type KpiSettings, type PersonKpi } from "@/lib/kpiPay";
 
 export const KPI_MANAGER_ROLES = ["admin", "founder", "managing_director", "operations_manager", "hr", "finance_ops"] as const;
 
@@ -102,6 +102,7 @@ function MyKpi({ p }: { p: PersonKpi }) {
 function HowItWorks({ settings, personal }: { settings: KpiSettings; personal?: boolean }) {
   return <div className="grid gap-5">
     <section className="rounded-lg border border-rule bg-paper-raised p-4 text-sm leading-relaxed">
+    {personal && <p className="rounded-lg border border-rule bg-paper-raised p-3 text-sm text-ink-soft">Your KPI has a personal setup. The weights below are the ones that count for you.</p>}
       <h2 className="mb-2 font-semibold">Your pay each month</h2>
       <ul className="list-disc space-y-1 pl-5 text-ink-soft">
         <li>Everyone has a <b>base salary</b>.</li>
