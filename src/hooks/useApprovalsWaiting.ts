@@ -54,9 +54,6 @@ export function useApprovalsWaiting() {
         );
         jobs.push(n(supabase.from("payment_run_lines").select("id", { count: "exact", head: true }).eq("status", "pending")));
         jobs.push(n(supabase.from("loans").select("id", { count: "exact", head: true }).eq("status", "pending_approval")));
-        jobs.push(
-          n(supabase.from("content_items").select("id", { count: "exact", head: true }).in("stage", ["Idea", "Review"]))
-        );
       }
       if (canApproveStrategy) {
         (["client_goals", "client_targets", "strategy_maps", "client_plans", "strategy_map_versions"] as const).forEach(
