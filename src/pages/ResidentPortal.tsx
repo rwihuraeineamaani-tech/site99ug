@@ -214,6 +214,18 @@ function Overview({
         ))}
       </div>
 
+      <button onClick={() => onJump("contract")} className="group block w-full text-left">
+        <div className={lbl + " mb-3"}>Contract & billing</div>
+        <div className="flex items-baseline justify-between gap-6 border-t border-border pt-5">
+          <h3 className="display text-2xl md:text-3xl group-hover:text-site-red transition-colors">
+            Your contract, invoices and what is owed.
+          </h3>
+          <span className="mono text-[10px] uppercase tracking-[0.3em] text-site-red whitespace-nowrap">
+            Open →
+          </span>
+        </div>
+      </button>
+
       {latest && (
         <button
           onClick={() => onJump("announcements")}
