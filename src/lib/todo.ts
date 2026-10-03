@@ -132,7 +132,8 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: cons } = await (supabase.from("resident_contracts") as any)
       .select("id,title,resident_id,status,starts_on,ends_on,monthly_retainer_ugx,vat_mode,client_signatory,site99_signatory,file_path,approval_state,legal_verified_at,return_note")
-      .neq("status", "cancelled");
+      .neq("status", "cancelled")
+      .eq("is_historical", false);
     const { data: res } = await supabase.from("residents").select("id,name");
     const names = new Map(((res ?? []) as { id: string; name: string }[]).map((r) => [r.id, r.name]));
     ((cons ?? []) as Record<string, string | number | null>[]).forEach((c) => {
