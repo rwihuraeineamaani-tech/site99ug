@@ -71,9 +71,20 @@ export default function PortalDocuments() {
                     <StatusChip value={c.status} />
                   </div>
                   <div className="mt-1 text-xs text-ink-faint">
-                    {fmt(c.starts_on)} – {fmt(c.ends_on)}
-                    {c.value_ugx ? " · " : ""}
-                    {c.value_ugx ? <Money amount={c.value_ugx} className="text-ink" /> : null}
+                    {fmt(c.starts_on)} to {fmt(c.ends_on)}
+                    {c.monthly_retainer_ugx ? (
+                      <>
+                        {" · "}
+                        <Money amount={c.monthly_retainer_ugx} className="text-ink" /> a month
+                      </>
+                    ) : null}
+                    {c.value_ugx ? (
+                      <>
+                        {" · total "}
+                        <Money amount={c.value_ugx} className="text-ink" />
+                        {c.months ? ` over ${c.months} months` : ""}
+                      </>
+                    ) : null}
                   </div>
                   {c.file_path && (
                     <button onClick={() => openFile(c.file_path!)} className="mt-2 text-xs text-signal underline">
