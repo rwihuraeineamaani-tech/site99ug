@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CalendarPlus, Check, ChevronRight, Download, FileText, Plus, Printer, UserPlus, X } from "lucide-react";
+import { CalendarPlus, Check, ChevronRight, Download, FileText, Plus, Printer, Trash2, UserPlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import AdminShell from "@/components/admin/AdminShell";
@@ -22,7 +22,8 @@ const blank = { journey: "new_client", organisation_name: "", contact_name: "", 
 
 export default function SalesPage() {
   const [params, setParams] = useSearchParams();
-  const { userId } = useMyRoles();
+  const { userId, roles } = useMyRoles();
+  const canDelete = roles.some((r) => ["admin", "founder", "managing_director"].includes(r));
   const tab = (params.get("tab") as Tab) || "overview";
   const selectedId = params.get("opportunity");
   const [rows, setRows] = useState<Opportunity[]>([]);
