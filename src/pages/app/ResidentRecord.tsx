@@ -19,6 +19,7 @@ import WebsitePanel from "@/components/residents/WebsitePanel";
 import { logoUrl, initials } from "@/lib/logo";
 import { INVOICE_STATUS_LABEL, INVOICE_TONE, outstanding, type Invoice } from "@/lib/invoices";
 import { CONTRACT_LABEL, CONTRACT_TONE, RENEWABLE, loadContractMoney, startRenewal, type ContractMoney } from "@/lib/contractLifecycle";
+import ContractDetail, { APPROVAL_LABEL, APPROVAL_TONE } from "@/components/legal/ContractDetail";
 import type { ResidentRecord } from "./Residents";
 import ResidentActions from "@/components/residents/ResidentActions";
 import RelationsPanel from "@/components/residents/RelationsPanel";
@@ -44,6 +45,9 @@ type Contract = {
   starts_on: string | null;
   ends_on: string | null;
   value_ugx: number | null;
+  monthly_retainer_ugx?: number | null;
+  months?: number | null;
+  approval_state?: string;
   status: string;
   notes: string | null;
   created_at: string;
@@ -177,12 +181,20 @@ export default function ResidentRecordPage() {
     return (
       <li key={c.id} className="px-5 py-4 flex items-center gap-3 flex-wrap">
         <FileText className="h-4 w-4 text-ink-faint" />
-        <span className="text-sm font-semibold">{c.title}</span>
+        <button className="text-sm font-semibold underline underline-offset-2 focus-ring rounded" onClick={() => setDetailId(c.id)}>
+          {c.title}
+        </button>
         <StatusChip value={CONTRACT_LABEL[c.status] ?? c.status} tone={CONTRACT_TONE[c.status] ?? "neutral"} />
+        {c.approval_state && c.approval_state !== "approved" && (
+          <StatusChip value={APPROVAL_LABEL[c.approval_state] ?? c.approval_state} tone={APPROVAL_TONE[c.approval_state] ?? "neutral"} />
+        )}
         <span className="text-[11px] text-ink-faint num">
           {day(c.starts_on)} → {c.ends_on ? day(c.ends_on) : "open"}
         </span>
-        <span className="num text-sm ml-auto">{ugx(c.value_ugx)}</span>
+        <span className="num text-sm ml-auto text-right">
+          {ugx(c.value_ugx)}
+          {c.monthly_retainer_ugx ? <span className="block text-[11px] text-ink-faint">{ugx(c.monthly_retainer_ugx)} a month x {c.months ?? 1}</span> : null}
+        </span>
         {m && (
           <span className="w-full text-[11px] text-ink-soft num flex flex-wrap gap-x-4">
             <span>Invoiced {ugx(m.invoiced_ugx)}</span>
