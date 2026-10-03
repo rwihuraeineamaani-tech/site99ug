@@ -100,10 +100,6 @@ export function useNotificationFeed() {
             db.from("loans").select("id, principal_ugx").eq("status", "pending_approval").limit(4)
               .then(({ data }: { data: { id: string; principal_ugx: number }[] | null }) =>
                 (data ?? []).forEach((l) => items.push({ key: `loan-${l.id}`, title: "Loan request", sub: money(l.principal_ugx), to: "/app/approvals" }))
-              ),
-            db.from("content_items").select("id, title, stage").in("stage", ["Idea", "Review"]).limit(6)
-              .then(({ data }: { data: { id: string; title: string; stage: string }[] | null }) =>
-                (data ?? []).forEach((c) => items.push({ key: `content-${c.id}`, title: c.title, sub: c.stage === "Idea" ? "New idea to approve" : "Final cut to sign off", to: "/app/content" }))
               )
           );
 

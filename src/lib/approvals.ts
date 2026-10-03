@@ -153,6 +153,8 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
   runtime.forEach((t) => {
     const i = t.approval_instances;
     if (!i) return;
+    // Content is decided in the Content Pipeline, never here.
+    if (i.entity_type === "content_item") return;
     // Only yours when the step names you, or names a role you actually hold.
     const forMe =
       t.assigned_user_id === ctx.userId ||
