@@ -4280,6 +4280,10 @@ export type Database = {
           months: number | null
           notes: string | null
           notice_days: number | null
+          paid_before_note: string | null
+          paid_before_set_at: string | null
+          paid_before_set_by: string | null
+          paid_before_system_ugx: number
           payment_terms: string | null
           renewal_alerted_at: string | null
           renewal_due_on: string | null
@@ -4320,6 +4324,10 @@ export type Database = {
           months?: number | null
           notes?: string | null
           notice_days?: number | null
+          paid_before_note?: string | null
+          paid_before_set_at?: string | null
+          paid_before_set_by?: string | null
+          paid_before_system_ugx?: number
           payment_terms?: string | null
           renewal_alerted_at?: string | null
           renewal_due_on?: string | null
@@ -4360,6 +4368,10 @@ export type Database = {
           months?: number | null
           notes?: string | null
           notice_days?: number | null
+          paid_before_note?: string | null
+          paid_before_set_at?: string | null
+          paid_before_set_by?: string | null
+          paid_before_system_ugx?: number
           payment_terms?: string | null
           renewal_alerted_at?: string | null
           renewal_due_on?: string | null
@@ -7238,6 +7250,10 @@ export type Database = {
       set_client_lifecycle_enforced: { Args: { _on: boolean }; Returns: number }
       set_client_pay: {
         Args: { _people: Json; _resident_id: string; _retainer_ugx: number }
+        Returns: undefined
+      }
+      set_contract_prior_payment: {
+        Args: { _amount: number; _id: string; _note?: string }
         Returns: undefined
       }
       set_payment_pin: {

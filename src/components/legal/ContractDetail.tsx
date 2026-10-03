@@ -25,6 +25,9 @@ export type ContractRow = {
   notice_days: number | null;
   renewal_terms: string | null;
   vat_mode: string | null;
+  paid_before_system_ugx: number | null;
+  paid_before_note: string | null;
+  paid_before_set_at: string | null;
   legal_verified_at: string | null;
   legal_verified_by: string | null;
   client_signatory: string | null;
@@ -331,6 +334,14 @@ export default function ContractDetail({
                   <Money amount={Math.round(c.monthly_retainer_ugx * 1.18)} />
                 </Row>
               ) : null}
+              <Row label="Paid before the system">
+                {c.paid_before_system_ugx ? (
+                  <span>
+                    <Money amount={c.paid_before_system_ugx} />
+                    {c.paid_before_note ? <span className="block text-[11px] text-ink-faint">{c.paid_before_note}</span> : null}
+                  </span>
+                ) : "Nothing recorded"}
+              </Row>
               <Row label="Checked by Legal">{c.legal_verified_at ? `Yes, ${niceDate(c.legal_verified_at.slice(0, 10))}` : "Not yet"}</Row>
               <Row label="Client signatory">{c.client_signatory || "Not set"}</Row>
               <Row label="Site 99 signatory">{c.site99_signatory || "Not set"}</Row>
@@ -395,6 +406,24 @@ export default function ContractDetail({
                   }}
                 >
                   {c.legal_verified_at ? "Undo Legal check" : "Mark checked by Legal"}
+                </button>
+              )}
+              {(canEdit || has("finance_ops")) && (
+                <button
+                  className={ghostBtn}
+                  disabled={busy}
+                  onClick={async () => {
+                    const raw = window.prompt(
+                      "How much had the client already paid on this contract before the system? (UGX, enter 0 to clear)",
+                      String(c.paid_before_system_ugx ?? 0)
+                    );
+                    if (raw === null) return;
+                    const amount = Math.round(Number(raw.replace(/[^\d.]/g, "")) || 0);
+                    const note = window.prompt("Any note? For example: paid Jul to Sep 2026 by bank transfer.", c.paid_before_note ?? "") ?? "";
+                    await rpc("set_contract_prior_payment", { _id: c.id, _amount: amount, _note: note }, amount ? "Earlier payments recorded." : "Earlier payments cleared.");
+                  }}
+                >
+                  {c.paid_before_system_ugx ? "Change earlier payments" : "Record earlier payments"}
                 </button>
               )}
               {canEdit && ["draft", "returned"].includes(c.approval_state) && (
