@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const FILTERS: { value: "all" | "overdue" | "today" | "next" | TodoKind; label: string }[] = [
   { value: "all", label: "All" }, { value: "overdue", label: "Overdue" }, { value: "today", label: "Today" }, { value: "next", label: "Next up" },
-  { value: "leadership", label: "Assigned to me" }, { value: "content", label: "Content" }, { value: "shoots", label: "Shoots" }, { value: "approvals", label: "Approvals" }, { value: "strategy", label: "Strategy" }, { value: "finance", label: "Finance" }, { value: "operations", label: "Operations" }, { value: "sales", label: "Sales" },
+  { value: "leadership", label: "Assigned to me" }, { value: "content", label: "Content" }, { value: "shoots", label: "Shoots" }, { value: "approvals", label: "Approvals" }, { value: "strategy", label: "Strategy" }, { value: "finance", label: "Finance" }, { value: "operations", label: "Operations" }, { value: "sales", label: "Sales" }, { value: "legal", label: "Legal" },
 ];
 const today = () => new Date().toISOString().slice(0, 10);
 function urgency(item: TodoItem): "late" | "today" | "soon" { const due = item.due?.slice(0, 10); return due && due < today() ? "late" : due === today() ? "today" : "soon"; }

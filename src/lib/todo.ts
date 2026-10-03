@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { buildWaiting, loadWaitingRaw } from "@/lib/inbox";
 import { loadApprovals, type ApprovalContext } from "@/lib/approvals";
 
-export type TodoKind = "leadership" | "content" | "shoots" | "approvals" | "strategy" | "finance" | "operations" | "sales";
+export type TodoKind = "leadership" | "content" | "shoots" | "approvals" | "strategy" | "finance" | "operations" | "sales" | "legal";
 export type TodoItem = {
   id: string;
   kind: TodoKind;
@@ -126,5 +126,36 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
       to: `/app/todo/${task.id}`,
     }));
 
-  return [...leadership, ...waiting, ...approvalItems, ...shoots, ...ops, ...sales].sort((a, b) => (a.due ?? "9999").localeCompare(b.due ?? "9999"));
+  // Legal checks every client contract: missing terms, VAT not confirmed, or never verified.
+  const legal: TodoItem[] = [];
+  if ((ctx.roles ?? []).includes("legal")) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: cons } = await (supabase.from("resident_contracts") as any)
+      .select("id,title,resident_id,status,starts_on,ends_on,monthly_retainer_ugx,vat_mode,client_signatory,site99_signatory,file_path,approval_state,legal_verified_at,return_note")
+      .neq("status", "cancelled");
+    const { data: res } = await supabase.from("residents").select("id,name");
+    const names = new Map(((res ?? []) as { id: string; name: string }[]).map((r) => [r.id, r.name]));
+    ((cons ?? []) as Record<string, string | number | null>[]).forEach((c) => {
+      const gaps: string[] = [];
+      if (!c.monthly_retainer_ugx) gaps.push("monthly retainer");
+      if (!c.starts_on || !c.ends_on) gaps.push("dates");
+      if (!c.vat_mode || c.vat_mode === "unknown") gaps.push("VAT");
+      if (!c.client_signatory || !c.site99_signatory) gaps.push("signatories");
+      if (!c.file_path) gaps.push("signed copy");
+      const returned = c.approval_state === "returned";
+      if (!gaps.length && c.legal_verified_at && !returned) return;
+      legal.push({
+        id: `legal-${c.id}`,
+        kind: "legal",
+        move: returned ? "Fix what the Founder sent back" : gaps.length ? "Complete this contract" : "Verify this contract",
+        title: String(c.title),
+        client: names.get(String(c.resident_id)) ?? null,
+        detail: returned ? String(c.return_note ?? "Sent back") : gaps.length ? `Missing: ${gaps.join(", ")}` : "All terms filled, needs a Legal check",
+        due: (c.ends_on as string) ?? null,
+        to: "/app/legal/contracts",
+      });
+    });
+  }
+
+  return [...legal, ...leadership, ...waiting, ...approvalItems, ...shoots, ...ops, ...sales].sort((a, b) => (a.due ?? "9999").localeCompare(b.due ?? "9999"));
 }
