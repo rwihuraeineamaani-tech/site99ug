@@ -16,3 +16,4 @@
 - AI video recommendations run in the `content-recommendations` edge function (Lovable AI, signed-in staff only) and are shown, not saved, so the model key and prompt never reach the browser.
 - Client contracts price by `resident_contracts.monthly_retainer_ugx`; a trigger sets `value_ugx = monthly x months` (months from dates), Legal/MD edit and only `is_founder()` (Founder or System Admin) approves via `approve_contract`, so totals, invoices and KPI bonuses share one number and edits to approved terms reopen approval.
 - Content sign-offs are paused by `content_approvals_enabled()` (DB) and `CONTENT_APPROVALS_ENABLED` (app); flip both to restore the approval step.
+- Client and staff accounts never share a login: triggers on `user_roles`/`resident_users` reject mixing client roles with staff positions, so a portal user can never inherit staff access.
