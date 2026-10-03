@@ -19,6 +19,7 @@ export function useTodo() {
       canApproveStrategy: roles.canApproveStrategy,
       canSeeFinance: roles.canSeeFinance,
       isLeadership: roles.isLeadership,
+      roles: roles.roles,
     }).then((rows) => { if (live) setItems(rows); }).finally(() => { if (live) setLoading(false); });
     return () => { live = false; };
   }, [roles.loading, roles.userId, roles.canApproveStrategy, roles.canSeeFinance, roles.isLeadership, roles.roles.join(","), tick]);
