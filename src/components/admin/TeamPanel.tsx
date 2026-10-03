@@ -230,6 +230,12 @@ export default function TeamPanel() {
         </div>
       )}
 
+      {([
+        ["Staff accounts", members.filter((m) => !m.roles.some((r) => r === "client" || (r as string) === "resident")), "No staff accounts yet."],
+        ["Client accounts", members.filter((m) => m.roles.some((r) => r === "client" || (r as string) === "resident")), "No client accounts here. Client portal logins are managed from each client's Accounts tab."],
+      ] as const).map(([title, list, emptyMsg]) => (
+      <div key={title} className="mt-6">
+      <div className={`${lbl} mb-2`}>{title} · {list.length}</div>
       <div className="overflow-hidden rounded-md border border-rule bg-paper-raised">
         <div className="hidden md:grid grid-cols-[1.4fr_1.6fr_auto] gap-4 px-4 py-3 border-b border-border bg-secondary/40">
           <span className={lbl}>Member</span>
@@ -237,10 +243,10 @@ export default function TeamPanel() {
           <span className={lbl}>Actions</span>
         </div>
         {loading && <p className="p-4 mono text-xs text-muted-foreground">Loading…</p>}
-        {!loading && !members.length && (
-          <p className="p-4 mono text-xs text-muted-foreground">No team members yet.</p>
+        {!loading && !list.length && (
+          <p className="p-4 mono text-xs text-muted-foreground">{emptyMsg}</p>
         )}
-        {members.map((m) => (
+        {list.map((m) => (
           <div key={m.id} className="border-b border-border last:border-0">
             <div className="grid md:grid-cols-[1.4fr_1.6fr_auto] gap-3 px-4 py-4 items-start">
               <div className="min-w-0">
@@ -291,6 +297,8 @@ export default function TeamPanel() {
           </div>
         ))}
       </div>
+      </div>
+      ))}
     </div>
   );
 }
