@@ -4273,6 +4273,8 @@ export type Database = {
           file_path: string | null
           id: string
           invoice_day: number | null
+          legal_verified_at: string | null
+          legal_verified_by: string | null
           monthly_retainer_ugx: number | null
           months: number | null
           notes: string | null
@@ -4294,6 +4296,7 @@ export type Database = {
           updated_at: string
           updated_by: string | null
           value_ugx: number | null
+          vat_mode: string
         }
         Insert: {
           approval_state?: string
@@ -4309,6 +4312,8 @@ export type Database = {
           file_path?: string | null
           id?: string
           invoice_day?: number | null
+          legal_verified_at?: string | null
+          legal_verified_by?: string | null
           monthly_retainer_ugx?: number | null
           months?: number | null
           notes?: string | null
@@ -4330,6 +4335,7 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           value_ugx?: number | null
+          vat_mode?: string
         }
         Update: {
           approval_state?: string
@@ -4345,6 +4351,8 @@ export type Database = {
           file_path?: string | null
           id?: string
           invoice_day?: number | null
+          legal_verified_at?: string | null
+          legal_verified_by?: string | null
           monthly_retainer_ugx?: number | null
           months?: number | null
           notes?: string | null
@@ -4366,6 +4374,7 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           value_ugx?: number | null
+          vat_mode?: string
         }
         Relationships: [
           {
