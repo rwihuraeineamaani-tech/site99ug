@@ -51,6 +51,8 @@ export type ContractMoney = {
   starts_on: string | null;
   ends_on: string | null;
   renewal_due_on: string | null;
+  monthly_retainer_ugx: number | null;
+  months: number | null;
   value_ugx: number;
   invoiced_ugx: number;
   paid_ugx: number;
@@ -81,6 +83,7 @@ export async function startRenewal(c: {
   starts_on: string | null;
   ends_on: string | null;
   value_ugx: number | null;
+  monthly_retainer_ugx?: number | null;
 }) {
   const next = (d: string) => {
     const x = new Date(`${d}T00:00:00Z`);
@@ -95,6 +98,13 @@ export async function startRenewal(c: {
   }
   if (!starts) starts = null;
   const { data: u } = await supabase.auth.getUser();
+  // The renewal carries the monthly retainer; the database works out the new total from the months.
+  let monthly = c.monthly_retainer_ugx ?? null;
+  if (monthly == null) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase.from("resident_contracts") as any).select("monthly_retainer_ugx").eq("id", c.id).maybeSingle();
+    monthly = (data as { monthly_retainer_ugx: number | null } | null)?.monthly_retainer_ugx ?? null;
+  }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (supabase.from("resident_contracts") as any)
     .insert({
@@ -102,7 +112,7 @@ export async function startRenewal(c: {
       title: `${c.title.replace(/ \(renewal\)$/i, "")} (renewal)`,
       starts_on: starts,
       ends_on: ends,
-      value_ugx: c.value_ugx,
+      monthly_retainer_ugx: monthly,
       status: "draft",
       renewed_from_id: c.id,
       created_by: u.user?.id ?? null,

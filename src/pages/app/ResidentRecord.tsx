@@ -79,6 +79,7 @@ export default function ResidentRecordPage() {
   const [days, setDays] = useState<Day[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [money, setMoney] = useState<ContractMoney[]>([]);
+  const [detailId, setDetailId] = useState<string | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [onboarding, setOnboarding] = useState<OnboardingStep[]>([]);
   const [notes, setNotes] = useState("");
@@ -493,7 +494,8 @@ export default function ResidentRecordPage() {
               <div className="mt-6">
                 <div className="eyebrow text-[10px] text-ink-faint mb-2">Earlier and upcoming</div>
                 <ul className="surface-sunken rounded-2xl overflow-hidden divide-y divide-rule">{past.map(contractRow)}</ul>
-              </div>
+            <ContractDetail contractId={detailId} onClose={() => setDetailId(null)} onChanged={load} />
+          </div>
             )}
 
             <div className="flex flex-wrap items-center gap-3 mt-4">
