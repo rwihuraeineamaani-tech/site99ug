@@ -275,7 +275,8 @@ export function useRolesState(): RoleState {
   const isStaff = roles.some((r) => STAFF_ROLES.has(r));
   const isClient = has("client");
   const isLeadership = has(...LEADERSHIP);
-  const canAssignWork = has("admin", "founder", "managing_director", "operations_manager", "creative_director", "sales_head", "hr");
+  // Everyone on staff can hand work to a colleague.
+  const canAssignWork = isStaff;
   const canSeeFinance = has(...FINANCE);
 
   const canEditContent = has("admin", "founder", "managing_director", "creative_director", "creative", "strategist", "communications", "designer");
