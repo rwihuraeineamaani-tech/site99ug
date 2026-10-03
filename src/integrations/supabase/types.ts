@@ -6986,6 +6986,10 @@ export type Database = {
         Args: { _thread_id: string; _user_id: string }
         Returns: boolean
       }
+      is_client_role: {
+        Args: { _r: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
       is_content_crew: {
         Args: { _content_id: string; _user_id: string }
         Returns: boolean
