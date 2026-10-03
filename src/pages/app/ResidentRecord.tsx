@@ -19,6 +19,7 @@ import WebsitePanel from "@/components/residents/WebsitePanel";
 import { logoUrl, initials } from "@/lib/logo";
 import { INVOICE_STATUS_LABEL, INVOICE_TONE, outstanding, type Invoice } from "@/lib/invoices";
 import { CONTRACT_LABEL, CONTRACT_TONE, RENEWABLE, loadContractMoney, startRenewal, type ContractMoney } from "@/lib/contractLifecycle";
+import AddPreviousContract from "@/components/legal/AddPreviousContract";
 import ContractDetail, { APPROVAL_LABEL, APPROVAL_TONE } from "@/components/legal/ContractDetail";
 import type { ResidentRecord } from "./Residents";
 import ResidentActions from "@/components/residents/ResidentActions";
@@ -208,9 +209,12 @@ export default function ResidentRecordPage() {
             Start renewal
           </Button>
         )}
+        <Button size="sm" variant="outline" onClick={() => setDetailId(c.id)}>
+          Open
+        </Button>
         {canManageContracts && c.file_path && (
-          <Button size="sm" variant="outline" onClick={() => openFile(c)}>
-            Open
+          <Button size="sm" variant="ghost" onClick={() => openFile(c)}>
+            Signed copy
           </Button>
         )}
       </li>
@@ -494,9 +498,9 @@ export default function ResidentRecordPage() {
               <div className="mt-6">
                 <div className="eyebrow text-[10px] text-ink-faint mb-2">Earlier and upcoming</div>
                 <ul className="surface-sunken rounded-2xl overflow-hidden divide-y divide-rule">{past.map(contractRow)}</ul>
-            <ContractDetail contractId={detailId} onClose={() => setDetailId(null)} onChanged={load} />
           </div>
             )}
+            <ContractDetail contractId={detailId} onClose={() => setDetailId(null)} onChanged={load} />
 
             <div className="flex flex-wrap items-center gap-3 mt-4">
               <Link to="/app/legal/contracts" className="focus-ring rounded-full">
@@ -504,8 +508,9 @@ export default function ResidentRecordPage() {
                   <FileText className="h-4 w-4" /> Open Legal → Contracts
                 </Button>
               </Link>
+              {(has("legal", "managing_director", "founder", "admin")) && <AddPreviousContract residentId={id!} onDone={load} />}
               <span className="text-[11px] text-ink-faint">
-                Contracts are created, changed and archived in Legal so there is one place for them.
+                New contracts are created in Legal. Finished contracts from before the system can be added here as history.
               </span>
             </div>
           </div>
