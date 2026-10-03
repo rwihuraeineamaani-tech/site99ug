@@ -12,7 +12,11 @@ export type ApprovalKind =
   | "loan"
   | "strategy"
   | "content"
+  | "contract"
   | "workflow";
+
+/** Content sign-offs are paused; flip to true (and the database switch) to bring them back. */
+export const CONTENT_APPROVALS_ENABLED = false;
 
 export const KIND_LABEL: Record<ApprovalKind, string> = {
   cash_request: "Cash request",
@@ -20,6 +24,7 @@ export const KIND_LABEL: Record<ApprovalKind, string> = {
   loan: "Loan",
   strategy: "Strategy",
   content: "Content",
+  contract: "Contract",
   workflow: "Workflow",
 };
 
@@ -305,9 +310,55 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
     });
   });
 
-  /* ---------- content sign-off ---------- */
+  /* ---------- client contracts waiting on a Founder ---------- */
+  {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: pending } = await (supabase.from("resident_contracts") as any)
+      .select("id, title, resident_id, monthly_retainer_ugx, months, value_ugx, submitted_at")
+      .eq("approval_state", "submitted");
+    ((pending ?? []) as { id: string; title: string; resident_id: string; monthly_retainer_ugx: number | null; months: number | null; value_ugx: number | null; submitted_at: string | null }[]).forEach((c) => {
+      items.push({
+        id: `contract-${c.id}`,
+        kind: "contract",
+        move: "Approve this client contract",
+        title: c.title,
+        detail: c.monthly_retainer_ugx ? `${c.monthly_retainer_ugx.toLocaleString()} UGX a month x ${c.months ?? 1} months` : null,
+        amount: c.value_ugx,
+        who: clients[c.resident_id] ?? null,
+        waitingOn: "Founder",
+        mine: ctx.isFounder,
+        since: c.submitted_at,
+        to: `/app/residents/${c.resident_id}`,
+        actions: ctx.isFounder
+          ? [
+              {
+                label: "Approve",
+                run: async () => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const { error } = await (supabase.rpc as any).call(supabase, "approve_contract", { _id: c.id });
+                  if (error) throw error;
+                },
+              },
+              {
+                label: "Send back",
+                ghost: true,
+                ask: "What should Legal change?",
+                run: async (note?: string) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const { error } = await (supabase.rpc as any).call(supabase, "return_contract", { _id: c.id, _note: note ?? "" });
+                  if (error) throw error;
+                },
+              },
+            ]
+          : [],
+      });
+    });
+  }
+
+  /* ---------- content sign-off (switched off for now) ---------- */
   type Item = { id: string; ref_no: number; title: string; stage: string; resident_id: string | null; updated_at: string };
   ((content.data ?? []) as unknown as Item[]).forEach((c) => {
+    if (!CONTENT_APPROVALS_ENABLED) return;
     if (runtimeEntities.has(`content_item:${c.id}`)) return;
     const next = c.stage === "Idea" ? "Approved" : "Handover";
     items.push({
