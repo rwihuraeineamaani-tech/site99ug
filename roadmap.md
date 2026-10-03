@@ -8,8 +8,8 @@
 - [ ] Lock all Finance buttons behind the payment PIN, with a link to set one up
 - [ ] Verify permissions, workflows, mobile layouts, typecheck, build, and browser behavior
 - [x] Complete the approved whole-app mobile upgrade across public and signed-in screens
-- [ ] Let every approval in the Approvals list be approved (bypass blocked checks)
-- [ ] Richer approval detail so approvers see everything before deciding
-- [ ] Finance projection graphs on the dashboard and a Projections tab
-- [ ] VAT included/excluded on contract details
-- [ ] Legal to-do: verify and complete every contract
+- [x] Let every approval in the Approvals list be approved (bypass blocked checks)
+- [x] Richer approval detail so approvers see everything before deciding
+- [x] Finance projection graphs on the dashboard and a Projections tab
+- [x] VAT included/excluded on contract details
+- [x] Legal to-do: verify and complete every contract

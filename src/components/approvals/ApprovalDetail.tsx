@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatUGX } from "@/components/system";
 
 /** Everything we know about the record behind an approval, in plain words, so nobody signs blind. */
-const HIDE = new Set(["id", "created_by", "updated_by", "transaction_id", "transfer_group_id", "workflow_version_id", "recur_parent_id"]);
+const HIDE = new Set(["id", "created_by", "updated_by", "transaction_id", "transfer_group_id", "workflow_version_id", "recur_parent_id", "sort"]);
 const pretty = (k: string) =>
   k.replace(/_ugx$/, "").replace(/_id$/, "").replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 
@@ -11,7 +11,7 @@ function show(k: string, v: unknown, people: Record<string, string>, clients: Re
   if (v === null || v === undefined || v === "") return null;
   if (k.endsWith("_ugx") || k === "amount") return formatUGX(Number(v));
   if (k === "resident_id") return clients[String(v)] ?? "Client";
-  if (/(_by|requester|user_id|payee_user_id)$/.test(k)) return people[String(v)] ?? "Team member";
+  if (/(_by|requester|requester_id|user_id|actor_id)$/.test(k)) return people[String(v)] ?? "Team member";
   if (typeof v === "boolean") return v ? "Yes" : "No";
   if (typeof v === "object") {
     const entries = Object.entries(v as Record<string, unknown>).filter(([, x]) => x !== "" && x != null);
