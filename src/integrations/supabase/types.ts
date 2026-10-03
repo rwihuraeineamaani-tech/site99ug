@@ -4273,6 +4273,7 @@ export type Database = {
           file_path: string | null
           id: string
           invoice_day: number | null
+          is_historical: boolean
           legal_verified_at: string | null
           legal_verified_by: string | null
           monthly_retainer_ugx: number | null
@@ -4312,6 +4313,7 @@ export type Database = {
           file_path?: string | null
           id?: string
           invoice_day?: number | null
+          is_historical?: boolean
           legal_verified_at?: string | null
           legal_verified_by?: string | null
           monthly_retainer_ugx?: number | null
@@ -4351,6 +4353,7 @@ export type Database = {
           file_path?: string | null
           id?: string
           invoice_day?: number | null
+          is_historical?: boolean
           legal_verified_at?: string | null
           legal_verified_by?: string | null
           monthly_retainer_ugx?: number | null
