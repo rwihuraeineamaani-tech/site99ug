@@ -7,6 +7,8 @@ import { useMyRoles } from "@/hooks/useMyRoles";
 import { CONTRACT_LABEL, CONTRACT_TONE, loadContractMoney, type ContractMoney } from "@/lib/contractLifecycle";
 import { field, ghostBtn, niceDate, solidBtn } from "@/lib/legal";
 
+type InvRow = { id: string; number: string | null; period_label: string | null; status: string; total_ugx: number };
+
 export type ContractRow = {
   id: string;
   resident_id: string;
@@ -111,6 +113,7 @@ export default function ContractDetail({
   const [form, setForm] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  const [invs, setInvs] = useState<InvRow[]>([]);
 
   const load = useCallback(async () => {
     if (!contractId) return;
@@ -132,6 +135,13 @@ export default function ContractDetail({
     if (canSeeMoney) {
       const list = await loadContractMoney(row.resident_id);
       setMoney(list.find((x) => x.contract_id === row.id) ?? null);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: iv } = await (supabase.from("invoices") as any)
+        .select("id, number, period_label, status, total_ugx")
+        .eq("resident_contract_id", row.id)
+        .neq("status", "void")
+        .order("issue_date", { ascending: false });
+      setInvs((iv as InvRow[]) ?? []);
     }
   }, [contractId, canSeeMoney]);
 
@@ -362,6 +372,27 @@ export default function ContractDetail({
                   <div className="eyebrow text-ink-faint">Still owed</div>
                   <Money amount={money.outstanding_ugx} />
                 </div>
+              </div>
+            )}
+
+            {canSeeMoney && (
+              <div className="space-y-1.5">
+                <div className="eyebrow text-ink-faint">Invoices on this contract</div>
+                {invs.length === 0 ? (
+                  <div className="text-xs text-ink-soft">No invoices raised yet.</div>
+                ) : (
+                  invs.map((i) => (
+                    <div key={i.id} className="surface rounded-xl p-2.5 flex items-center justify-between gap-2 text-sm">
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{i.number || "Invoice"} {i.period_label ? `· ${i.period_label}` : ""}</div>
+                        <div className="text-[11px] text-ink-faint">
+                          {i.status === "draft" ? "Draft, not sent yet, so it does not count in Invoiced" : i.status}
+                        </div>
+                      </div>
+                      <Money amount={i.total_ugx} />
+                    </div>
+                  ))
+                )}
               </div>
             )}
 
