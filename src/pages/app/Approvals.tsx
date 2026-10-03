@@ -6,6 +6,7 @@ import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip, formatUGX } from "@/components/system";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
+import ApprovalDetail from "@/components/approvals/ApprovalDetail";
 import { OnboardingSignoffs } from "@/components/residents/OnboardingPanel";
 import {
   KIND_LABEL,
@@ -17,6 +18,7 @@ import {
 
 function Row({ item, onDone }: { item: ApprovalItem; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   const run = async (a: ApprovalItem["actions"][number]) => {
@@ -28,7 +30,7 @@ function Row({ item, onDone }: { item: ApprovalItem; onDone: () => void }) {
     setBusy(true);
     try {
       await a.run(note);
-      toast.success(`${a.label} — done.`);
+      toast.success(`${a.label}, done.`);
       onDone();
     } catch (e) {
       toast.error((e as Error).message);
@@ -37,7 +39,8 @@ function Row({ item, onDone }: { item: ApprovalItem; onDone: () => void }) {
   };
 
   return (
-    <li className="px-5 py-4 flex flex-wrap items-center gap-3">
+    <li className="px-5 py-4">
+    <div className="flex flex-wrap items-center gap-3">
       <StatusChip value={KIND_LABEL[item.kind]} tone="neutral" />
       <div className="min-w-0 flex-1">
         <div className="text-sm font-semibold">{item.move}</div>
@@ -52,6 +55,11 @@ function Row({ item, onDone }: { item: ApprovalItem; onDone: () => void }) {
         {item.blocked ? <div className="mt-1 text-[11px] text-ink-soft">{item.blocked}</div> : null}
       </div>
       {item.amount ? <span className="num text-sm">{formatUGX(item.amount)}</span> : null}
+      {item.entity ? (
+        <Button size="sm" variant="ghost" onClick={() => setOpen((v) => !v)}>
+          {open ? "Hide details" : "Details"}
+        </Button>
+      ) : null}
       <Button size="sm" variant="ghost" onClick={() => navigate(item.to)}>
         Open
       </Button>
@@ -60,6 +68,12 @@ function Row({ item, onDone }: { item: ApprovalItem; onDone: () => void }) {
           {a.label}
         </Button>
       ))}
+    </div>
+    {open && item.entity ? (
+      <div className="mt-4 rounded-xl border border-rule bg-paper-sunken p-4">
+        <ApprovalDetail entity={item.entity} />
+      </div>
+    ) : null}
     </li>
   );
 }

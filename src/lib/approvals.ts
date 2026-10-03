@@ -55,6 +55,8 @@ export type ApprovalItem = {
   since: string | null;
   to: string;
   actions: ApprovalAction[];
+  /** the record behind this approval, so the approver can read everything before deciding */
+  entity?: { table: string; id: string; instanceId?: string };
 };
 
 export type DecidedItem = {
@@ -82,6 +84,12 @@ export function routeForEntity(entityType: string): string {
     default: return "/app/approvals";
   }
 }
+
+const TABLE_FOR: Record<string, string> = {
+  cash_request: "cash_requests", loan: "loans", payment_line: "payment_run_lines", payment_run: "payment_runs",
+  invoice: "invoices", content_item: "content_items", sales_offer: "sales_offers", sales_opportunity: "sales_opportunities",
+  contract: "contracts", resident_contract: "resident_contracts",
+};
 
 export type ApprovalContext = {
   userId: string | null;
@@ -150,7 +158,8 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       t.assigned_user_id === ctx.userId ||
       (!t.assigned_user_id && Boolean(t.assigned_role) && myRoles.has(String(t.assigned_role)));
     const ownRequest = i.requester_id === ctx.userId && t.exclude_requester !== false;
-    const mine = forMe && !ownRequest;
+    // Founders and the System Admin can sign off any step, even their own requests.
+    const mine = ctx.isFounder || (forMe && !ownRequest);
     items.push({
       id: `workflow-${t.id}`,
       kind: "workflow",
@@ -158,7 +167,8 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       title: i.title,
       detail: i.detail,
       amount: i.amount,
-      blocked: forMe && ownRequest ? "You raised this, so someone else has to sign it off." : null,
+      blocked: !mine && forMe && ownRequest ? "You raised this, so someone else has to sign it off." : null,
+      entity: { table: TABLE_FOR[i.entity_type] ?? i.entity_type, id: String(i.entity_id ?? ""), instanceId: i.id },
       waitingOn: t.assigned_role ? String(t.assigned_role).replace(/_/g, " ") : "assigned person",
       mine,
       since: t.created_at,
@@ -185,8 +195,8 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
   ((requests.data ?? []) as unknown as Req[]).forEach((r) => {
     if (runtimeEntities.has(`cash_request:${r.id}`)) return;
     const mineToDecide =
-      r.requester !== ctx.userId &&
-      ((r.status === "submitted" && ctx.isMd) || (r.status === "md_approved" && ctx.isFounder));
+      ctx.isFounder ||
+      (r.requester !== ctx.userId && r.status === "submitted" && ctx.isMd);
     if (r.status === "submitted" || r.status === "md_approved") {
       items.push({
         id: `cash-${r.id}`,
@@ -200,6 +210,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
         mine: mineToDecide,
         since: r.created_at,
         to: "/app/finance/requests",
+        entity: { table: "cash_requests", id: r.id },
         actions: mineToDecide
           ? [
               {
@@ -249,6 +260,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       mine: ctx.isFounder,
       since: l.created_at,
       to: "/app/finance/monthly",
+      entity: { table: "payment_run_lines", id: l.id },
       actions: ctx.isFounder
         ? [
             {
@@ -296,6 +308,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
       mine: ctx.isFounder,
       since: l.created_at,
       to: "/app/finance/loans",
+      entity: { table: "loans", id: l.id },
       actions: ctx.isFounder
         ? [
             {
@@ -329,6 +342,7 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
         mine: ctx.isFounder,
         since: c.submitted_at,
         to: `/app/residents/${c.resident_id}`,
+        entity: { table: "resident_contracts", id: c.id },
         actions: ctx.isFounder
           ? [
               {
@@ -408,10 +422,11 @@ export async function loadApprovals(ctx: ApprovalContext): Promise<{ items: Appr
         detail: REVIEW_KIND_LABEL[table],
         who: rid ? clients[rid] : null,
         waitingOn: "Founder",
-        mine: ctx.canApproveStrategy,
+        mine: ctx.canApproveStrategy || ctx.isFounder,
         since: (row.submitted_at as string) ?? null,
         to: rid ? `/app/residents/${rid}/strategy` : "/app/strategy/approvals",
-        actions: ctx.canApproveStrategy
+        entity: { table, id: String(row.id) },
+        actions: ctx.canApproveStrategy || ctx.isFounder
           ? [
               {
                 label: "Approve",

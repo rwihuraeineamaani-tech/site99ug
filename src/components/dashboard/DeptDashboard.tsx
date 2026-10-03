@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Info, Lock } from "lucide-react";
+import FinanceProjections from "@/components/finance/FinanceProjections";
 import { DEPT_LABEL, loadDeptBoard, type ChartSpec, type DeptBoard, type DeptKey } from "@/lib/deptMetrics";
 
 const COLORS = ["hsl(var(--signal))", "hsl(var(--ink-soft))", "hsl(var(--ink-faint))"];
@@ -119,6 +120,7 @@ export default function DeptDashboard({ dept, userId, canSeeFinance }: { dept: D
       <div className="grid gap-4 lg:grid-cols-2">
         {board ? board.charts.map((c) => <BigChart key={c.title} c={c} canMoney={canSeeFinance} />) : <div className="tile h-80 animate-pulse rounded-2xl lg:col-span-2" />}
       </div>
+      {canSeeFinance && (dept === "finance" || dept === "exec") && <div className="pt-4"><FinanceProjections compact /></div>}
     </div>
   );
 }

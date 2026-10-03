@@ -24,6 +24,9 @@ export type ContractRow = {
   due_days: number | null;
   notice_days: number | null;
   renewal_terms: string | null;
+  vat_mode: string | null;
+  legal_verified_at: string | null;
+  legal_verified_by: string | null;
   client_signatory: string | null;
   site99_signatory: string | null;
   approval_state: string;
@@ -49,6 +52,13 @@ export const APPROVAL_TONE: Record<string, "neutral" | "pending" | "teal" | "sto
   submitted: "pending",
   approved: "teal",
   returned: "stop",
+};
+
+export const VAT_LABEL: Record<string, string> = {
+  unknown: "Not confirmed yet",
+  inclusive: "VAT included in the retainer (18%)",
+  exclusive: "VAT added on top of the retainer (18%)",
+  exempt: "No VAT on this contract",
 };
 
 /** Months between two dates, matching the database rule (half a month or more counts as a month). */
@@ -141,6 +151,7 @@ export default function ContractDetail({
       due_days: asText(c.due_days),
       notice_days: asText(c.notice_days),
       renewal_terms: asText(c.renewal_terms),
+      vat_mode: c.vat_mode || "unknown",
       client_signatory: asText(c.client_signatory),
       site99_signatory: asText(c.site99_signatory),
       notes: asText(c.notes),
@@ -173,6 +184,7 @@ export default function ContractDetail({
         due_days: num(form.due_days ?? ""),
         notice_days: num(form.notice_days ?? ""),
         renewal_terms: form.renewal_terms || null,
+        vat_mode: form.vat_mode || "unknown",
         client_signatory: form.client_signatory || null,
         site99_signatory: form.site99_signatory || null,
         notes: form.notes || null,
@@ -249,6 +261,12 @@ export default function ContractDetail({
               {input("due_days", "Days to pay", { inputMode: "numeric" })}
               {input("notice_days", "Notice period (days)", { inputMode: "numeric" })}
               {input("renewal_terms", "Renewal terms")}
+              <label className="text-xs text-ink-soft">
+                VAT
+                <select className={field} value={form.vat_mode ?? "unknown"} onChange={(e) => setForm({ ...form, vat_mode: e.target.value })}>
+                  {Object.entries(VAT_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                </select>
+              </label>
               {input("client_signatory", "Client signatory")}
               {input("site99_signatory", "Site 99 signatory")}
               {input("notes", "Notes")}
@@ -302,6 +320,18 @@ export default function ContractDetail({
               <Row label="Days to pay">{c.due_days ?? "Not set"}</Row>
               <Row label="Notice period">{c.notice_days ? `${c.notice_days} days` : "Not set"}</Row>
               <Row label="Renewal terms">{c.renewal_terms || "Not set"}</Row>
+              <Row label="VAT">{VAT_LABEL[c.vat_mode ?? "unknown"]}</Row>
+              {c.vat_mode === "inclusive" && c.monthly_retainer_ugx ? (
+                <Row label="Monthly before VAT">
+                  <Money amount={Math.round(c.monthly_retainer_ugx / 1.18)} />
+                </Row>
+              ) : null}
+              {c.vat_mode === "exclusive" && c.monthly_retainer_ugx ? (
+                <Row label="Monthly with VAT">
+                  <Money amount={Math.round(c.monthly_retainer_ugx * 1.18)} />
+                </Row>
+              ) : null}
+              <Row label="Checked by Legal">{c.legal_verified_at ? `Yes, ${niceDate(c.legal_verified_at.slice(0, 10))}` : "Not yet"}</Row>
               <Row label="Client signatory">{c.client_signatory || "Not set"}</Row>
               <Row label="Site 99 signatory">{c.site99_signatory || "Not set"}</Row>
               {c.notes && <Row label="Notes">{c.notes}</Row>}
@@ -344,6 +374,27 @@ export default function ContractDetail({
               {canEdit && (
                 <button className={ghostBtn} onClick={startEdit}>
                   Edit details
+                </button>
+              )}
+              {canEdit && (
+                <button
+                  className={ghostBtn}
+                  disabled={busy}
+                  onClick={async () => {
+                    setBusy(true);
+                    const { data: u } = await supabase.auth.getUser();
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const { error } = await (supabase.from("resident_contracts") as any)
+                      .update(c.legal_verified_at ? { legal_verified_at: null, legal_verified_by: null } : { legal_verified_at: new Date().toISOString(), legal_verified_by: u.user?.id ?? null })
+                      .eq("id", c.id);
+                    setBusy(false);
+                    if (error) return toast.error(error.message);
+                    toast.success(c.legal_verified_at ? "Marked as needing another check." : "Marked as checked by Legal.");
+                    load();
+                    onChanged?.();
+                  }}
+                >
+                  {c.legal_verified_at ? "Undo Legal check" : "Mark checked by Legal"}
                 </button>
               )}
               {canEdit && ["draft", "returned"].includes(c.approval_state) && (

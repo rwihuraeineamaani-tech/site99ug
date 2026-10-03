@@ -97,9 +97,9 @@ export function useNotificationFeed() {
               .then(({ count }: { count: number | null }) => {
                 if (count) items.push({ key: "runs", title: "Monthly payment run", sub: `${count} payment${count > 1 ? "s" : ""} to release`, to: "/app/approvals" });
               }),
-            db.from("loans").select("id, amount_ugx").eq("status", "pending_approval").limit(4)
-              .then(({ data }: { data: { id: string; amount_ugx: number }[] | null }) =>
-                (data ?? []).forEach((l) => items.push({ key: `loan-${l.id}`, title: "Loan request", sub: money(l.amount_ugx), to: "/app/approvals" }))
+            db.from("loans").select("id, principal_ugx").eq("status", "pending_approval").limit(4)
+              .then(({ data }: { data: { id: string; principal_ugx: number }[] | null }) =>
+                (data ?? []).forEach((l) => items.push({ key: `loan-${l.id}`, title: "Loan request", sub: money(l.principal_ugx), to: "/app/approvals" }))
               ),
             db.from("content_items").select("id, title, stage").in("stage", ["Idea", "Review"]).limit(6)
               .then(({ data }: { data: { id: string; title: string; stage: string }[] | null }) =>
