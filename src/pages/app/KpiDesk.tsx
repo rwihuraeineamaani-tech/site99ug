@@ -190,11 +190,46 @@ function PersonEditor({ p, month, settings, residents, locked, userId, onSaved }
       </div>}
     </div>
 
+    <PersonalWeights p={p} settings={settings} canEdit={isAdmin && !locked} onSaved={onSaved} />
+
     <div className="lg:col-span-2 grid gap-1 rounded-md bg-paper-sunken p-3 text-sm">
       {p.lines.map((l, i) => <div key={i} className="flex justify-between"><span>{l.label}</span><span className="num">{ugx(l.amount)}</span></div>)}
       <div className="flex justify-between border-t border-rule pt-1 font-semibold"><span>Expected · possible {ugx(p.possible)}</span><span className="num">{ugx(p.expected)}</span></div>
     </div>
   </div>;
+}
+
+/** System Admin only: which KPI parts count for this person, and how much. */
+function PersonalWeights({ p, settings, canEdit, onSaved }: { p: PersonKpi; settings: KpiSettings; canEdit: boolean; onSaved: () => void }) {
+  const personal = p.pay?.kpi_weights ?? null;
+  const [w, setW] = useState<Weights>(weightsFor(settings, p.pay));
+  const total = COMPONENTS.filter((c) => !c.negative).reduce((s, c) => s + Number(w[c.key] || 0), 0);
+  const save = async (value: Weights | null) => {
+    const { error } = await t("staff_pay").upsert({ user_id: p.member.user_id, kpi_weights: value }, { onConflict: "user_id" });
+    if (error) return toast.error(error.message);
+    toast.success(value ? "Personal KPI saved." : "Back to the company rules.");
+    onSaved();
+  };
+  return <section className="lg:col-span-2 grid gap-3 rounded-md border border-rule p-3">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="eyebrow text-ink-faint">How this person's KPI is built</div>
+      <StatusChip value={personal ? "Personal setup" : "Company rules"} tone={personal ? "lime" : "neutral"} />
+    </div>
+    <p className="text-xs text-ink-soft">
+      {canEdit ? "Set a part to 0 to stop it counting for this person. Raise a part to make it matter more. The score is scaled to the parts that count." : "Only the System Admin can change this."}
+    </p>
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      {COMPONENTS.map((c) => <label key={c.key} className="text-xs">
+        {c.label}{c.negative ? " (takes points away)" : ""}
+        <input type="number" min={0} disabled={!canEdit} className={input} value={w[c.key]} onChange={(e) => setW({ ...w, [c.key]: Math.max(0, +e.target.value) })} />
+      </label>)}
+    </div>
+    <p className={`text-xs ${total === 100 ? "text-ink-faint" : "text-signal"}`}>Parts that add points come to {total}%.{total === 100 ? "" : " 100% is easiest to read."}</p>
+    {canEdit && <div className="flex flex-wrap gap-2">
+      <Button size="sm" disabled={total <= 0} onClick={() => save(w)}>Save personal KPI</Button>
+      {personal && <Button size="sm" variant="ghost" onClick={() => { setW(weightsFor(settings, null)); save(null); }}>Use company rules</Button>}
+    </div>}
+  </section>;
 }
 
 function RulesEditor({ settings, userId, onSaved }: { settings: KpiSettings; userId: string | null; onSaved: () => void }) {
