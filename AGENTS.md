@@ -17,3 +17,4 @@
 - Client contracts price by `resident_contracts.monthly_retainer_ugx`; a trigger sets `value_ugx = monthly x months` (months from dates), Legal/MD edit and only `is_founder()` (Founder or System Admin) approves via `approve_contract`, so totals, invoices and KPI bonuses share one number and edits to approved terms reopen approval.
 - Content sign-offs are paused by `content_approvals_enabled()` (DB) and `CONTENT_APPROVALS_ENABLED` (app); flip both to restore the approval step.
 - Client and staff accounts never share a login: triggers on `user_roles`/`resident_users` reject mixing client roles with staff positions, so a portal user can never inherit staff access.
+- Per-person KPI weights live in `staff_pay.kpi_weights` (overrides company `kpi_settings.weights` via `weightsFor`); a trigger lets only System Admin change them, so pay managers cannot reshape anyone's score.

@@ -81,7 +81,7 @@ export const TARGET_METRICS: { key: string; label: string; unit?: string }[] = [
   { key: "custom", label: "Custom target" },
 ];
 
-export type StaffPay = { user_id: string; base_salary_ugx: number; is_head: boolean; head_bonus_ugx: number; department: string | null };
+export type StaffPay = { user_id: string; base_salary_ugx: number; is_head: boolean; head_bonus_ugx: number; department: string | null; kpi_weights?: Partial<Weights> | null };
 export type KpiTarget = {
   id: string;
   user_id: string;
@@ -163,7 +163,7 @@ export function computePerson(input: {
   settings: KpiSettings;
 }): PersonKpi {
   const { member, pay, activity: a, allowance, contractBonuses, settings } = input;
-  const w = { ...DEFAULT_SETTINGS.weights, ...settings.weights };
+  const w = weightsFor(settings, pay);
   const postedTarget = input.targets.find((t) => t.metric === "posted")?.target_value ?? 0;
   const shootTarget = input.targets.find((t) => t.metric === "shoots")?.target_value ?? 0;
 
@@ -365,3 +365,8 @@ export async function loadKpiMonth(month: string, onlyUser?: string) {
 type AttSettings = { enabled: boolean; enforce_cutoff: boolean; work_days: number[]; exempt_user_ids: string[] };
 
 export const ugx = (n: number) => `UGX ${Math.round(n).toLocaleString()}`;
+
+/** The weights that apply to one person: company rules, overridden by any personal setup from the System Admin. */
+export function weightsFor(settings: KpiSettings, pay: StaffPay | null): Weights {
+  return { ...DEFAULT_SETTINGS.weights, ...settings.weights, ...(pay?.kpi_weights ?? {}) } as Weights;
+}

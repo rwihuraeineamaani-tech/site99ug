@@ -5660,6 +5660,7 @@ export type Database = {
           department: string | null
           head_bonus_ugx: number
           is_head: boolean
+          kpi_weights: Json | null
           updated_at: string
           user_id: string
         }
@@ -5669,6 +5670,7 @@ export type Database = {
           department?: string | null
           head_bonus_ugx?: number
           is_head?: boolean
+          kpi_weights?: Json | null
           updated_at?: string
           user_id: string
         }
@@ -5678,6 +5680,7 @@ export type Database = {
           department?: string | null
           head_bonus_ugx?: number
           is_head?: boolean
+          kpi_weights?: Json | null
           updated_at?: string
           user_id?: string
         }

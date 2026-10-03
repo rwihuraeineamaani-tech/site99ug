@@ -6,7 +6,7 @@ import { PageHeader, Segmented, StatusChip } from "@/components/system";
 import StatCard from "@/components/admin/StatCard";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
-import { COMPONENTS, DEFAULT_SETTINGS, TARGET_METRICS, loadKpiMonth, monthLabel, monthStart, ugx, type KpiSettings, type PersonKpi } from "@/lib/kpiPay";
+import { COMPONENTS, DEFAULT_SETTINGS, TARGET_METRICS, loadKpiMonth, weightsFor, monthLabel, monthStart, ugx, type KpiSettings, type PersonKpi } from "@/lib/kpiPay";
 
 export const KPI_MANAGER_ROLES = ["admin", "founder", "managing_director", "operations_manager", "hr", "finance_ops"] as const;
 
@@ -43,7 +43,7 @@ export default function KpiPage() {
     />
     <div className="mb-5"><Segmented value={tab} onChange={(v: "mine" | "how") => setTab(v)} options={[{ value: "mine", label: "My KPI" }, { value: "how", label: "How KPIs work" }]} /></div>
 
-    {tab === "how" ? <HowItWorks settings={settings} /> : loading ? <p className="text-sm text-ink-faint">Loading your month…</p> : !me ? (
+    {tab === "how" ? <HowItWorks settings={{ ...settings, weights: weightsFor(settings, me?.pay ?? null) }} personal={!!me?.pay?.kpi_weights} /> : loading ? <p className="text-sm text-ink-faint">Loading your month…</p> : !me ? (
       <p className="rounded-lg border border-dashed border-rule p-6 text-sm text-ink-soft">You are not on the team list yet, so there is nothing to score. Ask HR to add you.</p>
     ) : <MyKpi p={me} />}
   </AppShell>;
@@ -99,8 +99,9 @@ function MyKpi({ p }: { p: PersonKpi }) {
   </div>;
 }
 
-function HowItWorks({ settings }: { settings: KpiSettings }) {
+function HowItWorks({ settings, personal }: { settings: KpiSettings; personal?: boolean }) {
   return <div className="grid gap-5">
+    {personal && <p className="rounded-lg border border-rule bg-paper-raised p-3 text-sm text-ink-soft">Your KPI has a personal setup. The weights below are the ones that count for you.</p>}
     <section className="rounded-lg border border-rule bg-paper-raised p-4 text-sm leading-relaxed">
       <h2 className="mb-2 font-semibold">Your pay each month</h2>
       <ul className="list-disc space-y-1 pl-5 text-ink-soft">
@@ -114,7 +115,7 @@ function HowItWorks({ settings }: { settings: KpiSettings }) {
     </section>
     <div className="grid gap-3 md:grid-cols-2">
       {COMPONENTS.map((c) => <section key={c.key} className="rounded-lg border border-rule bg-paper-raised p-4 text-sm">
-        <div className="flex items-baseline justify-between gap-2"><h3 className="font-semibold">{c.label}</h3><span className="num text-ink-faint">{settings.weights[c.key]}%</span></div>
+        <div className="flex items-baseline justify-between gap-2"><h3 className="font-semibold">{c.label}</h3><span className="num text-ink-faint">{Number(settings.weights[c.key]) === 0 ? "Not counted for you" : `${settings.weights[c.key]}%`}</span></div>
         <p className="mt-2 text-ink-soft">{c.meaning}</p>
         <p className="mt-2"><span className="eyebrow text-signal">How to raise it</span><br />{c.improve}</p>
       </section>)}
