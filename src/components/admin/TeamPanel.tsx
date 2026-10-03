@@ -231,8 +231,8 @@ export default function TeamPanel() {
       )}
 
       {([
-        ["Staff accounts", members.filter((m) => !m.roles.some((r) => r === "client" || (r as string) === "resident")), "No staff accounts yet."],
-        ["Client accounts", members.filter((m) => m.roles.some((r) => r === "client" || (r as string) === "resident")), "No client accounts here. Client portal logins are managed from each client's Accounts tab."],
+        ["Staff accounts", members.filter((m) => !m.roles.some((r) => ["client","resident"].includes(r as string))), "No staff accounts yet."],
+        ["Client accounts", members.filter((m) => m.roles.some((r) => ["client","resident"].includes(r as string))), "No client accounts here. Client portal logins are managed from each client's Accounts tab."],
       ] as const).map(([title, list, emptyMsg]) => (
       <div key={title} className="mt-6">
       <div className={`${lbl} mb-2`}>{title} · {list.length}</div>
