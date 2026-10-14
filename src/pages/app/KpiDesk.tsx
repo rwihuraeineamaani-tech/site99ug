@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { KPI_MANAGER_ROLES } from "./Kpi";
-import { COMPONENTS, DEFAULT_SETTINGS, TARGET_METRICS, loadKpiMonth, monthLabel, monthStart, ugx, type KpiSettings, type PersonKpi } from "@/lib/kpiPay";
+import { COMPONENTS, DEFAULT_SETTINGS, TARGET_METRICS, loadKpiMonth, monthLabel, monthStart, ugx, weightsFor, type KpiSettings, type PersonKpi, type Weights } from "@/lib/kpiPay";
 
 const t = (name: string) => supabase.from(name as never) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const input = "h-9 w-full rounded-md border border-rule bg-paper-sunken px-2 text-base md:text-sm";
