@@ -137,13 +137,15 @@ export async function loadTodoItems(ctx: ApprovalContext & { isLeadership: boole
     const { data: res } = await supabase.from("residents").select("id,name");
     const names = new Map(((res ?? []) as { id: string; name: string }[]).map((r) => [r.id, r.name]));
     ((cons ?? []) as Record<string, string | number | null>[]).forEach((c) => {
+      const returned = c.approval_state === "returned";
+      // A Founder-approved contract that Legal has checked is done, even when it is pro bono (retainer 0).
+      if (!returned && c.approval_state === "approved" && c.legal_verified_at) return;
       const gaps: string[] = [];
-      if (!c.monthly_retainer_ugx) gaps.push("monthly retainer");
+      if (c.monthly_retainer_ugx == null) gaps.push("monthly retainer");
       if (!c.starts_on || !c.ends_on) gaps.push("dates");
       if (!c.vat_mode || c.vat_mode === "unknown") gaps.push("VAT");
       if (!c.client_signatory || !c.site99_signatory) gaps.push("signatories");
       if (!c.file_path) gaps.push("signed copy");
-      const returned = c.approval_state === "returned";
       if (!gaps.length && c.legal_verified_at && !returned) return;
       legal.push({
         id: `legal-${c.id}`,
