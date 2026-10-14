@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { KPI_MANAGER_ROLES } from "./Kpi";
-import { COMPONENTS, DEFAULT_SETTINGS, TARGET_METRICS, loadKpiMonth, monthLabel, monthStart, ugx, type KpiSettings, type PersonKpi } from "@/lib/kpiPay";
+import { COMPONENTS, DEFAULT_SETTINGS, TARGET_METRICS, loadKpiMonth, monthLabel, monthStart, ugx, weightsFor, type KpiSettings, type PersonKpi, type Weights } from "@/lib/kpiPay";
 
 const t = (name: string) => supabase.from(name as never) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const input = "h-9 w-full rounded-md border border-rule bg-paper-sunken px-2 text-base md:text-sm";
@@ -109,15 +109,15 @@ export default function KpiDesk() {
               <span className="num text-ink-soft">{p.pay ? ugx(p.expected) : "No salary"}</span>
             </span>
           </button>
-          {open === p.member.user_id && <PersonEditor p={p} month={month} settings={settings} residents={residents} locked={closed} userId={roles.userId} onSaved={reload} />}
+          {open === p.member.user_id && <PersonEditor p={p} month={month} settings={settings} residents={residents} locked={closed} userId={roles.userId} isAdmin={roles.has("admin")} onSaved={reload} />}
         </section>)}
       </div>
     )}
   </AppShell>;
 }
 
-function PersonEditor({ p, month, settings, residents, locked, userId, onSaved }: {
-  p: PersonKpi; month: string; settings: KpiSettings; residents: { id: string; name: string }[]; locked: boolean; userId: string | null; onSaved: () => void;
+function PersonEditor({ p, month, settings, residents, locked, userId, isAdmin, onSaved }: {
+  p: PersonKpi; month: string; settings: KpiSettings; residents: { id: string; name: string }[]; locked: boolean; userId: string | null; isAdmin: boolean; onSaved: () => void;
 }) {
   const uid = p.member.user_id;
   const [pay, setPay] = useState({ base: p.pay?.base_salary_ugx ?? 0, head: p.pay?.is_head ?? false, headPay: p.pay?.head_bonus_ugx ?? 0, dept: p.pay?.department ?? "" });
