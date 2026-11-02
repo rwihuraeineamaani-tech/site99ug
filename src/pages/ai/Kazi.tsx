@@ -94,7 +94,12 @@ export default function AIKazi() {
       <section className="border-t border-white/10 px-4 py-16 sm:px-8 md:px-16 md:py-24">
         <h2 className="tech text-[11px] uppercase tracking-[0.28em] text-white/50">Next in the sector</h2>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {["Product 02", "Product 03", "Product 04"].map((p) => (
+          <Link to="/ai-automations/naki" className="border border-[#7c4dff]/40 bg-black p-8 transition-colors hover:border-[#7c4dff]">
+            <span className="tech text-[10px] uppercase tracking-[0.24em] text-[#a98bff]">Product 02</span>
+            <p className="display mt-4 text-2xl">Meet Naki</p>
+            <p className="mt-2 text-sm text-white/55">Your AI companion by Kazi. Live now.</p>
+          </Link>
+          {["Product 03", "Product 04"].map((p) => (
             <div key={p} className="border border-dashed border-white/12 bg-black p-8">
               <span className="tech text-[10px] uppercase tracking-[0.24em] text-white/30">{p}</span>
               <p className="mt-4 text-white/45">In development</p>

@@ -9,6 +9,7 @@ const links = [
   { to: "/ai-automations", label: "Overview", end: true },
   { to: "/ai-automations/systems", label: "Systems" },
   { to: "/ai-automations/kazi", label: "Kazi" },
+  { to: "/ai-automations/naki", label: "Naki" },
   { to: "/ai-automations/about", label: "About" },
   { to: "/ai-automations/contact", label: "Contact" },
 ];
