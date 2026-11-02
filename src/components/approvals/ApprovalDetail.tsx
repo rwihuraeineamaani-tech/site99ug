@@ -26,7 +26,7 @@ function show(k: string, v: unknown, people: Record<string, string>, clients: Re
 export default function ApprovalDetail({ entity }: { entity: { table: string; id: string; instanceId?: string } }) {
   const [row, setRow] = useState<Record<string, unknown> | null>(null);
   const [history, setHistory] = useState<{ actor_id: string; decision: string; note: string | null; created_at: string }[]>([]);
-  const [files, setFiles] = useState<{ label: string; url: string }[]>([]);
+  const [files, setFiles] = useState<{ label: string; url: string | null }[]>([]);
   const [people, setPeople] = useState<Record<string, string>>({});
   const [clients, setClients] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
