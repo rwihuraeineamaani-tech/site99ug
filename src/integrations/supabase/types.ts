@@ -7002,6 +7002,7 @@ export type Database = {
       is_kpi_manager: { Args: { _user_id: string }; Returns: boolean }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
       is_md: { Args: { _user_id: string }; Returns: boolean }
+      is_public_client_logo: { Args: { _path: string }; Returns: boolean }
       is_resident_contact: {
         Args: { _resident_id: string; _user_id: string }
         Returns: boolean
