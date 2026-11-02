@@ -32,6 +32,7 @@ import AILayout from "./components/ai/AILayout";
 import AIOverview from "./pages/ai/Overview.tsx";
 import AISystems from "./pages/ai/Systems.tsx";
 import AIKazi from "./pages/ai/Kazi.tsx";
+import AINaki from "./pages/ai/Naki.tsx";
 import AIAbout from "./pages/ai/About.tsx";
 import AIContact from "./pages/ai/Contact.tsx";
 import { ThemeWipeProvider } from "./components/ThemeWipe";
@@ -521,6 +522,7 @@ const AnimatedRoutes = () => {
           <Route index element={<AIOverview />} />
           <Route path="systems" element={<AISystems />} />
           <Route path="kazi" element={<AIKazi />} />
+          <Route path="naki" element={<AINaki />} />
           <Route path="about" element={<AIAbout />} />
           <Route path="contact" element={<AIContact />} />
         </Route>

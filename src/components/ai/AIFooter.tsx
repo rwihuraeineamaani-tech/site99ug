@@ -12,6 +12,7 @@ export const AIFooter = () => (
           ["/ai-automations", "Overview"],
           ["/ai-automations/systems", "Systems"],
           ["/ai-automations/kazi", "Kazi"],
+          ["/ai-automations/naki", "Naki"],
           ["/ai-automations/about", "About"],
           ["/ai-automations/contact", "Contact"],
         ].map(([to, label]) => (
