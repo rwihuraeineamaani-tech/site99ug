@@ -19,12 +19,14 @@ export const Marquee = ({ items, className = "" }: Props) => {
             <div key={i} className="flex items-center gap-16 shrink-0">
               {logo ? (
                 <div className="flex flex-col items-center">
+                  <div className="flex h-20 w-40 md:h-24 md:w-48 items-center justify-center rounded-2xl border border-rule bg-card p-3 shadow-sm transition duration-500 hover:-translate-y-1 hover:shadow-md">
                   <img
                     src={logo}
                     alt={name}
                     loading="lazy"
-                    className="h-12 md:h-16 lg:h-20 w-auto max-w-[200px] object-contain grayscale opacity-80 transition duration-300 hover:grayscale-0 hover:opacity-100"
+                    className="h-full w-full object-contain"
                   />
+                  </div>
                   <div className="mono text-[11px] md:text-xs uppercase tracking-[0.22em] text-site-red mt-2 whitespace-nowrap">
                     {name}
                   </div>

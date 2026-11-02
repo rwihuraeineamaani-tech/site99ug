@@ -154,7 +154,7 @@
     mix-blend-mode: overlay;
   }
   .marquee-track {
-    animation: marquee 40s linear infinite;
+    animation: marquee 90s linear infinite;
   }
   @keyframes marquee {
     from { transform: translateX(0); }
