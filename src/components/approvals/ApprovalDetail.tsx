@@ -49,18 +49,26 @@ export default function ApprovalDetail({ entity }: { entity: { table: string; id
       setHistory(dec?.data ?? []);
       setPeople(Object.fromEntries(((team.data ?? []) as { user_id: string; display_name: string | null; email: string | null }[]).map((p) => [p.user_id, p.display_name || p.email || "Team member"])));
       setClients(Object.fromEntries(((res.data ?? []) as { id: string; name: string }[]).map((c) => [c.id, c.name])));
-      // Attached evidence or signed copies.
+      // Attached evidence or signed copies, read from the store each table actually uploads to.
+      const BUCKET: Record<string, string> = {
+        resident_contracts: "resident-contracts",
+        cash_requests: "finance-files",
+        invoices: "finance-files",
+        cashbook_entries: "cashbook-receipts",
+        legal_documents: "legal-files",
+      };
+      const bucket = BUCKET[entity.table] ?? "finance-files";
       const paths: { label: string; path: string; bucket: string }[] = [];
       for (const [k, v] of Object.entries(data)) {
         if (typeof v === "string" && v && /(attachment|file|evidence|receipt)_?(path|url)?$/.test(k)) {
-          paths.push({ label: pretty(k), path: v, bucket: entity.table === "resident_contracts" ? "contracts" : "finance" });
+          paths.push({ label: pretty(k), path: v, bucket });
         }
       }
-      const out: { label: string; url: string }[] = [];
+      const out: { label: string; url: string | null }[] = [];
       for (const p of paths) {
         if (p.path.startsWith("http")) { out.push({ label: p.label, url: p.path }); continue; }
         const { data: s } = await supabase.storage.from(p.bucket).createSignedUrl(p.path, 600);
-        if (s?.signedUrl) out.push({ label: p.label, url: s.signedUrl });
+        out.push({ label: p.label, url: s?.signedUrl ?? null });
       }
       if (!off) { setFiles(out); setLoading(false); }
     })().catch(() => !off && setLoading(false));
