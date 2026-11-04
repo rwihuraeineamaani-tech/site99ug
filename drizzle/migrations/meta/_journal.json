@@ -36,6 +36,13 @@
       "when": 1793798790922,
       "tag": "0004_create_or_replace",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793799064491,
+      "tag": "0005_tighten_projects_and_site_logos",
+      "breakpoints": true
     }
   ]
 }
