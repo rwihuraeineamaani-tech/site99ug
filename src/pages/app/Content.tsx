@@ -855,6 +855,7 @@ export default function ContentPipeline() {
             <span className="eyebrow text-ink-faint">Suggested captions</span>
             <textarea rows={3} className={field} value={captions} onChange={(e) => setCaptions(e.target.value)} />
           </label>
+          <PostExtrasEditor item={editing as never} />
           <label className="mt-3 block text-sm">
             <span className="eyebrow text-ink-faint">Edit remarks — what needs changing</span>
             <textarea
