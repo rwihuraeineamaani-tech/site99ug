@@ -1,50 +1,26 @@
-type Item = string | { name: string; territory?: string; logo?: string };
-
 interface Props {
-  items: Item[];
+  items: { name: string; logo: string }[];
   className?: string;
 }
 
+/** Scrolling wall of client logos. Logos are expected on white backgrounds. */
 export const Marquee = ({ items, className = "" }: Props) => {
-  const doubled = [...items, ...items];
+  if (!items.length) return null;
+  // Repeat short lists so one half always fills a wide screen, then double for the seamless loop.
+  const reps = Math.max(1, Math.ceil(8 / items.length));
+  const half = Array.from({ length: reps }, () => items).flat();
+  const doubled = [...half, ...half];
   return (
     <div className={`overflow-hidden py-3 md:py-4 ${className}`}>
-      <div className="marquee-track flex items-center gap-12 w-max will-change-transform">
-        {doubled.map((t, i) => {
-          const name = typeof t === "string" ? t : t.name;
-          const logo = typeof t === "string" ? undefined : t.logo;
-          const territory =
-            typeof t === "string" ? undefined : t.territory?.trim() || undefined;
-          return (
-            <div key={i} className="flex items-center gap-16 shrink-0">
-              {logo ? (
-                <div className="flex flex-col items-center">
-                  <div className="flex h-20 w-40 md:h-24 md:w-48 items-center justify-center rounded-2xl border border-rule bg-card p-3 shadow-sm transition duration-500 hover:-translate-y-1 hover:shadow-md">
-                  <img
-                    src={logo}
-                    alt={name}
-                    loading="lazy"
-                    className="h-full w-full object-contain"
-                  />
-                  </div>
-                  <div className="mono text-[11px] md:text-xs uppercase tracking-[0.22em] text-site-red mt-2 whitespace-nowrap">
-                    {name}
-                  </div>
-                </div>
-              ) : (
-                <div className="leading-tight">
-                  <div className="display text-2xl md:text-3xl lg:text-4xl whitespace-nowrap">
-                    {name}
-                  </div>
-                  <div className="mono text-[11px] md:text-xs uppercase tracking-[0.22em] text-site-red mt-2 whitespace-nowrap min-h-[1em]">
-                    {territory || "\u00A0"}
-                  </div>
-                </div>
-              )}
-              <span className="text-site-red text-lg">●</span>
-            </div>
-          );
-        })}
+      <div className="marquee-track flex items-center gap-6 md:gap-10 w-max will-change-transform">
+        {doubled.map((t, i) => (
+          <div
+            key={i}
+            className="flex h-20 w-40 md:h-24 md:w-48 shrink-0 items-center justify-center rounded-2xl border border-border bg-white p-3 shadow-sm transition duration-500 hover:-translate-y-1 hover:shadow-md"
+          >
+            <img src={t.logo} alt={t.name} title={t.name} loading="lazy" className="h-full w-full object-contain" />
+          </div>
+        ))}
       </div>
     </div>
   );
