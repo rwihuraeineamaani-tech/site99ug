@@ -36,7 +36,7 @@ export default function PortalCalendar() {
       const map: Record<string, ReviewItem> = {};
       ((c.data ?? []) as unknown as ReviewItem[]).forEach((i) => {
         map[i.id] = i;
-        const w = i.posted_at ? new Date(i.posted_at) : postWhen(i);
+        const w = i.posted_at ? new Date(i.posted_at) : postWhen({ planned_at: i.planned_at ?? null, scheduled_post_at: i.scheduled_post_at });
         if (!w) return;
         const win = windowLabel(i).split(", ").slice(1).join(", ");
         out.push({ id: `c-${i.id}`, date: kampalaDay(w), time: i.posted_at ? undefined : win, title: i.title, kind: "post", to: "/portal/work", note: i.posted_at ? "Posted" : i.client_review_state === "approved" ? "You approved" : i.client_review_state === "changes" ? "Changes asked" : "Needs your review" });
