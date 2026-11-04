@@ -573,7 +573,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="border-t border-border">
-          {marqueeItems.slice(0, 4).map((r, i) => (
+          {(visibleResidents.length ? visibleResidents : residentsFallback.map((n) => ({ name: n, territory: "" }))).slice(0, 4).map((r, i) => (
             <motion.div
               key={r.name}
               initial={{ opacity: 0, y: 20 }}
