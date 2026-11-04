@@ -126,7 +126,7 @@ export default function Home() {
   }, [logoKey]);
   const marqueeItems = visibleResidents
     .filter((r) => logoMap[r.id])
-    .map((r) => ({ name: r.name, logo: logoMap[r.id] }));
+    .map((r) => ({ name: r.name, territory: r.territory, logo: logoMap[r.id] }));
   void residents;
   const stats = [
     { k: "Residents In Trust", v: visibleResidents.length, suffix: "", note: "Brands in residency" },
