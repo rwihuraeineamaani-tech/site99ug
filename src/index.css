@@ -94,8 +94,6 @@
   html { overflow-x: hidden; }
   body { min-width: 320px; }
   img, video, canvas, svg { max-width: 100%; }
-  /* Strategy map: its line layers are zero-width boxes that draw outside themselves. */
-  .react-flow svg { max-width: none !important; }
   ::selection {
     background: hsl(var(--site-red));
     color: hsl(var(--site-white));
@@ -548,3 +546,6 @@ body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
   pointer-events: none !important;
   opacity: 0.5;
 }
+
+/* Strategy map: its line layers are zero-width boxes that draw outside themselves. */
+.react-flow svg { max-width: none; }
