@@ -18,3 +18,4 @@
 - Content sign-offs are paused by `content_approvals_enabled()` (DB) and `CONTENT_APPROVALS_ENABLED` (app); flip both to restore the approval step.
 - Client and staff accounts never share a login: triggers on `user_roles`/`resident_users` reject mixing client roles with staff positions, so a portal user can never inherit staff access.
 - Per-person KPI weights live in `staff_pay.kpi_weights` (overrides company `kpi_settings.weights` via `weightsFor`); a trigger lets only System Admin change them, so pay managers cannot reshape anyone's score.
+- The homepage logo strip reads only from `site_logos` (System Admin → Website logos), independent of resident records, so marketing logos can change without touching client data.

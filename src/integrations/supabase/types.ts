@@ -5460,6 +5460,39 @@ export type Database = {
           },
         ]
       }
+      site_logos: {
+        Row: {
+          bucket: string
+          created_at: string
+          id: string
+          image_path: string
+          link_url: string | null
+          name: string
+          sort_order: number
+          visible: boolean
+        }
+        Insert: {
+          bucket?: string
+          created_at?: string
+          id?: string
+          image_path: string
+          link_url?: string | null
+          name: string
+          sort_order?: number
+          visible?: boolean
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          id?: string
+          image_path?: string
+          link_url?: string | null
+          name?: string
+          sort_order?: number
+          visible?: boolean
+        }
+        Relationships: []
+      }
       sop_reads: {
         Row: {
           id: string

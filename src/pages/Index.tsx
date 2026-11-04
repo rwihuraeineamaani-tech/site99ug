@@ -11,7 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProjects } from "@/hooks/useProjects";
 import { getYouTubeId, youtubeBgEmbed, aspectRatioClass } from "@/lib/youtube";
 import { usePublicResidents } from "@/hooks/useResidents";
-import { logoUrls } from "@/lib/logo";
+import { loadSiteLogos } from "@/lib/siteLogos";
 import heroFallback from "@/assets/hero-frontier.jpg";
 import studioAsset from "@/assets/IMG_5289.jpg.asset.json";
 import ctaAsset from "@/assets/IMG_5290.jpg.asset.json";
@@ -117,16 +117,12 @@ export default function Home() {
     : glimpseFallback.map((g) => ({ ...g, cover_url: g.img, youtube_url: null, aspect_ratio: "4:5" }));
   const visibleResidents = dbResidents.filter((r) => r.visible !== false);
   const residents = visibleResidents.length ? visibleResidents.map((r) => r.name) : residentsFallback;
-  const [logoMap, setLogoMap] = useState<Record<string, string>>({});
-  const logoKey = visibleResidents.map((r) => r.id + (r.avatar_url ?? "")).join("|");
+  const [marqueeItems, setMarqueeItems] = useState<{ name: string; territory?: string; logo: string }[]>([]);
   useEffect(() => {
-    if (!visibleResidents.length) return;
-    logoUrls(visibleResidents).then(setLogoMap).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [logoKey]);
-  const marqueeItems = visibleResidents
-    .filter((r) => logoMap[r.id])
-    .map((r) => ({ name: r.name, territory: r.territory, logo: logoMap[r.id] }));
+    loadSiteLogos()
+      .then((rows) => setMarqueeItems(rows.filter((r) => r.url).map((r) => ({ name: r.name, logo: r.url as string }))))
+      .catch(() => {});
+  }, []);
   void residents;
   const stats = [
     { k: "Residents In Trust", v: visibleResidents.length, suffix: "", note: "Brands in residency" },
