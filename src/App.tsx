@@ -50,6 +50,7 @@ import PortalDocuments from "./pages/app/portal/PortalDocuments.tsx";
 import PortalStrategy from "./pages/app/portal/PortalStrategy.tsx";
 import PortalCalendar from "./pages/app/portal/PortalCalendar.tsx";
 import ContentPipeline from "./pages/app/Content.tsx";
+import ReadyToPost from "./pages/app/ReadyToPost.tsx";
 import SalesPage from "./pages/app/Sales.tsx";
 import LegalOverview from "./pages/app/legal/Overview.tsx";
 import LegalContractsPage from "./pages/app/legal/Contracts.tsx";
@@ -174,6 +175,7 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        <Route path="/app/post/:id" element={<RequireRole gate="staff"><ReadyToPost /></RequireRole>} />
         <Route
           path="/app/content"
           element={

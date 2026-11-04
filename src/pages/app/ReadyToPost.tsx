@@ -31,8 +31,8 @@ export default function ReadyToPost() {
   const collabOn = row?.collab_handle && row.collab_status !== "rejected";
 
   return (
-    <AppShell title="Ready to post" lede="Everything you need to put this video out.">
-      <Seo title="Ready to post" />
+    <AppShell eyebrow="Ready to post">
+      <Seo title="Ready to post, Site 99" description="Everything you need to put this video out." path={`/app/post/${id}`} noindex />
       {missing && <p className="text-sm text-ink-soft">This post was not found or is not yours to see.</p>}
       {row && (
         <div className="max-w-2xl space-y-4">
