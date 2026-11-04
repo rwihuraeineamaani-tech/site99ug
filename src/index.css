@@ -546,3 +546,6 @@ body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
   pointer-events: none !important;
   opacity: 0.5;
 }
+
+/* Strategy map: its line layers are zero-width boxes that draw outside themselves. */
+.react-flow svg { max-width: none; }

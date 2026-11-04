@@ -22,6 +22,7 @@ import { Plus, Trash2, Lock, ExternalLink } from "lucide-react";
 
 import { useMyAssignments } from "@/hooks/useMyAssignments";
 import AiRecommendations from "@/components/content/AiRecommendations";
+import PostExtrasEditor from "@/components/content/PostExtrasEditor";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import {
   STAGES,
@@ -854,6 +855,7 @@ export default function ContentPipeline() {
             <span className="eyebrow text-ink-faint">Suggested captions</span>
             <textarea rows={3} className={field} value={captions} onChange={(e) => setCaptions(e.target.value)} />
           </label>
+          <PostExtrasEditor item={editing as never} />
           <label className="mt-3 block text-sm">
             <span className="eyebrow text-ink-faint">Edit remarks — what needs changing</span>
             <textarea
@@ -927,6 +929,8 @@ export default function ContentPipeline() {
               {editing.caption_suggestions}
             </p>
           )}
+          <PostExtrasEditor item={editing as never} />
+          <Link to={`/app/post/${editing.id}`} className="mt-2 inline-block text-xs text-signal">Open the ready to post sheet</Link>
           <label className="mt-3 block text-sm sm:w-56">
             <span className="eyebrow text-ink-faint">Day it went out</span>
             <input type="date" className={field} value={postedDate} onChange={(e) => setPostedDate(e.target.value)} />

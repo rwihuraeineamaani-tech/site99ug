@@ -15,6 +15,13 @@
       "when": 1793653806731,
       "tag": "0001_public_logo_check_helper",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793793218215,
+      "tag": "0002_handler_reminders_client_review",
+      "breakpoints": true
     }
   ]
 }

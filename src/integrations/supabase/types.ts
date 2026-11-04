@@ -2234,7 +2234,15 @@ export type Database = {
           added_on: string
           approved_at: string | null
           approved_by: string | null
+          caption_edited_by_client_at: string | null
           caption_suggestions: string | null
+          client_caption: string | null
+          client_review_note: string | null
+          client_review_state: string
+          client_reviewed_at: string | null
+          collab_handle: string | null
+          collab_status: string
+          collab_url: string | null
           content_type: string
           created_at: string
           created_by: string | null
@@ -2253,6 +2261,9 @@ export type Database = {
           notes: string | null
           planned_at: string | null
           platforms: string[]
+          post_reminder_sent_at: string | null
+          post_window_end: string | null
+          post_window_start: string | null
           posted_at: string | null
           posted_from: string | null
           posted_links: string[]
@@ -2268,6 +2279,7 @@ export type Database = {
           sort: number
           spontaneous: boolean
           stage: string
+          tags: Json
           title: string
           updated_at: string
         }
@@ -2276,7 +2288,15 @@ export type Database = {
           added_on?: string
           approved_at?: string | null
           approved_by?: string | null
+          caption_edited_by_client_at?: string | null
           caption_suggestions?: string | null
+          client_caption?: string | null
+          client_review_note?: string | null
+          client_review_state?: string
+          client_reviewed_at?: string | null
+          collab_handle?: string | null
+          collab_status?: string
+          collab_url?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
@@ -2295,6 +2315,9 @@ export type Database = {
           notes?: string | null
           planned_at?: string | null
           platforms?: string[]
+          post_reminder_sent_at?: string | null
+          post_window_end?: string | null
+          post_window_start?: string | null
           posted_at?: string | null
           posted_from?: string | null
           posted_links?: string[]
@@ -2310,6 +2333,7 @@ export type Database = {
           sort?: number
           spontaneous?: boolean
           stage?: string
+          tags?: Json
           title: string
           updated_at?: string
         }
@@ -2318,7 +2342,15 @@ export type Database = {
           added_on?: string
           approved_at?: string | null
           approved_by?: string | null
+          caption_edited_by_client_at?: string | null
           caption_suggestions?: string | null
+          client_caption?: string | null
+          client_review_note?: string | null
+          client_review_state?: string
+          client_reviewed_at?: string | null
+          collab_handle?: string | null
+          collab_status?: string
+          collab_url?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
@@ -2337,6 +2369,9 @@ export type Database = {
           notes?: string | null
           planned_at?: string | null
           platforms?: string[]
+          post_reminder_sent_at?: string | null
+          post_window_end?: string | null
+          post_window_start?: string | null
           posted_at?: string | null
           posted_from?: string | null
           posted_links?: string[]
@@ -2352,6 +2387,7 @@ export type Database = {
           sort?: number
           spontaneous?: boolean
           stage?: string
+          tags?: Json
           title?: string
           updated_at?: string
         }
@@ -6782,6 +6818,17 @@ export type Database = {
         }[]
       }
       client_pot_balance: { Args: { _resident_id: string }; Returns: number }
+      client_review_content: {
+        Args: {
+          _caption: string
+          _collab_ok: boolean
+          _decision: string
+          _id: string
+          _note: string
+          _rejected_tags: string[]
+        }
+        Returns: undefined
+      }
       clock_in: {
         Args: { _lat?: number; _lng?: number; _note?: string }
         Returns: {
@@ -6834,6 +6881,7 @@ export type Database = {
       }
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       content_approvals_enabled: { Args: never; Returns: boolean }
+      content_handler: { Args: { _resident: string }; Returns: string }
       contract_effective_status: {
         Args: { _c: Database["public"]["Tables"]["resident_contracts"]["Row"] }
         Returns: string
@@ -7241,6 +7289,7 @@ export type Database = {
         Returns: string
       }
       run_contract_lifecycle_daily: { Args: never; Returns: undefined }
+      run_handler_morning_brief: { Args: never; Returns: number }
       run_staff_expiry_alerts: { Args: never; Returns: undefined }
       sales_move_opportunity: {
         Args: { _id: string; _reason?: string; _stage: string }
