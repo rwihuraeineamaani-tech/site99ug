@@ -7,7 +7,7 @@
 - Each post is reminded once only, even if the time changes later (a changed time re-arms it).
 
 ## 2. Morning brief for Handlers
-- Every day at 8:00 Kampala time, each Handler gets one brief: today's posts per client with windows, shoot days, captions still waiting on the client, metrics due, and overdue items.
+- Every day at 6am Kampala time, each Handler gets one brief: today's posts per client with windows, shoot days, captions still waiting on the client, metrics due, and overdue items.
 - Arrives as a phone notification plus an inbox message, and shows as a card at the top of their dashboard.
 - Handlers with nothing on get no brief.
 
@@ -30,5 +30,5 @@ Staff enter the caption, collab handle, tags and window in the content item, so 
 ## Technical details
 - New columns on `content_items`: `client_caption`, `caption_edited_by_client_at`, `collab_handle`, `collab_url`, `collab_status`, `tags jsonb` (handle, url, status), `post_window_start`, `post_window_end`, `client_review_state`, `client_review_note`, `post_reminder_sent_at`.
 - Client writes only through a SECURITY DEFINER RPC (`client_review_content`) scoped to their resident, so they cannot touch other fields.
-- Reminders: one `pg_cron` job every 10 minutes enqueueing due items into the existing `push_outbox` (cost trade-off: 144 light checks a day; max 10 min drift, so fires 30 to 40 min before). Morning brief: daily cron at 05:00 UTC. Both reuse `send-push` and inbox.
+- Reminders: one `pg_cron` job every 10 minutes enqueueing due items into the existing `push_outbox` (cost trade-off: 144 light checks a day; max 10 min drift, so fires 30 to 40 min before). Morning brief: daily cron at 03:00 UTC. Both reuse `send-push` and inbox.
 - Portal calendar updated in `PortalCalendar.tsx`; staff fields added to the content item editor.
