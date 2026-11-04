@@ -153,6 +153,9 @@
     z-index: 9999;
     mix-blend-mode: overlay;
   }
+  .logo-strip {
+    background: #ffffff;
+  }
   .marquee-track {
     animation: marquee 90s linear infinite;
   }
