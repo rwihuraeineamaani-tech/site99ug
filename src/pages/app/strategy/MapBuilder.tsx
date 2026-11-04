@@ -277,6 +277,7 @@ export default function StrategyMapBuilder() {
               onConnect={canEdit ? onConnect : undefined}
               onNodeDoubleClick={canEdit ? (_, n) => renameNode(n) : undefined}
               fitView
+              colorMode="dark"
               proOptions={{ hideAttribution: true }}
             >
               <Background gap={22} color="hsl(var(--rule))" />
