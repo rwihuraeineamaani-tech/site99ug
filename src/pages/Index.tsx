@@ -11,7 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProjects } from "@/hooks/useProjects";
 import { getYouTubeId, youtubeBgEmbed, aspectRatioClass } from "@/lib/youtube";
 import { usePublicResidents } from "@/hooks/useResidents";
-import { logoUrls } from "@/lib/logo";
+import { loadSiteLogos } from "@/lib/siteLogos";
 import heroFallback from "@/assets/hero-frontier.jpg";
 import studioAsset from "@/assets/IMG_5289.jpg.asset.json";
 import ctaAsset from "@/assets/IMG_5290.jpg.asset.json";
