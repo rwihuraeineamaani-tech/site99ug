@@ -20,7 +20,8 @@ import p1 from "@/assets/project-1.jpg";
 import p2 from "@/assets/project-2.jpg";
 import p3 from "@/assets/project-3.jpg";
 import p4 from "@/assets/project-4.jpg";
-const heroImages = [heroFallback];
+const heroImages = [studioAsset.url, ctaAsset.url, mathAsset.url];
+void heroFallback;
 
 const seedMap: Record<string, string> = {
   "/seed/project-1.jpg": p1,
@@ -123,9 +124,10 @@ export default function Home() {
     logoUrls(visibleResidents).then(setLogoMap).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logoKey]);
-  const marqueeItems: { name: string; territory?: string; logo?: string }[] = visibleResidents.length
-    ? visibleResidents.map((r) => ({ name: r.name, territory: r.territory, logo: logoMap[r.id] }))
-    : residentsFallback.map((n) => ({ name: n, territory: undefined }));
+  const marqueeItems = visibleResidents
+    .filter((r) => logoMap[r.id])
+    .map((r) => ({ name: r.name, logo: logoMap[r.id] }));
+  void residents;
   const stats = [
     { k: "Residents In Trust", v: visibleResidents.length, suffix: "", note: "Brands in residency" },
     ...baseStats,
@@ -158,7 +160,7 @@ export default function Home() {
               transition={{ opacity: { duration: 1.6, ease: [0.22, 1, 0.36, 1] }, scale: { duration: 6, ease: "linear" } }}
             />
           ))}
-          <div className="absolute inset-0 bg-gradient-to-b from-site-black/40 via-site-black/20 to-site-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-site-black/30 via-transparent to-site-black/90" />
         </motion.div>
 
         {/* Animated red northern-lights aurora — lighter on mobile */}
@@ -287,13 +289,13 @@ export default function Home() {
       </section>
 
       {/* MARQUEE — light section */}
-      <section className="border-y border-border bg-background py-6 md:py-8">
+      {marqueeItems.length > 0 && <section className="border-y border-border bg-background py-6 md:py-8">
         <div className="px-8 md:px-16 mb-3 md:mb-4 flex items-center justify-between label text-[11px] text-muted-foreground">
           <span>In Residency</span>
           <span className="hidden md:inline">Scroll →</span>
         </div>
         <Marquee items={marqueeItems} />
-      </section>
+      </section>}
 
       {/* THE STUDIO — who we are */}
       <section className="relative px-8 md:px-16 py-14 md:py-20 bg-background overflow-hidden">
