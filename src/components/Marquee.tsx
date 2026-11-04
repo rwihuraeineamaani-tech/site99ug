@@ -11,8 +11,8 @@ export const Marquee = ({ items, className = "" }: Props) => {
   const half = Array.from({ length: reps }, () => items).flat();
   const doubled = [...half, ...half];
   return (
-    <div className={`logo-strip overflow-hidden py-4 md:py-6 ${className}`}>
-      <div className="marquee-track flex items-center gap-10 md:gap-16 w-max will-change-transform">
+    <div className={`logo-strip overflow-hidden py-5 md:py-8 ${className}`}>
+      <div className="marquee-track flex items-center gap-12 md:gap-20 w-max will-change-transform">
         {doubled.map((t, i) => (
           <img
             key={i}
@@ -21,7 +21,7 @@ export const Marquee = ({ items, className = "" }: Props) => {
             title={t.name}
             loading="lazy"
             draggable={false}
-            className="h-10 w-auto max-w-[220px] shrink-0 select-none object-contain md:h-14"
+            className="h-16 w-auto max-w-[340px] shrink-0 select-none object-contain md:h-24"
           />
         ))}
       </div>
