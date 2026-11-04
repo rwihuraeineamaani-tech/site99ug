@@ -21,7 +21,7 @@ export const Marquee = ({ items, className = "" }: Props) => {
             title={t.name}
             loading="lazy"
             draggable={false}
-            className="h-10 w-auto max-w-[220px] shrink-0 select-none object-contain md:h-14"
+            className="h-16 w-auto max-w-[340px] shrink-0 select-none object-contain md:h-24"
           />
         ))}
       </div>
