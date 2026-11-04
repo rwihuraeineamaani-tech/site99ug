@@ -22,6 +22,14 @@ export async function loadSiteLogos(includeHidden = false) {
   const { data, error } = await q;
   if (error) throw error;
   const rows = (data ?? []) as SiteLogo[];
-  const urls = await Promise.all(rows.map(siteLogoUrl));
+  let urls: (string | null)[];
+  if (!includeHidden) {
+    // Public visitors: signed URLs come from a server function (no public storage read rule).
+    const { data: res } = await supabase.functions.invoke("site-logo-urls");
+    const map = (res?.urls ?? {}) as Record<string, string>;
+    urls = rows.map((r) => map[r.id] ?? (/^https?:\/\//i.test(r.image_path) ? r.image_path : null));
+  } else {
+    urls = await Promise.all(rows.map(siteLogoUrl));
+  }
   return rows.map((r, i) => ({ ...r, url: urls[i] }));
 }
