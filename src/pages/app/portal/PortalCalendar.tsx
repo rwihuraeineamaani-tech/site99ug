@@ -57,7 +57,7 @@ export default function PortalCalendar() {
   const step = (n: number) => { const [y, m] = month.split("-").map(Number); setMonth(new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7)); };
   const label = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
   const chip = (e: Entry) => e.kind === "post" ? (
-    <button type="button" key={e.id} onClick={() => setOpen(e.id.slice(2))} className="block w-full truncate rounded border border-signal/50 bg-signal/10 px-1.5 py-0.5 text-left text-[10px]">
+    <button type="button" key={e.id} onClick={() => { setOpen(e.id.slice(2)); setTimeout(() => document.getElementById("post-review")?.scrollIntoView({ behavior: "smooth" }), 50); }} className="block w-full truncate rounded border border-signal/50 bg-signal/10 px-1.5 py-0.5 text-left text-[10px]">
       {e.title}
     </button>
   ) : (
@@ -88,7 +88,7 @@ export default function PortalCalendar() {
         {picked && <div className="mt-4 space-y-1"><div className="text-xs text-ink-faint">{picked}</div>{(byDay.get(picked) ?? []).map(chip)}{!(byDay.get(picked)?.length) && <PortalEmpty>Nothing on this day.</PortalEmpty>}</div>}
       </PortalCard>
       {open && items[open] && (
-        <div className="mt-6">
+        <div id="post-review" className="mt-6">
           <PortalCard title="Review this post" hint="Close">
             <PostReviewCard key={open} item={items[open]} onDone={() => setTick((t) => t + 1)} />
             <Button variant="ghost" size="sm" className="mt-2" onClick={() => setOpen(null)}>Close</Button>
@@ -99,7 +99,7 @@ export default function PortalCalendar() {
         <PortalCard title="Coming up" hint={`${upcoming.length}`}>
           {upcoming.length === 0 ? <PortalEmpty>Nothing scheduled yet.</PortalEmpty> : (
             <ul className="space-y-2">{upcoming.map((e) => (
-              <li key={e.id}><Link to={e.to} onClick={(ev) => { if (e.kind === "post") { ev.preventDefault(); setOpen(e.id.slice(2)); window.scrollTo({ top: 0, behavior: "smooth" }); } }} className="flex items-center gap-3 rounded-xl border border-hairline px-3 py-2">
+              <li key={e.id}><Link to={e.to} onClick={(ev) => { if (e.kind === "post") { ev.preventDefault(); setOpen(e.id.slice(2)); setTimeout(() => document.getElementById("post-review")?.scrollIntoView({ behavior: "smooth" }), 50); } }} className="flex items-center gap-3 rounded-xl border border-hairline px-3 py-2">
                 <span className="num w-24 shrink-0 text-xs text-ink-faint">{new Date(`${e.date}T00:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })}{e.time ? ` ${e.time}` : ""}</span>
                 <span className="min-w-0 flex-1 truncate text-sm">{e.title}</span>
                 <span className="text-[11px] text-ink-faint">{e.kind === "shoot" ? e.note ?? "Shoot" : e.note}</span>
