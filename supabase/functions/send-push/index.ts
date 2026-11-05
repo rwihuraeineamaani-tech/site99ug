@@ -30,6 +30,10 @@ Deno.serve(async (req) => {
     }
 
     await admin.rpc('prepare_due_push_reminders', { _now: new Date().toISOString() })
+    // Piggyback on the existing per-minute run instead of separate polling jobs.
+    const minute = new Date().getUTCMinutes()
+    if (minute % 5 === 0) await admin.rpc('run_attendance_reminders')
+    if (minute % 15 === 0) await admin.rpc('run_due_reminders')
 
     let query = admin.from('push_outbox').select('*').in('status', ['pending', 'failed']).lte('available_at', new Date().toISOString()).lt('attempts', 5).order('created_at').limit(40)
     if (body.data.test && signedInUser) query = query.eq('recipient_user_id', signedInUser).eq('event_type', 'test')
