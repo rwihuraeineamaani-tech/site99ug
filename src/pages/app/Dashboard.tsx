@@ -26,6 +26,7 @@ import { AssignedWorkPanel, SignOffPanel, TeamLoadPanel, useAssignedWork } from 
 import { RolePanel } from "@/components/dashboard/RolePanels";
 import DeptDashboard from "@/components/dashboard/DeptDashboard";
 import ClockInCard from "@/components/dashboard/ClockInCard";
+import PushPromptBanner from "@/components/dashboard/PushPromptBanner";
 import { deptFor } from "@/lib/deptMetrics";
 
 type PendingWeek = {
@@ -291,6 +292,7 @@ export default function Dashboard() {
         }
       />
 
+      <PushPromptBanner userId={userId} />
       <ClockInCard userId={userId} />
       <DeptDashboard dept={deptFor(viewRole, positions)} userId={userId} canSeeFinance={canSeeFinance} />
 
