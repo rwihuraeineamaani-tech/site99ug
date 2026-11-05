@@ -1,3 +1,5 @@
+import { POST_WINDOWS } from "@/lib/contentFlow";
+
 /** Shared helpers for the client post review (caption, collab, tags, posting window). */
 export type PostTag = { handle: string; url?: string | null; status?: "proposed" | "accepted" | "rejected" };
 
@@ -45,9 +47,34 @@ export function postWindow(i: ReviewFields): { start: Date; end: Date } | null {
   return { start, end: new Date(start.getTime() + 2 * 3600_000) };
 }
 
+const kampalaHour = (d: Date) => Number(new Intl.DateTimeFormat("en-GB", { hour: "2-digit", hour12: false, timeZone: "Africa/Kampala" }).format(d)) % 24;
+const kampalaDate = (i: ReviewFields) => {
+  const src = i.scheduled_post_at ?? i.post_window_start ?? (i.planned_at ? `${i.planned_at.slice(0, 10)}T12:00:00+03:00` : null);
+  return src ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Africa/Kampala" }).format(new Date(src)) : null;
+};
+
+/** Which named traffic window the item sits in (set window first, else the planned time). */
+export function windowKeyOf(i: ReviewFields): string | null {
+  const ref = i.post_window_start ?? i.scheduled_post_at;
+  if (!ref) return null;
+  const h = kampalaHour(new Date(ref));
+  return POST_WINDOWS.find((w) => (h >= w.from && h < w.to) || (w.to > 24 && h < w.to - 24))?.key ?? null;
+}
+
+/** Start/end of a named window on the post's day. */
+export function windowRange(i: ReviewFields, key: string): { start: string; end: string } | null {
+  const w = POST_WINDOWS.find((x) => x.key === key);
+  const d = kampalaDate(i);
+  if (!w || !d) return null;
+  const start = new Date(`${d}T${String(w.from).padStart(2, "0")}:00:00+03:00`);
+  return { start: start.toISOString(), end: new Date(start.getTime() + (w.to - w.from) * 3600_000).toISOString() };
+}
+
 export function windowLabel(i: ReviewFields): string {
   const w = postWindow(i);
   if (!w) return "Date to confirm";
+  const named = POST_WINDOWS.find((x) => x.key === windowKeyOf(i));
+  if (named) return `${day(w.start)}, ${named.label.replace(" traffic", "")} (${named.range.replace("–", " to ")})`;
   return `${day(w.start)}, ${time(w.start)} to ${time(w.end)}`;
 }
 
