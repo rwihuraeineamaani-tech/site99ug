@@ -79,6 +79,7 @@ export default function People() {
         loadKpiMonth(`${month}-01`).catch(() => null),
       ]);
       supabase.rpc("push_enabled_users" as never).then(({ data }) => setPushOn(new Set(((data as unknown as string[]) ?? []))));
+      supabase.rpc("push_enabled_users" as never).then(({ data }) => setPushOn(new Set(((data as unknown as string[]) ?? []))));
       const mem = ((m.data as unknown as Member[]) ?? []).filter((x) => x.user_id);
       setMembers(mem);
       setPresence(new Map(((pr.data as { user_id: string; last_seen_at: string }[]) ?? []).map((x) => [x.user_id, x.last_seen_at])));
