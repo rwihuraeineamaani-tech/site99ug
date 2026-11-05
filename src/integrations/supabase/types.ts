@@ -6685,6 +6685,13 @@ export type Database = {
     Functions: {
       accept_resident_invite: { Args: never; Returns: boolean }
       accept_resident_portal_invite: { Args: never; Returns: string }
+      active_staff_ids: {
+        Args: never
+        Returns: {
+          name: string
+          uid: string
+        }[]
+      }
       add_spontaneous_idea: {
         Args: {
           _day_id: string
@@ -7203,6 +7210,7 @@ export type Database = {
       }
       publish_sop: { Args: { _id: string; _note: string }; Returns: number }
       purge_activity_log: { Args: never; Returns: undefined }
+      push_enabled_users: { Args: never; Returns: string[] }
       queue_push: {
         Args: {
           _actor: string
@@ -7321,9 +7329,12 @@ export type Database = {
         Args: { _reason: string; _txn_id: string }
         Returns: string
       }
+      run_attendance_reminders: { Args: never; Returns: number }
       run_contract_lifecycle_daily: { Args: never; Returns: undefined }
+      run_due_reminders: { Args: never; Returns: number }
       run_handler_morning_brief: { Args: never; Returns: number }
       run_staff_expiry_alerts: { Args: never; Returns: undefined }
+      run_staff_morning_brief: { Args: never; Returns: number }
       sales_move_opportunity: {
         Args: { _id: string; _reason?: string; _stage: string }
         Returns: undefined
@@ -7371,6 +7382,19 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      staff_notify: {
+        Args: {
+          _bell?: boolean
+          _body: string
+          _cat: string
+          _key: string
+          _path: string
+          _title: string
+          _type: string
+          _uid: string
+        }
+        Returns: boolean
+      }
       start_approval: {
         Args: {
           _amount?: number

@@ -43,6 +43,13 @@
       "when": 1793799064491,
       "tag": "0005_tighten_projects_and_site_logos",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793868314405,
+      "tag": "0006_more_staff_notifications",
+      "breakpoints": true
     }
   ]
 }
