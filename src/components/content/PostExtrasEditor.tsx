@@ -2,26 +2,23 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { REVIEW_LABEL, tagsOf, type PostTag, type ReviewFields } from "@/lib/postReview";
+import { REVIEW_LABEL, tagsOf, windowKeyOf, windowRange, type PostTag, type ReviewFields } from "@/lib/postReview";
+import { POST_WINDOWS } from "@/lib/contentFlow";
 
 type Item = ReviewFields & { id: string };
 const field = "mt-1 w-full rounded-lg border border-hairline bg-paper px-3 py-2 text-sm";
-const toLocal = (iso?: string | null) =>
-  iso ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Africa/Kampala", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(iso)).replace(" ", "T") : "";
-const fromLocal = (v: string) => (v ? new Date(`${v}:00+03:00`).toISOString() : null);
 
 /** Staff side: what the client reviews (collab, tags, window), plus the client's answer. */
 export default function PostExtrasEditor({ item, onSaved }: { item: Item; onSaved?: () => void }) {
   const [collab, setCollab] = useState(item.collab_handle ?? "");
   const [collabUrl, setCollabUrl] = useState(item.collab_url ?? "");
   const [tags, setTags] = useState(tagsOf(item).map((t) => t.handle).join(", "));
-  const [from, setFrom] = useState(toLocal(item.post_window_start));
-  const [to, setTo] = useState(toLocal(item.post_window_end));
+  const [win, setWin] = useState<string | null>(windowKeyOf(item));
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     setCollab(item.collab_handle ?? ""); setCollabUrl(item.collab_url ?? "");
     setTags(tagsOf(item).map((t) => t.handle).join(", "));
-    setFrom(toLocal(item.post_window_start)); setTo(toLocal(item.post_window_end));
+    setWin(windowKeyOf(item));
   }, [item.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const save = async () => {
@@ -34,8 +31,7 @@ export default function PostExtrasEditor({ item, onSaved }: { item: Item; onSave
       collab_url: collabUrl.trim() || null,
       ...(collabChanged ? { collab_status: "proposed" } : {}),
       tags: next as never,
-      post_window_start: fromLocal(from),
-      post_window_end: fromLocal(to),
+      ...(() => { const r = win ? windowRange(item, win) : null; return { post_window_start: r?.start ?? null, post_window_end: r?.end ?? null }; })(),
     }).eq("id", item.id);
     setBusy(false);
     if (error) return toast.error(error.message);
@@ -67,11 +63,17 @@ export default function PostExtrasEditor({ item, onSaved }: { item: Item; onSave
       {tagsOf(item).some((t) => t.status === "rejected") && (
         <p className="mt-1 text-[11px] text-destructive">Client rejected: {tagsOf(item).filter((t) => t.status === "rejected").map((t) => t.handle).join(", ")}</p>
       )}
-      <div className="mt-2 grid gap-2 sm:grid-cols-2">
-        <label className="text-sm"><span className="eyebrow text-ink-faint">Window opens</span><input type="datetime-local" className={field} value={from} onChange={(e) => setFrom(e.target.value)} /></label>
-        <label className="text-sm"><span className="eyebrow text-ink-faint">Window closes</span><input type="datetime-local" className={field} value={to} onChange={(e) => setTo(e.target.value)} /></label>
+      <div className="mt-2"><span className="eyebrow text-ink-faint">Posting window the client sees</span>
+        <div className="mt-1 flex flex-wrap gap-1.5">
+          {POST_WINDOWS.map((w) => (
+            <button key={w.key} type="button" onClick={() => setWin(win === w.key ? null : w.key)}
+              className={`rounded-full border px-2.5 py-1 text-xs ${win === w.key ? "border-primary bg-primary text-primary-foreground" : "border-hairline text-ink-soft"}`}>
+              {w.label.replace(" traffic", "")} <span className="opacity-70">{w.range}</span>
+            </button>
+          ))}
+        </div>
+        <p className="mt-1 text-[11px] text-ink-faint">None picked: it follows the planned posting time.</p>
       </div>
-      <p className="mt-1 text-[11px] text-ink-faint">Leave the window empty and the client sees two hours around the posting time.</p>
       <Button size="sm" className="mt-2" disabled={busy} onClick={save}>Save review details</Button>
     </div>
   );

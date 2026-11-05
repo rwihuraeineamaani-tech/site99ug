@@ -36,6 +36,7 @@ export default function People() {
   const [myDept, setMyDept] = useState<string | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [presence, setPresence] = useState<Map<string, string>>(new Map());
+  const [pushOn, setPushOn] = useState<Set<string>>(new Set());
   const [kpi, setKpi] = useState<Map<string, PersonKpi>>(new Map());
   const [att, setAtt] = useState<Map<string, number | null>>(new Map());
   const [work, setWork] = useState<Map<string, { open: number; late: number }>>(new Map());
@@ -77,6 +78,7 @@ export default function People() {
         hrLevel ? t("staff_documents").select("user_id,kind") : Promise.resolve({ data: [] }),
         loadKpiMonth(`${month}-01`).catch(() => null),
       ]);
+      supabase.rpc("push_enabled_users" as never).then(({ data }) => setPushOn(new Set(((data as unknown as string[]) ?? []))));
       const mem = ((m.data as unknown as Member[]) ?? []).filter((x) => x.user_id);
       setMembers(mem);
       setPresence(new Map(((pr.data as { user_id: string; last_seen_at: string }[]) ?? []).map((x) => [x.user_id, x.last_seen_at])));
@@ -219,7 +221,7 @@ export default function People() {
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-semibold">{name(m)}</div>
                     <div className="truncate text-xs text-ink-soft">{m.title || "No title set"}{dept.get(m.user_id) ? ` · ${dept.get(m.user_id)}` : ""}</div>
-                    <div className="text-[11px] text-ink-faint">{ago(presence.get(m.user_id))}</div>
+                    <div className="text-[11px] text-ink-faint">{ago(presence.get(m.user_id))} · {pushOn.has(m.user_id) ? "Alerts on" : "Alerts off"}</div>
                   </div>
                   <Actions m={m} />
                 </div>
@@ -246,7 +248,7 @@ export default function People() {
               {shown.map((m) => (
                 <tr key={m.user_id} onClick={() => open(m.user_id)} className="cursor-pointer border-t border-rule hover:bg-muted/40">
                   <td className="p-3"><span className="flex items-center gap-2"><Avatar m={m} size={28} /><span><span className="font-medium">{name(m)}</span><span className="block text-xs text-ink-soft">{m.title}</span></span></span></td>
-                  <td className="text-xs">{ago(presence.get(m.user_id))}</td>
+                  <td className="text-xs">{ago(presence.get(m.user_id))}<span className={`block text-[11px] ${pushOn.has(m.user_id) ? "text-ink-faint" : "text-destructive"}`}>{pushOn.has(m.user_id) ? "Alerts on" : "Alerts off"}</span></td>
                   <td>{kpi.get(m.user_id)?.score ?? "—"}</td>
                   <td>{att.get(m.user_id) ?? "—"}</td>
                   <td>{work.get(m.user_id)?.open ?? 0} / {work.get(m.user_id)?.late ?? 0}</td>
