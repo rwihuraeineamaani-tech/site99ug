@@ -166,7 +166,7 @@ BEGIN
   IF _local::time >= time '09:00' THEN
     FOR r IN SELECT DISTINCT i.id, i.number, i.party_name, i.total_ugx - coalesce(i.amount_paid_ugx,0) owed, u.uid FROM public.invoices i
              CROSS JOIN LATERAL (SELECT public.content_handler(i.resident_id) uid UNION SELECT ur.user_id FROM public.user_roles ur WHERE ur.role = 'finance_ops') u
-             WHERE i.direction = 'out' AND i.status = 'sent' AND i.due_date < _today AND coalesce(i.amount_paid_ugx,0) < i.total_ugx AND u.uid IS NOT NULL LOOP
+             WHERE i.direction = 'out' AND i.status IN ('sent','part_paid') AND i.due_date < _today AND coalesce(i.amount_paid_ugx,0) < i.total_ugx AND u.uid IS NOT NULL LOOP
       _n := _n + public.staff_notify(r.uid, 'finance', 'invoice_overdue', 'Overdue invoice ' || coalesce(r.number,''), coalesce(r.party_name,'A client') || ' still owes UGX ' || to_char(r.owed,'FM999,999,999') || '.', '/app/finance', 'inv-late:' || r.id || ':' || r.uid || ':' || _today)::int;
     END LOOP;
   END IF;
