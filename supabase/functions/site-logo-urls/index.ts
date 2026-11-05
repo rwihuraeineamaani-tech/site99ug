@@ -14,12 +14,12 @@ Deno.serve(async (req) => {
       .from("site_logos")
       .select("id, image_path, bucket")
       .eq("visible", true)
-      .eq("bucket", "site-logos");
+      .in("bucket", ["site-logos", "client-logos"]);
     if (error) throw error;
     const urls: Record<string, string> = {};
     await Promise.all((data ?? []).map(async (l) => {
       if (/^https?:\/\//i.test(l.image_path)) { urls[l.id] = l.image_path; return; }
-      const { data: s } = await admin.storage.from("site-logos").createSignedUrl(l.image_path, 3600);
+      const { data: s } = await admin.storage.from(l.bucket || "site-logos").createSignedUrl(l.image_path, 3600);
       if (s?.signedUrl) urls[l.id] = s.signedUrl;
     }));
     return new Response(JSON.stringify({ urls }), { headers: { ...cors, "Content-Type": "application/json" } });
