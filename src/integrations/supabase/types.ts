@@ -1465,9 +1465,11 @@ export type Database = {
           entry_date: string
           event_id: string | null
           id: string
+          invoice_id: string | null
           note: string | null
           project_id: string | null
           reference: string | null
+          resident_contract_id: string | null
           resident_id: string | null
           reverses_id: string | null
           transaction_id: string | null
@@ -1487,9 +1489,11 @@ export type Database = {
           entry_date?: string
           event_id?: string | null
           id?: string
+          invoice_id?: string | null
           note?: string | null
           project_id?: string | null
           reference?: string | null
+          resident_contract_id?: string | null
           resident_id?: string | null
           reverses_id?: string | null
           transaction_id?: string | null
@@ -1509,9 +1513,11 @@ export type Database = {
           entry_date?: string
           event_id?: string | null
           id?: string
+          invoice_id?: string | null
           note?: string | null
           project_id?: string | null
           reference?: string | null
+          resident_contract_id?: string | null
           resident_id?: string | null
           reverses_id?: string | null
           transaction_id?: string | null
@@ -1528,10 +1534,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "cashbook_entries_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "cashbook_entries_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cashbook_entries_resident_contract_id_fkey"
+            columns: ["resident_contract_id"]
+            isOneToOne: false
+            referencedRelation: "resident_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -7107,6 +7127,10 @@ export type Database = {
       is_strategy_team: { Args: { _uid: string }; Returns: boolean }
       is_system_admin: { Args: { _user_id?: string }; Returns: boolean }
       is_talent_manager: { Args: { _user_id: string }; Returns: boolean }
+      link_cashbook_entry: {
+        Args: { _contract_id: string; _entry_id: string; _invoice_id: string }
+        Returns: undefined
+      }
       list_public_projects: {
         Args: never
         Returns: {
