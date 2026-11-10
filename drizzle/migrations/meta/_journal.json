@@ -57,6 +57,13 @@
       "when": 1794322691212,
       "tag": "0007_cashbook_contract_invoice_links",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794322760678,
+      "tag": "0008_contract_cashbook_rpc",
+      "breakpoints": true
     }
   ]
 }

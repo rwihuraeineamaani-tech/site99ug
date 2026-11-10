@@ -114,6 +114,9 @@ export default function ContractDetail({
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const [invs, setInvs] = useState<InvRow[]>([]);
+  const [cash, setCash] = useState<
+    { id: string; entry_date: string; amount_ugx: number; direction: string; reference: string | null; note: string | null; wallet_name: string | null; invoice_number: string | null; attachment_path: string | null }[]
+  >([]);
 
   const load = useCallback(async () => {
     if (!contractId) return;
@@ -142,6 +145,9 @@ export default function ContractDetail({
         .neq("status", "void")
         .order("issue_date", { ascending: false });
       setInvs((iv as InvRow[]) ?? []);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: cb } = await (supabase.rpc as any)("contract_cashbook", { _contract_id: row.id });
+      setCash(cb ?? []);
     }
   }, [contractId, canSeeMoney]);
 
@@ -390,6 +396,58 @@ export default function ContractDetail({
                         </div>
                       </div>
                       <Money amount={i.total_ugx} />
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {canSeeMoney && (
+              <div className="space-y-1.5">
+                <div className="eyebrow text-ink-faint">Payments &amp; Cashbook</div>
+                {(() => {
+                  const received = cash.reduce((s, x) => s + (x.direction === "in" ? x.amount_ugx : -x.amount_ugx), 0);
+                  const invoiced = invs.filter((i) => i.status !== "draft").reduce((s, i) => s + i.total_ugx, 0);
+                  const prior = c.paid_before_system_ugx ?? 0;
+                  const value = (c as unknown as { value_ugx?: number }).value_ugx ?? 0;
+                  return (
+                    <div className="text-[11px] text-ink-soft">
+                      Contract {value.toLocaleString("en-UG")} · Invoiced {invoiced.toLocaleString("en-UG")} · Cash received{" "}
+                      {(received + prior).toLocaleString("en-UG")}
+                      {prior ? ` (incl. ${prior.toLocaleString("en-UG")} before the system)` : ""} · Still owed{" "}
+                      {Math.max(0, value - received - prior).toLocaleString("en-UG")}
+                    </div>
+                  );
+                })()}
+                {cash.length === 0 ? (
+                  <div className="text-xs text-ink-soft">No cashbook payments linked to this contract yet.</div>
+                ) : (
+                  cash.map((x) => (
+                    <div key={x.id} className="surface rounded-xl p-2.5 flex items-center justify-between gap-2 text-sm">
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">
+                          {niceDate(x.entry_date)} · {x.wallet_name ?? "Account"}
+                          {x.invoice_number ? ` · ${x.invoice_number}` : ""}
+                        </div>
+                        <div className="text-[11px] text-ink-faint truncate">
+                          {x.reference ? `Ref ${x.reference}` : "No reference"}
+                          {x.direction === "out" ? " · money out" : ""}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {x.attachment_path && (
+                          <button
+                            className="text-[11px] text-signal focus-ring"
+                            onClick={async () => {
+                              const { data } = await supabase.storage.from("cashbook-receipts").createSignedUrl(x.attachment_path as string, 120);
+                              if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                            }}
+                          >
+                            receipt
+                          </button>
+                        )}
+                        <Money amount={x.direction === "in" ? x.amount_ugx : -x.amount_ugx} />
+                      </div>
                     </div>
                   ))
                 )}

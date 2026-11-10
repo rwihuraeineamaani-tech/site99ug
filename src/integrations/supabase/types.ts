@@ -6942,6 +6942,20 @@ export type Database = {
       confirm_shoot_day: { Args: { _day_id: string }; Returns: undefined }
       content_approvals_enabled: { Args: never; Returns: boolean }
       content_handler: { Args: { _resident: string }; Returns: string }
+      contract_cashbook: {
+        Args: { _contract_id: string }
+        Returns: {
+          amount_ugx: number
+          attachment_path: string
+          direction: string
+          entry_date: string
+          id: string
+          invoice_number: string
+          note: string
+          reference: string
+          wallet_name: string
+        }[]
+      }
       contract_effective_status: {
         Args: { _c: Database["public"]["Tables"]["resident_contracts"]["Row"] }
         Returns: string
