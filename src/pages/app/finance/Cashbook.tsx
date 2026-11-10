@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
 import { toast } from "sonner";
 import FinancePage from "@/components/finance/FinancePage";
+import ContractDetail from "@/components/legal/ContractDetail";
 import { SectionHeading, Money, SearchInput, SelectFilter, StatusChip } from "@/components/system";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import {
@@ -90,6 +91,7 @@ export default function Cashbook() {
   const [contractId, setContractId] = useState("");
   const [invoiceId, setInvoiceId] = useState("");
   const [linking, setLinking] = useState<Entry | null>(null);
+  const [viewContract, setViewContract] = useState<string | null>(null);
   const [linkResident, setLinkResident] = useState("");
   const [linkContract, setLinkContract] = useState("");
   const [linkInvoice, setLinkInvoice] = useState("");
@@ -511,12 +513,12 @@ export default function Cashbook() {
                         )}
                         {r.reverses_id && <StatusChip tone="stop" value="Reversal" />}
                         {r.resident_contract_id && (
-                          <Link
-                            to={`/app/legal/contracts?open=${r.resident_contract_id}`}
+                          <button
+                            onClick={() => setViewContract(r.resident_contract_id)}
                             className="rounded-full border border-rule px-2 py-0.5 text-signal focus-ring"
                           >
                             {contractLabel(contractById[r.resident_contract_id])}
-                          </Link>
+                          </button>
                         )}
                         {r.invoice_id && (
                           <Link to="/app/finance/invoices" className="rounded-full border border-rule px-2 py-0.5 text-signal focus-ring">
@@ -847,6 +849,7 @@ export default function Cashbook() {
         </div>
       )}
 
+      <ContractDetail contractId={viewContract} onClose={() => setViewContract(null)} />
       {linking && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-ink/40 p-4" onClick={() => setLinking(null)}>
           <div className="surface w-full max-w-lg rounded-sm p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
