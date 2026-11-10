@@ -43,7 +43,12 @@ type Entry = {
   attachment_path: string | null;
   transaction_id: string | null;
   reverses_id: string | null;
+  resident_contract_id: string | null;
+  invoice_id: string | null;
 };
+type Contract = { id: string; resident_id: string; title: string | null; contract_type: string | null; status: string | null };
+type Inv = { id: string; number: string | null; resident_id: string | null; resident_contract_id: string | null; total_ugx: number; amount_paid_ugx: number; status: string };
+const contractLabel = (c?: Contract) => (c ? c.title || catLabel(c.contract_type || "contract") : "Contract");
 type Txn = {
   id: string;
   txn_ref: string;
@@ -80,6 +85,14 @@ export default function Cashbook() {
   const [residents, setResidents] = useState<Resident[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [invoices, setInvoices] = useState<Inv[]>([]);
+  const [contractId, setContractId] = useState("");
+  const [invoiceId, setInvoiceId] = useState("");
+  const [linking, setLinking] = useState<Entry | null>(null);
+  const [linkResident, setLinkResident] = useState("");
+  const [linkContract, setLinkContract] = useState("");
+  const [linkInvoice, setLinkInvoice] = useState("");
 
   const [month, setMonth] = useState(todayISO().slice(0, 7));
   const [dirFilter, setDirFilter] = useState("all");
@@ -105,7 +118,7 @@ export default function Cashbook() {
 
   const load = useCallback(async () => {
     const { from, to } = monthBounds(month);
-    const [w, b, e, r, p, t] = await Promise.all([
+    const [w, b, e, r, p, t, rc, inv] = await Promise.all([
       supabase.from("wallets").select("id, name, kind, active, sort").order("sort"),
       supabase
         .from("cashbook_entries")
@@ -126,7 +139,16 @@ export default function Cashbook() {
         .select("id, txn_ref, source_kind, payee_name, amount_ugx, method, method_reference, invoice_no, paid_at")
         .gte("paid_at", `${from}T00:00:00`)
         .lt("paid_at", `${to}T00:00:00`),
+      supabase.from("resident_contracts").select("id, resident_id, title, contract_type, status").order("created_at", { ascending: false }),
+      supabase
+        .from("invoices")
+        .select("id, number, resident_id, resident_contract_id, total_ugx, amount_paid_ugx, status")
+        .eq("direction", "out")
+        .order("issue_date", { ascending: false })
+        .limit(2000),
     ]);
+    setContracts((rc.data as Contract[]) ?? []);
+    setInvoices((inv.data as Inv[]) ?? []);
     setWallets((w.data as Wallet[]) ?? []);
     setOpening(
       ((b.data as { direction: string; amount_ugx: number; category: string }[]) ?? [])
@@ -225,6 +247,8 @@ export default function Cashbook() {
     setNote("");
     setReference("");
     setTagged("");
+    setContractId("");
+    setInvoiceId("");
     setFile(null);
   };
 
@@ -244,7 +268,7 @@ export default function Cashbook() {
         return toast.error(up.error.message);
       }
     }
-    const { error } = await supabase.rpc("log_cashbook_entry", {
+    const { data: newId, error } = await supabase.rpc("log_cashbook_entry", {
       _wallet_id: walletId,
       _direction: direction,
       _amount: amt,
@@ -258,6 +282,14 @@ export default function Cashbook() {
       _reference: reference || undefined,
       _attachment_path: path ?? undefined,
     });
+    if (!error && newId && (contractId || invoiceId)) {
+      const l = await supabase.rpc("link_cashbook_entry", {
+        _entry_id: newId as string,
+        _contract_id: contractId || null,
+        _invoice_id: invoiceId || null,
+      } as never);
+      if (l.error) toast.error(`Logged, but not linked: ${l.error.message}`);
+    }
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Logged in the cashbook.");
@@ -275,6 +307,29 @@ export default function Cashbook() {
     toast.success("Reversed — both lines stay on the record.");
     load();
   };
+
+  const openLink = (row: Entry) => {
+    setLinking(row);
+    setLinkResident(row.resident_id ?? "");
+    setLinkContract(row.resident_contract_id ?? "");
+    setLinkInvoice(row.invoice_id ?? "");
+  };
+  const saveLink = async () => {
+    if (!linking) return;
+    if (!(await requirePin())) return;
+    const { error } = await supabase.rpc("link_cashbook_entry", {
+      _entry_id: linking.id,
+      _contract_id: linkContract || null,
+      _invoice_id: linkInvoice || null,
+    } as never);
+    if (error) return toast.error(error.message);
+    toast.success(linkContract || linkInvoice ? "Linked." : "Link removed.");
+    setLinking(null);
+    load();
+  };
+  const contractById = useMemo(() => Object.fromEntries(contracts.map((c) => [c.id, c])), [contracts]);
+  const invoiceById = useMemo(() => Object.fromEntries(invoices.map((i) => [i.id, i])), [invoices]);
+  const canLink = canLog || has("managing_director");
 
   const openReceipt = async (path: string) => {
     const { data, error } = await supabase.storage.from("cashbook-receipts").createSignedUrl(path, 120);
@@ -326,6 +381,7 @@ export default function Cashbook() {
   };
 
   const activeRule = taxRule(category);
+  const tagResident = tagged.startsWith("r:") ? tagged.slice(2) : "";
 
   return (
     <FinancePage
@@ -454,6 +510,19 @@ export default function Cashbook() {
                           />
                         )}
                         {r.reverses_id && <StatusChip tone="stop" value="Reversal" />}
+                        {r.resident_contract_id && (
+                          <Link
+                            to={`/app/legal/contracts?open=${r.resident_contract_id}`}
+                            className="rounded-full border border-rule px-2 py-0.5 text-signal focus-ring"
+                          >
+                            {contractLabel(contractById[r.resident_contract_id])}
+                          </Link>
+                        )}
+                        {r.invoice_id && (
+                          <Link to="/app/finance/invoices" className="rounded-full border border-rule px-2 py-0.5 text-signal focus-ring">
+                            Invoice {invoiceById[r.invoice_id]?.number ?? "draft"}
+                          </Link>
+                        )}
                         {r.transaction_id && (
                           <Link to="/app/finance/payments" className="text-signal focus-ring">
                             Payment board{txn?.method ? ` · ${txn.method}` : ""}
@@ -478,6 +547,11 @@ export default function Cashbook() {
                       {r.attachment_path && (
                         <button className={pill} onClick={() => openReceipt(r.attachment_path as string)}>
                           receipt
+                        </button>
+                      )}
+                      {canLink && (
+                        <button className={`${pill} ml-1`} onClick={() => openLink(r)}>
+                          {r.resident_contract_id || r.invoice_id ? "relink" : "link"}
                         </button>
                       )}
                       {canLog && !r.reverses_id && (
@@ -695,7 +769,7 @@ export default function Cashbook() {
               </label>
               <label className="text-xs sm:col-span-2">
                 <span className="eyebrow text-ink-faint">Belongs to (optional)</span>
-                <select className={field} value={tagged} onChange={(e) => setTagged(e.target.value)}>
+                <select className={field} value={tagged} onChange={(e) => { setTagged(e.target.value); setContractId(""); setInvoiceId(""); }}>
                   <option value="">Not tagged</option>
                   <optgroup label="Residents">
                     {residents.map((r) => (
@@ -713,6 +787,37 @@ export default function Cashbook() {
                   </optgroup>
                 </select>
               </label>
+
+              {tagResident && (
+                <>
+                  <label className="text-xs">
+                    <span className="eyebrow text-ink-faint">Contract (optional)</span>
+                    <select className={field} value={contractId} onChange={(e) => { setContractId(e.target.value); setInvoiceId(""); }}>
+                      <option value="">No contract</option>
+                      {contracts.filter((c) => c.resident_id === tagResident).map((c) => (
+                        <option key={c.id} value={c.id}>{contractLabel(c)}{c.status ? ` · ${c.status}` : ""}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-xs">
+                    <span className="eyebrow text-ink-faint">Invoice (optional)</span>
+                    <select className={field} value={invoiceId} onChange={(e) => {
+                      setInvoiceId(e.target.value);
+                      const i = invoices.find((x) => x.id === e.target.value);
+                      if (i?.resident_contract_id) setContractId(i.resident_contract_id);
+                    }}>
+                      <option value="">No invoice</option>
+                      {invoices
+                        .filter((i) => i.resident_id === tagResident && (!contractId || i.resident_contract_id === contractId))
+                        .map((i) => (
+                          <option key={i.id} value={i.id}>
+                            {i.number ?? "Draft"} · {i.total_ugx.toLocaleString("en-UG")} · {i.status.replace("_", " ")}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                </>
+              )}
               <label className="text-xs">
                 <span className="eyebrow text-ink-faint">Reference — invoice, EFRIS or MoMo ID</span>
                 <input className={field} value={reference} onChange={(e) => setReference(e.target.value)} />
@@ -742,6 +847,61 @@ export default function Cashbook() {
         </div>
       )}
 
+      {linking && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-ink/40 p-4" onClick={() => setLinking(null)}>
+          <div className="surface w-full max-w-lg rounded-sm p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <SectionHeading index="—" title="Link to a contract or invoice" />
+            <p className="mb-4 text-xs text-ink-soft">
+              {linking.counterparty_name || "Entry"} · {linking.amount_ugx.toLocaleString("en-UG")} UGX · {dayLabel(linking.entry_date)}
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-xs sm:col-span-2">
+                <span className="eyebrow text-ink-faint">Client</span>
+                <select className={field} value={linkResident} onChange={(e) => { setLinkResident(e.target.value); setLinkContract(""); setLinkInvoice(""); }}>
+                  <option value="">Pick a client</option>
+                  {residents.map((r) => (
+                    <option key={r.id} value={r.id}>{r.name}</option>
+                  ))}
+                </select>
+              </label>
+              {linkResident && (
+                <>
+                  <label className="text-xs">
+                    <span className="eyebrow text-ink-faint">Contract (optional)</span>
+                    <select className={field} value={linkContract} onChange={(e) => { setLinkContract(e.target.value); setLinkInvoice(""); }}>
+                      <option value="">No contract</option>
+                      {contracts.filter((c) => c.resident_id === linkResident).map((c) => (
+                        <option key={c.id} value={c.id}>{contractLabel(c)}{c.status ? ` · ${c.status}` : ""}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-xs">
+                    <span className="eyebrow text-ink-faint">Invoice (optional)</span>
+                    <select className={field} value={linkInvoice} onChange={(e) => {
+                      setLinkInvoice(e.target.value);
+                      const i = invoices.find((x) => x.id === e.target.value);
+                      if (i?.resident_contract_id) setLinkContract(i.resident_contract_id);
+                    }}>
+                      <option value="">No invoice</option>
+                      {invoices
+                        .filter((i) => i.resident_id === linkResident && (!linkContract || i.resident_contract_id === linkContract))
+                        .map((i) => (
+                          <option key={i.id} value={i.id}>
+                            {i.number ?? "Draft"} · {i.total_ugx.toLocaleString("en-UG")} · {i.status.replace("_", " ")}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                </>
+              )}
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button className={pill} onClick={() => setLinking(null)}>Cancel</button>
+              <button className={solid} onClick={saveLink}>Save link</button>
+            </div>
+          </div>
+        </div>
+      )}
     </FinancePage>
   );
 }
