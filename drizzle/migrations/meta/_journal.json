@@ -141,6 +141,13 @@
       "when": 1794466083220,
       "tag": "0019_finance_close_weekly_pack_fund_alerts",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794466860673,
+      "tag": "0020_documents_profile_receipts_posted_date",
+      "breakpoints": true
     }
   ]
 }

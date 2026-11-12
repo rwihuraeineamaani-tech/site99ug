@@ -2677,6 +2677,78 @@ export type Database = {
         }
         Relationships: []
       }
+      document_profile: {
+        Row: {
+          address: string | null
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_branch: string | null
+          bank_name: string | null
+          bank_swift: string | null
+          company_name: string
+          email: string | null
+          id: number
+          invoice_terms: string | null
+          momo_code: string | null
+          momo_name: string | null
+          momo_network: string | null
+          phone: string | null
+          receipt_note: string | null
+          signatory_name: string | null
+          signatory_title: string | null
+          tin: string | null
+          updated_at: string
+          updated_by: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          bank_swift?: string | null
+          company_name?: string
+          email?: string | null
+          id?: number
+          invoice_terms?: string | null
+          momo_code?: string | null
+          momo_name?: string | null
+          momo_network?: string | null
+          phone?: string | null
+          receipt_note?: string | null
+          signatory_name?: string | null
+          signatory_title?: string | null
+          tin?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          bank_swift?: string | null
+          company_name?: string
+          email?: string | null
+          id?: number
+          invoice_terms?: string | null
+          momo_code?: string | null
+          momo_name?: string | null
+          momo_network?: string | null
+          phone?: string | null
+          receipt_note?: string | null
+          signatory_name?: string | null
+          signatory_title?: string | null
+          tin?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       document_sequences: {
         Row: {
           code: string
@@ -3184,6 +3256,8 @@ export type Database = {
           file_path: string | null
           id: string
           issue_date: string
+          last_emailed_at: string | null
+          last_emailed_to: string | null
           legacy_number: string | null
           next_run_on: string | null
           note: string | null
@@ -3220,6 +3294,8 @@ export type Database = {
           file_path?: string | null
           id?: string
           issue_date?: string
+          last_emailed_at?: string | null
+          last_emailed_to?: string | null
           legacy_number?: string | null
           next_run_on?: string | null
           note?: string | null
@@ -3256,6 +3332,8 @@ export type Database = {
           file_path?: string | null
           id?: string
           issue_date?: string
+          last_emailed_at?: string | null
+          last_emailed_to?: string | null
           legacy_number?: string | null
           next_run_on?: string | null
           note?: string | null
@@ -7642,6 +7720,19 @@ export type Database = {
         Returns: boolean
       }
       hold_payment_line: { Args: { _line_id: string }; Returns: undefined }
+      invoice_receipts: {
+        Args: { _invoice: string }
+        Returns: {
+          account_kind: string
+          account_name: string
+          amount_ugx: number
+          doc_number: string
+          entry_date: string
+          entry_id: string
+          reference: string
+          tid: string
+        }[]
+      }
       is_chat_participant: {
         Args: { _thread_id: string; _user_id: string }
         Returns: boolean
@@ -7728,6 +7819,10 @@ export type Database = {
           _wallet_id: string
         }
         Returns: string
+      }
+      mark_invoice_emailed: {
+        Args: { _invoice: string; _to: string }
+        Returns: undefined
       }
       move_shoot_day_item: {
         Args: { _content_id: string; _to_day_id?: string }
@@ -8032,6 +8127,7 @@ export type Database = {
         Args: { _current_pin?: string; _pin: string }
         Returns: undefined
       }
+      set_posted_date: { Args: { _day: string; _id: string }; Returns: string }
       set_resident_logo: {
         Args: { _path: string; _resident_id: string }
         Returns: undefined
