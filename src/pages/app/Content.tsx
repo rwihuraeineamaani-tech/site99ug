@@ -1,6 +1,7 @@
 import { CONTENT_APPROVALS_ENABLED } from "@/lib/approvals";
 import { useEffect, useMemo, useState } from "react";
 import { PostedDayFix } from "@/components/content/PostedDayFix";
+import { buildMetrics, filledCount, flatForAi, toByPlatform, unsplitLegacy, type ByPlatform } from "@/lib/contentMetrics";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -93,7 +94,7 @@ export type ContentItem = {
   posted_from: string | null;
   posted_to: string | null;
   posted_at: string | null;
-  metrics: Record<string, string> | null;
+  metrics: Record<string, unknown> | null;
   metrics_due_at: string | null;
   metrics_filled_at: string | null;
   cancelled_at?: string | null;
@@ -127,6 +128,14 @@ const parsePostedLinks = (rows: string[] | null): Record<string, string> => {
 const postedLinkParts = (row: string) => {
   const at = row.indexOf(": ");
   return at > 0 ? { platform: row.slice(0, at), url: row.slice(at + 2).trim() } : { platform: "", url: row.trim() };
+};
+
+/** Platforms a video's numbers are filled for: the ones chosen at sign-off, else where it was posted. */
+const metricPlatforms = (row: Pick<ContentItem, "platforms" | "posted_slots">): string[] => {
+  const chosen = (row.platforms ?? []).filter(Boolean);
+  if (chosen.length) return chosen;
+  const posted = Object.keys((row.posted_slots ?? {}) as PostedSlots).filter(Boolean);
+  return posted.length ? posted : ["All platforms"];
 };
 
 const externalUrl = (value: string | null) => {
@@ -234,7 +243,8 @@ export default function ContentPipeline() {
   const [editRemarks, setEditRemarks] = useState("");
   const [postWindows, setPostWindows] = useState<Record<string, string[]>>({});
   const [postedDate, setPostedDate] = useState("");
-  const [metrics, setMetrics] = useState<Record<string, string>>({});
+  const [metrics, setMetrics] = useState<ByPlatform>({});
+  const [metricTab, setMetricTab] = useState("");
   const [metricNote, setMetricNote] = useState("");
 
   const load = async () => {
@@ -353,9 +363,11 @@ export default function ContentPipeline() {
       setPostWindows({});
     }
     setPostedDate(row.posted_from ? row.posted_from.slice(0, 10) : new Date().toISOString().slice(0, 10));
-    const m = (row.metrics ?? {}) as Record<string, string>;
-    setMetrics(m);
-    setMetricNote(m.note ?? "");
+    const m = (row.metrics ?? {}) as Record<string, unknown>;
+    const mp = metricPlatforms(row);
+    setMetrics(toByPlatform(m, mp));
+    setMetricTab(mp[0] ?? "");
+    setMetricNote(String(m.note ?? ""));
     setOpen(true);
     const { data } = await supabase.from("content_crew").select("*").eq("content_id", row.id).order("sort");
     setCrew((data as CrewRow[]) ?? []);
@@ -1043,18 +1055,59 @@ export default function ContentPipeline() {
               load();
             }}
           />
-          <div className="mt-2 grid gap-3 sm:grid-cols-3">
-            {METRIC_FIELDS.map((m) => (
-              <label key={m.key} className="text-sm">
-                <span className="eyebrow text-ink-faint">{m.label}</span>
-                <input
-                  className={field}
-                  value={metrics[m.key] ?? ""}
-                  onChange={(e) => setMetrics({ ...metrics, [m.key]: e.target.value })}
-                />
-              </label>
-            ))}
-          </div>
+          {(() => {
+            const plats = metricPlatforms(editing);
+            const tab = plats.includes(metricTab) ? metricTab : plats[0];
+            const legacy = unsplitLegacy(editing.metrics, plats);
+            const cur = metrics[tab] ?? {};
+            return (
+              <div className="mt-3">
+                <span className="eyebrow text-ink-faint">{plats.length > 1 ? `Numbers on ${tab}` : "Numbers"}</span>
+                {plats.length > 1 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1.5" role="tablist" aria-label="Platform">
+                    {plats.map((p) => {
+                      const n = filledCount(metrics[p]);
+                      const on = p === tab;
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          role="tab"
+                          aria-selected={on}
+                          onClick={() => setMetricTab(p)}
+                          className={`press focus-ring rounded-full border px-3 py-1 text-xs font-semibold ${on ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised text-ink"}`}
+                        >
+                          {p} <span className={on ? "opacity-80" : "text-ink-faint"}>{n}/{METRIC_FIELDS.length}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {Object.keys(legacy).length > 0 && (
+                  <p className="mt-2 rounded-lg border border-rule bg-paper-sunken px-3 py-2 text-xs text-ink-soft">
+                    Saved earlier for all platforms together:{" "}
+                    {Object.entries(legacy)
+                      .map(([k, v]) => `${METRIC_FIELDS.find((f) => f.key === k)?.label ?? k} ${v}`)
+                      .join(", ")}
+                    . Put each platform's own numbers in below.
+                  </p>
+                )}
+                <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                  {METRIC_FIELDS.map((m) => (
+                    <label key={m.key} className="text-sm">
+                      <span className="eyebrow text-ink-faint">{m.label}</span>
+                      <input
+                        className={field}
+                        inputMode={m.key === "avg_watch_time" ? "text" : "decimal"}
+                        value={cur[m.key] ?? ""}
+                        onChange={(e) => setMetrics({ ...metrics, [tab]: { ...cur, [m.key]: e.target.value } })}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
           <label className="mt-3 block text-sm">
             <span className="eyebrow text-ink-faint">Why did it perform, or not?</span>
             <textarea rows={3} className={field} value={metricNote} onChange={(e) => setMetricNote(e.target.value)} />
@@ -1064,7 +1117,7 @@ export default function ContentPipeline() {
             disabled={busy || !metricNote.trim()}
             onClick={() =>
               advance("Archived", {
-                metrics: { ...metrics, note: metricNote },
+                metrics: buildMetrics(metrics, metricNote),
                 metrics_filled_at: new Date().toISOString(),
               })
             }
@@ -1075,7 +1128,7 @@ export default function ContentPipeline() {
             title={editing.title}
             platforms={editing.platforms}
             postedWhen={editing.posted_at}
-            metrics={metrics}
+            metrics={flatForAi(metrics)}
             note={metricNote}
           />
         </div>

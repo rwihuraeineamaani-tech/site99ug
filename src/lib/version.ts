@@ -3,6 +3,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const RELEASES: Release[] = [
   {
+    version: "2.4.1",
+    date: "2026-11-12",
+    title: "Video numbers per platform",
+    notes: [
+      "When a posted video goes on more than one platform, its numbers are now filled in separately for each one, with a tab per platform showing how many boxes are done.",
+      "Older numbers typed together, like IG 65 TT 859, are split into the right platform when you open the video.",
+      "Totals across platforms are still kept, so reports and AI tips see both the split and the overall picture.",
+    ],
+  },
+  {
     version: "2.4.0",
     date: "2026-11-12",
     title: "Posted days move on the calendar, official look part two",
