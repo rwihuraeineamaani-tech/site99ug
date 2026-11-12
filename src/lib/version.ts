@@ -3,6 +3,19 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const RELEASES: Release[] = [
   {
+    version: "2.3.0",
+    date: "2026-11-12",
+    title: "Official look, part one",
+    notes: [
+      "Every drop-down in the system now looks like a proper field with a clear arrow, instead of a grey block.",
+      "Filters, view switches and tabs share one shape and size, and the one you have picked is easy to see.",
+      "Status labels are calmer and easier to read, for example Active, Paid or Cancelled.",
+      "The side menu shows the page you are on with a red marker, and long section names no longer wrap.",
+      "Calendar and Sign out in the top bar are proper buttons.",
+      "Long dashes are gone from on-screen text across the system.",
+    ],
+  },
+  {
     version: "2.2.0",
     date: "2026-11-12",
     title: "Finance office and the payroll sheet",
