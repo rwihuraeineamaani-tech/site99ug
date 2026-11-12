@@ -134,7 +134,7 @@ export default function ResidentsHub() {
 
   const tabs = [
     { key: "clients", label: "clients" },
-    { key: "accounts", label: "accounts & handlers" },
+    { key: "accounts", label: "Accounts & handlers" },
     ...(has("founder", "admin") ? [{ key: "lifecycle", label: "lifecycle" }] : []),
   ] as const;
 
