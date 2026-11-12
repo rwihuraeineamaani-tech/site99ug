@@ -30,8 +30,8 @@ type Props = {
 export function AdminShell({ title, eyebrow = "Console", nav = [], active, actions, layout = "tabs", children }: Props) {
   const tabClass = (isActive: boolean) =>
     cn(
-      "rounded-sm px-3 py-2 eyebrow transition-colors focus-ring flex items-center gap-2 whitespace-nowrap",
-      isActive ? "bg-ink text-paper" : "text-ink-soft hover:text-ink hover:bg-paper-sunken"
+      "flex h-8 items-center gap-2 whitespace-nowrap rounded-md px-3.5 text-[13px] font-semibold transition-colors focus-ring",
+      isActive ? "seg-thumb bg-paper-overlay text-ink shadow-[inset_0_1px_0_hsl(0_0%_100%/0.06),0_1px_2px_hsl(226_30%_2%/0.35)]" : "text-ink-faint hover:text-ink"
     );
 
   const activeLabel = nav.find((item) => item.key === active)?.label ?? "Choose a section";
@@ -58,15 +58,15 @@ export function AdminShell({ title, eyebrow = "Console", nav = [], active, actio
     <AppShell eyebrow={eyebrow}>
       <div className="mb-6 flex flex-wrap items-end gap-4 border-b border-rule pb-5">
         <div>
-          <p className="eyebrow mb-2 text-signal">Website workspace</p>
-          <h1 className="text-3xl font-black md:text-4xl">{title}</h1>
+          <p className="eyebrow mb-2 text-signal">{eyebrow}</p>
+          <h1 className="display text-3xl leading-[0.95] md:text-5xl">{title}</h1>
         </div>
         {actions && <div className="ml-auto flex items-center gap-2">{actions}</div>}
       </div>
 
       {nav.length > 0 && layout === "tabs" && (
-        <div className="rule-b mb-6 overflow-x-auto scrollbar-none">
-          <div className="flex gap-1 pb-2 w-max">
+        <div className="no-scrollbar mb-6 max-w-full overflow-x-auto">
+          <div className="flex w-max gap-1 rounded-lg border border-input bg-paper-sunken p-1">
             {nav.map((n) =>
               n.to ? (
                 <Link key={n.key} to={n.to} className={tabClass(false)}>

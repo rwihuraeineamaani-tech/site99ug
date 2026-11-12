@@ -456,7 +456,7 @@ export default function Shoots() {
       {canEditContent && (
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <span className="eyebrow text-ink-faint">New shoot day</span>
-          <select className="rounded-full border border-rule bg-paper-raised px-3 py-1.5 text-xs press focus-ring" defaultValue="" onChange={(e) => { newDay(e.target.value); e.currentTarget.value = ""; }}>
+          <select className="h-10 w-full max-w-xs rounded-lg border px-3 text-sm focus-ring sm:w-auto" defaultValue="" onChange={(e) => { newDay(e.target.value); e.currentTarget.value = ""; }}>
             <option value="">Pick a client or project…</option>
             <optgroup label="Clients">
               {residents.map((r) => (

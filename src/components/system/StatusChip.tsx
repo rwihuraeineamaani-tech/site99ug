@@ -97,6 +97,13 @@ export const TONE_TEXT: Record<StateTone, string> = {
   lime: "text-acc-lime",
 };
 
+/** "needs a date" and "NEEDS A DATE" both read as "Needs a date". */
+function sentence(v: string) {
+  const t = v.replace(/_/g, " ").trim();
+  const lower = t === t.toUpperCase() ? t.toLowerCase() : t;
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
 export function toneFor(value?: string | null): StateTone {
   return TONE_MAP[(value ?? "").toLowerCase()] ?? "neutral";
 }
@@ -114,13 +121,13 @@ export function StatusChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11.5px] font-semibold capitalize leading-5 whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11.5px] font-semibold leading-5 whitespace-nowrap",
         TONE_SOFT[t],
         className
       )}
     >
       <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", TONE_SOLID[t])} />
-      {value || "Not set"}
+      {value ? sentence(value) : "Not set"}
     </span>
   );
 }
