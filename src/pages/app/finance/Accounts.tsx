@@ -18,7 +18,7 @@ const pill = "press rounded-full border border-rule bg-paper-raised px-3 py-1.5 
 const blank = { id: "", name: "", kind: "bank", color: "#2563eb", opening: "", openingDate: "2026-11-01", number: "", active: true };
 
 export default function FinanceAccounts() {
-  const { requirePin } = useFinanceLock();
+  const { require: requirePin } = useFinanceLock();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [moves, setMoves] = useState<{ wallet_id: string; direction: string; amount_ugx: number; entry_date: string }[]>([]);
   const [form, setForm] = useState<typeof blank | null>(null);
