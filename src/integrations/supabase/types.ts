@@ -4616,6 +4616,7 @@ export type Database = {
           billing_address: string | null
           billing_email: string | null
           category: string | null
+          client_approves_content: boolean
           contact_user_id: string | null
           created_at: string
           display_order: number
@@ -4649,6 +4650,7 @@ export type Database = {
           billing_address?: string | null
           billing_email?: string | null
           category?: string | null
+          client_approves_content?: boolean
           contact_user_id?: string | null
           created_at?: string
           display_order?: number
@@ -4682,6 +4684,7 @@ export type Database = {
           billing_address?: string | null
           billing_email?: string | null
           category?: string | null
+          client_approves_content?: boolean
           contact_user_id?: string | null
           created_at?: string
           display_order?: number
@@ -5235,6 +5238,59 @@ export type Database = {
           },
           {
             foreignKeyName: "schedule_overrides_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: false
+            referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shoot_day_client_needs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          item: string
+          note: string | null
+          payer: string
+          qty: number
+          shoot_day_id: string
+          status: string
+          unit_price_ugx: number
+          updated_at: string
+          visible_to_client: boolean
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          item: string
+          note?: string | null
+          payer?: string
+          qty?: number
+          shoot_day_id: string
+          status?: string
+          unit_price_ugx?: number
+          updated_at?: string
+          visible_to_client?: boolean
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          item?: string
+          note?: string | null
+          payer?: string
+          qty?: number
+          shoot_day_id?: string
+          status?: string
+          unit_price_ugx?: number
+          updated_at?: string
+          visible_to_client?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shoot_day_client_needs_shoot_day_id_fkey"
             columns: ["shoot_day_id"]
             isOneToOne: false
             referencedRelation: "shoot_days"
@@ -6727,6 +6783,10 @@ export type Database = {
         Args: { _content_id: string; _day_id: string }
         Returns: undefined
       }
+      admin_override_client_approval: {
+        Args: { _id: string; _note?: string }
+        Returns: undefined
+      }
       admin_search_orders:
         | {
             Args: { _event_id?: string; _limit?: number; _q: string }
@@ -7422,6 +7482,7 @@ export type Database = {
         }
         Returns: string
       }
+      shoot_day_brief: { Args: { _id: string }; Returns: Json }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       staff_notify: {

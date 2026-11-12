@@ -78,6 +78,13 @@
       "when": 1794461874296,
       "tag": "0010_invoice_paid_from_cashbook",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794462161621,
+      "tag": "0011_client_calendar_approvals_shoot_needs",
+      "breakpoints": true
     }
   ]
 }
