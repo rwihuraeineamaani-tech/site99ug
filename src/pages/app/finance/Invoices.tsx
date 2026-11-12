@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { downloadFinanceDoc, receiptNumber } from "@/lib/financeDocs";
+import { downloadFinanceDoc, loadDocProfile } from "@/lib/financeDocs";
+import { emailInvoice } from "@/lib/docEmail";
+import { InvoiceReceipts } from "@/components/finance/InvoiceReceipts";
+import { EmailDocButton } from "@/components/finance/EmailDocButton";
+import { DocumentProfileEditor } from "@/components/finance/DocumentProfileEditor";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
@@ -330,43 +334,36 @@ export default function Invoices() {
       partyEmail: p.email,
       date: inv.issue_date,
       dueDate: inv.due_date,
+      periodLabel: inv.period_label,
+      contractLabel: contractTitle(inv),
       lines: docLines(inv),
       subtotal: inv.subtotal_ugx,
       tax: inv.vat_ugx,
       total: inv.total_ugx,
+      vatRate: inv.vat_rate,
+      vatExempt: !inv.vat_ugx,
+      amountPaid: inv.amount_paid_ugx,
+      status: inv.status,
     });
   };
 
-  const printReceipt = async (inv: Invoice) => {
-    const p = await partyInfo(inv);
-    let q = supabase
-      .from("cashbook_entries")
-      .select("entry_date, reference, wallet_id, amount_ugx, note")
-      .eq("direction", "in")
-      .eq("counterparty_name", inv.party_name)
-      .order("entry_date", { ascending: false })
-      .limit(1);
-    if (inv.number) q = q.ilike("note", `%${inv.number}%`);
-    const { data } = await q;
-    const e = data?.[0];
-    const wallet = wallets.find((w) => w.id === e?.wallet_id);
-    const paidOn = e?.entry_date ?? todayISO();
-    const ratio = inv.total_ugx ? inv.amount_paid_ugx / inv.total_ugx : 1;
-    await downloadFinanceDoc({
-      kind: "receipt",
-      number: receiptNumber(inv.number, paidOn),
-      partyName: inv.party_name,
-      partyAddress: p.address,
-      partyEmail: p.email,
-      date: paidOn,
-      linkedInvoice: inv.number,
-      lines: docLines(inv).map((l) => ({ ...l, tax: Math.round(l.tax * ratio), amount: Math.round(l.amount * ratio) })),
-      subtotal: Math.round(inv.subtotal_ugx * ratio),
-      tax: Math.round(inv.vat_ugx * ratio),
-      total: inv.amount_paid_ugx,
-      paymentMethod: wallet?.name ?? "MTN MOMO",
-      paymentDetails: [e?.reference ? `TRANSACTION ID: ${e.reference}` : "—"],
+  const sendInvoice = async (inv: Invoice, to: string) => {
+    await emailInvoice({
+      invoiceId: inv.id,
+      to,
+      clientName: inv.party_name,
+      number: inv.number ?? "Invoice",
+      period: inv.period_label,
+      issueDate: inv.issue_date,
+      dueDate: inv.due_date,
+      subtotal: inv.subtotal_ugx,
+      vat: inv.vat_ugx,
+      total: inv.total_ugx,
+      paid: inv.amount_paid_ugx,
+      profile: await loadDocProfile(),
     });
+    if (inv.status === "draft") await setStatus(inv, "sent");
+    else load();
   };
 
   const openFile = async (path: string) => {
@@ -393,6 +390,7 @@ export default function Invoices() {
         </div>
       }
     >
+      <DocumentProfileEditor canEdit={canSeeFinance} />
       <div className="flex flex-wrap items-center gap-2 mb-8">
         <button className={`${pill} ${tab === "out" ? on : ""}`} onClick={() => setTab("out")}>
           We issued
@@ -632,6 +630,21 @@ export default function Invoices() {
                   <Money amount={outstanding(inv)} className="font-semibold" />
                 </div>
                 {inv.note && <p className="text-sm text-ink-soft">{inv.note}</p>}
+                {inv.last_emailed_at && (
+                  <p className="text-xs text-ink-faint">
+                    Last emailed {dayLabel(inv.last_emailed_at.slice(0, 10))}{inv.last_emailed_to ? ` to ${inv.last_emailed_to}` : ""}.
+                  </p>
+                )}
+                {inv.direction === "out" && (
+                  <InvoiceReceipts
+                    inv={inv}
+                    canEmail
+                    party={async () => {
+                      const p = await partyInfo(inv);
+                      return { name: inv.party_name, address: p.address, email: p.email };
+                    }}
+                  />
+                )}
                 <div className="flex flex-wrap gap-2">
                   {inv.file_path && (
                     <button className={pill} onClick={() => inv.file_path && openFile(inv.file_path)}>
@@ -643,10 +656,8 @@ export default function Invoices() {
                       <button className={pill} onClick={() => printInvoice(inv)}>
                         download PDF
                       </button>
-                      {inv.amount_paid_ugx > 0 && (
-                        <button className={pill} onClick={() => printReceipt(inv)}>
-                          download receipt
-                        </button>
+                      {inv.status !== "void" && (
+                        <EmailDocButton label="Email invoice" defaultTo={null} send={(to) => sendInvoice(inv, to)} />
                       )}
                       {inv.status === "draft" && (
                         <button className={pill} onClick={() => setStatus(inv, "sent")}>
