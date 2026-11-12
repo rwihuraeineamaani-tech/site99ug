@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { downloadFinanceDoc } from "@/lib/financeDocs";
+import { downloadFinanceDoc, loadReceipts, receiptDoc, type ReceiptRow } from "@/lib/financeDocs";
 import { toast } from "sonner";
 
 const lbl = "mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground";
@@ -118,10 +118,14 @@ export default function PortalContract({ residentId, residentName }: { residentI
         partyName: residentName,
         date: inv.issue_date ?? new Date().toISOString(),
         dueDate: inv.due_date,
+        periodLabel: inv.period_label,
         lines: [{ description: inv.period_label || inv.category || "Services", tax: inv.vat_ugx, amount: inv.subtotal_ugx }],
         subtotal: inv.subtotal_ugx,
         tax: inv.vat_ugx,
         total: inv.total_ugx,
+        vatExempt: !inv.vat_ugx,
+        amountPaid: inv.amount_paid_ugx,
+        status: inv.status,
       });
     } catch {
       toast.error("Could not build the PDF.");
@@ -235,6 +239,7 @@ export default function PortalContract({ residentId, residentName }: { residentI
                   >
                     {downloading === inv.id ? "Building PDF…" : "Download invoice PDF →"}
                   </button>
+                  {(inv.amount_paid_ugx ?? 0) > 0 && <PortalReceipts inv={inv} residentName={residentName} />}
                 </li>
               );
             })}
@@ -312,5 +317,35 @@ function Field({ k, v }: { k: string; v: string }) {
       <div className={lbl}>{k}</div>
       <div className="mt-1">{v}</div>
     </div>
+  );
+}
+
+/** Clients download a receipt for every payment we recorded against their invoice. */
+function PortalReceipts({ inv, residentName }: { inv: Invoice; residentName: string }) {
+  const [rows, setRows] = useState<ReceiptRow[] | null>(null);
+  useEffect(() => {
+    loadReceipts(inv.id).then(setRows).catch(() => setRows([]));
+  }, [inv.id]);
+  if (!rows?.length) return null;
+  return (
+    <ul className="mt-4 space-y-2">
+      {rows.map((r) => (
+        <li key={r.entry_id} className="flex flex-wrap items-baseline gap-3 text-sm">
+          <span className="mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Receipt {r.doc_number}</span>
+          <span>{fmtDate(r.entry_date)}</span>
+          <span className="font-semibold">{fmtUGX(r.amount_ugx)}</span>
+          <button
+            onClick={() =>
+              downloadFinanceDoc(receiptDoc({ ...inv, vat_rate: null }, r, { name: residentName }, rows)).catch(() =>
+                toast.error("Could not build the receipt."),
+              )
+            }
+            className="mono text-[10px] uppercase tracking-[0.3em] text-site-red hover:underline"
+          >
+            Download receipt →
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
