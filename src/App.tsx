@@ -80,6 +80,9 @@ import FinanceProjectionsPage from "./pages/app/finance/Projections.tsx";
 import FinanceLookup from "./pages/app/finance/Lookup.tsx";
 import FinanceFiling from "./pages/app/finance/Filing.tsx";
 import FinanceInvoices from "./pages/app/finance/Invoices.tsx";
+import FinanceAccounts from "./pages/app/finance/Accounts.tsx";
+import FinanceOldSheet from "./pages/app/finance/OldSheet.tsx";
+import ProductionFund from "./pages/app/finance/ProductionFund.tsx";
 import FinanceTransaction from "./pages/app/FinanceTransaction.tsx";
 import ResidentsHub from "./pages/app/Residents.tsx";
 import ResidentRecordPage from "./pages/app/ResidentRecord.tsx";
@@ -437,6 +440,9 @@ const AnimatedRoutes = () => {
             </RequireRole>
           }
         />
+        <Route path="/app/finance/accounts" element={<RequireRole gate="finance"><FinanceAccounts /></RequireRole>} />
+        <Route path="/app/finance/old-sheet" element={<RequireRole gate="finance"><FinanceOldSheet /></RequireRole>} />
+        <Route path="/app/finance/production-fund" element={<RequireRole gate="staff"><ProductionFund /></RequireRole>} />
         <Route
           path="/app/finance/loans"
           element={
