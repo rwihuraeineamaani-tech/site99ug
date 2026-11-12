@@ -250,6 +250,8 @@ export default function Cashbook() {
     setWho("");
     setNote("");
     setReference("");
+    setTid("");
+    setCharge("");
     setTagged("");
     setContractId("");
     setInvoiceId("");
