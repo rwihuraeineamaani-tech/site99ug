@@ -116,6 +116,8 @@ export default function Cashbook() {
   const [tagged, setTagged] = useState("");
   const [note, setNote] = useState("");
   const [reference, setReference] = useState("");
+  const [tid, setTid] = useState("");
+  const [charge, setCharge] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
   const load = useCallback(async () => {
@@ -259,6 +261,8 @@ export default function Cashbook() {
     const amt = Math.round(Number(amount));
     if (!walletId || !amt || amt <= 0) return toast.error("Enter a real amount.");
     if (!who.trim()) return toast.error(direction === "in" ? "Who sent the money?" : "Who was paid?");
+    const isMomo = wallets.find((w) => w.id === walletId)?.kind === "mobile_money";
+    if (isMomo && !tid.trim()) return toast.error("Mobile money needs a transaction ID (TID).");
     setBusy(true);
     let path: string | null = null;
     if (file) {
@@ -284,6 +288,14 @@ export default function Cashbook() {
       _reference: reference || undefined,
       _attachment_path: path ?? undefined,
     });
+    if (!error && newId && (tid.trim() || Number(charge) > 0)) {
+      const d = await supabase.rpc("set_entry_payment_details", {
+        _id: newId as string,
+        _tid: tid.trim(),
+        _charge: Math.round(Number(charge) || 0),
+      });
+      if (d.error) toast.error(`Logged, but TID/charge not saved: ${d.error.message}`);
+    }
     if (!error && newId && (contractId || invoiceId)) {
       const l = await supabase.rpc("link_cashbook_entry", {
         _entry_id: newId as string,
@@ -534,7 +546,9 @@ export default function Cashbook() {
                       {r.note && <div className="mt-1 text-xs text-ink-soft">{r.note}</div>}
                     </td>
                     <td className="px-3 py-2 num text-[11px] text-ink-faint">
-                      {r.reference || txn?.txn_ref || "—"}
+                      <div className="font-medium text-ink-soft">{(r as { doc_number?: string }).doc_number ?? "—"}</div>
+                      {(r.reference || txn?.txn_ref) && <div>{r.reference || txn?.txn_ref}</div>}
+                      {(r as { tid?: string }).tid && <div>TID {(r as { tid?: string }).tid}</div>}
                     </td>
                     <td className="px-3 py-2 text-right num">
                       {r.direction === "in" ? r.amount_ugx.toLocaleString("en-UG") : ""}
@@ -821,8 +835,18 @@ export default function Cashbook() {
                 </>
               )}
               <label className="text-xs">
-                <span className="eyebrow text-ink-faint">Reference — invoice, EFRIS or MoMo ID</span>
+                <span className="eyebrow text-ink-faint">Reference, invoice or EFRIS number</span>
                 <input className={field} value={reference} onChange={(e) => setReference(e.target.value)} />
+              </label>
+              <label className="text-xs">
+                <span className="eyebrow text-ink-faint">
+                  Transaction ID (TID){wallets.find((w) => w.id === walletId)?.kind === "mobile_money" ? ", required" : ""}
+                </span>
+                <input className={field} value={tid} onChange={(e) => setTid(e.target.value)} />
+              </label>
+              <label className="text-xs">
+                <span className="eyebrow text-ink-faint">Bank or mobile money charge (UGX)</span>
+                <input className={field} inputMode="numeric" value={charge} onChange={(e) => setCharge(e.target.value.replace(/[^\d]/g, ""))} />
               </label>
               <label className="text-xs">
                 <span className="eyebrow text-ink-faint">Receipt (optional)</span>
