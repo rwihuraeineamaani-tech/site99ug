@@ -24,6 +24,8 @@ import ContractDetail, { APPROVAL_LABEL, APPROVAL_TONE } from "@/components/lega
 import type { ResidentRecord } from "./Residents";
 import ResidentActions from "@/components/residents/ResidentActions";
 import RelationsPanel from "@/components/residents/RelationsPanel";
+import ClientCalendar from "@/components/portal/ClientCalendar";
+import { Switch } from "@/components/ui/switch";
 
 type Member = { user_id: string; display_name: string | null; email: string; title: string | null };
 type Item = {
@@ -56,7 +58,7 @@ type Contract = {
 };
 type OnboardingStep = { id: string; step_key: string; title: string; department: string; owner_user_id: string | null; status: string; due_on: string | null; note: string | null };
 
-const RECORD_TABS = ["overview", "onboarding", "content", "shoot days", "money", "contracts", "relations", "notes"] as const;
+const RECORD_TABS = ["overview", "client view", "onboarding", "content", "shoot days", "money", "contracts", "relations", "notes"] as const;
 type RecordTab = (typeof RECORD_TABS)[number];
 
 const LIVE_STAGES = ["Idea", "Approved", "Crewed", "Scheduled", "Shooting", "Editing", "Review", "Handover"];
@@ -87,12 +89,20 @@ export default function ResidentRecordPage() {
   const [savingNotes, setSavingNotes] = useState(false);
 
   const [logo, setLogo] = useState<string | null>(null);
+  const [approves, setApproves] = useState(false);
+  const canSetApproval = isLeadership || isAdmin || has("client_relations") || has("communications");
+  const toggleApproval = async (v: boolean) => {
+    setApproves(v);
+    const { error } = await supabase.from("residents").update({ client_approves_content: v } as never).eq("id", id);
+    if (error) { setApproves(!v); return toast.error(error.message); }
+    toast.success(v ? "The client will now approve videos." : "The team signs videos off again.");
+  };
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     const [{ data: res }, { data: team }, { data: content }, { data: sd }, { data: cts }, { data: inv }, { data: onboardingRows }] = await Promise.all([
-      supabase.from("residents").select("id,name,territory,since,status,email,user_id,avatar_url,contact_user_id,handler_user_id,notes,onboarding_status,archived_at").eq("id", id),
+      supabase.from("residents").select("id,name,territory,since,status,email,user_id,avatar_url,contact_user_id,handler_user_id,notes,onboarding_status,archived_at,client_approves_content").eq("id", id),
       supabase.from("team_members").select("user_id, display_name, email, title"),
       supabase
         .from("content_items")
@@ -110,6 +120,7 @@ export default function ResidentRecordPage() {
     ]);
     const r = ((res as unknown as ResidentRecord[]) ?? []).find((x) => x.id === id) ?? null;
     setResident(r);
+    setApproves(!!(r as unknown as { client_approves_content?: boolean } | null)?.client_approves_content);
     setLogo(await logoUrl(r?.avatar_url ?? null));
     setNotes(r?.notes ?? "");
     setMembers((team as unknown as Member[]) ?? []);
@@ -335,6 +346,13 @@ export default function ResidentRecordPage() {
               <div className="text-[11px] text-ink-faint">{resident.user_id ? "signed up" : "not signed up yet"}</div>
             </div>
           </div>
+          <div className="mt-4 surface flex flex-wrap items-center gap-3 rounded-2xl p-4 text-sm">
+            <Switch checked={approves} disabled={!canSetApproval} onCheckedChange={toggleApproval} aria-label="Client approves content" />
+            <div className="min-w-0 flex-1">
+              <div className="font-medium">Client approves content: {approves ? "On" : "Off"}</div>
+              <div className="text-[11px] text-ink-faint">{approves ? "Videos in Review wait for the client. When they approve, the video goes straight to Handover. Only System Admin can approve for them." : "The team signs videos off. The client only sees progress."}</div>
+            </div>
+          </div>
           <div className="mt-14">
             <PortalAccessPanel residentId={id} index="00" />
           </div>
@@ -349,6 +367,12 @@ export default function ResidentRecordPage() {
             <WebsitePanel residentId={id} index="08b" canEdit={isLeadership || isAdmin || hasSiteRole} />
           </div>
             </>
+          )}
+          {tab === "client view" && (
+            <div className="mt-6">
+              <p className="mb-4 text-sm text-ink-soft">This is the calendar {resident.name} sees in their portal. Green is posted, yellow is not edited yet, red means the numbers are overdue, blue is waiting on the client, grey shows the current stage.</p>
+              <ClientCalendar residentId={id} staff isAdmin={isAdmin} />
+            </div>
           )}
           {tab === "onboarding" && <div className="mt-14"><OnboardingPanel residentId={id} /></div>}
           {tab === "content" && (
