@@ -22,3 +22,14 @@ describe("old sheet vs app", () => {
     expect(r.appOnly.map((x) => x.id)).toEqual(["mogas"]);
   });
 });
+
+describe("old sheet vs app, exact dates first", () => {
+  it("does not let a near-date row take another row's exact match", () => {
+    const r = matchSheetToApp(
+      [s("anud", "2026-10-04", "out", 150000), s("mwaji", "2026-10-05", "out", 150000)],
+      [a("mwaji-app", "2026-10-05", "out", 150000)],
+    );
+    expect(r.matched[0].sheet.id).toBe("mwaji");
+    expect(r.sheetOnly.map((x) => x.id)).toEqual(["anud"]);
+  });
+});
