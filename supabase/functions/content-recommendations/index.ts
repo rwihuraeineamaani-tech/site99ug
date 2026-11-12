@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
   const clip = (v: unknown, n = 2000) => String(v ?? "").slice(0, n);
   const metrics = (body.metrics && typeof body.metrics === "object" ? body.metrics : {}) as Record<string, unknown>;
   const metricLines = Object.entries(metrics)
-    .slice(0, 20)
+    .slice(0, 63)
     .map(([k, v]) => `- ${clip(k, 40)}: ${clip(v, 60) || "not given"}`)
     .join("\n");
 
