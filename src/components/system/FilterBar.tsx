@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 
 export function FilterBar({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -8,9 +8,10 @@ export function FilterBar({ children, className }: { children: ReactNode; classN
   );
 }
 
+/** One field language for every filter: a sunken well with a clear edge. */
 const controlBase =
-  "h-10 rounded-full border border-rule bg-paper-raised text-ink text-sm px-4 outline-none press " +
-  "hover:border-ink focus:border-signal focus:ring-4 focus:ring-signal/10";
+  "h-10 rounded-lg border border-input bg-paper-sunken text-ink text-sm px-3.5 outline-none transition-colors " +
+  "hover:border-rule-strong focus:border-signal focus:ring-4 focus:ring-signal/15";
 
 export function SearchInput({
   value,
@@ -53,24 +54,29 @@ export function SelectFilter({
 }) {
   const isAll = value === "all" || value === "";
   return (
-    <select
-      aria-label={label}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={cn(
-        controlBase, "shrink-0",
-        "pr-8 cursor-pointer appearance-none bg-[length:14px] bg-no-repeat bg-[right_0.9rem_center]",
-        "bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23777%22 stroke-width=%223%22><path d=%22M6 9l6 6 6-6%22/></svg>')]",
-        !isAll && "border-signal/50 bg-acc-violet-soft text-acc-violet font-semibold",
-        className
-      )}
-    >
-      {options.map((o) => (
-        <option key={o.value} value={o.value} className="bg-paper-raised text-ink">
-          {o.label}
-        </option>
-      ))}
-    </select>
+    <div className={cn("relative shrink-0", className)}>
+      <select
+        aria-label={label}
+        title={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={cn(
+          controlBase,
+          "filter-select w-full min-w-[9rem] cursor-pointer appearance-none pr-9 font-medium",
+          !isAll && "border-signal/60 bg-signal/10 text-ink"
+        )}
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown
+        aria-hidden
+        className={cn("pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2", isAll ? "text-ink-faint" : "text-signal")}
+      />
+    </div>
   );
 }
 
@@ -89,13 +95,13 @@ export function Segmented<T extends string>({
   return (
     <div
       className={cn(
-        "no-scrollbar relative inline-flex min-h-11 max-w-full items-center overflow-x-auto rounded-full border border-rule bg-paper-sunken p-1",
+        "no-scrollbar relative inline-flex h-10 max-w-full shrink-0 items-center overflow-x-auto rounded-lg border border-input bg-paper-sunken p-1",
         className
       )}
     >
       <span
         aria-hidden
-        className="absolute top-1 bottom-1 left-1 rounded-full bg-ink shadow-[0_2px_8px_-4px_hsl(var(--ink)/0.6)] transition-transform duration-200 ease-out"
+        className="seg-thumb absolute top-1 bottom-1 left-1 rounded-md border border-rule-strong/40 bg-paper-overlay transition-transform duration-200 ease-out"
         style={{
           width: `calc((100% - 0.5rem) / ${options.length})`,
           transform: `translateX(${index * 100}%)`,
@@ -107,8 +113,8 @@ export function Segmented<T extends string>({
           type="button"
           onClick={() => onChange(o.value)}
           className={cn(
-            "relative z-10 min-h-9 flex-1 whitespace-nowrap rounded-full px-4 eyebrow text-[10px] transition-colors focus-ring",
-            value === o.value ? "text-paper" : "text-ink-soft hover:text-ink"
+            "relative z-10 h-8 flex-1 whitespace-nowrap rounded-md px-3.5 text-[13px] font-semibold transition-colors focus-ring",
+            value === o.value ? "text-ink" : "text-ink-faint hover:text-ink"
           )}
         >
           {o.label}
