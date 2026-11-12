@@ -40,7 +40,7 @@ export default function TicketThankYou() {
 
   return (
     <Layout>
-      <Seo title="Payment — Site 99" description="Payment confirmation" path="/tickets/thank-you" />
+      <Seo title="Payment · Site 99" description="Payment confirmation" path="/tickets/thank-you" />
       <section className="pt-36 pb-24 px-8 md:px-16 min-h-[80vh]">
         <div className="max-w-2xl">
           <div className="mono text-xs uppercase tracking-[0.3em] text-site-red mb-6">Transmission</div>

@@ -36,7 +36,7 @@ export default function Unsubscribe() {
 
   return (
     <main className="min-h-screen bg-background text-foreground flex items-center justify-center px-8 md:px-16">
-      <Seo title="Unsubscribe — Site 99" description="Stop receiving emails from Site 99." path="/unsubscribe" noindex />
+      <Seo title="Unsubscribe · Site 99" description="Stop receiving emails from Site 99." path="/unsubscribe" noindex />
       <div className="w-full max-w-md rounded-2xl border border-rule bg-paper-raised p-8">
         <p className="eyebrow text-ink-faint">Site 99</p>
         <h1 className="mt-2 text-2xl font-semibold">Email preferences</h1>
@@ -54,7 +54,7 @@ export default function Unsubscribe() {
           </>
         )}
 
-        {state === "done" && <p className="mt-4 text-sm text-ink-soft">Done — you're unsubscribed.</p>}
+        {state === "done" && <p className="mt-4 text-sm text-ink-soft">Done, you're unsubscribed.</p>}
         {state === "used" && <p className="mt-4 text-sm text-ink-soft">You're already unsubscribed. Nothing more to do.</p>}
         {state === "invalid" && (
           <p className="mt-4 text-sm text-ink-soft">This link isn't valid any more. Reply to any of our emails and we'll sort it out.</p>

@@ -15,7 +15,7 @@ export type SoonProps = {
 export function DepartmentSoon({ eyebrow, title, lede, path, coming, link }: SoonProps) {
   return (
     <AppShell eyebrow={eyebrow}>
-      <Seo title={`${eyebrow} — Site 99`} description={lede} path={path} noindex />
+      <Seo title={`${eyebrow} · Site 99`} description={lede} path={path} noindex />
       <PageHeader eyebrow={eyebrow} title={title} lede={lede} />
 
       <SectionHeading index="01" title="What will live here" hint="Next up" />

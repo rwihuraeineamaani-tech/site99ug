@@ -333,7 +333,7 @@ export default function AccountsPanel({
         <DialogContent className="max-w-lg bg-paper text-ink border-rule">
           <DialogHeader>
             <DialogTitle className="display text-xl">
-              {entry ? `${entry.account.platform} — ${resById.get(entry.account.resident_id)?.name ?? ""}` : ""}
+              {entry ? `${entry.account.platform}, ${resById.get(entry.account.resident_id)?.name ?? ""}` : ""}
             </DialogTitle>
           </DialogHeader>
           <p className="text-xs text-ink-faint -mt-2">
@@ -369,7 +369,7 @@ export default function AccountsPanel({
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-paper text-ink border-rule">
           <DialogHeader>
             <DialogTitle className="display text-xl">
-              {history ? `${history.platform} — ${resById.get(history.resident_id)?.name ?? ""}` : ""}
+              {history ? `${history.platform}, ${resById.get(history.resident_id)?.name ?? ""}` : ""}
             </DialogTitle>
           </DialogHeader>
           <div className="flex items-center gap-2 flex-wrap">

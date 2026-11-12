@@ -18,7 +18,7 @@ const day = (d: string) => new Date(d).toLocaleDateString(undefined, { day: "num
 const daysTo = (d: string) => Math.ceil((new Date(d).getTime() - Date.now()) / 86400000);
 
 const TITLES: Record<string, { title: string; lede: string }> = {
-  overview: { title: "Client Relations.", lede: "How every client is doing — who needs a call, who is up for renewal and what they're telling us." },
+  overview: { title: "Client Relations.", lede: "How every client is doing, who needs a call, who is up for renewal and what they're telling us." },
   onboarding: { title: "Onboarding.", lede: "Welcome new clients: give them their portal login first, then work through the checklist. The MD signs off the contract and the handover." },
   log: { title: "Contact log.", lede: "Every call, meeting and message with a client, in one place." },
   followups: { title: "Follow-ups.", lede: "Promises we've made to clients, with who owns them and when they're due." },
@@ -87,7 +87,7 @@ export default function RelationsPage() {
 
   return (
     <AppShell eyebrow="Client Relations">
-      <Seo title="Client Relations — Site 99" description="Client health, contact, follow-ups, renewals and feedback." path="/app/relations" noindex />
+      <Seo title="Client Relations · Site 99" description="Client health, contact, follow-ups, renewals and feedback." path="/app/relations" noindex />
       <PageHeader eyebrow="Client Relations" title={head.title} lede={head.lede} />
 
       {tab === "overview" && (

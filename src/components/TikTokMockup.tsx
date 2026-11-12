@@ -237,7 +237,7 @@ export const TikTokMockup = ({ src, alt }: { src: string; alt: string }) => {
             transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
             className="inline-block"
           >
-            original sound — site99.ug · original sound — site99.ug ·&nbsp;
+            original sound, site99.ug · original sound, site99.ug ·&nbsp;
           </motion.span>
         </div>
       </div>

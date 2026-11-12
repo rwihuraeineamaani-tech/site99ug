@@ -9,7 +9,7 @@ export default function Residents() {
   return (
     <Layout>
       <Seo
-        title="Residents — Site 99"
+        title="Residents · Site 99"
         description="Brands in residency at Site 99. Each resident occupies a permanent plot in our narrative grid."
         path="/residents"
       />

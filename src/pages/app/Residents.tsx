@@ -133,18 +133,18 @@ export default function ResidentsHub() {
   const activeCount = rows.filter((r) => !r.archived_at && r.status === "Active").length;
 
   const tabs = [
-    { key: "clients", label: "clients" },
-    { key: "accounts", label: "accounts & handlers" },
-    ...(has("founder", "admin") ? [{ key: "lifecycle", label: "lifecycle" }] : []),
+    { key: "clients", label: "Clients" },
+    { key: "accounts", label: "Accounts & handlers" },
+    ...(has("founder", "admin") ? [{ key: "lifecycle", label: "Lifecycle" }] : []),
   ] as const;
 
   return (
     <AppShell eyebrow="Residents">
-      <Seo title="Residents — Site 99" description="Every resident we work with, in full." path="/app/residents" noindex />
+      <Seo title="Residents · Site 99" description="Every resident we work with, in full." path="/app/residents" noindex />
       <PageHeader
         eyebrow="Residents"
         title="Residents."
-        lede={`${activeCount} active clients. Open any card for their full record — content, shoots, money, contracts and relations.`}
+        lede={`${activeCount} active clients. Open any card for their full record, content, shoots, money, contracts and relations.`}
       />
       {has("admin", "founder", "managing_director", "operations_manager", "communications", "client_relations") && (
         <div className="-mt-2 mb-5 [&>button]:w-full sm:-mt-4 sm:mb-6 sm:[&>button]:w-auto"><AddResidentDialog /></div>

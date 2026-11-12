@@ -4,7 +4,7 @@ import Seo from "@/components/Seo";
 
 const steps = [
   { n: "01", t: "Audit", c: "We sit with the process as it runs today and count the hours it eats. No assumptions, no generic templates." },
-  { n: "02", t: "Map", c: "Every step gets drawn — what stays manual, what becomes automated, and what disappears entirely." },
+  { n: "02", t: "Map", c: "Every step gets drawn, what stays manual, what becomes automated, and what disappears entirely." },
   { n: "03", t: "Build", c: "We ship in phases so something useful lands in weeks, not quarters. Your team tests it while we build the next layer." },
   { n: "04", t: "Maintain", c: "The same hands that built it keep it running, adjust it as you grow, and train the people using it." },
 ];
@@ -20,7 +20,7 @@ export default function AIAbout() {
   return (
     <>
       <Seo
-        title="About the AI & Automation Sector — Site 99"
+        title="About the AI & Automation Sector · Site 99"
         description="Site 99's AI & Automation sector: how we audit, map, build and maintain intelligent business systems in Uganda, and who builds them."
         path="/ai-automations/about"
       />
@@ -29,7 +29,7 @@ export default function AIAbout() {
         <span className="tech text-[10px] uppercase tracking-[0.28em] text-white/45">The sector</span>
         <h1 className="display mt-4 text-[clamp(2.4rem,8vw,5.5rem)] font-black leading-[0.95]">About</h1>
         <p className="mt-6 max-w-2xl text-fluid-md leading-relaxed text-white/70">
-          AI &amp; Automations is the arm of Site 99 that builds intelligent systems. Not slide decks about AI — working
+          AI &amp; Automations is the arm of Site 99 that builds intelligent systems. Not slide decks about AI, working
           software that removes real hours from real businesses, shipped by the same studio that builds the brands.
         </p>
       </section>
@@ -82,10 +82,10 @@ export default function AIAbout() {
           className="mt-8 max-w-2xl border border-white/15 bg-black p-7 md:p-10"
         >
           <p className="display text-2xl md:text-3xl">Rwihura Eineammani</p>
-          <p className="tech mt-2 text-[10px] uppercase tracking-[0.24em] text-white/45">Lead Engineer — AI &amp; Automations</p>
+          <p className="tech mt-2 text-[10px] uppercase tracking-[0.24em] text-white/45">Lead Engineer, AI &amp; Automations</p>
           <p className="mt-6 text-sm leading-relaxed text-white/65">
             Undertaking a Bachelor's degree in Engineering, Robotics and Artificial Intelligence. Leads the design and
-            delivery of every system in the sector — from the data model up to the interface the team uses daily.
+            delivery of every system in the sector, from the data model up to the interface the team uses daily.
           </p>
           <p className="mt-4 text-sm leading-relaxed text-white/50">
             Supported by the wider Site 99 studio: strategy, identity, film, code and broadcast under one roof.

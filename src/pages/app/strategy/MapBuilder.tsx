@@ -117,7 +117,7 @@ export default function StrategyMapBuilder() {
   }, []);
 
   const addNode = (kind: NodeKind) => {
-    const label = window.prompt(`${nodeKindLabel(kind)} — what is it?`);
+    const label = window.prompt(`${nodeKindLabel(kind)}, what is it?`);
     if (!label) return;
     setNodes((cur) => [
       ...cur,
@@ -206,7 +206,7 @@ export default function StrategyMapBuilder() {
     setEdges(v.edges.map((e) => ({ id: e.id, source: e.source, target: e.target, label: e.label, animated: true })));
     setNotes(v.notes ?? "");
     setDirty(true);
-    toast.success(`Version ${v.version} loaded — save it to keep it.`);
+    toast.success(`Version ${v.version} loaded, save it to keep it.`);
   };
 
   const state = reviewState(map?.review_state);

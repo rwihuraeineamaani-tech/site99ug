@@ -363,9 +363,9 @@ function ShellSidebar({ groups, compact = false, profileTo, onSignOut }: { group
           >
           <SidebarGroup className={compact ? "py-1" : undefined}>
             {!collapsed && (
-              <SidebarGroupLabel asChild className="eyebrow text-ink-faint">
-                <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 hover:text-ink focus-ring">
-                  <span>{group.label}</span>
+              <SidebarGroupLabel asChild className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+                <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left hover:text-ink focus-ring">
+                  <span className="truncate">{group.label}</span>
                   <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform", !isOpen && "-rotate-90")} />
                 </CollapsibleTrigger>
               </SidebarGroupLabel>
@@ -385,8 +385,9 @@ function ShellSidebar({ groups, compact = false, profileTo, onSignOut }: { group
                                                     className={cn(
                             "group relative flex min-h-11 items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium transition-all focus-ring md:min-h-0",
                             compact && "md:py-1.5 md:text-[13px]",
+                            "rounded-lg",
                             active
-                              ? "bg-acc-violet-soft text-acc-violet"
+                              ? "nav-active bg-paper-overlay text-ink"
                               : "text-ink-soft hover:text-ink hover:bg-paper-sunken"
                           )}
                         >
@@ -396,7 +397,7 @@ function ShellSidebar({ groups, compact = false, profileTo, onSignOut }: { group
                           <Icon
                             className={cn(
                               "h-4 w-4 shrink-0 transition-transform",
-                              !active && "group-hover:scale-110"
+                              active ? "text-signal" : "group-hover:scale-110"
                             )}
                           />
                           {!collapsed && <span className="truncate">{item.label}</span>}
@@ -563,20 +564,19 @@ function ShellFrame({
             <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2 xl:gap-5">
               <span className="hidden lg:inline-flex"><HelpButton /></span>
               {userId && <span className="hidden lg:inline-flex"><NotificationBell /></span>}
-              <Link
-                to="/app/calendar"
-                className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-rule px-3 py-1.5 eyebrow text-[10px] text-ink-soft hover:text-signal hover:border-signal/50 focus-ring"
-              >
-                <CalendarDays className="h-3.5 w-3.5" />
-                Calendar
-              </Link>
+              <span className="hidden xl:inline-flex">
+                <Link to="/app/calendar" className="ctl h-9 px-3 text-[13px] font-semibold text-ink-soft focus-ring">
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  Calendar
+                </Link>
+              </span>
               <span className="hidden xl:inline-flex"><HeaderClock /></span>
               <span className="hidden lg:block h-8 w-px bg-rule" aria-hidden />
               <Link
                 to="/app/settings"
                 title="My settings"
                 aria-label="My settings"
-                className="h-9 w-9 shrink-0 rounded-full bg-acc-violet-soft text-acc-violet grid place-items-center text-xs font-semibold focus-ring hover:text-signal"
+                className="h-9 w-9 shrink-0 rounded-full border border-rule-strong/50 bg-paper-overlay text-ink grid place-items-center text-xs font-bold focus-ring hover:border-signal hover:text-signal"
               >
                 {name
                   .split(/\s+/)
@@ -585,13 +585,12 @@ function ShellFrame({
                   .map((p) => p[0]?.toUpperCase() ?? "")
                   .join("") || "S9"}
               </Link>
-              <button
-                onClick={signOut}
-                className="hidden min-h-11 items-center gap-1 px-2 text-ink-soft hover:text-signal focus-ring xl:inline-flex"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sign out</span>
-              </button>
+              <span className="hidden xl:inline-flex">
+                <button onClick={signOut} className="ctl h-9 px-3 text-[13px] font-semibold text-ink-soft focus-ring">
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              </span>
             </div>
           </header>
 

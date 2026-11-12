@@ -6,7 +6,7 @@ import { RELEASES } from "@/lib/version";
 export default function WhatsNew() {
   return (
     <AppShell eyebrow="Site 99">
-      <Seo title="What's new — Site 99" description="Every Site 99 release in plain English." path="/app/whats-new" noindex />
+      <Seo title="What's new · Site 99" description="Every Site 99 release in plain English." path="/app/whats-new" noindex />
       <PageHeader eyebrow="Site 99" title="What's new." lede="Every release of the system, newest first." />
       <div className="max-w-3xl space-y-4">
         {RELEASES.map((r) => (

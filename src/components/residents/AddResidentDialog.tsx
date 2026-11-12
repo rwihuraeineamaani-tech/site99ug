@@ -45,7 +45,7 @@ export default function AddResidentDialog() {
     const { error: e2 } = await db.rpc("start_resident_onboarding", { _id: data.id, _established: established });
     setBusy(false);
     if (e2) toast.error(`Client added, but onboarding didn't start: ${e2.message}`);
-    else toast.success("Client added — onboarding started");
+    else toast.success("Client added, onboarding started");
     setOpen(false);
     nav(`/app/residents/${data.id}`);
   };
@@ -58,7 +58,7 @@ export default function AddResidentDialog() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add a resident</DialogTitle>
-          <DialogDescription>Create the client and start their onboarding checklist straight away — no Sales deal needed.</DialogDescription>
+          <DialogDescription>Create the client and start their onboarding checklist straight away, no Sales deal needed.</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <div><Label>Client name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Amaani Media" /></div>

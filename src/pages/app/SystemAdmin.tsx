@@ -137,7 +137,7 @@ export default function SystemAdmin() {
     { key: "logos", label: "Website logos", onClick: () => setTab("logos") },
     { key: "audit", label: "Audit & health", onClick: () => setTab("audit") },
   ]}>
-    <Seo title="System administration — Site 99" description="People, responsibilities and approval workflow control." path="/app/system-admin" noindex />
+    <Seo title="System administration · Site 99" description="People, responsibilities and approval workflow control." path="/app/system-admin" noindex />
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-10"><StatCard label="Team members" value={team.length} hint="active staff records" /><StatCard label="Live workflows" value={`${activeCount}/${workflows.length}`} hint="published and controlling work" /><StatCard label="Responsibility gaps" value={gaps} hint={gaps ? "needs ownership" : "all covered"} /><StatCard label="Active cover" value={delegations.filter((d) => d.active && Date.parse(d.ends_at) > Date.now()).length} hint="temporary delegations" /></div>
 
     {loading ? <p className="text-sm text-ink-soft">Loading control centre…</p> : null}

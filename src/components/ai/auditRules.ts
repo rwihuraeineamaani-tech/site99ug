@@ -83,7 +83,7 @@ const PAIN_MAP: Record<Pain, Suggestion> = {
   "Invoicing / payments": {
     tag: "Billing Automation",
     title: "Invoices, reminders and reconciliation on autopilot",
-    body: "Generate, send and chase invoices automatically — with mobile money and card payments matched to each record.",
+    body: "Generate, send and chase invoices automatically, with mobile money and card payments matched to each record.",
     effort: "Core build",
     phase: 2,
     flow: {
@@ -141,7 +141,7 @@ const CATEGORY_MAP: Partial<Record<Category, Suggestion>> = {
   Events: {
     tag: "Event Ops",
     title: "Ticketing, check-in and post-event follow-up joined up",
-    body: "One system from sale to gate scan to the thank-you sequence — the same stack Site 99 already runs.",
+    body: "One system from sale to gate scan to the thank-you sequence, the same stack Site 99 already runs.",
     effort: "Core build",
     phase: 2,
     flow: {
@@ -287,7 +287,7 @@ export function auditToText(
   hours: number,
 ): string {
   const lines = [
-    "SITE 99 — AUTOMATION AUDIT",
+    "SITE 99, AUTOMATION AUDIT",
     "",
     `Business: ${category ?? "—"}`,
     `Time sinks: ${pains.join(", ") || "—"}`,
@@ -312,7 +312,7 @@ export function auditToText(
       .filter((p) => p.items.length)
       .map((p) => `- Phase 0${p.phase} ${p.label}: ${p.items.join(", ")}`),
     "",
-    "Built by Site 99 — info@site99ug.com",
+    "Built by Site 99, info@site99ug.com",
   ];
   return lines.join("\n");
 }

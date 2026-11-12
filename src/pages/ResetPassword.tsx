@@ -26,7 +26,7 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-paper text-ink flex items-center px-6 md:px-16 py-16">
-      <Seo title="Reset password — Site 99" description="Set a new password." path="/reset-password" noindex />
+      <Seo title="Reset password · Site 99" description="Set a new password." path="/reset-password" noindex />
       <div className="w-full max-w-sm">
         <div className="eyebrow text-signal mb-4">Reset password</div>
         <h1 className="display text-4xl leading-[0.9] mb-10">Set a new one.</h1>

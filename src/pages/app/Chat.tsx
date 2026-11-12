@@ -78,7 +78,7 @@ export default function ChatPage() {
 
   return (
     <AppShell eyebrow="Chat">
-      <Seo title="Chat — Site 99" description="Private conversations with the Site 99 team and clients." path="/app/chat" noindex />
+      <Seo title="Chat · Site 99" description="Private conversations with the Site 99 team and clients." path="/app/chat" noindex />
       <PageHeader eyebrow="Chat" title="Conversations." lede="One private thread for every person you work with." actions={
         <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
           <DialogTrigger asChild><Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> New chat</Button></DialogTrigger>

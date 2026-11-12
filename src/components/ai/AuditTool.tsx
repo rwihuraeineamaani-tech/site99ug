@@ -91,7 +91,7 @@ export const AuditTool = () => {
     <div className="relative rounded-none border border-white/15 bg-black p-5 sm:p-8 md:p-10">
       <div className="flex items-center justify-between gap-4">
         <span className="tech text-[11px] uppercase tracking-[0.28em] text-white">
-          {result ? "Result" : `Step 0${step + 1} / 0${STEPS} — ${stepLabels[step]}`}
+          {result ? "Result" : `Step 0${step + 1} / 0${STEPS}, ${stepLabels[step]}`}
         </span>
         {result && (
           <button onClick={restart} className="tech text-[11px] uppercase tracking-[0.22em] text-white/50 hover:text-white">
@@ -131,7 +131,7 @@ export const AuditTool = () => {
                   <span className="tech text-[11px] uppercase tracking-[0.22em] text-white/60">hours / week back</span>
                 </div>
                 <p className="mt-3 text-sm text-white/50">
-                  ≈ {hours * 4} hours a month. An estimate from your answers, not a promise — we confirm it in the build scope.
+                  ≈ {hours * 4} hours a month. An estimate from your answers, not a promise, we confirm it in the build scope.
                 </p>
               </div>
 
@@ -180,7 +180,7 @@ export const AuditTool = () => {
                       <ul className="mt-3 space-y-1.5">
                         {p.items.map((it) => (
                           <li key={it} className="text-sm text-white/60">
-                            — {it}
+                           , {it}
                           </li>
                         ))}
                       </ul>

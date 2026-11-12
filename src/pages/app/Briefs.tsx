@@ -29,7 +29,7 @@ export default function BriefsPage() {
   const empty = !shown.length && !shownShoots.length;
 
   return <AppShell eyebrow="Briefs">
-    <Seo title="Briefs — Site 99" description="Shoot and client briefs." path="/app/briefs" noindex />
+    <Seo title="Briefs · Site 99" description="Shoot and client briefs." path="/app/briefs" noindex />
     <PageHeader eyebrow="Briefs" title="The work, properly briefed." lede="Shoot day briefs come first, then every client brief with its linked work and attachments." />
     <SearchInput value={search} onChange={setSearch} placeholder="Search briefs" className="mb-6 max-w-md" />
     {isLoading ? <p className="text-sm text-ink-soft">Loading…</p> : empty ? <div className="rounded-lg border border-rule py-16 text-center"><FileText className="mx-auto h-7 w-7 text-ink-faint" /><p className="mt-3 text-sm text-ink-soft">No briefs found.</p></div> : <div className="space-y-8">

@@ -55,7 +55,7 @@ export const COMPONENTS: { key: ComponentKey; label: string; negative?: boolean;
     key: "numbers",
     label: "Client numbers filled",
     meaning: "Weekly account numbers for your clients, filled in on time.",
-    improve: "Fill in each client's numbers every week — don't wait for reminders.",
+    improve: "Fill in each client's numbers every week, don't wait for reminders.",
   },
   {
     key: "approvals",

@@ -21,7 +21,7 @@ export default function SectionPage({
 }) {
   return (
     <AppShell eyebrow={eyebrow}>
-      <Seo title={`${title.replace(/\.$/, "")} — ${eyebrow} — Site 99`} description={lede} path={path} noindex />
+      <Seo title={`${title.replace(/\.$/, "")}, ${eyebrow} · Site 99`} description={lede} path={path} noindex />
       <PageHeader eyebrow={eyebrow} title={title} lede={lede} actions={actions} />
       {children}
     </AppShell>

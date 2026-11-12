@@ -77,7 +77,7 @@ export default function TeamPanel() {
       const res = await call({ action: "create", ...form });
       toast.success(
         res?.reused
-          ? "That email already had an account — it now uses this password and access."
+          ? "That email already had an account, it now uses this password and access."
           : "Team member created"
       );
       setForm({ email: "", display_name: "", title: "", password: "", roles: [] });
@@ -122,7 +122,7 @@ export default function TeamPanel() {
     if (!password) return;
     try {
       await call({ action: "reset_password", user_id: m.user_id, password });
-      toast.success("Password updated — share it with them directly.");
+      toast.success("Password updated, share it with them directly.");
     } catch (e: any) {
       toast.error(e.message);
     }

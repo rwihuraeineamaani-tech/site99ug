@@ -47,21 +47,21 @@ export default function Deadlines() {
         metrics_filled_at: string | null;
       }[]) {
         if (c.shoot_at && !["Posted", "Archived"].includes(c.stage))
-          out.push({ key: `s${c.id}`, date: c.shoot_at, what: `Shoot — ${c.title}`, kind: "Content", to: `/app/content?ref=${c.ref_no}` });
+          out.push({ key: `s${c.id}`, date: c.shoot_at, what: `Shoot, ${c.title}`, kind: "Content", to: `/app/content?ref=${c.ref_no}` });
         if (c.metrics_due_at && !c.metrics_filled_at)
-          out.push({ key: `m${c.id}`, date: c.metrics_due_at, what: `Numbers due — ${c.title}`, kind: "Content", to: `/app/content?ref=${c.ref_no}` });
+          out.push({ key: `m${c.id}`, date: c.metrics_due_at, what: `Numbers due, ${c.title}`, kind: "Content", to: `/app/content?ref=${c.ref_no}` });
       }
       for (const d of (days.data ?? []) as { id: string; shoot_date: string | null; status: string; location: string | null }[]) {
         if (d.shoot_date && d.status !== "wrapped")
-          out.push({ key: `d${d.id}`, date: d.shoot_date, what: `Shoot day — ${d.location || "location to confirm"}`, kind: "Shoot", to: "/app/shoots" });
+          out.push({ key: `d${d.id}`, date: d.shoot_date, what: `Shoot day, ${d.location || "location to confirm"}`, kind: "Shoot", to: "/app/shoots" });
       }
       for (const c of (contracts.data ?? []) as { id: string; title: string; party_name: string; ends_on: string | null; status: string }[]) {
         if (c.ends_on && !["ended", "cancelled"].includes(c.status))
-          out.push({ key: `c${c.id}`, date: c.ends_on, what: `Contract ends — ${c.title} (${c.party_name})`, kind: "Legal", to: "/app/legal/contracts" });
+          out.push({ key: `c${c.id}`, date: c.ends_on, what: `Contract ends, ${c.title} (${c.party_name})`, kind: "Legal", to: "/app/legal/contracts" });
       }
       for (const c of (compliance.data ?? []) as { id: string; name: string; renews_on: string | null; status: string }[]) {
         if (c.renews_on && c.status !== "retired")
-          out.push({ key: `o${c.id}`, date: c.renews_on, what: `Renewal — ${c.name}`, kind: "Legal", to: "/app/legal/compliance" });
+          out.push({ key: `o${c.id}`, date: c.renews_on, what: `Renewal, ${c.name}`, kind: "Legal", to: "/app/legal/compliance" });
       }
       out.sort((a, b) => a.date.localeCompare(b.date));
       setRows(out);

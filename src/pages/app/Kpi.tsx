@@ -31,7 +31,7 @@ export default function KpiPage() {
   }, [roles.userId, month]);
 
   return <AppShell eyebrow="My KPI">
-    <Seo title="My KPI — Site 99" description="Your targets, score and expected pay for the month." path="/app/kpi" noindex />
+    <Seo title="My KPI · Site 99" description="Your targets, score and expected pay for the month." path="/app/kpi" noindex />
     <PageHeader
       eyebrow="KPI"
       title={tab === "mine" ? "How your month is going." : "How KPIs work."}

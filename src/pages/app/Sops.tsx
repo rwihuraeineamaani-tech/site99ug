@@ -48,14 +48,14 @@ export default function SopsPage() {
 
   if (editing) return (
     <AppShell>
-      <Seo title="Edit SOP — Site 99" description="Edit a standard operating procedure." path="/app/sops" noindex />
+      <Seo title="Edit SOP · Site 99" description="Edit a standard operating procedure." path="/app/sops" noindex />
       <SopEditor sop={editing} onClose={() => setEditing(null)} onSaved={async (id) => { setEditing(null); await load(); setOpen(id); }} />
     </AppShell>
   );
 
   return (
     <AppShell>
-      <Seo title="SOPs — Site 99" description="Standard operating procedures for every department." path="/app/sops" noindex />
+      <Seo title="SOPs · Site 99" description="Standard operating procedures for every department." path="/app/sops" noindex />
       <PageHeader
         eyebrow={dept ? deptLabel(dept) : "SOP Library"}
         title={dept ? "SOPs." : "How we work."}
@@ -75,7 +75,7 @@ export default function SopsPage() {
               {SOP_DEPARTMENTS.map((d) => <option key={d.key} value={d.key}>{d.label}</option>)}
             </select>
           </div>
-          {!shown.length && <p className="rounded-md border border-rule p-5 text-sm text-ink-soft">No procedures here yet{isAdmin ? " — add one with New SOP." : "."}</p>}
+          {!shown.length && <p className="rounded-md border border-rule p-5 text-sm text-ink-soft">No procedures here yet{isAdmin ? ", add one with New SOP." : "."}</p>}
           <div className="grid gap-3 md:grid-cols-2">
             {shown.map((s) => (
               <button key={s.id} onClick={() => setOpen(s.id)} className="rounded-xl border border-rule bg-paper-raised p-5 text-left hover:border-signal/50 focus-ring">
@@ -128,7 +128,7 @@ function SopView({ sop, read, canEdit, canSeeReads, reads, onBack, onEdit, onCha
     if (note === null) return;
     const { error } = await db.rpc("publish_sop", { _id: sop.id, _note: note });
     if (error) return toast.error(error.message);
-    toast.success("Published — everyone will be asked to read it"); onChanged();
+    toast.success("Published, everyone will be asked to read it"); onChanged();
   };
   const setStatus = async (status: string) => {
     const { error } = await db.from("sops").update({ status }).eq("id", sop.id);
@@ -255,7 +255,7 @@ function SopEditor({ sop, onClose, onSaved }: { sop: Sop; onClose: () => void; o
     const row = { department: f.department, title: f.title.trim(), summary: f.summary, owner_role: f.owner_role, sections, sort: f.sort };
     const res = f.id ? await db.from("sops").update(row).eq("id", f.id).select("id").single() : await db.from("sops").insert(row).select("id").single();
     if (res.error) return toast.error(res.error.message);
-    toast.success(f.status === "published" ? "Saved — publish a new version so the team sees it" : "Saved as draft");
+    toast.success(f.status === "published" ? "Saved, publish a new version so the team sees it" : "Saved as draft");
     onSaved(res.data.id);
   };
 
@@ -286,7 +286,7 @@ function SopEditor({ sop, onClose, onSaved }: { sop: Sop; onClose: () => void; o
                 <button aria-label="Move down" onClick={() => move(i, 1)}><ArrowDown className="h-4 w-4" /></button>
                 <button aria-label="Remove step" onClick={() => setS({ steps: steps.filter((_, j) => j !== i) })}><Trash2 className="h-4 w-4 text-signal" /></button>
               </div>
-              <textarea className={`${input} mb-2`} placeholder="Detail — exactly how to do it" value={st.detail ?? ""} onChange={(e) => setStep(i, { detail: e.target.value })} />
+              <textarea className={`${input} mb-2`} placeholder="Detail, exactly how to do it" value={st.detail ?? ""} onChange={(e) => setStep(i, { detail: e.target.value })} />
               <div className="grid gap-2 sm:grid-cols-4">
                 <input className={input} placeholder="Who" value={st.who ?? ""} onChange={(e) => setStep(i, { who: e.target.value })} />
                 <input className={input} placeholder="Where in Site 99" value={st.where ?? ""} onChange={(e) => setStep(i, { where: e.target.value })} />

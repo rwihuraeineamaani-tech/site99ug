@@ -133,7 +133,7 @@ export default function Home() {
   return (
     <Layout>
       <Seo
-        title="Site 99 — Narrative Control & Creative Residency"
+        title="Site 99, Narrative Control & Creative Residency"
         description="Site 99 is a creative agency built on narrative control. Brand residencies, content systems, and campaigns for ambitious teams."
         path="/"
       />
@@ -145,7 +145,7 @@ export default function Home() {
             <motion.img
               key={src}
               src={src}
-              alt="Site 99 — narrative control"
+              alt="Site 99, narrative control"
               className="absolute inset-0 w-full h-full object-cover"
               width={1920}
               height={1080}

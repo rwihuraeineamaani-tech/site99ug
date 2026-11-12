@@ -56,7 +56,7 @@ export default function ClientPayPanel({ residentId, index = "02" }: { residentI
 
   return (
     <div>
-      <SectionHeading index={index} title="Handler" hint="One Handler per client — they are also the contact person" />
+      <SectionHeading index={index} title="Handler" hint="One Handler per client, they are also the contact person" />
       <p className="text-sm text-ink-soft mb-3">
         Pay for handling a client comes from the KPI system.{" "}
         <Link to="/app/kpi/desk" className="text-signal focus-ring">
@@ -77,7 +77,7 @@ export default function ClientPayPanel({ residentId, index = "02" }: { residentI
               {members.map((m) => (
                 <option key={m.user_id} value={m.user_id}>
                   {m.display_name || m.email}
-                  {m.title ? ` — ${m.title}` : ""}
+                  {m.title ? `, ${m.title}` : ""}
                 </option>
               ))}
             </select>

@@ -127,7 +127,7 @@ export default function Attendance() {
           <div className="divide-y divide-rule">
             {tracked.map((m) => {
               const r = todayRecs.get(m.user_id);
-              const label = r?.status === "excused" ? `Excused — ${r.excuse_reason}` : r?.clock_in_at ? (r.status === "late" ? `Late by ${r.late_minutes} min` : "On time") : "Not in yet";
+              const label = r?.status === "excused" ? `Excused, ${r.excuse_reason}` : r?.clock_in_at ? (r.status === "late" ? `Late by ${r.late_minutes} min` : "On time") : "Not in yet";
               const tone = r?.status === "late" || !r ? "text-signal" : "text-ink-soft";
               return (
                 <div key={m.user_id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">

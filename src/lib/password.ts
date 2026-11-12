@@ -18,4 +18,4 @@ export function suggestPassword(): string {
 }
 
 export const PASSWORD_HINT =
-  "At least 8 characters. Common or leaked passwords are refused — use Suggest for a safe one.";
+  "At least 8 characters. Common or leaked passwords are refused, use Suggest for a safe one.";

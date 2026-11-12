@@ -96,7 +96,7 @@ const JOB_RULES: Record<string, JobRule> = {
   Consultant: { docs: ["CV", "Signed contract"], ugFields: ["tin"], note: "Consultant: TIN needed for withholding tax; no NSSF." },
   Volunteer: { docs: [], ugFields: [], note: "Volunteer: ID and bio data only." },
 };
-const DEFAULT_RULE: JobRule = { docs: ["CV"], ugFields: [], note: "Job type not set yet — HR should choose it." };
+const DEFAULT_RULE: JobRule = { docs: ["CV"], ugFields: [], note: "Job type not set yet, HR should choose it." };
 export const jobRule = (type?: string | null) => (type && JOB_RULES[type]) || DEFAULT_RULE;
 
 export const requiredDocs = (n?: string | null, jobType?: string | null) => {
@@ -151,7 +151,7 @@ export function completeness(profile: Row | null, priv: Row | null, docs: { kind
   return { pct: total ? Math.round((done / total) * 100) : 0, missing: [...critical, ...minor], critical, minor, status, jobType, jobNote: rule.note };
 }
 
-export const statusLabel = (s: FileStatus) => (s === "good" ? "Good" : s === "partly" ? "OK — partly done" : "Incomplete");
+export const statusLabel = (s: FileStatus) => (s === "good" ? "Good" : s === "partly" ? "OK, partly done" : "Incomplete");
 
 const t = (n: string) => supabase.from(n as never);
 

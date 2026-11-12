@@ -48,7 +48,7 @@ export default function TodoPage() {
   const openAssigned = assigned.filter((t) => !["accepted", "cancelled"].includes(t.status));
 
   return <AppShell eyebrow="To-Do">
-    <Seo title="To-Do — Site 99" description="Every action assigned to you across Site 99." path="/app/todo" noindex />
+    <Seo title="To-Do · Site 99" description="Every action assigned to you across Site 99." path="/app/todo" noindex />
     <PageHeader eyebrow="To-Do" title="Your move." lede={loading ? "Loading your work…" : `${items.length} action${items.length === 1 ? "" : "s"} across assigned work, content, shoots, approvals, strategy, finance and operations.`} actions={<div className="flex flex-wrap gap-2">{roles.canAssignWork ? <AssignWorkDialog people={people} residents={residents} onCreated={refreshAll} /> : null}<Segmented value={view} onChange={setMode} options={[{ value: "cards", label: "Cards" }, { value: "list", label: "List" }]} /><Button variant="outline" size="sm" onClick={refreshAll}>Refresh</Button></div>} />
 
     {roles.canAssignWork ? <div className="mb-5"><Segmented value={tab} onChange={(v: "mine" | "assigned") => setTab(v)} options={[{ value: "mine", label: `My work (${items.length})` }, { value: "assigned", label: `Assigned by me (${openAssigned.length})` }]} /></div> : null}

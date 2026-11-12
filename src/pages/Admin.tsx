@@ -237,17 +237,17 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
         <div>
           <label className={lbl}>Cover aspect ratio</label>
           <select className={input} value={form.aspect_ratio} onChange={(e) => setForm({ ...form, aspect_ratio: e.target.value })}>
-            <option value="1:1">1:1 — Square</option>
-            <option value="4:5">4:5 — Portrait (default)</option>
-            <option value="2:3">2:3 — Tall portrait</option>
-            <option value="3:2">3:2 — Landscape</option>
-            <option value="16:9">16:9 — Widescreen</option>
-            <option value="9:16">9:16 — Vertical</option>
+            <option value="1:1">1:1, Square</option>
+            <option value="4:5">4:5, Portrait (default)</option>
+            <option value="2:3">2:3, Tall portrait</option>
+            <option value="3:2">3:2, Landscape</option>
+            <option value="16:9">16:9, Widescreen</option>
+            <option value="9:16">9:16, Vertical</option>
           </select>
         </div>
         <div className="md:col-span-2"><label className={lbl}>Description</label><textarea rows={4} className={input + " resize-none"} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
         <div className="md:col-span-2">
-          <label className={lbl}>Cover photo or video {form.youtube_url ? "(optional — YouTube will be used)" : "(used when no YouTube URL)"}</label>
+          <label className={lbl}>Cover photo or video {form.youtube_url ? "(optional, YouTube will be used)" : "(used when no YouTube URL)"}</label>
           <div className="mt-2 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
             <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-rule bg-paper-sunken px-4 text-sm font-semibold hover:border-signal"><Upload className="h-4 w-4" /> Choose cover<input type="file" accept="image/*,video/*" onChange={handleCover} className="sr-only" /></label>
             {form.cover_url && (
@@ -258,7 +258,7 @@ function ProjectsAdmin({ userId, qc }: { userId: string | null; qc: ReturnType<t
             {form.cover_url && <Button type="button" variant="ghost" size="sm" onClick={() => setForm({ ...form, cover_url: "" })}>Clear</Button>}
           </div>
           {form.youtube_url && form.cover_url && (
-            <p className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-2">Both set — YouTube takes priority on the card. Clear it above to use the cover.</p>
+            <p className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-2">Both set, YouTube takes priority on the card. Clear it above to use the cover.</p>
           )}
         </div>
         <div className="md:col-span-2">
@@ -337,7 +337,7 @@ function ResidentsAdmin({ isAdmin }: { isAdmin: boolean }) {
       <div className={`${panel} p-5`}>
         <h3 className="font-semibold">One home for client details</h3>
         <p className="mt-2 max-w-2xl text-sm text-ink-soft">
-          Residents (clients) are now added and edited in one place — the Residents page in the team system.
+          Residents (clients) are now added and edited in one place, the Residents page in the team system.
           Website details (show on site, area, since, order) and social accounts live on each Resident's page.
         </p>
         <Button asChild className="mt-4"><a href="/app/residents">Open Residents <ExternalLink /></a></Button>

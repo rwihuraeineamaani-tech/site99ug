@@ -404,7 +404,7 @@ export const TEMPLATES: Template[] = [
   {
     key: "launch",
     label: "Launch campaign",
-    blurb: "Tease, launch, sustain — built around one date.",
+    blurb: "Tease, launch, sustain, built around one date.",
     nodes: [
       n("t1", "Tease", "pillar", 40, 120, "2 weeks out"),
       n("t2", "Launch week", "pillar", 300, 120),

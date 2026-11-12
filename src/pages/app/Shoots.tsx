@@ -244,7 +244,7 @@ export default function Shoots() {
     const hard = rows.filter((r) => r.strictness === "hard");
     if (hard.length === 0) {
       toast.warning(
-        `Heads up: ${rows.map((r) => `${whoIsBusy(r)} — ${r.title}`).join("; ")}. Saving anyway.`
+        `Heads up: ${rows.map((r) => `${whoIsBusy(r)}, ${r.title}`).join("; ")}. Saving anyway.`
       );
       return writeDetails();
     }
@@ -287,7 +287,7 @@ export default function Shoots() {
   };
 
   const removeItem = (contentId: string) =>
-    run(() => supabase.rpc("remove_from_shoot_day" as never, { _content_id: contentId } as never) as never, "Removed — back to waiting");
+    run(() => supabase.rpc("remove_from_shoot_day" as never, { _content_id: contentId } as never) as never, "Removed, back to waiting");
 
   const [shotOpen, setShotOpen] = useState(false);
   const [shot, setShot] = useState({ title: "", type: "Vertical short-form video", notes: "", link: "", editor: "" });
@@ -299,7 +299,7 @@ export default function Shoots() {
           _day_id: open.id, _title: shot.title, _type: shot.type, _notes: shot.notes || null,
           _link: shot.link || null, _editor: shot.editor || null,
         } as never) as never,
-      "Shot idea added — it's now with editing"
+      "Shot idea added, it's now with editing"
     );
     setShotOpen(false);
     setShot({ title: "", type: "Vertical short-form video", notes: "", link: "", editor: "" });
@@ -372,7 +372,7 @@ export default function Shoots() {
   /** The brief as plain text — used for the copy button and read by everyone on the day. */
   const briefText = (d: ShootDay) => {
     const lines = [
-      `SHOOT DAY — ${ownerName(d)}`,
+      `SHOOT DAY, ${ownerName(d)}`,
       `Date: ${d.shoot_date ?? "to be set"}`,
       `Call time: ${d.call_time ?? "to be set"}`,
       `Location: ${d.location ?? "to be set"}`,
@@ -398,7 +398,7 @@ export default function Shoots() {
     if (contact) uids.add(contact);
     const emails = [...uids].map((u) => members.find((m) => m.user_id === u)?.email).filter(Boolean) as string[];
     if (emails.length === 0) {
-      toast.error("Nobody to send to yet — crew the ideas on this day first.");
+      toast.error("Nobody to send to yet, crew the ideas on this day first.");
       return;
     }
 
@@ -434,19 +434,19 @@ export default function Shoots() {
     await supabase.from("shoot_days").update({ brief_sent_at: sentAt }).eq("id", d.id);
     setBusy(false);
     await load();
-    if (failed === emails.length) toast.error("The brief could not go out — email sending isn't live yet.");
+    if (failed === emails.length) toast.error("The brief could not go out, email sending isn't live yet.");
     else toast.success(`Brief sent to ${emails.length - failed} of the team.`);
   };
 
   const copyBrief = async (d: ShootDay) => {
     await navigator.clipboard.writeText(briefText(d));
-    toast.success("Brief copied — paste it anywhere.");
+    toast.success("Brief copied, paste it anywhere.");
   };
 
 
   return (
     <AppShell>
-      <Seo title="Shoot days — Site 99" description="Plan shoot days, the ideas on them and the gear booked out." path="/app/shoots" noindex />
+      <Seo title="Shoot days · Site 99" description="Plan shoot days, the ideas on them and the gear booked out." path="/app/shoots" noindex />
       <PageHeader
         eyebrow="Content & strategy"
         title="Shoot days."
@@ -468,7 +468,7 @@ export default function Shoots() {
             <optgroup label="Projects">
               {projects.map((p) => (
                 <option key={p.id} value={`p:${p.id}`}>
-                  {p.title} — {p.client}
+                  {p.title}, {p.client}
                 </option>
               ))}
             </optgroup>
@@ -547,7 +547,7 @@ export default function Shoots() {
                           key={d.id}
                           onClick={() => setOpenId(d.id)}
                           className="press w-full truncate rounded-md border border-rule bg-paper-sunken px-1.5 py-1 text-left text-[11px] focus-ring hover:border-signal"
-                          title={`${ownerName(d)} — ${STATUS_LABEL[d.status] ?? d.status}`}
+                          title={`${ownerName(d)}, ${STATUS_LABEL[d.status] ?? d.status}`}
                         >
                           {d.call_time ? <span className="num text-ink-faint">{d.call_time.slice(0, 5)} </span> : null}
                           {ownerName(d)}
@@ -666,7 +666,7 @@ export default function Shoots() {
                   href={`/app/shoots/${open.id}`}
                   className="inline-flex w-fit items-center gap-2 rounded-full border border-signal/40 bg-signal/10 px-3 py-1.5 text-xs text-signal press focus-ring"
                 >
-                  Run this day — what was shot & what was spent
+                  Run this day, what was shot & what was spent
                 </a>
                 <a
                   href={`/app/shoots/${open.id}/report`}
@@ -750,7 +750,7 @@ export default function Shoots() {
               <div className="rounded-xl border border-rule bg-paper-sunken p-4">
                 <div className="eyebrow text-ink-faint">Gear for the day</div>
                 {gear.filter((g) => g.active).length === 0 ? (
-                  <p className="mt-1 text-xs text-ink-soft">No kit list yet — add gear under Management & ops → Equipment.</p>
+                  <p className="mt-1 text-xs text-ink-soft">No kit list yet, add gear under Management & ops → Equipment.</p>
                 ) : (
                   <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
                     {gear
@@ -847,7 +847,7 @@ export default function Shoots() {
               )}
 
               {open.status === "draft" && !open.shoot_date && (
-                <p className="text-xs text-ink-soft">Save the date first, then confirm — confirming schedules every idea on the day.</p>
+                <p className="text-xs text-ink-soft">Save the date first, then confirm, confirming schedules every idea on the day.</p>
               )}
 
               {canEditContent && (
@@ -875,7 +875,7 @@ export default function Shoots() {
           <ul className="space-y-2 text-sm">
             {(clash ?? []).map((c) => (
               <li key={c.block_id} className="rounded-lg border border-signal/50 px-3 py-2">
-                <span className="font-semibold">{whoIsBusy(c)}</span> is not available on {date} — {c.title}.
+                <span className="font-semibold">{whoIsBusy(c)}</span> is not available on {date}, {c.title}.
               </li>
             ))}
           </ul>
@@ -944,7 +944,7 @@ export default function Shoots() {
           {confirmDelete && (
             <>
               <p className="text-sm text-ink-soft">
-                {ownerName(confirmDelete)} — {confirmDelete.shoot_date ?? "no date yet"}. The ideas on it go back to the
+                {ownerName(confirmDelete)}, {confirmDelete.shoot_date ?? "no date yet"}. The ideas on it go back to the
                 pipeline; the gear is released. This cannot be undone.
               </p>
               <div className="mt-3 flex gap-2">

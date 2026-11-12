@@ -56,7 +56,7 @@ export const TONE_SOFT: Record<StateTone, string> = {
   active: "bg-acc-teal-soft text-acc-teal",
   pending: "bg-acc-amber-soft text-acc-amber",
   warn: "bg-acc-amber-soft text-acc-amber",
-  stop: "bg-[hsl(0_100%_96%)] text-signal",
+  stop: "bg-signal/10 text-signal",
   done: "bg-acc-blue-soft text-acc-blue",
   violet: "bg-acc-violet-soft text-acc-violet",
   teal: "bg-acc-teal-soft text-acc-teal",
@@ -114,13 +114,13 @@ export function StatusChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full eyebrow text-[10px] tracking-[0.16em] whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11.5px] font-semibold capitalize leading-5 whitespace-nowrap",
         TONE_SOFT[t],
         className
       )}
     >
       <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", TONE_SOLID[t])} />
-      {value || "—"}
+      {value || "Not set"}
     </span>
   );
 }

@@ -60,7 +60,7 @@ export default function OnboardingPanel({ residentId, index = "01" }: { resident
     toast.success(ok);
     load();
   };
-  const start = (established: boolean) => run(db.rpc("start_resident_onboarding", { _id: residentId, _established: established }), established ? "Checklist added — only the MD's sign-offs are left" : "Onboarding started");
+  const start = (established: boolean) => run(db.rpc("start_resident_onboarding", { _id: residentId, _established: established }), established ? "Checklist added, only the MD's sign-offs are left" : "Onboarding started");
 
   const count = steps.filter(done).length;
   return (

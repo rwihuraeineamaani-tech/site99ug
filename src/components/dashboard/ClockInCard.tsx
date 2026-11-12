@@ -52,7 +52,7 @@ export default function ClockInCard({ userId }: { userId: string | null }) {
     const { error } = await supabase.rpc("clock_out" as never);
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Clocked out — see you tomorrow");
+    toast.success("Clocked out, see you tomorrow");
     load();
   };
 
@@ -67,7 +67,7 @@ export default function ClockInCard({ userId }: { userId: string | null }) {
         <p className="eyebrow text-[10px] text-ink-soft">Daily clock-in</p>
         <p className="mt-1 font-medium">{status}</p>
         <p className="text-xs text-ink-soft">
-          {workday ? (s.enforce_cutoff ? `Clock in by ${cutoff} (${s.grace_min} min grace). It counts a little towards your KPI.` : "Clock in when you start work.") : "Not a working day — clocking in is optional."}
+          {workday ? (s.enforce_cutoff ? `Clock in by ${cutoff} (${s.grace_min} min grace). It counts a little towards your KPI.` : "Clock in when you start work.") : "Not a working day, clocking in is optional."}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">

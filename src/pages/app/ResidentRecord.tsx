@@ -239,7 +239,7 @@ export default function ResidentRecordPage() {
   return (
     <AppShell eyebrow="Residents">
       <Seo
-        title={`${resident?.name ?? "Resident"} — Site 99`}
+        title={`${resident?.name ?? "Resident"} · Site 99`}
         description="Everything on one resident."
         path={`/app/residents/${id}`}
         noindex
@@ -517,7 +517,7 @@ export default function ResidentRecordPage() {
             <SectionHeading index="07" title="Contracts" hint="status follows the dates and payments" />
             <p className="text-xs text-ink-soft mb-3 max-w-2xl">
               A client is Active only when onboarding is finished and a signed contract is running. We flag the renewal 14 days before
-              the end. With no renewal, it becomes Complete once everything is paid — otherwise it shows the balance still owed.
+              the end. With no renewal, it becomes Complete once everything is paid, otherwise it shows the balance still owed.
             </p>
             <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
               {active.map(contractRow)}

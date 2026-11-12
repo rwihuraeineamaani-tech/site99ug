@@ -38,7 +38,7 @@ export default function Access() {
   return (
     <Layout hideFooter>
       <Seo
-        title="Request Access — Site 99"
+        title="Request Access · Site 99"
         description="Apply for residency at Site 99. Tell us about your brand, territory, and brief."
         path="/access"
       />
@@ -81,10 +81,10 @@ export default function Access() {
           ) : (
             <form onSubmit={submit} className="mt-16 space-y-10 max-w-2xl">
               {[
-                { k: "name", label: "01 — Operator", type: "text", placeholder: "Your name" },
-                { k: "brand", label: "02 — Brand", type: "text", placeholder: "Brand name" },
-                { k: "email", label: "03 — Frequency", type: "email", placeholder: "you@brand.co" },
-                { k: "territory", label: "04 — Desired Territory", type: "text", placeholder: "What space do you intend to occupy?" },
+                { k: "name", label: "01, Operator", type: "text", placeholder: "Your name" },
+                { k: "brand", label: "02, Brand", type: "text", placeholder: "Brand name" },
+                { k: "email", label: "03, Frequency", type: "email", placeholder: "you@brand.co" },
+                { k: "territory", label: "04, Desired Territory", type: "text", placeholder: "What space do you intend to occupy?" },
               ].map((f) => (
                 <div key={f.k} className="group">
                   <label
@@ -111,7 +111,7 @@ export default function Access() {
                   htmlFor="access-brief"
                   className="mono text-xs uppercase tracking-[0.3em] text-muted-foreground group-focus-within:text-site-red transition-colors"
                 >
-                  05 — Brief
+                  05, Brief
                 </label>
                 <textarea
                   id="access-brief"

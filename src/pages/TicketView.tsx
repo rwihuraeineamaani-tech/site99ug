@@ -28,7 +28,7 @@ export default function TicketView() {
 
   return (
     <Layout hideFooter>
-      <Seo title={ticket ? `Ticket — ${ticket.event_title}` : "Ticket — Site 99"} description="Your Site 99 event ticket" path={`/t/${token}`} />
+      <Seo title={ticket ? `Ticket, ${ticket.event_title}` : "Ticket · Site 99"} description="Your Site 99 event ticket" path={`/t/${token}`} />
       <section className="min-h-screen flex items-center justify-center px-8 md:px-16 pt-28 pb-16">
         <div className="w-full max-w-md border border-border rounded-lg p-8 bg-background">
           {loading && <p className="mono text-xs">Loading…</p>}

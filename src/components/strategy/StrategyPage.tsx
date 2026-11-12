@@ -27,7 +27,7 @@ export default function StrategyPage({
 }) {
   return (
     <AppShell>
-      <Seo title={`${title} — Strategy — Site 99`} description={lede} path={path} noindex />
+      <Seo title={`${title}, Strategy · Site 99`} description={lede} path={path} noindex />
       <PageHeader eyebrow="Strategy" title={title} lede={lede} actions={actions} />
       <nav className="flex flex-wrap gap-1 mb-8 no-print">
         {TABS.map((t) => (

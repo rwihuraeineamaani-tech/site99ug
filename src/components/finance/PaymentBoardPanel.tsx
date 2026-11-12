@@ -302,7 +302,7 @@ export default function PaymentBoardPanel({ onChanged }: { onChanged?: () => voi
             {needsSecond && (
               <>
                 <label className="text-sm">
-                  <span className="eyebrow text-ink-faint">Second release — Founder or MD</span>
+                  <span className="eyebrow text-ink-faint">Second release, Founder or MD</span>
                   <select className={field} value={secondUser} onChange={(e) => setSecondUser(e.target.value)}>
                     <option value="">Choose</option>
                     {approvers.map((a) => (

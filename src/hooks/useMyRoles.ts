@@ -85,7 +85,7 @@ export const ROLE_HINTS: Record<StaffRole, string> = {
   founder: "Full access across the whole business, including money and team",
   creative_director: "Creative direction, content pipeline, clients and projects",
   managing_director: "Operations, clients, contracts, money and team",
-  sales_head: "Clients, contracts and pipeline — no payroll",
+  sales_head: "Clients, contracts and pipeline, no payroll",
   finance_ops: "Cashbook, payments, invoices, budgets and financial reporting",
   creative: "Content pipeline, production, shoots and publishing",
   strategist: "Client strategy: plans, goals, monthly targets and strategy maps",

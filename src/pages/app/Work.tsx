@@ -85,7 +85,7 @@ export default function WorkPage() {
     links.filter((l) => l.task_id === task.id).map((l) => personName(people, l.user_id)).join(", ") || "No one yet";
 
   return <AppShell eyebrow="Work">
-    <Seo title="Work — Site 99" description="Assign work and follow every job through to sign-off." path="/app/work" noindex />
+    <Seo title="Work · Site 99" description="Assign work and follow every job through to sign-off." path="/app/work" noindex />
     <PageHeader
       eyebrow="Work"
       title="Assign it. Follow it."
@@ -149,6 +149,6 @@ export default function WorkPage() {
           </div>
     )}
 
-    {!loading && visible.length === 0 && tab === "board" ? <p className="mt-6 text-center text-sm text-ink-soft">Nothing assigned yet — start with “Assign work” at the top.</p> : null}
+    {!loading && visible.length === 0 && tab === "board" ? <p className="mt-6 text-center text-sm text-ink-soft">Nothing assigned yet, start with “Assign work” at the top.</p> : null}
   </AppShell>;
 }

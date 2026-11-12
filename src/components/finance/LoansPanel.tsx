@@ -90,7 +90,7 @@ export default function LoansPanel({ onChanged }: { onChanged?: () => void }) {
     setAgreed("");
     setPurpose("");
     setSchedule("");
-    toast.success("Loan recorded — a founder still has to approve it.");
+    toast.success("Loan recorded, a founder still has to approve it.");
     load();
     onChanged?.();
   };

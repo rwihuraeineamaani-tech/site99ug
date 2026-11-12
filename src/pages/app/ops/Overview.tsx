@@ -46,7 +46,7 @@ export default function OpsOverview() {
     <SectionPage
       eyebrow="Management"
       title="The business today."
-      lede="Residents, contracts, content, shoots and what is running late — all on one screen."
+      lede="Residents, contracts, content, shoots and what is running late, all on one screen."
       path="/app/ops"
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">

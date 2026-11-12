@@ -48,7 +48,7 @@ function dueLabel(due: string | null) {
   if (!due) return "No deadline";
   const day = due.slice(0, 10);
   if (day === todayISO()) return "Due today";
-  if (isOverdue(due)) return `Late — was due ${new Date(due).toLocaleDateString()}`;
+  if (isOverdue(due)) return `Late, was due ${new Date(due).toLocaleDateString()}`;
   return `Due ${new Date(due).toLocaleDateString()}`;
 }
 

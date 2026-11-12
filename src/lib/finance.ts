@@ -212,14 +212,14 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
     "Withhold 6% if you are a designated agent and the payment is UGX 1,000,000 or more."
   ),
   production: OPEX(
-    "Fully deductible cost of doing the work — shoots, props, location fees.",
+    "Fully deductible cost of doing the work, shoots, props, location fees.",
     "18% input VAT recoverable on EFRIS invoices from VAT-registered suppliers.",
     "6% on supplier payments of UGX 1,000,000 or more."
   ),
   transport: OPEX(
     "Deductible when it is business travel. Personal trips are not.",
     "Passenger transport is VAT-exempt; fuel carries VAT but input VAT on petrol for cars is restricted.",
-    "Rarely applies — boda and taxi payments are usually below the threshold."
+    "Rarely applies, boda and taxi payments are usually below the threshold."
   ),
   talent: OPEX(
     "Deductible. If the person works only for us on our terms, URA may treat them as an employee and expect PAYE.",
@@ -258,7 +258,7 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
     "15% on payments to non-resident platforms unless a treaty says otherwise."
   ),
   legal: OPEX(
-    "Professional fees are deductible, except fees on buying an asset — those go into the asset's cost.",
+    "Professional fees are deductible, except fees on buying an asset, those go into the asset's cost.",
     "18% input VAT on an EFRIS invoice.",
     "6% on professional fees of UGX 1,000,000 or more."
   ),
@@ -285,7 +285,7 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
   },
   loan_repayment: {
     spend: "neither",
-    treatment: "Repaying principal is not a cost — it clears a liability. Only the interest portion is deductible.",
+    treatment: "Repaying principal is not a cost, it clears a liability. Only the interest portion is deductible.",
     vat: "Exempt.",
     wht: "15% on the interest portion.",
   },
@@ -303,7 +303,7 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
     "6% on purchases of UGX 1,000,000 or more from a local supplier; import duty and 18% VAT apply at the border."
   ),
   computers_software: CAPEX(
-    "Computers and long-life software are Class I assets — 40% declining balance.",
+    "Computers and long-life software are Class I assets, 40% declining balance.",
     "18% recoverable; imported software carries reverse-charge VAT.",
     "6% locally; 15% on non-resident licence fees (royalties)."
   ),
@@ -313,7 +313,7 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
     "6% on the local purchase; duty and VAT at import."
   ),
   furniture_fittings: CAPEX(
-    "Furniture and office fittings are capital — written off over their life.",
+    "Furniture and office fittings are capital, written off over their life.",
     "18% recoverable on an EFRIS invoice.",
     "6% on purchases of UGX 1,000,000 or more."
   ),
@@ -334,7 +334,7 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
     income: "taxable",
     treatment: "Business income, taxed at the 30% corporation rate on profit.",
     vat: "Charge 18% output VAT and raise an EFRIS invoice once we are VAT-registered.",
-    wht: "The client may withhold 6% — claim it back as a tax credit, so keep the certificate.",
+    wht: "The client may withhold 6%, claim it back as a tax credit, so keep the certificate.",
   },
   event_sales: {
     spend: "neither",
@@ -353,7 +353,7 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
   refund: {
     spend: "neither",
     income: "not_taxable",
-    treatment: "Getting our own money back — not income. Reverse the original expense instead.",
+    treatment: "Getting our own money back, not income. Reverse the original expense instead.",
     vat: "Adjust the input VAT already claimed with a credit note.",
     wht: "Not applicable.",
   },
@@ -403,12 +403,12 @@ export const OPEX_CATEGORIES = EXPENSE_CATEGORIES.filter((c) => taxRule(c).spend
 export const NON_COST_CATEGORIES = EXPENSE_CATEGORIES.filter((c) => taxRule(c).spend === "neither");
 
 export const TAX_DISCLAIMER =
-  "General guidance under Ugandan law (Income Tax Act Cap 340, VAT Act Cap 349 and current URA practice). It is not tax advice — confirm anything unusual with the accountant before filing.";
+  "General guidance under Ugandan law (Income Tax Act Cap 340, VAT Act Cap 349 and current URA practice). It is not tax advice, confirm anything unusual with the accountant before filing.";
 
 export const TAX_HEADLINES: { title: string; body: string }[] = [
   {
     title: "Capital versus running cost",
-    body: "A running cost is used up within the year and comes off profit in full. A capital item lasts longer than a year — it is written off over time through capital allowances (roughly 40% a year declining balance for computers, 30–35% for most plant and equipment, 20% for other machinery, and 5% straight line for industrial buildings). Logging a camera as a running cost overstates the deduction and is the mistake URA looks for first.",
+    body: "A running cost is used up within the year and comes off profit in full. A capital item lasts longer than a year, it is written off over time through capital allowances (roughly 40% a year declining balance for computers, 30–35% for most plant and equipment, 20% for other machinery, and 5% straight line for industrial buildings). Logging a camera as a running cost overstates the deduction and is the mistake URA looks for first.",
   },
   {
     title: "What is taxable income",

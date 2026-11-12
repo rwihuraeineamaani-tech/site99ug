@@ -8,7 +8,7 @@ type System = { title: string; copy: string; replaces: string; phase: string };
 const groups: { group: string; blurb: string; items: System[] }[] = [
   {
     group: "Business systems",
-    blurb: "The operational backbone — the things a business runs on every day.",
+    blurb: "The operational backbone, the things a business runs on every day.",
     items: [
       { title: "School management", copy: "Students, fees, attendance, results and parent comms in one console.", replaces: "Registers, fee books, WhatsApp groups", phase: "4–8 weeks" },
       { title: "Inventory & stock", copy: "Live stock levels, reorder alerts, supplier records, movement history.", replaces: "Stock sheets, manual counts", phase: "3–6 weeks" },
@@ -34,7 +34,7 @@ const groups: { group: string; blurb: string; items: System[] }[] = [
   },
   {
     group: "Automation layers",
-    blurb: "The quiet layer on top of what you already run — no rip-and-replace.",
+    blurb: "The quiet layer on top of what you already run, no rip-and-replace.",
     items: [
       { title: "AI chatbots", copy: "Trained on your own docs, answering customers around the clock.", replaces: "Repeat manual replies", phase: "2–4 weeks" },
       { title: "WhatsApp automations", copy: "Order confirmations, reminders, broadcasts and support routing.", replaces: "Manual messaging", phase: "2–4 weeks" },
@@ -52,7 +52,7 @@ export default function AISystems() {
   return (
     <>
       <Seo
-        title="Systems We Build — Site 99 AI & Automations"
+        title="Systems We Build · Site 99 AI & Automations"
         description="The full catalogue of systems Site 99 builds: school management, inventory, POS, CRM, ticketing, portals, dashboards, chatbots and custom automations."
         path="/ai-automations/systems"
       />
@@ -62,7 +62,7 @@ export default function AISystems() {
         <h1 className="display mt-4 text-[clamp(2.4rem,8vw,5.5rem)] font-black leading-[0.95]">Systems</h1>
         <p className="mt-6 max-w-2xl text-fluid-md text-white/65">
           Anything a business runs on paper, in a spreadsheet, or in someone's head can be a system. Here's what we
-          build most — and if it's not listed, we build it custom.
+          build most, and if it's not listed, we build it custom.
         </p>
       </section>
 

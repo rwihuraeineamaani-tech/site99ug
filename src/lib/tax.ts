@@ -33,7 +33,7 @@ export const VAT_KIND_LABEL: Record<VatKind, string> = {
   standard: "Standard rated 18%",
   exempt: "Exempt",
   zero: "Zero rated",
-  reverse_charge: "Imported service — reverse charge",
+  reverse_charge: "Imported service, reverse charge",
   outside: "Outside VAT",
 };
 
@@ -105,10 +105,10 @@ export function buildVatReturn(rows: CashRow[], monthISO: string): VatReturn {
   const bucket = (label: string, hint: string): VatBucket => ({ label, gross: 0, vat: 0, rows: [], hint });
 
   const sales = bucket("Standard rated sales", "Client fees, retainers, project fees and ticket sales.");
-  const exemptSales = bucket("Exempt or outside VAT", "Loans in, refunds and wallet transfers — no VAT.");
+  const exemptSales = bucket("Exempt or outside VAT", "Loans in, refunds and wallet transfers, no VAT.");
   const purchases = bucket("Purchases with input VAT", "Backed by an invoice or receipt on file.");
   const blockedPurchases = bucket("Purchases with no invoice on file", "Input VAT cannot be claimed on these.");
-  const imported = bucket("Imported services", "Google, Meta and software — self-account for VAT.");
+  const imported = bucket("Imported services", "Google, Meta and software, self-account for VAT.");
 
   rows.forEach((r) => {
     const kind = vatKind(r.category);
@@ -167,11 +167,11 @@ export function buildVatReturn(rows: CashRow[], monthISO: string): VatReturn {
 
 /** Capital allowance rates URA applies, by category. */
 export const CAPITAL_ALLOWANCE: Record<string, { rate: number; basis: string }> = {
-  computers_software: { rate: 0.4, basis: "40% declining balance — computers and data handling equipment" },
-  equipment_purchase: { rate: 0.35, basis: "35% declining balance — plant and equipment" },
-  vehicle_purchase: { rate: 0.35, basis: "35% declining balance — commercial vehicles" },
-  furniture_fittings: { rate: 0.2, basis: "20% declining balance — furniture, fittings and other machinery" },
-  building_improvement: { rate: 0.05, basis: "5% straight line — industrial buildings and improvements" },
+  computers_software: { rate: 0.4, basis: "40% declining balance, computers and data handling equipment" },
+  equipment_purchase: { rate: 0.35, basis: "35% declining balance, plant and equipment" },
+  vehicle_purchase: { rate: 0.35, basis: "35% declining balance, commercial vehicles" },
+  furniture_fittings: { rate: 0.2, basis: "20% declining balance, furniture, fittings and other machinery" },
+  building_improvement: { rate: 0.05, basis: "5% straight line, industrial buildings and improvements" },
 };
 
 export type Line = { category: string; label: string; amount: number; rows: CashRow[]; why?: string };
@@ -195,7 +195,7 @@ export type AnnualPack = {
 
 const DISALLOWED_WHY: Record<string, string> = {
   owner_drawings: "Owner drawings are a share of profit, never a business cost.",
-  loan_repayment: "Repaying loan principal is not a cost — only the interest would be.",
+  loan_repayment: "Repaying loan principal is not a cost, only the interest would be.",
   taxes_paid: "Income tax itself is not deductible.",
   loan: "Money lent out is an asset, not spending.",
 };
@@ -299,7 +299,7 @@ export const FILING_GUIDE: GuideItem[] = [
       "Cameras, lights, plant and commercial vehicles: 35% a year, declining balance.",
       "Furniture, fittings and other machinery: 20% a year.",
       "Buildings and improvements: 5% a year, straight line.",
-      "Logging a camera as a running cost overstates the deduction — that is the first thing URA looks for.",
+      "Logging a camera as a running cost overstates the deduction, that is the first thing URA looks for.",
     ],
   },
   {
@@ -308,7 +308,7 @@ export const FILING_GUIDE: GuideItem[] = [
     points: [
       "Owner drawings and dividends.",
       "Income tax itself, and any fine or penalty.",
-      "Repayment of loan principal — only interest is a cost.",
+      "Repayment of loan principal, only interest is a cost.",
       "Any spending with no receipt or invoice in the company's name.",
       "Personal trips, personal airtime and personal shopping run through a company wallet.",
     ],
@@ -318,9 +318,9 @@ export const FILING_GUIDE: GuideItem[] = [
     body: "Registration becomes compulsory once turnover passes UGX 150 million in a year, or UGX 37.5 million in a quarter.",
     points: [
       "Once registered we charge 18% on our invoices and claim 18% back on purchases backed by a proper EFRIS invoice.",
-      "No invoice on file means no input VAT claim — this page lists those separately so nothing is claimed by mistake.",
+      "No invoice on file means no input VAT claim, this page lists those separately so nothing is claimed by mistake.",
       "Imported services such as Google Workspace, Meta ads and software subscriptions carry reverse-charge VAT: we account for the 18% ourselves.",
-      "Passenger transport, bank charges and residential rent are exempt — no VAT either way.",
+      "Passenger transport, bank charges and residential rent are exempt, no VAT either way.",
       "The return and the money are due by the 15th of the following month.",
     ],
   },
@@ -331,11 +331,11 @@ export const FILING_GUIDE: GuideItem[] = [
       "6% on payments of UGX 1,000,000 or more for goods and services.",
       "15% on payments to non-residents, and on interest and dividends.",
       "Rental payments carry rental withholding tax.",
-      "What a client withholds from us is a credit against our own tax — always collect the certificate, or we lose the money.",
+      "What a client withholds from us is a credit against our own tax, always collect the certificate, or we lose the money.",
     ],
   },
   {
-    title: "Payroll — PAYE, NSSF and LST",
+    title: "Payroll, PAYE, NSSF and LST",
     body: "Salaries are only deductible if PAYE has actually been operated on them.",
     points: [
       "PAYE follows the graduated monthly scale and is due by the 15th of the following month.",
@@ -349,7 +349,7 @@ export const FILING_GUIDE: GuideItem[] = [
     body: "The filing is only as strong as the paperwork behind it.",
     points: [
       "An invoice or receipt in the company's name for every payment out.",
-      "The transaction ID for every mobile money and bank movement — this system now makes it compulsory.",
+      "The transaction ID for every mobile money and bank movement, this system now makes it compulsory.",
       "Withholding tax certificates for anything withheld from us.",
       "Keep everything for six years.",
     ],
@@ -357,7 +357,7 @@ export const FILING_GUIDE: GuideItem[] = [
 ];
 
 export const FILING_DISCLAIMER =
-  "Prepared from our own cashbook under the Income Tax Act (Cap 340), the VAT Act (Cap 349) and current URA practice. Have the accountant review it before it is filed — this system does not submit anything to URA.";
+  "Prepared from our own cashbook under the Income Tax Act (Cap 340), the VAT Act (Cap 349) and current URA practice. Have the accountant review it before it is filed, this system does not submit anything to URA.";
 
 /** Every category with its treatment, for the reference table. */
 export const CATEGORY_REFERENCE = Object.entries(CATEGORY_TAX).map(([cat, rule]) => ({

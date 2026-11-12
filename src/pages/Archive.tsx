@@ -30,8 +30,8 @@ export default function Archive() {
   return (
     <Layout>
       <Seo
-        title="Archive — Site 99"
-        description="Case studies and selected work from Site 99 — brand residencies, campaigns, and content systems that travel."
+        title="Archive · Site 99"
+        description="Case studies and selected work from Site 99, brand residencies, campaigns, and content systems that travel."
         path="/archive"
       />
       <section className="px-8 md:px-16 pt-24 md:pt-28 pb-12">

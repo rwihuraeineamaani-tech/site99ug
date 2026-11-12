@@ -39,7 +39,7 @@ export default function PortalPage({
   const { userId } = useMyRoles();
   return (
     <AppShell eyebrow="Client portal">
-      <Seo title={`${title} — Site 99`} description="Your Site 99 engagement." path="/portal" noindex />
+      <Seo title={`${title} · Site 99`} description="Your Site 99 engagement." path="/portal" noindex />
       <PageHeader
         eyebrow={client?.name ?? "Client portal"}
         title={loading ? "Loading…" : title}

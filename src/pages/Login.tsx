@@ -144,7 +144,7 @@ export default function Login() {
 
   return (
     <div className="deck min-h-svh bg-paper text-ink grid lg:grid-cols-2">
-      <Seo title="Sign in — Site 99" description="Sign in to the Site 99 operating system." path="/login" />
+      <Seo title="Sign in · Site 99" description="Sign in to the Site 99 operating system." path="/login" />
 
       <section className="hidden lg:flex flex-col justify-between border-r border-rule p-12">
         <div className="eyebrow text-signal">Site 99 · Operating system</div>
@@ -154,7 +154,7 @@ export default function Login() {
             for the <span className="text-signal">whole studio.</span>
           </h2>
           <p className="mt-6 max-w-md text-ink-soft">
-            Clients, contracts, content, money and events — in one place, scoped to what your role is meant to see.
+            Clients, contracts, content, money and events, in one place, scoped to what your role is meant to see.
           </p>
         </div>
         <div className="eyebrow text-ink-faint">Kampala · Uganda</div>
@@ -230,7 +230,7 @@ export default function Login() {
           </form>
 
           <p className="mt-12 text-xs text-ink-soft">
-            One door for the whole studio. Team, clients and residents sign in here — you only see what belongs to you.
+            One door for the whole studio. Team, clients and residents sign in here, you only see what belongs to you.
           </p>
         </div>
       </section>
