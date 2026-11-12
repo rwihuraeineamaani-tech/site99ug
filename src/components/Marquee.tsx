@@ -107,7 +107,7 @@ export const Marquee = ({ items, className = "" }: Props) => {
   return (
     <div
       ref={scroller}
-      className={`logo-strip no-scrollbar overflow-x-auto overscroll-x-contain py-5 md:py-8 cursor-grab active:cursor-grabbing touch-pan-x ${className}`}
+      className={`logo-strip no-scrollbar overflow-x-auto overscroll-x-contain py-5 md:py-8 cursor-grab active:cursor-grabbing ${className}`}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}

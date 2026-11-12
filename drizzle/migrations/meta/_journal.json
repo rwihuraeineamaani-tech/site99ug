@@ -64,6 +64,13 @@
       "when": 1794322760678,
       "tag": "0008_contract_cashbook_rpc",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794459764812,
+      "tag": "0009_reversal_keeps_contract_links",
+      "breakpoints": true
     }
   ]
 }
