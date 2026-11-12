@@ -1,0 +1,23 @@
+/** Site 99 releases, newest first. Add one entry per release with plain-English notes. */
+export type Release = { version: string; date: string; title: string; notes: string[] };
+
+export const RELEASES: Release[] = [
+  {
+    version: "2.0.0",
+    date: "2026-11-12",
+    title: "The finance overhaul",
+    notes: [
+      "One clean numbering system with no dashes, for example S9926INVA001. Invoices, receipts, expenses, transfers, loans and production fund requests each have their own code, and numbers are never reused.",
+      "The old Google Sheet now lives in Finance, Old sheet archive, read only, with every row renumbered and problem rows flagged.",
+      "A side by side check of October and November shows what is on the sheet but not in the app, and the other way round.",
+      "Accounts can be added, edited and colour coded, with an opening balance on 1 November 2026.",
+      "Transfers between our own accounts never count as income or spending. Bank and mobile money charges are saved as their own line, and mobile money always needs a TID.",
+      "New production fund: a monthly estimate, a limit set by a Co-founder, requests that move money into the fund, and alerts at every step.",
+      "Cashbook entries can be ticked against the statement, and a month locks once Finance and a Co-founder both sign it off.",
+      "Reports now include profit and loss, cash flow and a balance sheet, by week or month, as PDF or CSV.",
+      "Every Friday Finance approves and sends the weekly report pack to the Co-founders and MD, with an 8am reminder.",
+    ],
+  },
+];
+
+export const APP_VERSION = RELEASES[0].version;

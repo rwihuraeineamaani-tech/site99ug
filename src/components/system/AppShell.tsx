@@ -1,3 +1,4 @@
+import { APP_VERSION } from "@/lib/version";
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -163,6 +164,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
         { to: "/app/sops", label: "SOP Library", icon: BookMarked, end: true },
         { to: "/app/settings", label: "My settings", icon: UserCog },
+        { to: "/app/whats-new", label: `What's new · v${APP_VERSION}`, icon: Sparkles },
       ],
     },
 
