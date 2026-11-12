@@ -127,6 +127,13 @@
       "when": 1794465639505,
       "tag": "0017_finance_overhaul_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794465744616,
+      "tag": "0018_cashbook_payment_details",
+      "breakpoints": true
     }
   ]
 }

@@ -7945,6 +7945,10 @@ export type Database = {
         Args: { _amount: number; _id: string; _note?: string }
         Returns: undefined
       }
+      set_entry_payment_details: {
+        Args: { _charge: number; _id: string; _tid: string }
+        Returns: undefined
+      }
       set_entry_reconciled: {
         Args: { _id: string; _on: boolean }
         Returns: undefined
