@@ -4,6 +4,7 @@ import { usePortalClient } from "@/hooks/usePortalClient";
 import PortalPage, { PortalCard, PortalEmpty } from "@/components/portal/PortalPage";
 import { StatusChip } from "@/components/system";
 import { postCountdown, postLabel, postWhen } from "@/lib/portalSchedule";
+import { parsePostLink } from "@/lib/postLinks";
 
 type Item = {
   id: string;
@@ -15,6 +16,8 @@ type Item = {
   scheduled_post_at?: string | null;
   posted_at: string | null;
   posted_links: string[] | null;
+  cancelled_at?: string | null;
+  cancelled_reason?: string | null;
 };
 
 type Brief = { id: string; title: string; body: string | null; file_url: string | null; created_at: string };
@@ -73,12 +76,12 @@ export default function PortalWork() {
               {upcoming.map((i) => (
                 <li key={i.id} className="rounded-xl border border-hairline px-3 py-2">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0 truncate text-sm">{i.title}</div>
-                    <StatusChip value={i.stage} />
+                    <div className={`min-w-0 truncate text-sm ${i.cancelled_at ? "line-through decoration-state-stop decoration-2 text-ink-faint" : ""}`}>{i.title}</div>
+                    <StatusChip value={i.cancelled_at ? "Cancelled" : i.stage} tone={i.cancelled_at ? "stop" : undefined} />
                   </div>
                   <div className="mt-1 text-xs text-ink-faint">
-                    {i.content_type} · posting {postLabel(i)}{postCountdown(i) ? ` · ${postCountdown(i)}` : ""}
-                    {i.platforms?.length ? ` · ${i.platforms.join(", ")}` : ""}
+                    {i.cancelled_at ? `Cancelled${i.cancelled_reason ? `: ${i.cancelled_reason}` : ""}` : <>{i.content_type} · posting {postLabel(i)}{postCountdown(i) ? ` · ${postCountdown(i)}` : ""}
+                    {i.platforms?.length ? ` · ${i.platforms.join(", ")}` : ""}</>}
                   </div>
                 </li>
               ))}
@@ -99,11 +102,11 @@ export default function PortalWork() {
                   </div>
                   {i.posted_links?.length ? (
                     <div className="mt-1 flex flex-wrap gap-3">
-                      {i.posted_links.map((l) => (
-                        <a key={l} href={l} target="_blank" rel="noreferrer" className="text-xs text-signal underline">
-                          Watch it
+                      {i.posted_links.map((l) => { const p = parsePostLink(l); return (
+                        <a key={l} href={p.url} target="_blank" rel="noreferrer" className="text-xs text-signal underline">
+                          Watch on {p.platform}
                         </a>
-                      ))}
+                      ); })}
                     </div>
                   ) : null}
                 </li>

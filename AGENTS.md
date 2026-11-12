@@ -20,3 +20,4 @@
 - Per-person KPI weights live in `staff_pay.kpi_weights` (overrides company `kpi_settings.weights` via `weightsFor`); a trigger lets only System Admin change them, so pay managers cannot reshape anyone's score.
 - The homepage logo strip reads only from `site_logos` (System Admin → Website logos), independent of resident records, so marketing logos can change without touching client data.
 - Client portal extras (monthly reports, brand files, client ideas, shoot ratings) live in `client_reports`, `client_files`, `shoot_ratings` and `content_items.source='client'`; files sit in `resident-files` under `<resident_id>/reports|files/`, and client alerts go through `notify_client` into the push outbox, so clients only ever reach their own resident's data.
+- A cancelled post is a flag (`content_items.cancelled_at/_reason`, set only via `cancel_post`/`restore_post`), not a stage, so the pipeline position is kept and restoring re-arms the posting reminder.

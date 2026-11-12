@@ -2351,6 +2351,9 @@ export type Database = {
           added_on: string
           approved_at: string | null
           approved_by: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
+          cancelled_reason: string | null
           caption_edited_by_client_at: string | null
           caption_suggestions: string | null
           client_caption: string | null
@@ -2408,6 +2411,9 @@ export type Database = {
           added_on?: string
           approved_at?: string | null
           approved_by?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancelled_reason?: string | null
           caption_edited_by_client_at?: string | null
           caption_suggestions?: string | null
           client_caption?: string | null
@@ -2465,6 +2471,9 @@ export type Database = {
           added_on?: string
           approved_at?: string | null
           approved_by?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancelled_reason?: string | null
           caption_edited_by_client_at?: string | null
           caption_suggestions?: string | null
           client_caption?: string | null
@@ -7069,6 +7078,10 @@ export type Database = {
       }
       can_view_content: { Args: { _user_id: string }; Returns: boolean }
       can_view_people: { Args: { _u: string }; Returns: boolean }
+      cancel_post: {
+        Args: { _id: string; _reason: string }
+        Returns: undefined
+      }
       chat_people: {
         Args: never
         Returns: {
@@ -7626,6 +7639,7 @@ export type Database = {
         }
         Returns: string
       }
+      restore_post: { Args: { _id: string }; Returns: undefined }
       return_contract: {
         Args: { _id: string; _note: string }
         Returns: undefined
