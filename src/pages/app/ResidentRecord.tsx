@@ -90,7 +90,7 @@ export default function ResidentRecordPage() {
 
   const [logo, setLogo] = useState<string | null>(null);
   const [approves, setApproves] = useState(false);
-  const canSetApproval = isLeadership || isAdmin || has("client_relations") || has("communications");
+  const canSetApproval = isLeadership || isAdmin;
   const toggleApproval = async (v: boolean) => {
     setApproves(v);
     const { error } = await supabase.from("residents").update({ client_approves_content: v } as never).eq("id", id);
