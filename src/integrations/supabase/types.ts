@@ -2962,6 +2962,39 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_weekly_packs: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          id: string
+          metrics: Json
+          note: string | null
+          sent_at: string | null
+          status: string
+          week_start: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          metrics?: Json
+          note?: string | null
+          sent_at?: string | null
+          status?: string
+          week_start: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          metrics?: Json
+          note?: string | null
+          sent_at?: string | null
+          status?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
       inbox_messages: {
         Row: {
           audience: string
@@ -4202,6 +4235,39 @@ export type Database = {
           submitted_at?: string | null
           submitted_by?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      period_closes: {
+        Row: {
+          created_at: string
+          finance_signed_at: string | null
+          finance_signed_by: string | null
+          founder_signed_at: string | null
+          founder_signed_by: string | null
+          locked: boolean
+          month: string
+          note: string | null
+        }
+        Insert: {
+          created_at?: string
+          finance_signed_at?: string | null
+          finance_signed_by?: string | null
+          founder_signed_at?: string | null
+          founder_signed_by?: string | null
+          locked?: boolean
+          month: string
+          note?: string | null
+        }
+        Update: {
+          created_at?: string
+          finance_signed_at?: string | null
+          finance_signed_by?: string | null
+          founder_signed_at?: string | null
+          founder_signed_by?: string | null
+          locked?: boolean
+          month?: string
+          note?: string | null
         }
         Relationships: []
       }
@@ -7506,6 +7572,7 @@ export type Database = {
         Args: { _day: string; _reason: string; _user: string }
         Returns: undefined
       }
+      finance_friday_reminder: { Args: never; Returns: undefined }
       finance_lookup: {
         Args: { _limit?: number; _q: string }
         Returns: {
@@ -7847,6 +7914,10 @@ export type Database = {
         Args: { _content_id: string }
         Returns: undefined
       }
+      reopen_period: {
+        Args: { _month: string; _reason: string }
+        Returns: undefined
+      }
       request_production_funds: {
         Args: { _amount: number; _budget: string; _purpose: string }
         Returns: string
@@ -7932,6 +8003,10 @@ export type Database = {
         }
         Returns: string
       }
+      send_weekly_finance_pack: {
+        Args: { _metrics: Json; _note: string; _week_start: string }
+        Returns: string
+      }
       set_client_handler: {
         Args: { _resident_id: string; _user_id: string }
         Returns: undefined
@@ -7979,6 +8054,10 @@ export type Database = {
       shoot_day_brief: { Args: { _id: string }; Returns: Json }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      sign_period_close: {
+        Args: { _month: string; _note?: string }
+        Returns: undefined
+      }
       staff_notify: {
         Args: {
           _bell?: boolean
@@ -8054,6 +8133,10 @@ export type Database = {
       update_leadership_task: {
         Args: { _message?: string; _status: string; _task_id: string }
         Returns: undefined
+      }
+      users_with_roles: {
+        Args: { _roles: Database["public"]["Enums"]["app_role"][] }
+        Returns: string[]
       }
       wallet_balances: {
         Args: never
