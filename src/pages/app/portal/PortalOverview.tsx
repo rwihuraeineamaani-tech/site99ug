@@ -147,26 +147,6 @@ export default function PortalOverview() {
         </PortalCard>
       </div>
 
-      {steps.length > 0 && (
-        <div className="mt-6">
-          <PortalCard title="Setting you up">
-            <ul className="space-y-2">
-              {steps.map((s) => (
-                <li key={s.id} className="flex items-center justify-between gap-3 rounded-xl border border-hairline px-3 py-2">
-                  <div className="min-w-0">
-                    <div className="truncate text-sm">{s.title}</div>
-                    <div className="text-xs text-ink-faint">
-                      {s.department ?? "Site 99"}
-                      {s.due_on ? ` · due ${fmtDate(s.due_on)}` : ""}
-                    </div>
-                  </div>
-                  <StatusChip value={s.status} />
-                </li>
-              ))}
-            </ul>
-          </PortalCard>
-        </div>
-      )}
     </PortalPage>
   );
 }
