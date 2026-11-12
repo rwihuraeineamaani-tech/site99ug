@@ -135,8 +135,8 @@ export async function buildFinanceDoc(doc: FinanceDoc, profile?: DocProfile) {
   pdf.setFillColor(...RED).rect(0, 0, W, 6, "F");
   try {
     const l = await logo();
-    const h = 42;
-    pdf.addImage(l.data, "PNG", M, 30, (l.w / l.h) * h, h);
+    const h = 58;
+    pdf.addImage(l.data, "PNG", M, 24, (l.w / l.h) * h, h);
   } catch {
     pdf.setFont("helvetica", "bold").setFontSize(24);
     ink();
@@ -210,8 +210,9 @@ export async function buildFinanceDoc(doc: FinanceDoc, profile?: DocProfile) {
     soft();
     pdf.setFont("helvetica", "normal").text(k, colR, my);
     ink();
-    pdf.setFont("helvetica", "bold").text(pdf.splitTextToSize(v, right - colR - 90)[0], right, my, { align: "right" });
-    my += 14;
+    const vs: string[] = pdf.setFont("helvetica", "bold").splitTextToSize(v, right - colR - 78).slice(0, 2);
+    vs.forEach((t, j) => pdf.text(t, right, my + j * 11, { align: "right" }));
+    my += 14 + (vs.length - 1) * 11;
   }
 
   // Line items
@@ -336,9 +337,10 @@ export async function buildFinanceDoc(doc: FinanceDoc, profile?: DocProfile) {
   if (!isInv || badge === "PAID IN FULL") {
     const green: [number, number, number] = [22, 128, 74];
     pdf.setDrawColor(...green).setTextColor(...green).setLineWidth(1.6);
-    pdf.roundedRect(M, sy, 120, 50, 6, 6, "S");
-    pdf.setFont("helvetica", "bold").setFontSize(18).text("PAID", M + 60, sy + 25, { align: "center", charSpace: 2 });
-    pdf.setFontSize(7.5).text(`${p.company_name.toUpperCase()}  ${longDate(doc.date).toUpperCase()}`, M + 60, sy + 39, { align: "center" });
+    pdf.roundedRect(M, sy, 140, 58, 6, 6, "S");
+    pdf.setFont("helvetica", "bold").setFontSize(18).text("PAID", M + 70, sy + 24, { align: "center", charSpace: 2 });
+    pdf.setFontSize(6.5).text(p.company_name.toUpperCase(), M + 70, sy + 38, { align: "center" });
+    pdf.text(longDate(doc.date).toUpperCase(), M + 70, sy + 48, { align: "center" });
     ink();
     pdf.setLineWidth(0.6);
   }
