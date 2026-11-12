@@ -384,7 +384,17 @@ export default function Invoices() {
           <button className={pill} onClick={runRecurring}>
             Raise recurring bills
           </button>
-          <button className="ctl ctl-solid eyebrow px-4 py-2 focus-ring" onClick={() => setDraft(emptyDraft(tab))}>
+          <button className="ctl ctl-solid eyebrow px-4 py-2 focus-ring" onClick={async () => {
+              const d = emptyDraft(tab);
+              if (tab === "out") {
+                const prof = await loadDocProfile();
+                const due = new Date(`${d.issue_date}T12:00:00`);
+                due.setDate(due.getDate() + (prof.invoice_due_days ?? 7));
+                d.due_date = due.toISOString().slice(0, 10);
+                d.vatRate = prof.default_vat_rate ?? d.vatRate;
+              }
+              setDraft(d);
+            }}>
             New {tab === "out" ? "invoice" : "bill"}
           </button>
         </div>
