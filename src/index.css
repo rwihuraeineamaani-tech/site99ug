@@ -639,3 +639,8 @@ body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
 
 /* Utility buttons in the header share the control height */
 .deck .ctl { min-height: 2.25rem; }
+
+/* Labels: still uppercase, but tighter tracking reads as a system, not a poster */
+.deck .eyebrow { letter-spacing: 0.14em; }
+/* Neutral pill buttons always carry an edge, so they never melt into a white card */
+.deck :is(button, a).press.rounded-full:is(.bg-paper-raised, .bg-paper) { border-width: 1px; border-style: solid; }
