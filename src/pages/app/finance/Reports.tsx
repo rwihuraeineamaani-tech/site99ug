@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import FinancePage from "@/components/finance/FinancePage";
+import FinancialStatements from "@/components/finance/FinancialStatements";
 import { SectionHeading, Metric, Money } from "@/components/system";
 import { catLabel, csv, download, monthBounds, monthLabel, todayISO } from "@/lib/finance";
 
@@ -97,7 +98,7 @@ export default function Reports() {
   return (
     <FinancePage
       title="Reports."
-      lede="The monthly statement, category breakdown and what each resident or project made."
+      lede="Profit and loss, cash flow and balance sheet, the Friday report pack, and what each client or project made."
       path="/app/finance/reports"
       actions={
         <>
@@ -110,6 +111,8 @@ export default function Reports() {
         </>
       }
     >
+      <FinancialStatements />
+
       <section className="mb-8">
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-xs">
