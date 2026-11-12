@@ -557,42 +557,34 @@ body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
    v2 controls: one official button, field and table language for the
    signed-in system. Scoped to .deck so the public site keeps its look.
    ================================================================ */
-.deck button.press.rounded-full,
-.deck a.press.rounded-full,
-.deck .ctl {
-  border-radius: 0.6rem;
-  min-height: 2.25rem;
-  padding-left: 0.9rem;
-  padding-right: 0.9rem;
+/* Shape for every pill-style control */
+.deck :is(button, a).press.rounded-full,
+.deck .ctl { border-radius: 0.6rem; letter-spacing: 0.01em; }
+/* Neutral (secondary) buttons: a raised layer with a visible edge */
+.deck :is(button, a).press.rounded-full:is(.bg-paper-raised, .bg-paper),
+.deck .ctl:not(.ctl-solid) {
   background: hsl(var(--paper-overlay));
   border-color: hsl(var(--hair));
   color: hsl(var(--ink));
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.06), 0 1px 2px hsl(226 30% 2% / 0.45);
-  letter-spacing: 0.01em;
 }
-.deck button.press.rounded-full:hover:not(:disabled),
-.deck a.press.rounded-full:hover,
-.deck .ctl:hover:not(:disabled) {
+.deck :is(button, a).press.rounded-full:is(.bg-paper-raised, .bg-paper):hover:not(:disabled),
+.deck .ctl:not(.ctl-solid):hover:not(:disabled) {
   border-color: hsl(var(--rule-strong));
-  background: hsl(var(--paper-overlay) / 0.85);
   color: hsl(var(--ink));
 }
 /* Primary actions: solid brand red with white text and a soft glow */
-.deck button.press.rounded-full.bg-signal,
-.deck a.press.rounded-full.bg-signal,
+.deck :is(button, a).press.rounded-full.bg-signal,
 .deck .ctl-solid {
   background: hsl(var(--signal));
   border-color: hsl(var(--signal));
   color: hsl(var(--signal-foreground));
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.18), 0 6px 16px -8px hsl(var(--signal) / 0.7);
 }
-.deck button.press.rounded-full.bg-signal:hover:not(:disabled),
-.deck .ctl-solid:hover:not(:disabled) {
-  background: hsl(var(--signal) / 0.9);
-  color: hsl(var(--signal-foreground));
-}
+.deck :is(button, a).press.rounded-full.bg-signal:hover:not(:disabled),
+.deck .ctl-solid:hover:not(:disabled) { background: hsl(var(--signal) / 0.9); color: hsl(var(--signal-foreground)); }
 .deck button.press.rounded-full:disabled { opacity: 0.45; box-shadow: none; }
-.deck.deck-light button.press.rounded-full:not(.bg-signal),
+.deck.deck-light :is(button, a).press.rounded-full:is(.bg-paper-raised, .bg-paper),
 .deck.deck-light .ctl:not(.ctl-solid) {
   box-shadow: 0 1px 2px hsl(220 20% 20% / 0.08);
   border-color: hsl(var(--rule));
