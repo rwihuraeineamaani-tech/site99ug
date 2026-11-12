@@ -32,3 +32,8 @@
 - [x] Finance projection graphs on the dashboard and a Projections tab
 - [x] VAT included/excluded on contract details
 - [x] Legal to-do: verify and complete every contract
+
+# Official UI pass (Phase 6, continued)
+- [x] Part 1 (v2.3.0): shared drop-downs, filters, view switches, tabs, status labels, side menu, top bar, long dashes removed from screen text
+- [ ] Part 2: page by page polish, Finance first, then Dashboard, Residents, Content Pipeline, then the rest
+- [ ] Light mode check of every page (needs a light-mode account setting to test against)
