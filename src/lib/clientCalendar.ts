@@ -1,5 +1,5 @@
 /** How a video shows on the client calendar. Shared by the client portal and the staff "Client view". */
-export type CalStatus = "posted" | "numbers_due" | "rejected" | "changes" | "awaiting_client" | "not_edited" | "other";
+export type CalStatus = "cancelled" | "posted" | "numbers_due" | "rejected" | "changes" | "awaiting_client" | "not_edited" | "other";
 
 export type CalItem = {
   stage: string;
@@ -7,11 +7,13 @@ export type CalItem = {
   metrics_due_at?: string | null;
   metrics_filled_at?: string | null;
   client_review_state?: string | null;
+  cancelled_at?: string | null;
 };
 
 const NOT_EDITED = ["Idea", "Approved", "Crewed", "Scheduled", "Shooting", "Editing"];
 
 export function calStatus(i: CalItem, clientApproves: boolean, today: string): CalStatus {
+  if (i.cancelled_at && !i.posted_at) return "cancelled";
   if (i.stage === "Rejected") return "rejected";
   if (i.stage === "Posted" || i.stage === "Archived" || i.posted_at) {
     const due = i.metrics_due_at ?? (i.posted_at ? addDays(i.posted_at.slice(0, 10), 10) : null);
@@ -30,6 +32,7 @@ function addDays(d: string, n: number) {
 }
 
 export const CAL_STYLE: Record<CalStatus, { label: string; cls: string }> = {
+  cancelled: { label: "Cancelled", cls: "border-hairline border-dashed bg-transparent text-ink-faint line-through decoration-state-stop decoration-2" },
   posted: { label: "Posted", cls: "border-acc-lime/70 bg-acc-lime-soft" },
   numbers_due: { label: "Numbers overdue", cls: "border-state-stop/70 bg-state-stop/20" },
   rejected: { label: "Rejected", cls: "border-state-stop border-dashed bg-transparent line-through opacity-80" },

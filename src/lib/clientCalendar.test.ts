@@ -19,6 +19,9 @@ describe("client calendar colours", () => {
     expect(calStatus({ stage: "Review" }, true, today)).toBe("awaiting_client");
     expect(calStatus({ stage: "Review" }, false, today)).toBe("other");
   });
+  it("a cancelled post is crossed out, even if it was waiting on the client", () => {
+    expect(calStatus({ stage: "Review", cancelled_at: "2026-11-10T10:00:00Z" }, true, today)).toBe("cancelled");
+  });
   it("rejected shows as rejected", () => {
     expect(calStatus({ stage: "Rejected" }, true, today)).toBe("rejected");
   });

@@ -1,20 +1,42 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { ExternalLink } from "lucide-react";
+import { Ban, ExternalLink } from "lucide-react";
+import { cutLabel, parsePostLink, platformList } from "@/lib/postLinks";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { finalCaption, profileUrl, REVIEW_LABEL, tagsOf, windowLabel, type ReviewFields } from "@/lib/postReview";
 
-export type ReviewItem = ReviewFields & { id: string; title: string; platforms: string[]; posted_at: string | null };
+export type ReviewItem = ReviewFields & { id: string; title: string; platforms: string[]; posted_at: string | null; posted_links?: string[] | null; cancelled_at?: string | null; cancelled_reason?: string | null };
 
 /** Client side: review the cut, caption, collab, tags and posting window, then approve or ask for changes. */
-export default function PostReviewCard({ item, onDone, readOnly = false, canApprove = false }: { item: ReviewItem; onDone: () => void; readOnly?: boolean; canApprove?: boolean }) {
+export default function PostReviewCard({ item, onDone, readOnly = false, canApprove = false, canCancel = false }: { item: ReviewItem; onDone: () => void; readOnly?: boolean; canApprove?: boolean; canCancel?: boolean }) {
   const [caption, setCaption] = useState(finalCaption(item));
   const [collabOk, setCollabOk] = useState(item.collab_status !== "rejected");
   const [rejected, setRejected] = useState<string[]>(tagsOf(item).filter((t) => t.status === "rejected").map((t) => t.handle));
   const [note, setNote] = useState(item.client_review_note ?? "");
   const [busy, setBusy] = useState(false);
-  const locked = !!item.posted_at || readOnly;
+  const cancelled = !!item.cancelled_at && !item.posted_at;
+  const locked = !!item.posted_at || readOnly || cancelled;
+
+  const cancelPost = async () => {
+    const reason = window.prompt(`Cancel "${item.title}"? Tell the client and team why.`);
+    if (reason === null) return;
+    if (!reason.trim()) return toast.error("A reason is needed to cancel a post.");
+    setBusy(true);
+    const { error } = await supabase.rpc("cancel_post" as never, { _id: item.id, _reason: reason } as never);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Post cancelled. The client and Handler have been told.");
+    onDone();
+  };
+  const restorePost = async () => {
+    setBusy(true);
+    const { error } = await supabase.rpc("restore_post" as never, { _id: item.id } as never);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Post restored.");
+    onDone();
+  };
 
   const send = async (decision: "approved" | "changes" | "pending") => {
     setBusy(true);
@@ -32,16 +54,26 @@ export default function PostReviewCard({ item, onDone, readOnly = false, canAppr
     <div className="rounded-2xl border border-hairline p-4 text-sm">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <div className="font-semibold">{item.title}</div>
+          <div className={cancelled ? "font-semibold line-through decoration-state-stop decoration-2" : "font-semibold"}>{item.title}</div>
           <div className="text-xs text-ink-faint">{windowLabel(item)} · {item.platforms?.join(", ") || "Platform to confirm"}</div>
         </div>
-        <span className="rounded-full border border-hairline px-2 py-0.5 text-[11px]">{item.posted_at ? "Posted" : REVIEW_LABEL[item.client_review_state ?? "pending"]}</span>
+        <span className="rounded-full border border-hairline px-2 py-0.5 text-[11px]">{cancelled ? "Cancelled" : item.posted_at ? "Posted" : REVIEW_LABEL[item.client_review_state ?? "pending"]}</span>
       </div>
 
-      <div className="mt-3">
-        {item.edit_file_url
-          ? <a href={item.edit_file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-signal">Watch on Google Drive <ExternalLink className="h-3.5 w-3.5" /></a>
-          : <span className="text-xs text-ink-faint">The final cut is still being edited.</span>}
+      {cancelled && (
+        <div className="mt-3 flex items-start gap-2 rounded-xl border border-state-stop/50 bg-state-stop/10 px-3 py-2">
+          <Ban className="mt-0.5 h-4 w-4 shrink-0 text-state-stop" />
+          <div><div className="font-medium">This post was cancelled</div>{item.cancelled_reason && <p className="text-ink-soft">{item.cancelled_reason}</p>}</div>
+        </div>
+      )}
+
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+        {(item.posted_links ?? []).map((l) => { const p = parsePostLink(l); return (
+          <a key={l} href={p.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-signal">Watch on {p.platform} <ExternalLink className="h-3.5 w-3.5" /></a>
+        ); })}
+        {!(item.posted_links ?? []).length && (item.edit_file_url
+          ? <a href={item.edit_file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-signal">{cutLabel(item.platforms)} <ExternalLink className="h-3.5 w-3.5" /></a>
+          : <span className="text-xs text-ink-faint">The final cut is still being edited{platformList(item.platforms) ? ` for ${platformList(item.platforms)}` : ""}.</span>)}
       </div>
 
       <label className="mt-3 block">
@@ -85,6 +117,14 @@ export default function PostReviewCard({ item, onDone, readOnly = false, canAppr
             <Button size="sm" variant="ghost" disabled={busy} onClick={() => send("pending")}>Save edits</Button>
           </div>
         </>
+      )}
+
+      {canCancel && !item.posted_at && (
+        <div className="mt-3 border-t border-hairline pt-3">
+          {cancelled
+            ? <Button size="sm" variant="outline" disabled={busy} onClick={restorePost}>Restore post</Button>
+            : <Button size="sm" variant="outline" className="text-state-stop" disabled={busy} onClick={cancelPost}><Ban className="h-4 w-4" /> Cancel post</Button>}
+        </div>
       )}
     </div>
   );

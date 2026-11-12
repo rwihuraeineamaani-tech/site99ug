@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle2, ChevronLeft, ChevronRight, XCircle } from "lucide-react";
+import { Ban, CheckCircle2, ChevronLeft, ChevronRight, XCircle } from "lucide-react";
+import { cutLabel } from "@/lib/postLinks";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PortalCard, PortalEmpty } from "@/components/portal/PortalPage";
@@ -15,7 +16,7 @@ type Item = ReviewItem & { stage: string; metrics_due_at: string | null; metrics
 type Entry = { id: string; date: string; time?: string; title: string; kind: "shoot" | "post"; to: string; note?: string; status?: CalStatus; stage?: string };
 const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const addDays = (d: string, n: number) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
-const KEY: CalStatus[] = ["posted", "not_edited", "awaiting_client", "numbers_due", "rejected", "other"];
+const KEY: CalStatus[] = ["posted", "not_edited", "awaiting_client", "numbers_due", "rejected", "cancelled", "other"];
 
 /** The client's calendar. `staff` shows the same view read-only for the team, with the System Admin override. */
 export default function ClientCalendar({ residentId, staff = false, isAdmin = false }: { residentId: string; staff?: boolean; isAdmin?: boolean }) {
@@ -47,7 +48,7 @@ export default function ClientCalendar({ residentId, staff = false, isAdmin = fa
         if (!w) return;
         const status = calStatus(i, gate, today);
         const win = windowLabel(i).split(", ").slice(1).join(", ");
-        out.push({ id: `c-${i.id}`, date: kampalaDay(w), time: i.posted_at ? undefined : win, title: i.title, kind: "post", to: "#", status, stage: i.stage, note: status === "other" ? i.stage : CAL_STYLE[status].label });
+        out.push({ id: `c-${i.id}`, date: kampalaDay(w), time: i.posted_at ? undefined : win, title: i.title, kind: "post", to: "#", status, stage: i.stage, note: status === "other" ? i.stage : status === "cancelled" && i.cancelled_reason ? `Cancelled: ${i.cancelled_reason}` : CAL_STYLE[status].label });
       });
       setItems(map);
       setEntries(out.sort((a, b) => (a.date + (a.time ?? "")).localeCompare(b.date + (b.time ?? ""))));
@@ -69,6 +70,7 @@ export default function ClientCalendar({ residentId, staff = false, isAdmin = fa
 
   const Icon = ({ s }: { s?: CalStatus }) =>
     s === "posted" ? <CheckCircle2 className="h-3 w-3 shrink-0 text-acc-lime" /> :
+    s === "cancelled" ? <Ban className="h-3 w-3 shrink-0 text-state-stop" /> :
     s === "rejected" || s === "changes" ? <XCircle className="h-3 w-3 shrink-0 text-state-stop" /> : null;
 
   const chip = (e: Entry) => e.kind === "post" ? (
@@ -101,7 +103,7 @@ export default function ClientCalendar({ residentId, staff = false, isAdmin = fa
             <ul className="space-y-2">{todo.map((i) => (
               <li key={i.id} className="flex flex-wrap items-center gap-2 rounded-xl border border-acc-blue/60 bg-acc-blue-soft px-3 py-2 text-sm">
                 <span className="min-w-0 flex-1 truncate">Approve: {i.title}</span>
-                {i.edit_file_url && <a href={i.edit_file_url} target="_blank" rel="noreferrer" className="text-xs text-signal">Watch on Google Drive</a>}
+                {i.edit_file_url && <a href={i.edit_file_url} target="_blank" rel="noreferrer" className="text-xs text-signal">{cutLabel(i.platforms)}</a>}
                 <Button size="sm" variant="outline" onClick={() => show(i.id)}>Open</Button>
                 {staff && isAdmin && <Button size="sm" onClick={() => override(i.id)}>Approve for client</Button>}
               </li>))}</ul>
@@ -135,7 +137,7 @@ export default function ClientCalendar({ residentId, staff = false, isAdmin = fa
       {open && items[open] && (
         <div id="post-review">
           <PortalCard title={staff ? "What the client sees" : "Review this post"}>
-            <PostReviewCard key={open + tick} item={items[open]} readOnly={staff} canApprove={approves && items[open].stage === "Review"} onDone={() => setTick((t) => t + 1)} />
+            <PostReviewCard key={open + tick} item={items[open]} readOnly={staff} canApprove={approves && items[open].stage === "Review"} canCancel={staff} onDone={() => setTick((t) => t + 1)} />
             <div className="mt-2 flex gap-2">
               {staff && isAdmin && approves && items[open].stage === "Review" && <Button size="sm" onClick={() => override(open)}>Approve for client</Button>}
               <Button variant="ghost" size="sm" onClick={() => setOpen(null)}>Close</Button>
@@ -150,7 +152,7 @@ export default function ClientCalendar({ residentId, staff = false, isAdmin = fa
             <li key={e.id}><Link to={e.to} onClick={(ev) => { if (e.kind === "post") { ev.preventDefault(); show(e.id.slice(2)); } }} className={cn("flex items-center gap-3 rounded-xl border px-3 py-2", e.kind === "post" ? CAL_STYLE[e.status ?? "other"].cls : "border-hairline")}>
               <span className="num w-24 shrink-0 text-xs text-ink-faint">{new Date(`${e.date}T00:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })}{e.time ? ` ${e.time}` : ""}</span>
               <Icon s={e.status} />
-              <span className="min-w-0 flex-1 truncate text-sm">{e.title}</span>
+              <span className={cn("min-w-0 flex-1 truncate text-sm", e.status === "cancelled" && "line-through decoration-state-stop decoration-2")}>{e.title}</span>
               <span className="text-[11px] text-ink-faint">{e.kind === "shoot" ? e.note ?? "Shoot" : e.note}</span>
             </Link></li>))}</ul>
         )}
