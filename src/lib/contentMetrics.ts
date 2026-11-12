@@ -108,7 +108,7 @@ export const buildMetrics = (by: ByPlatform, note: string) => {
     const filled = Object.fromEntries(Object.entries(v ?? {}).filter(([, x]) => String(x ?? "").trim()));
     if (Object.keys(filled).length) clean[p] = filled;
   });
-  return { ...totals(clean), by_platform: clean, note };
+  return { ...totals(clean), by_platform: clean, note } as Record<string, string> & { by_platform: ByPlatform; note: string };
 };
 
 /** Flat "TikTok views: 1094" style list for the AI recommendations. */
