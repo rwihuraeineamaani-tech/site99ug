@@ -131,6 +131,7 @@ export default function OnboardingPanel({ residentId, index = "01" }: { resident
             );
           })}
         </ol>
+        </>
       )}
     </section>
   );

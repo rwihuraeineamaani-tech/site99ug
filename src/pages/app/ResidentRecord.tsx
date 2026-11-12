@@ -7,6 +7,7 @@ import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
 import AccountsPanel from "@/components/system/AccountsPanel";
 import PortalAccessPanel from "@/components/residents/PortalAccessPanel";
+import ActivateClientButton from "@/components/residents/ActivateClientButton";
 import OnboardingPanel from "@/components/residents/OnboardingPanel";
 import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { Button } from "@/components/ui/button";
@@ -305,6 +306,7 @@ export default function ResidentRecordPage() {
               </Button>
             )}
             <span className="text-[11px] text-ink-faint">Set what we're aiming for and map how the work flows.</span>
+            <ActivateClientButton residentId={resident.id} status={resident.status} onDone={load} />
             <ResidentActions resident={resident} members={members} canInvoices={invoices.length > 0} hasSigned={contracts.some((c) => c.status === "signed" || c.status === "active")} onChanged={load} />
           </div>
 
