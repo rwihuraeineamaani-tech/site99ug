@@ -22,11 +22,12 @@ export function checkRun(lines: PayLine[], runDate: string | null, cash: CashLin
   const outs = cash.filter((c) => c.direction === "out" && c.category !== "mobile_money_charges" && c.category !== "bank_charges");
   const dateOk = (c: CashLine) => !runDate || c.entry_date === runDate || swap(c.entry_date) === runDate;
   const names = new Set(lines.flatMap((l) => words(l.full_name)));
-  const mentions = (c: CashLine) => words(c.counterparty_name).some((w) => names.has(w)) || /team|payroll|salar/i.test(c.counterparty_name);
+  const named = (c: CashLine) => words(c.counterparty_name).some((w) => names.has(w));
+  const mentions = (c: CashLine) => named(c) || /team|payroll|salar/i.test(c.counterparty_name);
 
   // One line for the whole run, then lines naming people in the run.
   let found = outs.filter((c) => (c.amount_ugx === amount || c.amount_ugx === withCharges) && dateOk(c) && (c.category === "salaries" || mentions(c)));
-  if (!found.length) found = outs.filter((c) => dateOk(c) && mentions(c) && c.amount_ugx <= withCharges);
+  if (!found.length) found = outs.filter((c) => dateOk(c) && named(c) && c.amount_ugx <= withCharges);
   const foundTotal = found.reduce((s, c) => s + c.amount_ugx, 0);
   return {
     amount,
