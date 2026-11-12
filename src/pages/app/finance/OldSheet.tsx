@@ -4,6 +4,7 @@ import FinancePage from "@/components/finance/FinancePage";
 import { SearchInput, StatusChip, SectionHeading } from "@/components/system";
 import { matchSheetToApp, type AppLine } from "@/lib/sheetMatch";
 import { liveEntries } from "@/lib/statements";
+import { PayrollArchive } from "@/components/finance/PayrollArchive";
 
 type Row = {
   id: string; row_no: number; entry_date: string | null; original_id: string | null; system_id: string | null;
@@ -20,7 +21,7 @@ export default function FinanceOldSheet() {
   const [rows, setRows] = useState<Row[]>([]);
   const [q, setQ] = useState("");
   const [onlyFlagged, setOnlyFlagged] = useState(false);
-  const [tab, setTab] = useState<"sheet" | "compare">("compare");
+  const [tab, setTab] = useState<"sheet" | "compare" | "payroll">("compare");
   const [app, setApp] = useState<(AppLine & { category: string; reverses_id: string | null; transfer_group_id: string | null })[]>([]);
   useEffect(() => {
     supabase.from("legacy_ledger").select("*").order("row_no").then(({ data }) => setRows((data as Row[]) ?? []));
@@ -43,6 +44,7 @@ export default function FinanceOldSheet() {
       <div className="mb-4 flex gap-2">
         <button className={`press rounded-full border px-4 py-2 text-xs font-semibold ${tab === "compare" ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised"}`} onClick={() => setTab("compare")}>Compare October and November with the app</button>
         <button className={`press rounded-full border px-4 py-2 text-xs font-semibold ${tab === "sheet" ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised"}`} onClick={() => setTab("sheet")}>Whole sheet</button>
+        <button className={`press rounded-full border px-4 py-2 text-xs font-semibold ${tab === "payroll" ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised"}`} onClick={() => setTab("payroll")}>Payroll sheet</button>
       </div>
       {tab === "compare" && (
         <div className="grid gap-4">
@@ -68,6 +70,7 @@ export default function FinanceOldSheet() {
           <p className="text-xs text-ink-faint">{compare.matched.filter((m) => !m.dateNote).length} rows match exactly.</p>
         </div>
       )}
+      {tab === "payroll" && <PayrollArchive cash={liveEntries(app)} />}
       {tab === "sheet" && (<>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <SearchInput value={q} onChange={setQ} placeholder="Description or number" />

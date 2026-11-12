@@ -2,6 +2,7 @@ import { APP_VERSION } from "@/lib/version";
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
+  Building2,
   Clock,
   LayoutDashboard,
   CalendarDays,
@@ -273,7 +274,9 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/finance/filing", label: "Filing", icon: FileText },
         { to: "/app/finance/projections", label: "Projections", icon: PieChart },
         { to: "/app/finance/reports", label: "Reports", icon: FileText },
-        { to: "/app/finance/lookup", label: "Look up", icon: Search }, { to: "/app/sops?dept=finance", label: "SOPs", icon: BookMarked }
+        { to: "/app/finance/lookup", label: "Look up", icon: Search },
+        { to: "/app/finance/office", label: "Finance office", icon: Building2 },
+        { to: "/app/sops?dept=finance", label: "SOPs", icon: BookMarked }
       ]
     : [...(has("creative_director", "strategist") ? [{ to: "/app/finance/production-fund", label: "Production fund", icon: HandCoins }] : []), { to: "/app/finance/requests", label: "Requests", icon: HandCoins }, { to: "/app/sops?dept=finance", label: "SOPs", icon: BookMarked }];
   groups.push({ label: "Finance", items: finance });

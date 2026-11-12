@@ -3,6 +3,17 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const RELEASES: Release[] = [
   {
+    version: "2.2.0",
+    date: "2026-11-12",
+    title: "Finance office and the payroll sheet",
+    notes: [
+      "New Finance office page: company registration, TIN, NSSF, VAT, letterhead, the bank account and mobile money clients pay into, who signs, days to pay, and the second PIN limit, all in one place.",
+      "New invoices start with the due date and VAT rate set in Finance office.",
+      "The old payroll and volunteer sheet now sits in Finance, Old sheet archive, Payroll sheet, read only, checked against the cashbook.",
+      "Opening balances from 1 November 2026 stay open for the Finance team to fill in, and Finance office shows which accounts still need one.",
+    ],
+  },
+  {
     version: "2.1.0",
     date: "2026-11-12",
     title: "Official invoices and receipts",

@@ -23,6 +23,16 @@ export type DocProfile = {
   receipt_note: string | null;
   signatory_name: string | null;
   signatory_title: string | null;
+  reg_number?: string | null;
+  nssf_number?: string | null;
+  vat_registered?: boolean;
+  default_vat_rate?: number;
+  financial_year_start?: string | null;
+  books_start_date?: string | null;
+  invoice_due_days?: number;
+  finance_contact_name?: string | null;
+  finance_contact_phone?: string | null;
+  finance_contact_email?: string | null;
 };
 
 export const DEFAULT_PROFILE: DocProfile = {
@@ -147,7 +157,7 @@ export async function buildFinanceDoc(doc: FinanceDoc, profile?: DocProfile) {
   pdf.text(p.company_name, right, 40, { align: "right" });
   pdf.setFont("helvetica", "normal").setFontSize(8.5);
   soft();
-  const head = [p.address, [p.phone, p.email].filter(Boolean).join("  |  "), p.website, p.tin ? `TIN ${p.tin}` : null].filter(Boolean) as string[];
+  const head = [p.address, [p.phone, p.email].filter(Boolean).join("  |  "), p.website, [p.tin ? `TIN ${p.tin}` : null, p.reg_number ? `Reg. No. ${p.reg_number}` : null].filter(Boolean).join("  |  ") || null].filter(Boolean) as string[];
   head.forEach((s, i) => pdf.text(s, right, 53 + i * 11, { align: "right" }));
   ink();
   const ruleY = Math.max(92, 53 + head.length * 11 + 6);

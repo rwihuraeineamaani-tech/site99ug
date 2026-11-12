@@ -82,6 +82,7 @@ import FinanceFiling from "./pages/app/finance/Filing.tsx";
 import FinanceInvoices from "./pages/app/finance/Invoices.tsx";
 import FinanceAccounts from "./pages/app/finance/Accounts.tsx";
 import FinanceOldSheet from "./pages/app/finance/OldSheet.tsx";
+import FinanceOffice from "./pages/app/finance/Office.tsx";
 import ProductionFund from "./pages/app/finance/ProductionFund.tsx";
 import WhatsNew from "./pages/app/WhatsNew.tsx";
 import FinanceTransaction from "./pages/app/FinanceTransaction.tsx";
@@ -444,6 +445,7 @@ const AnimatedRoutes = () => {
         <Route path="/app/whats-new" element={<RequireRole gate="staff"><WhatsNew /></RequireRole>} />
         <Route path="/app/finance/accounts" element={<RequireRole gate="finance"><FinanceAccounts /></RequireRole>} />
         <Route path="/app/finance/old-sheet" element={<RequireRole gate="finance"><FinanceOldSheet /></RequireRole>} />
+        <Route path="/app/finance/office" element={<RequireRole gate="finance"><FinanceOffice /></RequireRole>} />
         <Route path="/app/finance/production-fund" element={<RequireRole gate="staff"><ProductionFund /></RequireRole>} />
         <Route
           path="/app/finance/loans"

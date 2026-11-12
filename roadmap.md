@@ -5,12 +5,13 @@
 - [x] Accounts with colours, opening balances (1 Nov 2026), transfers with charges and TID
 - [x] Production fund: estimate, Co-founder limit, requests, Finance release
 - [x] Cashbook: TID (required for mobile money) and charges
-- [ ] Opening balances per account on 1 Nov 2026 (waiting on user)
-- [ ] Payroll/volunteer pay sheet import (waiting on upload)
+- [ ] Opening balances and transactions from 1 Nov 2026 (left open for the Finance team to fill in)
+- [x] Payroll/volunteer pay sheet archived and checked against the cashbook
 - [x] Loans register entries for Rwihura and Muhendo loans
 - [x] Re-check Oct/Nov live entries against bank
 - [x] Redesigned invoice/receipt PDFs, receipts per payment, email invoice/receipt buttons (delivery waits on email domain verification)
-- [ ] Fill TIN, bank account and signatory in Invoice and receipt details (waiting on user)
+- [x] Finance office page for TIN, registration, bank, mobile money, signatory, defaults
+- [ ] Fill TIN, registration number, bank account and signatory in Finance office (waiting on Finance)
 - [x] Posted videos keep the chosen posted day; Fix posted day control
 - [x] Reconciliation + month lock; P&L, cash flow, balance sheet; Friday report pack
 - [x] UI v2.0 refresh using My Kweeza / Hardware Management System

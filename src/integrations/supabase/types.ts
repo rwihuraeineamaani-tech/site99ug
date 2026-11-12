@@ -2685,20 +2685,30 @@ export type Database = {
           bank_branch: string | null
           bank_name: string | null
           bank_swift: string | null
+          books_start_date: string | null
           company_name: string
+          default_vat_rate: number
           email: string | null
+          finance_contact_email: string | null
+          finance_contact_name: string | null
+          finance_contact_phone: string | null
+          financial_year_start: string | null
           id: number
+          invoice_due_days: number
           invoice_terms: string | null
           momo_code: string | null
           momo_name: string | null
           momo_network: string | null
+          nssf_number: string | null
           phone: string | null
           receipt_note: string | null
+          reg_number: string | null
           signatory_name: string | null
           signatory_title: string | null
           tin: string | null
           updated_at: string
           updated_by: string | null
+          vat_registered: boolean
           website: string | null
         }
         Insert: {
@@ -2708,20 +2718,30 @@ export type Database = {
           bank_branch?: string | null
           bank_name?: string | null
           bank_swift?: string | null
+          books_start_date?: string | null
           company_name?: string
+          default_vat_rate?: number
           email?: string | null
+          finance_contact_email?: string | null
+          finance_contact_name?: string | null
+          finance_contact_phone?: string | null
+          financial_year_start?: string | null
           id?: number
+          invoice_due_days?: number
           invoice_terms?: string | null
           momo_code?: string | null
           momo_name?: string | null
           momo_network?: string | null
+          nssf_number?: string | null
           phone?: string | null
           receipt_note?: string | null
+          reg_number?: string | null
           signatory_name?: string | null
           signatory_title?: string | null
           tin?: string | null
           updated_at?: string
           updated_by?: string | null
+          vat_registered?: boolean
           website?: string | null
         }
         Update: {
@@ -2731,20 +2751,30 @@ export type Database = {
           bank_branch?: string | null
           bank_name?: string | null
           bank_swift?: string | null
+          books_start_date?: string | null
           company_name?: string
+          default_vat_rate?: number
           email?: string | null
+          finance_contact_email?: string | null
+          finance_contact_name?: string | null
+          finance_contact_phone?: string | null
+          financial_year_start?: string | null
           id?: number
+          invoice_due_days?: number
           invoice_terms?: string | null
           momo_code?: string | null
           momo_name?: string | null
           momo_network?: string | null
+          nssf_number?: string | null
           phone?: string | null
           receipt_note?: string | null
+          reg_number?: string | null
           signatory_name?: string | null
           signatory_title?: string | null
           tin?: string | null
           updated_at?: string
           updated_by?: string | null
+          vat_registered?: boolean
           website?: string | null
         }
         Relationships: []
@@ -3865,6 +3895,69 @@ export type Database = {
           sheet_type?: string | null
           source?: string
           system_id?: string | null
+        }
+        Relationships: []
+      }
+      legacy_payroll: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          amount_ugx: number
+          approved_by: string | null
+          channel: string | null
+          charges_ugx: number
+          contacted_by: string | null
+          created_at: string
+          flag_note: string | null
+          flags: string[]
+          full_name: string
+          id: string
+          line_no: number
+          processed_by: string | null
+          role: string | null
+          run_date: string | null
+          run_label: string
+          with_charges_ugx: number
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          amount_ugx?: number
+          approved_by?: string | null
+          channel?: string | null
+          charges_ugx?: number
+          contacted_by?: string | null
+          created_at?: string
+          flag_note?: string | null
+          flags?: string[]
+          full_name: string
+          id?: string
+          line_no: number
+          processed_by?: string | null
+          role?: string | null
+          run_date?: string | null
+          run_label: string
+          with_charges_ugx?: number
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          amount_ugx?: number
+          approved_by?: string | null
+          channel?: string | null
+          charges_ugx?: number
+          contacted_by?: string | null
+          created_at?: string
+          flag_note?: string | null
+          flags?: string[]
+          full_name?: string
+          id?: string
+          line_no?: number
+          processed_by?: string | null
+          role?: string | null
+          run_date?: string | null
+          run_label?: string
+          with_charges_ugx?: number
         }
         Relationships: []
       }

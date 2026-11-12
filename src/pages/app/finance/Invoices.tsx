@@ -3,7 +3,7 @@ import { downloadFinanceDoc, loadDocProfile } from "@/lib/financeDocs";
 import { emailInvoice } from "@/lib/docEmail";
 import { InvoiceReceipts } from "@/components/finance/InvoiceReceipts";
 import { EmailDocButton } from "@/components/finance/EmailDocButton";
-import { DocumentProfileEditor } from "@/components/finance/DocumentProfileEditor";
+import { Link } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
@@ -384,13 +384,26 @@ export default function Invoices() {
           <button className={pill} onClick={runRecurring}>
             Raise recurring bills
           </button>
-          <button className="ctl ctl-solid eyebrow px-4 py-2 focus-ring" onClick={() => setDraft(emptyDraft(tab))}>
+          <button className="ctl ctl-solid eyebrow px-4 py-2 focus-ring" onClick={async () => {
+              const d = emptyDraft(tab);
+              if (tab === "out") {
+                const prof = await loadDocProfile();
+                const due = new Date(`${d.issue_date}T12:00:00`);
+                due.setDate(due.getDate() + (prof.invoice_due_days ?? 7));
+                d.due_date = due.toISOString().slice(0, 10);
+                d.vatRate = prof.default_vat_rate ?? d.vatRate;
+              }
+              setDraft(d);
+            }}>
             New {tab === "out" ? "invoice" : "bill"}
           </button>
         </div>
       }
     >
-      <DocumentProfileEditor canEdit={canSeeFinance} />
+      <p className="mb-6 text-xs text-ink-soft">
+        The letterhead, TIN, bank and mobile money details and who signs are set in{" "}
+        <Link to="/app/finance/office" className="font-semibold text-signal underline-offset-2 hover:underline">Finance office</Link>.
+      </p>
       <div className="flex flex-wrap items-center gap-2 mb-8">
         <button className={`${pill} ${tab === "out" ? on : ""}`} onClick={() => setTab("out")}>
           We issued
