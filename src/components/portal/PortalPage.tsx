@@ -7,6 +7,8 @@ import { PageHeader, StatusChip } from "@/components/system";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PortalClient } from "@/hooks/usePortalClient";
+import PushPromptBanner from "@/components/dashboard/PushPromptBanner";
+import { useMyRoles } from "@/hooks/useMyRoles";
 
 const TABS = [
   { to: "/portal", label: "Overview", end: true },
@@ -15,6 +17,9 @@ const TABS = [
   { to: "/portal/strategy", label: "Strategy" },
   { to: "/portal/shoots", label: "Shoot days" },
   { to: "/portal/money", label: "Money" },
+  { to: "/portal/ideas", label: "Ideas" },
+  { to: "/portal/reports", label: "Reports" },
+  { to: "/portal/files", label: "Brand files" },
   { to: "/portal/documents", label: "Documents" },
 ];
 
@@ -31,6 +36,7 @@ export default function PortalPage({
   loading: boolean;
   children: ReactNode;
 }) {
+  const { userId } = useMyRoles();
   return (
     <AppShell eyebrow="Client portal">
       <Seo title={`${title} — Site 99`} description="Your Site 99 engagement." path="/portal" noindex />
@@ -52,6 +58,7 @@ export default function PortalPage({
         }
       />
 
+      {client && <PushPromptBanner userId={userId} />}
       {client && (
         <nav className="no-scrollbar -mx-3 -mt-2 mb-6 flex overflow-x-auto px-3 pb-2 sm:mx-0 sm:-mt-4 sm:mb-8 sm:flex-wrap sm:px-0">
           {TABS.map((t) => (

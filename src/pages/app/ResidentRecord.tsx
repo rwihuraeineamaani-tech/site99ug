@@ -8,6 +8,8 @@ import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
 import AccountsPanel from "@/components/system/AccountsPanel";
 import PortalAccessPanel from "@/components/residents/PortalAccessPanel";
 import ActivateClientButton from "@/components/residents/ActivateClientButton";
+import ClientReports from "@/components/clientspace/ClientReports";
+import ClientFiles from "@/components/clientspace/ClientFiles";
 import OnboardingPanel from "@/components/residents/OnboardingPanel";
 import ClientPayPanel from "@/components/system/ClientPayPanel";
 import { Button } from "@/components/ui/button";
@@ -59,7 +61,7 @@ type Contract = {
 };
 type OnboardingStep = { id: string; step_key: string; title: string; department: string; owner_user_id: string | null; status: string; due_on: string | null; note: string | null };
 
-const RECORD_TABS = ["overview", "client view", "onboarding", "content", "shoot days", "money", "contracts", "relations", "notes"] as const;
+const RECORD_TABS = ["overview", "client view", "reports", "brand files", "onboarding", "content", "shoot days", "money", "contracts", "relations", "notes"] as const;
 type RecordTab = (typeof RECORD_TABS)[number];
 
 const LIVE_STAGES = ["Idea", "Approved", "Crewed", "Scheduled", "Shooting", "Editing", "Review", "Handover"];
@@ -370,6 +372,8 @@ export default function ResidentRecordPage() {
           </div>
             </>
           )}
+          {tab === "reports" && <div className="mt-6"><ClientReports residentId={id} clientName={resident.name} staff /></div>}
+          {tab === "brand files" && <div className="mt-6"><ClientFiles residentId={id} staff /></div>}
           {tab === "client view" && (
             <div className="mt-6">
               <p className="mb-4 text-sm text-ink-soft">This is the calendar {resident.name} sees in their portal. Green is posted, yellow is not edited yet, red means the numbers are overdue, blue is waiting on the client, grey shows the current stage.</p>
