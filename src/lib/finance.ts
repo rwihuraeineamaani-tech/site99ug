@@ -19,6 +19,7 @@ export const EXPENSE_CATEGORIES = [
   "marketing",
   "legal",
   "bank_charges",
+  "mobile_money_charges",
   "taxes_paid",
   "loan",
   "loan_repayment",
@@ -116,6 +117,7 @@ export const INCOME_CATEGORIES = [
   "project_fee",
   "refund",
   "loan_in",
+  "owner_capital",
   "transfer",
   "other",
 ];
@@ -127,7 +129,9 @@ export const CATEGORY_LABEL: Record<string, string> = {
   event_sales: "Event sales",
   project_fee: "Project fee",
   loan_in: "Loan received",
-  transfer: "Wallet transfer",
+  transfer: "Transfer between accounts",
+  owner_capital: "Owner capital",
+  mobile_money_charges: "Mobile money charges",
   equipment: "Equipment hire & repair",
   equipment_purchase: "Equipment bought",
   computers_software: "Computers & software",
@@ -262,6 +266,10 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
     "Deductible.",
     "Financial services are largely VAT-exempt; ledger fees may carry VAT.",
     "Not applicable. Mobile money withdrawals also carry the 0.5% levy."
+  ),  mobile_money_charges: OPEX(
+    "Deductible.",
+    "Financial services are largely VAT-exempt; ledger fees may carry VAT.",
+    "Not applicable. Mobile money withdrawals also carry the 0.5% levy."
   ),
   taxes_paid: {
     spend: "neither",
@@ -354,6 +362,13 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
     income: "not_taxable",
     treatment: "Borrowed money is a liability, not income. Never counts as revenue.",
     vat: "Exempt.",
+    wht: "Not applicable.",
+  },
+  owner_capital: {
+    spend: "neither",
+    income: "not_taxable",
+    treatment: "Money the owners put into the company. It is equity, not income.",
+    vat: "Not applicable.",
     wht: "Not applicable.",
   },
   transfer: {

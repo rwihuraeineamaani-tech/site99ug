@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
 import { toast } from "sonner";
 import FinancePage from "@/components/finance/FinancePage";
+import MonthClose from "@/components/finance/MonthClose";
 import ContractDetail from "@/components/legal/ContractDetail";
 import { SectionHeading, Money, SearchInput, SelectFilter, StatusChip } from "@/components/system";
 import { useMyRoles } from "@/hooks/useMyRoles";
@@ -258,6 +259,13 @@ export default function Cashbook() {
     setFile(null);
   };
 
+  const toggleMatched = async (id: string, on: boolean) => {
+    if (!(await requirePin())) return;
+    const { error } = await supabase.rpc("set_entry_reconciled", { _id: id, _on: on });
+    if (error) return toast.error(error.message);
+    load();
+  };
+
   const saveEntry = async () => {
     if (!(await requirePin())) return;
     const amt = Math.round(Number(amount));
@@ -414,7 +422,43 @@ export default function Cashbook() {
         ) : null
       }
     >
-@@HELP@@
+      <section className="mb-6 rounded-2xl border border-rule bg-paper-raised p-4">
+        <button className={pill} onClick={() => setShowHelp((v) => !v)} data-finance-allow>
+          {showHelp ? "Hide how the cashbook works" : "How the cashbook works"}
+        </button>
+        {showHelp && (
+          <div className="mt-4 grid gap-4 text-sm text-ink-soft md:grid-cols-2">
+            <div>
+              <h3 className="mb-1 font-semibold text-ink">Reading the table</h3>
+              <p>Each line is one movement of money. Debit (in) is money we received, credit (out) is money we paid. The balance column is the running total after that line, starting from the balance carried forward from last month.</p>
+            </div>
+            <div>
+              <h3 className="mb-1 font-semibold text-ink">Numbers</h3>
+              <p>The system numbers every line. RCT is money in, EXP is money out and TRF is a transfer, for example S9926RCTA041. Nobody types or reuses a number.</p>
+            </div>
+            <div>
+              <h3 className="mb-1 font-semibold text-ink">TID and charges</h3>
+              <p>Mobile money always needs the transaction ID (TID) from the SMS. Put any bank or mobile money fee in the charge box. It is saved as its own line, so the main amount stays exact.</p>
+            </div>
+            <div>
+              <h3 className="mb-1 font-semibold text-ink">Transfers</h3>
+              <p>Moving money between our own accounts goes through Finance, Accounts, Transfer. It shows on both accounts and never counts as income or spending.</p>
+            </div>
+            <div>
+              <h3 className="mb-1 font-semibold text-ink">Mistakes</h3>
+              <p>Lines are never deleted. Press reverse, give a reason, and an opposite line cancels it. Both stay visible so the history is honest.</p>
+            </div>
+            <div>
+              <h3 className="mb-1 font-semibold text-ink">Matching and closing the month</h3>
+              <p>Press match on each line once you see it on the bank or mobile money statement. When every line is matched, Finance and a Co-founder sign off and the month locks. Only a Co-founder can reopen it.</p>
+            </div>
+            <div className="md:col-span-2">
+              <h3 className="mb-1 font-semibold text-ink">Links</h3>
+              <p>Client payments should be linked to their contract or invoice. Paying an invoice from Invoices does this for you. Press link on older lines to connect them, and the client's balance updates straight away.</p>
+            </div>
+          </div>
+        )}
+      </section>
       <section className="mb-10">
         <SectionHeading index="01" title="This month at a glance" hint="Capital, running costs and income" />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -486,6 +530,12 @@ export default function Cashbook() {
           </button>
         </div>
 
+        <MonthClose
+          month={month}
+          total={rows.length}
+          ticked={rows.filter((x) => (x as { reconciled_at?: string | null }).reconciled_at).length}
+          onChanged={load}
+        />
         <div className="surface rounded-sm overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
             <thead>
@@ -562,6 +612,15 @@ export default function Cashbook() {
                       {bal?.toLocaleString("en-UG")}
                     </td>
                     <td className="px-3 py-2 text-right whitespace-nowrap">
+                      {canLog && (
+                        <button
+                          className={`${pill} mr-1 ${(r as { reconciled_at?: string | null }).reconciled_at ? "border-signal text-signal" : ""}`}
+                          title="Seen on the statement"
+                          onClick={() => toggleMatched(r.id, !(r as { reconciled_at?: string | null }).reconciled_at)}
+                        >
+                          {(r as { reconciled_at?: string | null }).reconciled_at ? "✓ matched" : "match"}
+                        </button>
+                      )}
                       {r.attachment_path && (
                         <button className={pill} onClick={() => openReceipt(r.attachment_path as string)}>
                           receipt

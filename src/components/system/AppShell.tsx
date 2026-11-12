@@ -1,3 +1,4 @@
+import { APP_VERSION } from "@/lib/version";
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -163,6 +164,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
         { to: "/app/sops", label: "SOP Library", icon: BookMarked, end: true },
         { to: "/app/settings", label: "My settings", icon: UserCog },
+        { to: "/app/whats-new", label: `What's new · v${APP_VERSION}`, icon: Sparkles },
       ],
     },
 
@@ -346,7 +348,7 @@ function ShellSidebar({ groups, compact = false, profileTo, onSignOut }: { group
 
   return (
     <Sidebar collapsible="icon" className="border-r border-rule">
-      <SidebarContent ref={scrollRef} className="bg-paper pt-[env(safe-area-inset-top)]">
+      <SidebarContent ref={scrollRef} className="bg-paper-nav pt-[env(safe-area-inset-top)]">
         {groups.map((group) => {
           const isOpen = collapsed || open[group.label] || group.label === activeLabel;
           return (
@@ -420,7 +422,7 @@ function ShellSidebar({ groups, compact = false, profileTo, onSignOut }: { group
         })}
       </SidebarContent>
       {isMobile && (
-        <SidebarFooter className="border-t border-rule bg-paper p-3 pb-[calc(.75rem+env(safe-area-inset-bottom))]">
+        <SidebarFooter className="border-t border-rule bg-paper-nav p-3 pb-[calc(.75rem+env(safe-area-inset-bottom))]">
           <Link to={profileTo} className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium text-ink-soft hover:bg-paper-sunken hover:text-ink focus-ring">
             <UserCog className="h-4 w-4" /> Profile & settings
           </Link>
@@ -541,7 +543,7 @@ function ShellFrame({
         {groups.length > 0 && <ShellSidebar groups={groups} compact={navDensity === "compact"} profileTo={profileTo} onSignOut={signOut} />}
 
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-40 h-[calc(3.5rem+env(safe-area-inset-top))] rule-b bg-paper/95 px-2.5 pt-[env(safe-area-inset-top)] backdrop-blur flex items-center gap-2 md:h-16 md:gap-3 md:px-6 md:pt-0">
+          <header className="sticky top-0 z-40 h-[calc(3.5rem+env(safe-area-inset-top))] rule-b bg-paper-nav/95 px-2.5 pt-[env(safe-area-inset-top)] backdrop-blur flex items-center gap-2 md:h-16 md:gap-3 md:px-6 md:pt-0">
             {groups.length > 0 && <SidebarTrigger className="focus-ring" />}
             <Link to="/" className="shrink-0 focus-ring rounded-md">
               <img src={logo} alt="Site 99" className="h-8 w-auto md:h-12" />
@@ -594,7 +596,7 @@ function ShellFrame({
           <main className="mobile-page flex-1 min-w-0 overflow-x-clip px-3 pb-[calc(5.75rem+env(safe-area-inset-bottom))] pt-4 sm:px-4 md:px-8 md:py-8">{children}</main>
 
           {groups.length > 0 && (
-            <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-rule bg-paper/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" aria-label="Quick navigation">
+            <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-rule bg-paper-nav/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" aria-label="Quick navigation">
               <MobileNavItem to={homeTo} label="Home" icon={Home} />
               <MobileNavItem to={workTo} label={isStaff ? "To-Do" : talentId ? "Bookings" : "Work"} icon={ListChecks} />
               <MobileNavItem to={chatTo} label={talentId && !isStaff ? "Contracts" : "Chat"} icon={talentId && !isStaff ? FileText : MessageCircle} />

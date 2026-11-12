@@ -1,3 +1,4 @@
+import { APP_VERSION } from "@/lib/version";
 import { useEffect, useState } from "react";
 import StaffFileForm from "@/components/people/StaffFileForm";
 import { uploadAvatar } from "@/lib/staffProfile";
@@ -293,6 +294,7 @@ export default function Settings() {
             <h1 className="display truncate text-2xl md:text-3xl">{shown}</h1>
             <p className="truncate text-sm text-ink-soft">{title || "Team member"}</p>
             <p className="truncate text-xs text-ink-faint">{email ?? ""}</p>
+            <Link to="/app/whats-new" className="text-[11px] text-ink-faint underline">Site 99 v{APP_VERSION} · what's new</Link>
           </div>
         </div>
 

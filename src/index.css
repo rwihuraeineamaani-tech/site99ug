@@ -47,6 +47,9 @@
     --paper: 40 12% 97%;
     --paper-raised: 0 0% 100%;
     --paper-sunken: 40 10% 94%;
+    --paper-nav: 40 10% 95%;
+    --paper-overlay: 0 0% 100%;
+    --signal-foreground: 0 0% 100%;
     --ink: 0 0% 6%;
     --ink-soft: 0 0% 38%;
     --ink-faint: 0 0% 62%;
@@ -324,33 +327,37 @@
    themes itself. The public site never gets this class.
    ================================================================ */
 .deck {
-  --paper: 240 6% 4%;
-  --paper-raised: 240 5% 9%;
-  --paper-sunken: 240 5% 7%;
-  --ink: 0 0% 92%;
-  --ink-soft: 0 0% 64%;
-  --ink-faint: 0 0% 46%;
-  --signal: 5 78% 53%;
-  --rule: 240 4% 17%;
-  --rule-strong: 0 0% 34%;
+  /* Layers, back to front: nav < page < sunken wells < cards < overlays */
+  --paper-nav: 226 16% 7%;
+  --paper: 226 15% 9.5%;
+  --paper-sunken: 226 14% 12%;
+  --paper-raised: 225 13% 14.5%;
+  --paper-overlay: 224 13% 18%;
+  --ink: 220 20% 95%;
+  --ink-soft: 222 12% 72%;
+  --ink-faint: 223 9% 55%;
+  --signal: 4 80% 56%;
+  --signal-foreground: 0 0% 100%;
+  --rule: 224 12% 22%;
+  --rule-strong: 224 10% 36%;
 
-  --background: 240 6% 4%;
-  --foreground: 0 0% 92%;
-  --card: 240 5% 9%;
-  --card-foreground: 0 0% 92%;
-  --popover: 240 5% 9%;
-  --popover-foreground: 0 0% 92%;
-  --primary: 5 78% 53%;
+  --background: 226 15% 9.5%;
+  --foreground: 220 20% 95%;
+  --card: 225 13% 14.5%;
+  --card-foreground: 220 20% 95%;
+  --popover: 224 13% 18%;
+  --popover-foreground: 220 20% 95%;
+  --primary: 4 80% 56%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 240 5% 13%;
-  --secondary-foreground: 0 0% 92%;
-  --muted: 240 5% 13%;
-  --muted-foreground: 0 0% 64%;
-  --accent: 5 78% 53%;
+  --secondary: 224 13% 19%;
+  --secondary-foreground: 220 20% 95%;
+  --muted: 224 13% 17%;
+  --muted-foreground: 222 12% 72%;
+  --accent: 4 80% 56%;
   --accent-foreground: 0 0% 100%;
-  --border: 240 4% 17%;
-  --input: 240 4% 17%;
-  --ring: 5 78% 53%;
+  --border: 224 12% 22%;
+  --input: 224 12% 26%;
+  --ring: 4 80% 56%;
 
   --acc-violet: 265 90% 76%;
   --acc-violet-soft: 265 45% 18%;
@@ -372,18 +379,16 @@
 
 /* --- Dark deck: softer hairlines, lit surfaces ------------------- */
 .deck {
-  --hair: 0 0% 100% / 0.07;
-  --hair-soft: 0 0% 100% / 0.045;
+  --hair: 0 0% 100% / 0.1;
+  --hair-soft: 0 0% 100% / 0.065;
 }
 .deck .card-lift:hover {
   box-shadow: 0 18px 40px -26px hsl(0 0% 0% / 0.9), 0 0 0 1px hsl(var(--signal) / 0.35);
 }
 .deck .surface {
-  background:
-    linear-gradient(180deg, hsl(0 0% 100% / 0.045), hsl(0 0% 100% / 0.006) 42%),
-    hsl(var(--paper-raised));
+  background: hsl(var(--paper-raised));
   border-color: hsl(var(--hair));
-  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.05), 0 1px 2px hsl(0 0% 0% / 0.45);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04), 0 1px 2px hsl(226 30% 2% / 0.5), 0 8px 24px -16px hsl(226 30% 2% / 0.7);
 }
 /* Hairlines: light-on-dark instead of flat grey — reads cleaner */
 .deck .rule-b { border-bottom-color: hsl(var(--hair-soft)); }
@@ -424,12 +429,8 @@
 
 @layer utilities {
   /* Faint engineering grid + a warm glow behind the header */
-  .deck-grid {
-    background-image:
-      linear-gradient(to right, hsl(0 0% 100% / 0.028) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(0 0% 100% / 0.028) 1px, transparent 1px);
-    background-size: 56px 56px;
-  }
+  /* v2: plain layered page, no engineering grid lines */
+  .deck-grid { background-image: none; }
   .deck-glow::before {
     content: '';
     position: absolute;
@@ -478,9 +479,11 @@ body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
    Light appearance for the signed-in system (per-person preference).
    ================================================================ */
 .deck.deck-light {
-  --paper: 40 20% 99%;
+  --paper-nav: 220 14% 96%;
+  --paper: 220 16% 97.5%;
   --paper-raised: 0 0% 100%;
-  --paper-sunken: 40 12% 96%;
+  --paper-sunken: 220 14% 95%;
+  --paper-overlay: 0 0% 100%;
   --ink: 240 8% 12%;
   --ink-soft: 240 5% 38%;
   --ink-faint: 240 4% 52%;
@@ -525,11 +528,7 @@ body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
 }
 
 .deck.deck-light .surface { box-shadow: 0 1px 2px hsl(240 8% 12% / 0.06); }
-.deck.deck-light.deck-grid {
-  background-image:
-    linear-gradient(to right, hsl(240 8% 12% / 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, hsl(240 8% 12% / 0.035) 1px, transparent 1px);
-}
+.deck.deck-light.deck-grid { background-image: none; }
 
 
 /* Printing a client strategy: keep the page, drop the app chrome. */
@@ -552,3 +551,59 @@ body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
 
 /* Strategy map: its line layers are zero-width boxes that draw outside themselves. */
 .react-flow svg { max-width: none; }
+
+
+/* ================================================================
+   v2 controls: one official button, field and table language for the
+   signed-in system. Scoped to .deck so the public site keeps its look.
+   ================================================================ */
+/* Shape for every pill-style control */
+.deck :is(button, a).press.rounded-full,
+.deck .ctl { border-radius: 0.6rem; letter-spacing: 0.01em; }
+/* Neutral (secondary) buttons: a raised layer with a visible edge */
+.deck :is(button, a).press.rounded-full:is(.bg-paper-raised, .bg-paper),
+.deck .ctl:not(.ctl-solid) {
+  background: hsl(var(--paper-overlay));
+  border-color: hsl(var(--hair));
+  color: hsl(var(--ink));
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.06), 0 1px 2px hsl(226 30% 2% / 0.45);
+}
+.deck :is(button, a).press.rounded-full:is(.bg-paper-raised, .bg-paper):hover:not(:disabled),
+.deck .ctl:not(.ctl-solid):hover:not(:disabled) {
+  border-color: hsl(var(--rule-strong));
+  color: hsl(var(--ink));
+}
+/* Primary actions: solid brand red with white text and a soft glow */
+.deck :is(button, a).press.rounded-full.bg-signal,
+.deck .ctl-solid {
+  background: hsl(var(--signal));
+  border-color: hsl(var(--signal));
+  color: hsl(var(--signal-foreground));
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.18), 0 6px 16px -8px hsl(var(--signal) / 0.7);
+}
+.deck :is(button, a).press.rounded-full.bg-signal:hover:not(:disabled),
+.deck .ctl-solid:hover:not(:disabled) { background: hsl(var(--signal) / 0.9); color: hsl(var(--signal-foreground)); }
+.deck button.press.rounded-full:disabled { opacity: 0.45; box-shadow: none; }
+.deck.deck-light :is(button, a).press.rounded-full:is(.bg-paper-raised, .bg-paper),
+.deck.deck-light .ctl:not(.ctl-solid) {
+  box-shadow: 0 1px 2px hsl(220 20% 20% / 0.08);
+  border-color: hsl(var(--rule));
+}
+
+/* Fields sit in a sunken well so they read as inputs, not text */
+.deck input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]).rounded-lg,
+.deck select.rounded-lg,
+.deck textarea.rounded-lg,
+.deck .field {
+  background: hsl(var(--paper-sunken));
+  border-color: hsl(var(--input, var(--rule)));
+}
+
+/* Tables: a clear header band, hover rows */
+.deck table thead tr { background: hsl(var(--paper-sunken)); }
+.deck table tbody tr { transition: background-color 120ms ease; }
+.deck table tbody tr:hover { background: hsl(var(--paper-overlay) / 0.45); }
+
+/* Cards built with utilities get the same lift as .surface */
+.deck .rounded-2xl.border.bg-paper-raised { box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04), 0 1px 2px hsl(226 30% 2% / 0.5), 0 8px 24px -16px hsl(226 30% 2% / 0.7); }
+.deck.deck-light .rounded-2xl.border.bg-paper-raised { box-shadow: 0 1px 2px hsl(220 20% 20% / 0.06); }

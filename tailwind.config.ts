@@ -32,6 +32,8 @@ export default {
           DEFAULT: "hsl(var(--paper))",
           raised: "hsl(var(--paper-raised))",
           sunken: "hsl(var(--paper-sunken))",
+          nav: "hsl(var(--paper-nav))",
+          overlay: "hsl(var(--paper-overlay))",
         },
         ink: {
           DEFAULT: "hsl(var(--ink))",

@@ -134,6 +134,13 @@
       "when": 1794465744616,
       "tag": "0018_cashbook_payment_details",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794466083220,
+      "tag": "0019_finance_close_weekly_pack_fund_alerts",
+      "breakpoints": true
     }
   ]
 }
