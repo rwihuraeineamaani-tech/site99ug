@@ -259,6 +259,9 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
     ? [
         { to: "/app/finance", label: "Overview", end: true, icon: Wallet },
         { to: "/app/finance/cashbook", label: "Cashbook", icon: BookOpen },
+        { to: "/app/finance/accounts", label: "Accounts", icon: Landmark },
+        { to: "/app/finance/production-fund", label: "Production fund", icon: HandCoins },
+        { to: "/app/finance/old-sheet", label: "Old sheet archive", icon: FileText },
         { to: "/app/finance/requests", label: "Requests", icon: HandCoins },
         { to: "/app/finance/payments", label: "Payments", icon: Banknote },
         { to: "/app/finance/monthly", label: "This month", icon: CalendarDays },
@@ -270,7 +273,7 @@ function useNavGroups(nav?: ShellNavItem[]): ShellNavGroup[] {
         { to: "/app/finance/reports", label: "Reports", icon: FileText },
         { to: "/app/finance/lookup", label: "Look up", icon: Search }, { to: "/app/sops?dept=finance", label: "SOPs", icon: BookMarked }
       ]
-    : [{ to: "/app/finance/requests", label: "Requests", icon: HandCoins }, { to: "/app/sops?dept=finance", label: "SOPs", icon: BookMarked }];
+    : [...(has("creative_director", "strategist") ? [{ to: "/app/finance/production-fund", label: "Production fund", icon: HandCoins }] : []), { to: "/app/finance/requests", label: "Requests", icon: HandCoins }, { to: "/app/sops?dept=finance", label: "SOPs", icon: BookMarked }];
   groups.push({ label: "Finance", items: finance });
 
   if (winding.length) groups.push({ label: "Winding down", items: winding });
