@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
 import { toast } from "sonner";
 import FinancePage from "@/components/finance/FinancePage";
+import MonthClose from "@/components/finance/MonthClose";
 import ContractDetail from "@/components/legal/ContractDetail";
 import { SectionHeading, Money, SearchInput, SelectFilter, StatusChip } from "@/components/system";
 import { useMyRoles } from "@/hooks/useMyRoles";
@@ -258,6 +259,13 @@ export default function Cashbook() {
     setFile(null);
   };
 
+  const toggleMatched = async (id: string, on: boolean) => {
+    if (!(await requirePin())) return;
+    const { error } = await supabase.rpc("set_entry_reconciled", { _id: id, _on: on });
+    if (error) return toast.error(error.message);
+    load();
+  };
+
   const saveEntry = async () => {
     if (!(await requirePin())) return;
     const amt = Math.round(Number(amount));
@@ -486,6 +494,12 @@ export default function Cashbook() {
           </button>
         </div>
 
+        <MonthClose
+          month={month}
+          total={rows.length}
+          ticked={rows.filter((x) => (x as { reconciled_at?: string | null }).reconciled_at).length}
+          onChanged={load}
+        />
         <div className="surface rounded-sm overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
             <thead>
@@ -562,6 +576,15 @@ export default function Cashbook() {
                       {bal?.toLocaleString("en-UG")}
                     </td>
                     <td className="px-3 py-2 text-right whitespace-nowrap">
+                      {canLog && (
+                        <button
+                          className={`${pill} mr-1 ${(r as { reconciled_at?: string | null }).reconciled_at ? "border-signal text-signal" : ""}`}
+                          title="Seen on the statement"
+                          onClick={() => toggleMatched(r.id, !(r as { reconciled_at?: string | null }).reconciled_at)}
+                        >
+                          {(r as { reconciled_at?: string | null }).reconciled_at ? "✓ matched" : "match"}
+                        </button>
+                      )}
                       {r.attachment_path && (
                         <button className={pill} onClick={() => openReceipt(r.attachment_path as string)}>
                           receipt
