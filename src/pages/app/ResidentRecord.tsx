@@ -313,14 +313,14 @@ export default function ResidentRecordPage() {
           </div>
 
 
-          <div className="mb-8 -mx-1 flex gap-1 overflow-x-auto rounded-full surface-sunken p-1" role="tablist">
+          <div className="no-scrollbar mb-8 flex max-w-full gap-1 overflow-x-auto rounded-lg border border-input bg-paper-sunken p-1" role="tablist">
             {RECORD_TABS.map((t) => (
               <button
                 key={t}
                 role="tab"
                 aria-selected={tab === t}
                 onClick={() => setTab(t)}
-                className={`press focus-ring shrink-0 rounded-full px-4 py-1.5 text-xs ${tab === t ? "bg-paper-raised text-ink" : "text-ink-soft"}`}
+                className={`focus-ring h-8 shrink-0 rounded-md px-3.5 text-[13px] font-semibold first-letter:uppercase transition-colors ${tab === t ? "seg-thumb bg-paper-overlay text-ink shadow-[inset_0_1px_0_hsl(0_0%_100%/0.06),0_1px_2px_hsl(226_30%_2%/0.35)]" : "text-ink-faint hover:text-ink"}`}
               >
                 {t}
               </button>
