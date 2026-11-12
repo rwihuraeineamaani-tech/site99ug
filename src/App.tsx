@@ -45,6 +45,7 @@ import AppSettings from "./pages/app/Settings.tsx";
 import PortalOverview from "./pages/app/portal/PortalOverview.tsx";
 import PortalWork from "./pages/app/portal/PortalWork.tsx";
 import PortalShoots from "./pages/app/portal/PortalShoots.tsx";
+import PortalShootDay from "./pages/app/portal/PortalShootDay.tsx";
 import PortalMoney from "./pages/app/portal/PortalMoney.tsx";
 import PortalDocuments from "./pages/app/portal/PortalDocuments.tsx";
 import PortalStrategy from "./pages/app/portal/PortalStrategy.tsx";
@@ -505,6 +506,7 @@ const AnimatedRoutes = () => {
         <Route path="/portal" element={<RequireRole gate="client"><PortalOverview /></RequireRole>} />
         <Route path="/portal/work" element={<RequireRole gate="client"><PortalWork /></RequireRole>} />
         <Route path="/portal/shoots" element={<RequireRole gate="client"><PortalShoots /></RequireRole>} />
+        <Route path="/portal/shoots/:id" element={<RequireRole gate="client"><PortalShootDay /></RequireRole>} />
         <Route path="/portal/money" element={<RequireRole gate="client"><PortalMoney /></RequireRole>} />
         <Route path="/portal/strategy" element={<RequireRole gate="client"><PortalStrategy /></RequireRole>} />
         <Route path="/portal/calendar" element={<RequireRole gate="client"><PortalCalendar /></RequireRole>} />
