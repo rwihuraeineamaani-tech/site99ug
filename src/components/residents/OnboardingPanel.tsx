@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionHeading, StatusChip } from "@/components/system";
 import { useMyRoles } from "@/hooks/useMyRoles";
+import ActivateClientButton from "@/components/residents/ActivateClientButton";
 import PortalAccessPanel from "@/components/residents/PortalAccessPanel";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,6 +78,13 @@ export default function OnboardingPanel({ residentId, index = "01" }: { resident
           <p className="mt-3 text-[11px] text-ink-faint">"Already onboarded" is for established clients: it ticks off the routine steps and leaves the contract and handover for the MD to sign off.</p>
         </div>
       ) : (
+        <>
+        {count === steps.length && (
+          <div className="surface mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4 text-sm">
+            <span>Every step is done. Activate the client to finish onboarding.</span>
+            <ActivateClientButton residentId={residentId} onDone={load} />
+          </div>
+        )}
         <ol className="surface rounded-2xl divide-y divide-rule">
           {steps.map((s, i) => {
             const late = !done(s) && s.due_on && s.due_on < today();
@@ -123,6 +131,7 @@ export default function OnboardingPanel({ residentId, index = "01" }: { resident
             );
           })}
         </ol>
+        </>
       )}
     </section>
   );

@@ -99,24 +99,6 @@ export default function PortalDocuments() {
           )}
         </PortalCard>
 
-        <PortalCard title="Setting you up" hint={`${steps.length}`}>
-          {steps.length === 0 ? (
-            <PortalEmpty>Nothing outstanding.</PortalEmpty>
-          ) : (
-            <ul className="space-y-2">
-              {steps.map((s) => (
-                <li key={s.id} className="rounded-xl border border-hairline px-3 py-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm">{s.title}</div>
-                    <StatusChip value={s.status} />
-                  </div>
-                  <div className="mt-1 text-xs text-ink-faint">Due {fmt(s.due_on)}</div>
-                  {s.note && <p className="mt-1 text-sm text-ink-soft">{s.note}</p>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </PortalCard>
       </div>
     </PortalPage>
   );

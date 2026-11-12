@@ -85,6 +85,20 @@
       "when": 1794462161621,
       "tag": "0011_client_calendar_approvals_shoot_needs",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794462970976,
+      "tag": "0012_onboarding_not_needed_and_activate",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794462990991,
+      "tag": "0013_fix_activate_resident_log",
+      "breakpoints": true
     }
   ]
 }
