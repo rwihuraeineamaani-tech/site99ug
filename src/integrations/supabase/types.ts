@@ -7279,6 +7279,10 @@ export type Database = {
         }[]
       }
       recompute_all_lifecycles: { Args: never; Returns: number }
+      recompute_invoice_paid: {
+        Args: { _invoice_id: string }
+        Returns: undefined
+      }
       recompute_resident_lifecycle: {
         Args: { _resident_id: string }
         Returns: string
