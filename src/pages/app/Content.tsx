@@ -18,7 +18,7 @@ import {
 } from "@/components/system";
 import { toneFor, TONE_SOFT, TONE_SOLID, TONE_TEXT } from "@/components/system/StatusChip";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Lock, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Lock, ExternalLink, Ban } from "lucide-react";
 
 import { useMyAssignments } from "@/hooks/useMyAssignments";
 import AiRecommendations from "@/components/content/AiRecommendations";
@@ -416,6 +416,30 @@ export default function ContentPipeline() {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Removed.");
+    setOpen(false);
+    load();
+  };
+
+  const cancelPost = async () => {
+    if (!editing) return;
+    const reason = window.prompt(`Cancel "${editing.title}"? Tell the client and team why.`);
+    if (reason === null) return;
+    if (!reason.trim()) return toast.error("A reason is needed to cancel a post.");
+    setBusy(true);
+    const { error } = await supabase.rpc("cancel_post", { _id: editing.id, _reason: reason });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Post cancelled. The client and Handler have been told.");
+    setOpen(false);
+    load();
+  };
+  const restorePost = async () => {
+    if (!editing) return;
+    setBusy(true);
+    const { error } = await supabase.rpc("restore_post", { _id: editing.id });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Post restored.");
     setOpen(false);
     load();
   };
