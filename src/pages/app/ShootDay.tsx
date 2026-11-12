@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
+import ClientNeedsPanel from "@/components/shoots/ClientNeedsPanel";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { refCode } from "@/lib/contentFlow";
@@ -423,6 +424,8 @@ export default function ShootDayRun() {
           </div>
         </div>
       )}
+
+      <ClientNeedsPanel dayId={dayId} />
 
       {/* what was shot */}
       <section className="mt-10">

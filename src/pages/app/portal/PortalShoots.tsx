@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { usePortalClient } from "@/hooks/usePortalClient";
 import PortalPage, { PortalCard, PortalEmpty } from "@/components/portal/PortalPage";
@@ -62,6 +63,7 @@ export default function PortalShoots() {
         <div className="text-sm">{fmt(s.shoot_date)}</div>
         <StatusChip value={s.status} />
       </div>
+      <Link to={`/portal/shoots/${s.id}`} className="mt-1 inline-block text-xs text-signal">Open shoot day, what we need and brief PDF</Link>
       <div className="mt-1 text-xs text-ink-faint">
         {s.call_time ? `Call ${s.call_time}` : "Call time to confirm"}
         {s.location ? ` · ${s.location}` : ""}
