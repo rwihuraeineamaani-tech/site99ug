@@ -1,15 +1,15 @@
-# Roadmap
+# Finance overhaul v2.0
 
-- [x] Add secure leadership work assignment schema, transitions, evidence, reminders, and notifications
-- [x] Build task data helpers, assignment form, personal/assigned views, task detail and history
-- [x] Integrate leadership tasks into To-Do, dashboard counts, calendar, and push links
-- [x] Activity trail: presence, activity log, admin trail screen with team/client split
-- [x] Move People & access under System administration in the menu and expand its tabs
-- [ ] Lock all Finance buttons behind the payment PIN, with a link to set one up
-- [ ] Verify permissions, workflows, mobile layouts, typecheck, build, and browser behavior
-- [x] Complete the approved whole-app mobile upgrade across public and signed-in screens
-- [x] Let every approval in the Approvals list be approved (bypass blocked checks)
-- [x] Richer approval detail so approvers see everything before deciding
-- [x] Finance projection graphs on the dashboard and a Projections tab
-- [x] VAT included/excluded on contract details
-- [x] Legal to-do: verify and complete every contract
+- [x] New numbering (S9926INVA001 style) for invoices, receipts, expenses, transfers, loans, fund requests; old sheet and existing records renumbered
+- [x] Old sheet archive (143 rows) with problem flags
+- [x] Accounts with colours, opening balances (1 Nov 2026), transfers with charges and TID
+- [x] Production fund: estimate, Co-founder limit, requests, Finance release
+- [x] Cashbook: TID (required for mobile money) and charges
+- [ ] Opening balances per account on 1 Nov 2026 (waiting on user)
+- [ ] Payroll/volunteer pay sheet import (waiting on upload)
+- [ ] Loans register entries for Rwihura and Muhendo loans
+- [ ] Re-check Oct/Nov live entries against bank
+- [ ] Redesigned invoice/receipt PDFs + email sending (email domain still not verified)
+- [ ] Reconciliation + month lock; P&L, cash flow, balance sheet; Friday report pack
+- [ ] UI v2.0 refresh using My Kweeza / Hardware Management System
+- [ ] Versioning and What's new page
