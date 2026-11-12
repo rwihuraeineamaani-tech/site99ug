@@ -59,6 +59,8 @@ export type CalendarData = {
   calendarItems: CalendarItem[];
 };
 
+const kampalaDate = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Kampala" }).format(new Date(iso));
+
 /** Everything dated between two days: shoots, posts, numbers due, events and busy blocks. */
 export async function loadCalendar(from: string, to: string): Promise<CalendarData> {
   const [shoots, content, events, blocksRes, calendarItemsRes, busySlotsRes, residentsRes, peopleRes, taskRes, taskLinksRes] = await Promise.all([
@@ -69,8 +71,8 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
       .lte("shoot_date", to),
     supabase
       .from("content_items")
-      .select("id, ref_no, title, stage, resident_id, planned_at, metrics_due_at")
-      .not("stage", "in", '("Archived","Rejected")'),
+      .select("id, ref_no, title, stage, resident_id, planned_at, metrics_due_at, posted_at, cancelled_at")
+      .neq("stage", "Rejected"),
     supabase.from("events").select("id, title, slug, starts_at, venue").gte("starts_at", from).lte("starts_at", `${to}T23:59:59Z`),
     supabase.from("availability_blocks").select("*"),
     supabase.from("calendar_items").select("*").lte("start_date", to).or(`until.gte.${from},end_date.gte.${from}`),
@@ -115,15 +117,18 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
       })
     );
 
-  ((content.data as { id: string; ref_no: number; title: string; stage: string; resident_id: string | null; planned_at: string | null; metrics_due_at: string | null }[]) ?? []).forEach((c) => {
-    const planned = c.planned_at?.slice(0, 10);
-    if (planned && planned >= from && planned <= to && c.stage !== "Posted") {
+  type ContentRow = { id: string; ref_no: number; title: string; stage: string; resident_id: string | null; planned_at: string | null; metrics_due_at: string | null; posted_at: string | null; cancelled_at: string | null };
+  ((content.data as ContentRow[]) ?? []).forEach((c) => {
+    const client = names.get(c.resident_id ?? "") ?? "Studio";
+    // A posted video sits on the day it went live, so fixing the posted day moves it here too.
+    const day = c.posted_at ? kampalaDate(c.posted_at) : c.stage === "Archived" ? null : c.planned_at?.slice(0, 10);
+    if (day && day >= from && day <= to) {
       entries.push({
         id: `post-${c.id}`,
-        date: planned,
+        date: day,
         kind: "post",
         title: c.title,
-        note: `${c.stage} · ${names.get(c.resident_id ?? "") ?? "Studio"}`,
+        note: c.posted_at ? `Posted · ${client}` : `${c.cancelled_at ? "Cancelled" : c.stage} · ${client}`,
         to: `/app/content?ref=${c.ref_no}`,
         residentId: c.resident_id,
       });
