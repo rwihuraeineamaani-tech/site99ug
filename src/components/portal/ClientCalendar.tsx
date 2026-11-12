@@ -11,6 +11,7 @@ import { kampalaDay, postWhen } from "@/lib/portalSchedule";
 import { windowLabel } from "@/lib/postReview";
 import { CAL_STYLE, calStatus, type CalStatus } from "@/lib/clientCalendar";
 import PostReviewCard, { type ReviewItem } from "@/components/portal/PostReviewCard";
+import { PostedDayFix } from "@/components/content/PostedDayFix";
 
 type Item = ReviewItem & { stage: string; metrics_due_at: string | null; metrics_filled_at: string | null };
 type Entry = { id: string; date: string; time?: string; title: string; kind: "shoot" | "post"; to: string; note?: string; status?: CalStatus; stage?: string };
@@ -138,6 +139,17 @@ export default function ClientCalendar({ residentId, staff = false, isAdmin = fa
         <div id="post-review">
           <PortalCard title={staff ? "What the client sees" : "Review this post"}>
             <PostReviewCard key={open + tick} item={items[open]} readOnly={staff} canApprove={approves && items[open].stage === "Review"} canCancel={staff} onDone={() => setTick((t) => t + 1)} />
+            {staff && items[open].posted_at && (
+              <PostedDayFix
+                key={`day-${open}-${items[open].posted_at}`}
+                id={open}
+                postedAt={items[open].posted_at ?? null}
+                onSaved={(at) => {
+                  setMonth(kampalaDay(new Date(at)).slice(0, 7));
+                  setTick((t) => t + 1);
+                }}
+              />
+            )}
             <div className="mt-2 flex gap-2">
               {staff && isAdmin && approves && items[open].stage === "Review" && <Button size="sm" onClick={() => override(open)}>Approve for client</Button>}
               <Button variant="ghost" size="sm" onClick={() => setOpen(null)}>Close</Button>

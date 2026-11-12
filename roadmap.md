@@ -24,8 +24,8 @@
 - [x] Integrate leadership tasks into To-Do, dashboard counts, calendar, and push links
 - [x] Activity trail: presence, activity log, admin trail screen with team/client split
 - [x] Move People & access under System administration in the menu and expand its tabs
-- [ ] Lock all Finance buttons behind the payment PIN, with a link to set one up
-- [ ] Verify permissions, workflows, mobile layouts, typecheck, build, and browser behavior
+- [x] Lock all Finance buttons behind the payment PIN, with a link to set one up
+- [x] Verify permissions, workflows, mobile layouts, typecheck, build, and browser behavior
 - [x] Complete the approved whole-app mobile upgrade across public and signed-in screens
 - [x] Let every approval in the Approvals list be approved (bypass blocked checks)
 - [x] Richer approval detail so approvers see everything before deciding
@@ -35,5 +35,6 @@
 
 # Official UI pass (Phase 6, continued)
 - [x] Part 1 (v2.3.0): shared drop-downs, filters, view switches, tabs, status labels, side menu, top bar, long dashes removed from screen text
-- [ ] Part 2: page by page polish, Finance first, then Dashboard, Residents, Content Pipeline, then the rest
-- [ ] Light mode check of every page (needs a light-mode account setting to test against)
+- [x] Part 2: tab bars on Sales, admin pages and client records, shoot-day picker, status label wording, tighter labels, button edges in light mode
+- [x] Light mode check of the main pages (Dashboard, Cashbook, Contracts, To-Do, Settings)
+- [x] Edit the posted day of a video and have it move on every calendar (team calendar, client calendar view)
