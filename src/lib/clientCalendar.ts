@@ -30,7 +30,7 @@ function addDays(d: string, n: number) {
 }
 
 export const CAL_STYLE: Record<CalStatus, { label: string; cls: string }> = {
-  posted: { label: "Posted", cls: "border-state-done/60 bg-state-done/15" },
+  posted: { label: "Posted", cls: "border-acc-lime/70 bg-acc-lime-soft" },
   numbers_due: { label: "Numbers overdue", cls: "border-state-stop/70 bg-state-stop/20" },
   rejected: { label: "Rejected", cls: "border-state-stop border-dashed bg-transparent line-through opacity-80" },
   changes: { label: "Changes asked", cls: "border-state-stop border-dashed bg-transparent" },

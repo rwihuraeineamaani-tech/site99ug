@@ -68,7 +68,7 @@ export default function ClientCalendar({ residentId, staff = false, isAdmin = fa
   const show = (id: string) => { setOpen(id); setTimeout(() => document.getElementById("post-review")?.scrollIntoView({ behavior: "smooth" }), 50); };
 
   const Icon = ({ s }: { s?: CalStatus }) =>
-    s === "posted" ? <CheckCircle2 className="h-3 w-3 shrink-0 text-state-done" /> :
+    s === "posted" ? <CheckCircle2 className="h-3 w-3 shrink-0 text-acc-lime" /> :
     s === "rejected" || s === "changes" ? <XCircle className="h-3 w-3 shrink-0 text-state-stop" /> : null;
 
   const chip = (e: Entry) => e.kind === "post" ? (
