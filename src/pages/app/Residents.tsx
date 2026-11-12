@@ -140,11 +140,11 @@ export default function ResidentsHub() {
 
   return (
     <AppShell eyebrow="Residents">
-      <Seo title="Residents — Site 99" description="Every resident we work with, in full." path="/app/residents" noindex />
+      <Seo title="Residents · Site 99" description="Every resident we work with, in full." path="/app/residents" noindex />
       <PageHeader
         eyebrow="Residents"
         title="Residents."
-        lede={`${activeCount} active clients. Open any card for their full record — content, shoots, money, contracts and relations.`}
+        lede={`${activeCount} active clients. Open any card for their full record, content, shoots, money, contracts and relations.`}
       />
       {has("admin", "founder", "managing_director", "operations_manager", "communications", "client_relations") && (
         <div className="-mt-2 mb-5 [&>button]:w-full sm:-mt-4 sm:mb-6 sm:[&>button]:w-auto"><AddResidentDialog /></div>

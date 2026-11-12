@@ -11,7 +11,7 @@ const GUIDES: Record<string, HelpGuide> = {
     title: "Dashboard",
     what: "Your daily starting point: what is waiting on you, what is happening today and how the studio is performing.",
     steps: [
-      "Read the “Waiting on you” card first — it is ordered by what is late, due today and coming next.",
+      "Read the “Waiting on you” card first, it is ordered by what is late, due today and coming next.",
       "Tap any card to jump straight to the work it belongs to.",
       "Check the week strip to see shoots, deadlines and calendar items ahead.",
       "Use the performance figures to compare the last 30 days with the 30 days before.",
@@ -35,7 +35,7 @@ const GUIDES: Record<string, HelpGuide> = {
     steps: [
       "Switch between Cards and List, whichever you read faster.",
       "Use the filters to see Overdue, Today or a single area of work.",
-      "Open an item to do the work — you land on the exact page that needs you.",
+      "Open an item to do the work, you land on the exact page that needs you.",
       "Leaders can use “Assign work” to give someone a job, a deadline and what evidence you expect back.",
       "Leaders can follow progress under “Assigned by me”, then accept or return submitted work.",
     ],
@@ -50,7 +50,7 @@ const GUIDES: Record<string, HelpGuide> = {
     title: "Briefs",
     what: "Shoot day briefs and client briefs in one place.",
     steps: [
-      "Shoot day briefs sit at the top — open one to see call time, location and the full run of the day.",
+      "Shoot day briefs sit at the top, open one to see call time, location and the full run of the day.",
       "Client briefs follow underneath; open one for the detail and any attachment.",
       "Search by title, client or content to find an older brief.",
     ],
@@ -62,20 +62,20 @@ const GUIDES: Record<string, HelpGuide> = {
   },
   "/app/approvals": {
     title: "Approvals",
-    what: "Everything waiting for your decision — money, content, strategy and contracts.",
+    what: "Everything waiting for your decision, money, content, strategy and contracts.",
     steps: [
       "Review the request and the detail behind it before deciding.",
       "Approve or send back with a clear reason so the person knows what to change.",
       "Finance actions ask for your payment PIN, which unlocks money work for five minutes.",
     ],
-    tips: ["You can never approve your own request — that is blocked on purpose."],
+    tips: ["You can never approve your own request, that is blocked on purpose."],
   },
   "/app/calendar": {
     title: "Calendar",
     what: "Your work diary: personal items, shoots, deadlines and busy time.",
     steps: [
       "Add an item with a date and time; items are private unless you share them with the team.",
-      "Add a busy block for time you cannot be booked — choose whether it warns people or blocks them completely.",
+      "Add a busy block for time you cannot be booked, choose whether it warns people or blocks them completely.",
       "Switch between month, week and agenda views.",
     ],
   },
@@ -114,7 +114,7 @@ const GUIDES: Record<string, HelpGuide> = {
     steps: [
       "Switch between card and list view.",
       "Open a client for everything about them in one place.",
-      "Contracts live in Legal and splits live in Management — they show here but are edited there.",
+      "Contracts live in Legal and splits live in Management, they show here but are edited there.",
     ],
   },
   "/app/sales": {
@@ -123,7 +123,7 @@ const GUIDES: Record<string, HelpGuide> = {
     steps: [
       "Move an opportunity through the stages as it progresses.",
       "Build an offer or quote from a package, then send it for Founder approval.",
-      "When you win, onboard the client straight into Residents — no retyping.",
+      "When you win, onboard the client straight into Residents, no retyping.",
     ],
   },
   "/app/legal": {
@@ -136,7 +136,7 @@ const GUIDES: Record<string, HelpGuide> = {
     what: "Client plans: goals, monthly targets and workflow maps.",
     steps: [
       "Set goals with owners and due dates.",
-      "Set monthly targets — approved targets feed the dashboard.",
+      "Set monthly targets, approved targets feed the dashboard.",
       "Build the map in the editor, then send the version for Founder sign-off.",
     ],
   },
@@ -159,7 +159,7 @@ const GUIDES: Record<string, HelpGuide> = {
       "Requests go through approval before payment; big payments need a second sign-off.",
       "Record the transaction ID and evidence when a payment is made.",
     ],
-    tips: ["Tax guidance in Filing is a plain-English summary — always confirm with your accountant before submitting."],
+    tips: ["Tax guidance in Filing is a plain-English summary, always confirm with your accountant before submitting."],
   },
   "/app/team": {
     title: "People & access",
@@ -171,7 +171,7 @@ const GUIDES: Record<string, HelpGuide> = {
     what: "People and access, who is on the system right now, who does what, and the approval routes for finance, content, strategy and contracts.",
     steps: [
       "People & access: add someone, set their role, remove access when they leave.",
-      "Activity trail: see who is on now, how long they have been on, and what everyone has been doing — team and clients shown apart.",
+      "Activity trail: see who is on now, how long they have been on, and what everyone has been doing, team and clients shown apart.",
       "Set responsibilities per area, then edit and publish approval routes.",
       "Check the audit history when a decision is questioned.",
     ],
@@ -191,7 +191,7 @@ const DEFAULT_GUIDE: HelpGuide = {
     "Use To-Do for every action assigned to you.",
     "Open a section from the menu on the left.",
   ],
-  tips: ["Ask a leader if something looks locked — most limits are role-based on purpose."],
+  tips: ["Ask a leader if something looks locked, most limits are role-based on purpose."],
 };
 
 export function helpFor(pathname: string): HelpGuide {

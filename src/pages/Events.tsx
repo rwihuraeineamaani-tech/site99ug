@@ -34,7 +34,7 @@ export default function Events() {
   return (
     <Layout>
       <Seo
-        title="Events & Tickets — Site 99"
+        title="Events & Tickets · Site 99"
         description="Book tickets to Site 99 events. Pay with MTN MoMo or Airtel Money."
         path="/events"
       />

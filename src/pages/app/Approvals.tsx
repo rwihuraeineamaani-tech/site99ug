@@ -107,7 +107,7 @@ export default function Approvals() {
   return (
     <AppShell eyebrow="Approvals">
       <Seo
-        title="Approvals — Site 99"
+        title="Approvals · Site 99"
         description="Everything across the studio waiting for a sign-off, in one place."
         path="/app/approvals"
         noindex

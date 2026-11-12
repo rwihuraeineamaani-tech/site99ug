@@ -25,9 +25,9 @@ type Shoot = { id: string; resident_id: string; shoot_date: string };
 
 const TITLES: Record<string, { title: string; lede: string }> = {
   overview: { title: "Talent & Campaigns.", lede: "Who's booked, what's owed, which releases are ending and how campaigns are doing." },
-  roster: { title: "Roster.", lede: "Our signed roster and the freelancers we book — with their reach, rates and portal access." },
+  roster: { title: "Roster.", lede: "Our signed roster and the freelancers we book, with their reach, rates and portal access." },
   bookings: { title: "Bookings.", lede: "Book talent for a client, a campaign or a shoot day. Confirming a booking raises the bill for their fee." },
-  contracts: { title: "Contracts & releases.", lede: "Agreements and usage rights — where the content can be used and until when." },
+  contracts: { title: "Contracts & releases.", lede: "Agreements and usage rights, where the content can be used and until when." },
   campaigns: { title: "Campaigns.", lede: "Plan campaigns, attach talent and record what really happened." },
   forecasts: { title: "Forecasts.", lede: "Estimate reach, cost and return before you commit. Every number shows how it was worked out." },
 };
@@ -84,7 +84,7 @@ export default function TalentPage() {
   const head = TITLES[tab] ?? TITLES.overview;
   return (
     <AppShell eyebrow="Talent & Campaigns">
-      <Seo title="Talent & Campaigns — Site 99" description="Talent roster, bookings, campaigns and forecasts." path="/app/talent" noindex />
+      <Seo title="Talent & Campaigns · Site 99" description="Talent roster, bookings, campaigns and forecasts." path="/app/talent" noindex />
       <PageHeader eyebrow="Talent & Campaigns" title={head.title} lede={head.lede} />
       {!canManage && <p className="mb-6 text-xs text-ink-faint">You can view this section. Changes are made by the Talent Director and leadership.</p>}
       {tab === "overview" && <Overview {...{ talent, bookings, contracts, campaigns, results, tName, cName }} />}
@@ -245,7 +245,7 @@ function Bookings({ talent, bookings, campaigns, residents, shoots, canManage, s
     const ok = await save(db.from("talent_bookings").insert({ talent_id: f.talent_id, resident_id: f.resident_id || null, campaign_id: f.campaign_id || null, shoot_day_id: f.shoot_day_id || null, booked_on: f.booked_on, fee_ugx: num(f.fee_ugx), brief: f.brief || null }), "Booking requested");
     if (ok) setF(blank);
   };
-  const setStatus = (id: string, status: string) => save(db.from("talent_bookings").update({ status }).eq("id", id), status === "confirmed" ? "Confirmed — the fee bill is now on the payment board" : "Updated");
+  const setStatus = (id: string, status: string) => save(db.from("talent_bookings").update({ status }).eq("id", id), status === "confirmed" ? "Confirmed, the fee bill is now on the payment board" : "Updated");
   return (
     <>
       {canManage && (
@@ -292,7 +292,7 @@ function Contracts({ talent, contracts, canManage, save, tName }: { talent: Tale
       {canManage && (
         <div className="surface rounded-2xl p-5 mb-8 grid gap-3 md:grid-cols-4">
           <label className="text-xs text-ink-faint">Talent<select className={field} value={f.talent_id} onChange={(e) => setF({ ...f, talent_id: e.target.value })}><option value="">Select…</option>{talent.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
-          <label className="text-xs text-ink-faint">Title<input className={field} placeholder="Image release — Brand X" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></label>
+          <label className="text-xs text-ink-faint">Title<input className={field} placeholder="Image release, Brand X" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></label>
           <label className="text-xs text-ink-faint">Starts<input className={field} type="date" value={f.starts_on} onChange={(e) => setF({ ...f, starts_on: e.target.value })} /></label>
           <label className="text-xs text-ink-faint">Usage ends<input className={field} type="date" value={f.ends_on} onChange={(e) => setF({ ...f, ends_on: e.target.value })} /></label>
           <label className="text-xs text-ink-faint md:col-span-2">Where it can be used<input className={field} placeholder="social, billboards, TV…" value={f.usage_terms} onChange={(e) => setF({ ...f, usage_terms: e.target.value })} /></label>

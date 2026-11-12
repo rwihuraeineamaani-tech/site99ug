@@ -3,7 +3,7 @@ import { AILeadForm } from "@/components/ai/AILeadForm";
 
 const next = [
   "We read it the same day and reply from info@site99ug.com.",
-  "A short call — 20 minutes — to understand the process end to end.",
+  "A short call, 20 minutes, to understand the process end to end.",
   "You get a written work map: what stays manual, what gets automated.",
   "A phased build path with timelines and cost before anything starts.",
 ];
@@ -12,7 +12,7 @@ export default function AIContact() {
   return (
     <>
       <Seo
-        title="Request a Demo — Site 99 AI & Automations"
+        title="Request a Demo · Site 99 AI & Automations"
         description="Tell us what you'd like to automate. Site 99's AI & Automation sector replies with a work map and a phased build path."
         path="/ai-automations/contact"
       />

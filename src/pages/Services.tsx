@@ -8,7 +8,7 @@ const services = [
     n: "01",
     title: "Brand Strategy & Identity",
     lede: "Positioning, naming, and visual identity systems built to travel.",
-    body: "We architect the story, the symbol and the system. From the first naming workshop to the final brand book — voice, type, logo, palette, motion. Identity that holds whether it lands on a billboard in Kampala or a phone in Lagos.",
+    body: "We architect the story, the symbol and the system. From the first naming workshop to the final brand book, voice, type, logo, palette, motion. Identity that holds whether it lands on a billboard in Kampala or a phone in Lagos.",
     deliverables: ["Positioning & narrative", "Naming & verbal identity", "Logo & visual system", "Brand guidelines"],
   },
   {
@@ -16,7 +16,7 @@ const services = [
     n: "02",
     title: "Content & Film",
     lede: "Short-form video, TikTok-native edits, branded films.",
-    body: "We script, shoot and cut for the feed. Vertical-first, attention-engineered, residency-ready. One viral clip can save you 10 Million UGX in TV spend — we build the system that makes that the rule, not the exception.",
+    body: "We script, shoot and cut for the feed. Vertical-first, attention-engineered, residency-ready. One viral clip can save you 10 Million UGX in TV spend, we build the system that makes that the rule, not the exception.",
     deliverables: ["TikTok / Reels production", "Brand films & documentaries", "Photography direction", "Post & motion"],
   },
   {
@@ -24,7 +24,7 @@ const services = [
     n: "03",
     title: "Campaigns & Broadcast",
     lede: "Launch campaigns, paid media, earned PR.",
-    body: "Integrated campaign architecture — concept, channel plan, media buy and broadcast. We deploy across paid, owned and earned with a single narrative spine so every impression compounds.",
+    body: "Integrated campaign architecture, concept, channel plan, media buy and broadcast. We deploy across paid, owned and earned with a single narrative spine so every impression compounds.",
     deliverables: ["Campaign concept & plan", "Paid media (Meta, TikTok, Google)", "PR & press partnerships", "Reporting & optimisation"],
   },
   {
@@ -40,7 +40,7 @@ const services = [
     n: "05",
     title: "AI & Automations",
     lede: "CRMs, workflows and AI systems that run your business while you sleep.",
-    body: "We build the back-of-house — custom CRMs, lead capture, AI agents, content pipelines and reporting dashboards. The unglamorous infrastructure that turns attention into revenue automatically.",
+    body: "We build the back-of-house, custom CRMs, lead capture, AI agents, content pipelines and reporting dashboards. The unglamorous infrastructure that turns attention into revenue automatically.",
     deliverables: ["CRM design & implementation", "AI agents & chatbots", "Workflow automation (Make, n8n, Zapier)", "Internal dashboards"],
   },
   {
@@ -64,7 +64,7 @@ const services = [
     n: "08",
     title: "Production & Live Streaming",
     lede: "Multi-camera production and live broadcast for sport, culture and events.",
-    body: "From basketball games to concerts, launches and conferences — we run the full production stack. Multi-cam capture, switching, graphics, commentary feeds and simulcast to YouTube, TikTok, Facebook and custom RTMP. Built for venues with patchy power and patchier internet.",
+    body: "From basketball games to concerts, launches and conferences, we run the full production stack. Multi-cam capture, switching, graphics, commentary feeds and simulcast to YouTube, TikTok, Facebook and custom RTMP. Built for venues with patchy power and patchier internet.",
     deliverables: ["Multi-camera live capture", "Sports & event broadcast", "Stream graphics & overlays", "Multi-platform simulcast"],
   },
   {
@@ -72,7 +72,7 @@ const services = [
     n: "09",
     title: "Event Ticketing",
     lede: "Sell tickets in UGX with MoMo and Airtel Money. Scan at the gate.",
-    body: "A full ticketing stack for Ugandan events — tier pricing, hosted mobile-money checkout via Pesapal (MTN MoMo, Airtel Money and card), QR-coded tickets delivered by email, and a phone-based scanner for gate check-in. Launch a paid event in minutes; settle to your merchant number the same week.",
+    body: "A full ticketing stack for Ugandan events, tier pricing, hosted mobile-money checkout via Pesapal (MTN MoMo, Airtel Money and card), QR-coded tickets delivered by email, and a phone-based scanner for gate check-in. Launch a paid event in minutes; settle to your merchant number the same week.",
     deliverables: ["Event pages & tier pricing (UGX)", "MoMo / Airtel Money checkout", "QR tickets & email delivery", "Gate scanner & attendance reports"],
   },
 ];
@@ -82,7 +82,7 @@ export default function Services() {
   return (
     <Layout>
       <Seo
-        title="Services — Site 99"
+        title="Services · Site 99"
         description="Brand strategy, content, campaigns, residency, AI automations, web design and social. The full Site 99 service stack."
         path="/services"
       />

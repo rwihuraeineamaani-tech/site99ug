@@ -80,7 +80,7 @@ export default function StaffFileForm({ userId, mode, canSeePrivate = true, canE
         </div>
         <div className="mt-2 h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-signal" style={{ width: `${comp.pct}%` }} /></div>
         {comp.critical.length > 0 && <p className="mt-2 text-xs text-destructive">Needed first: {comp.critical.join(", ")}</p>}
-        {comp.minor.length > 0 && <p className="mt-1 text-xs text-ink-soft">Minor — still to hand in: {comp.minor.join(", ")}</p>}
+        {comp.minor.length > 0 && <p className="mt-1 text-xs text-ink-soft">Minor, still to hand in: {comp.minor.join(", ")}</p>}
         <p className="mt-1 text-[11px] text-ink-soft">{comp.jobNote}</p>
       </div>
 

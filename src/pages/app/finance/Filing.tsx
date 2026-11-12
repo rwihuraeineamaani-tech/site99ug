@@ -61,7 +61,7 @@ export default function Filing() {
   const exportCsv = () => {
     if (tab === "annual") {
       const rows: (string | number)[][] = [
-        ["Site 99 — income tax working", year],
+        ["Site 99, income tax working", year],
         [],
         ["Section", "Category", "Amount UGX", "Rate", "Allowance UGX", "Note"],
         ...pack.income.map((l) => ["Business income", l.label, l.amount, "", "", "Taxable"]),
@@ -92,7 +92,7 @@ export default function Filing() {
     }
     const buckets = [vat.sales, vat.purchases, vat.imported, vat.blockedPurchases, vat.exemptSales];
     const rows: (string | number)[][] = [
-      ["Site 99 — VAT return working", monthLabel(`${month}-01`)],
+      ["Site 99, VAT return working", monthLabel(`${month}-01`)],
       [],
       ["Box", "Gross UGX", "VAT UGX"],
       ...buckets.map((b) => [b.label, b.gross, b.vat]),
@@ -167,7 +167,7 @@ export default function Filing() {
             ["Exempt / outside", vat.exemptSales.label, vat.exemptSales.gross, "No VAT"],
           ];
 
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Site 99 — ${esc(title)} — ${esc(period)}</title>
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Site 99, ${esc(title)}, ${esc(period)}</title>
 <style>
 @page { size: A4; margin: 16mm; }
 * { box-sizing: border-box; }
@@ -185,7 +185,7 @@ tr.total td { font-weight: 700; border-top: 2px solid #111; border-bottom: none;
 .sign div { flex: 1; border-top: 1px solid #999; padding-top: 6px; }
 tfoot td { font-weight: 700; }
 </style></head><body>
-<h1>Site 99 — ${esc(title)}</h1>
+<h1>Site 99, ${esc(title)}</h1>
 <div class="meta">${esc(period)} · prepared ${esc(dayLabel(todayISO()))} · all amounts in Uganda Shillings</div>
 
 <h2>As submitted</h2>
@@ -342,7 +342,7 @@ ${rows
                   <span className="font-medium">{row.counterparty_name}</span>
                   <span className="text-ink-soft">{catLabel(row.category)}</span>
                   <Money amount={row.amount_ugx} className="ml-auto" />
-                  <StatusChip tone="amber" value={`Withhold 6% — ${ug(withhold)}`} />
+                  <StatusChip tone="amber" value={`Withhold 6%, ${ug(withhold)}`} />
                 </li>
               ))}
               {!wht.length && <li className="px-4 py-3 text-sm text-ink-soft">Nothing crossed the threshold this month.</li>}
@@ -440,7 +440,7 @@ ${rows
       {tab === "guide" && (
         <div className="space-y-10">
           <div>
-            <SectionHeading index="01" title="How tax works for us" hint="Uganda — plain English" />
+            <SectionHeading index="01" title="How tax works for us" hint="Uganda, plain English" />
             <div className="grid gap-4 md:grid-cols-2">
               {FILING_GUIDE.map((g) => (
                 <article key={g.title} className="surface rounded-2xl p-5">

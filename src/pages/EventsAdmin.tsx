@@ -335,7 +335,7 @@ export default function EventsAdmin() {
       .eq("id", o.id);
     if (error) return toast.error(error.message);
     await supabase.from("tickets").update({ status: "valid" }).eq("order_id", o.id);
-    toast.success("Confirmed — tickets are live");
+    toast.success("Confirmed, tickets are live");
     await sendTickets(o.id);
   };
 
@@ -528,7 +528,7 @@ export default function EventsAdmin() {
                   <input key={k} placeholder={l} value={form[k] || ""} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="field w-full -b - py-2" />
                 ))}
                 <div className="border border-border rounded p-3 space-y-2">
-                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Poster (shown clean, no fade — prefer portrait)</label>
+                  <label className="mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block">Poster (shown clean, no fade, prefer portrait)</label>
                   <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPoster(f); }} className="text-sm" />
                   {form.poster_url && (
                     <div className="flex items-center gap-3">
@@ -694,7 +694,7 @@ export default function EventsAdmin() {
                             ) : (
                               <div className="flex justify-between items-start gap-2">
                                 <div className="flex-1">
-                                  <div>{t.name} — UGX {t.price_ugx.toLocaleString()} × {t.capacity}</div>
+                                  <div>{t.name}, UGX {t.price_ugx.toLocaleString()} × {t.capacity}</div>
                                   <div className="mono text-[10px] text-muted-foreground">
                                     {t.sales_start_at ? `From ${new Date(t.sales_start_at).toLocaleString()}` : "No start"} · {t.sales_end_at ? `Until ${new Date(t.sales_end_at).toLocaleString()}` : "No end"}
                                   </div>
@@ -791,7 +791,7 @@ export default function EventsAdmin() {
                       </td>
                     </tr>
                   ))}
-                  {!results.length && !searching && query && <tr><td colSpan={9} className="py-6 mono text-xs text-muted-foreground">No matches. Try a shorter query — spelling doesn't have to be exact.</td></tr>}
+                  {!results.length && !searching && query && <tr><td colSpan={9} className="py-6 mono text-xs text-muted-foreground">No matches. Try a shorter query, spelling doesn't have to be exact.</td></tr>}
                   {!query && <tr><td colSpan={9} className="py-6 mono text-xs text-muted-foreground">Start typing a name, email, phone or TID.</td></tr>}
                 </tbody>
               </table>
@@ -835,7 +835,7 @@ export default function EventsAdmin() {
           </div>
         )}
       </div>
-      <Seo title="Events Admin — Site 99" description="Manage events" path="/app/events" noindex />
+      <Seo title="Events Admin · Site 99" description="Manage events" path="/app/events" noindex />
       <CopyTicketDialog orderId={copyOrderId} onClose={() => setCopyOrderId(null)} />
     </AdminShell>
   );

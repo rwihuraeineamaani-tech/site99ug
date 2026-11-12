@@ -23,7 +23,7 @@ export default function Philosophy() {
   return (
     <Layout>
       <Seo
-        title="Philosophy — Site 99"
+        title="Philosophy · Site 99"
         description="Narrative Control is the discipline of setting the terms by which your brand is understood. The Site 99 doctrines."
         path="/philosophy"
       />
@@ -32,7 +32,7 @@ export default function Philosophy() {
         <h1 className="display text-fluid-hero">Narrative<br/><span className="text-site-red">Control.</span></h1>
         <p className="mt-10 max-w-2xl text-fluid-md text-muted-foreground">
           Most agencies sell visibility. We sell sovereignty. Narrative Control is the discipline of
-          making sure your brand isn't just seen — it sets the terms by which it is understood.
+          making sure your brand isn't just seen, it sets the terms by which it is understood.
         </p>
       </section>
 

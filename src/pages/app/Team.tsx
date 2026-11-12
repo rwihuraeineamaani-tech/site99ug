@@ -48,8 +48,8 @@ export default function Team() {
     if (msg) return toast.error(msg);
     toast.success(
       res?.reused
-        ? "That email already had an account — it now opens this client's portal with the password you set."
-        : "Client login created — share the password with them directly."
+        ? "That email already had an account, it now opens this client's portal with the password you set."
+        : "Client login created, share the password with them directly."
     );
     setInvite({ resident_id: "", email: "", display_name: "", password: "" });
     load();
@@ -73,7 +73,7 @@ export default function Team() {
 
   return (
     <AppShell>
-      <Seo title="Team & access — Site 99" description="Accounts, roles and client logins." path="/app/team" noindex />
+      <Seo title="Team & access · Site 99" description="Accounts, roles and client logins." path="/app/team" noindex />
       <PageHeader
         eyebrow="Access"
         title="Team & access."
@@ -157,7 +157,7 @@ export default function Team() {
           </button>
         </div>
         <p className="mt-3 text-xs text-ink-soft">
-          A client login sees only its own engagement — never other clients, team pay or internal finances.
+          A client login sees only its own engagement, never other clients, team pay or internal finances.
         </p>
       </div>
     </AppShell>

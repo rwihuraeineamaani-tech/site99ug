@@ -219,7 +219,7 @@ export const Nav = () => {
                 transition={{ delay: 0.7 }}
                 className="flex flex-col md:flex-row justify-between gap-4 mono text-xs uppercase tracking-widest"
               >
-                <span>© SITE 99 — Narrative Control Co.</span>
+                <span>© SITE 99, Narrative Control Co.</span>
                 <span>Lat 0.000 · Long 99.000</span>
               </motion.div>
             </div>

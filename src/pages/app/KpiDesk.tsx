@@ -63,7 +63,7 @@ export default function KpiDesk() {
   };
 
   return <AppShell eyebrow="KPI desk">
-    <Seo title="KPI desk — Site 99" description="Manage targets, weights, allowances and pay." path="/app/kpi/desk" noindex />
+    <Seo title="KPI desk · Site 99" description="Manage targets, weights, allowances and pay." path="/app/kpi/desk" noindex />
     <PageHeader
       eyebrow="KPI desk"
       title="Targets, scores and pay."
@@ -161,7 +161,7 @@ function PersonEditor({ p, month, settings, residents, locked, userId, isAdmin, 
         <Button size="sm" disabled={!target.value} onClick={async () => {
           const { error } = await t("kpi_targets").insert({ user_id: uid, month, metric: target.metric, label: target.label || null, target_value: +target.value, approval_state: "approved", created_by: userId });
           setTarget({ metric: "posted", label: "", value: "" });
-          done(error, p.pay?.is_head ? "Target added — waiting for Founders." : "Target added.");
+          done(error, p.pay?.is_head ? "Target added, waiting for Founders." : "Target added.");
         }}>Add</Button>
       </div>}
     </div>
@@ -250,7 +250,7 @@ function RulesEditor({ settings, userId, onSaved }: { settings: KpiSettings; use
       <h2 className="text-sm font-semibold">How much each part counts</h2>
       {COMPONENTS.map((c) => <label key={c.key} className="text-xs">{c.label}{c.negative ? " (takes points away)" : ""}
         <input type="number" className={input} value={s.weights[c.key]} onChange={(e) => setS({ ...s, weights: { ...s.weights, [c.key]: +e.target.value } })} /></label>)}
-      <p className={`text-xs ${total === 100 ? "text-ink-faint" : "text-signal"}`}>Positive parts add up to {total}%{total === 100 ? "." : " — scores are scaled, but 100% is easiest to read."}</p>
+      <p className={`text-xs ${total === 100 ? "text-ink-faint" : "text-signal"}`}>Positive parts add up to {total}%{total === 100 ? "." : ", scores are scaled, but 100% is easiest to read."}</p>
     </section>
     <div className="lg:col-span-2"><Button onClick={async () => {
       const { error } = await t("kpi_settings").update({ ...s, updated_by: userId }).eq("id", true);

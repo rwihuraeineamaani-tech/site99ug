@@ -14,7 +14,7 @@ export default function About() {
   return (
     <Layout>
       <Seo
-        title="About — Site 99"
+        title="About · Site 99"
         description="Site 99 is a creative residency from Kampala building brands that travel without us."
         path="/about"
       />
@@ -54,7 +54,7 @@ export default function About() {
               No freelancers, no handoffs, no excuses. The same hands that strategise also shoot, cut and ship. We work together, in residence, on the brands we believe in.
             </p>
             <p className="text-muted-foreground">
-              We exist because attention is the new media spend. The old playbook — TV buys, billboard rotations, agency pitches — is too slow and too expensive for the brands we serve. We build the new one.
+              We exist because attention is the new media spend. The old playbook, TV buys, billboard rotations, agency pitches, is too slow and too expensive for the brands we serve. We build the new one.
             </p>
           </div>
         </div>

@@ -239,7 +239,7 @@ export default function EventDetail() {
   return (
     <Layout>
       <Seo
-        title={`${event?.title || "Event"} — Site 99 Tickets`}
+        title={`${event?.title || "Event"} · Site 99 Tickets`}
         description={event?.description?.slice(0, 155) || "Buy tickets with MoMo or Airtel Money."}
         path={`/events/${slug}`}
       />

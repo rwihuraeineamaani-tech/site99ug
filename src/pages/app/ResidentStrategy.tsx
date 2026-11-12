@@ -232,7 +232,7 @@ export default function ResidentStrategyPage() {
   }, []);
 
   const addNode = (kind: NodeKind) => {
-    const label = window.prompt(`${nodeKindLabel(kind)} — what is it?`);
+    const label = window.prompt(`${nodeKindLabel(kind)}, what is it?`);
     if (!label) return;
     const n: MapNode = {
       id: crypto.randomUUID(),
@@ -328,7 +328,7 @@ export default function ResidentStrategyPage() {
 
   return (
     <AppShell eyebrow="Residents">
-      <Seo title={`${residentName} strategy — Site 99`} description="Goals, targets and the workflow map." path={`/app/residents/${id}/strategy`} noindex />
+      <Seo title={`${residentName} strategy · Site 99`} description="Goals, targets and the workflow map." path={`/app/residents/${id}/strategy`} noindex />
 
       <Link to={`/app/residents/${id}`} className="press inline-flex items-center gap-2 text-xs text-ink-soft focus-ring mb-4 no-print">
         <ArrowLeft className="h-3.5 w-3.5" /> Back to {residentName || "the client"}

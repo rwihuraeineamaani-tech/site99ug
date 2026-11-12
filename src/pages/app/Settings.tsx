@@ -496,7 +496,7 @@ export default function Settings() {
                       <span className="text-ink-soft">{openDepartments || "—"}</span>
                     </div>
                     <p className="text-xs text-ink-faint">
-                      Need more access? Ask a managing director or founder — they can change it under Team &amp; access.
+                      Need more access? Ask a managing director or founder, they can change it under Team &amp; access.
                     </p>
                   </div>
                 </Section>

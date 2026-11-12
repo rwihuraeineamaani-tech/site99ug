@@ -194,7 +194,7 @@ export default function People() {
   const selKpi = person ? kpi.get(person) : undefined;
 
   return (
-    <SectionPage eyebrow="Management" title="People." lede="Who's online, what they're carrying, how they're scoring — and, for HR, their full staff file." path="/app/ops/people"
+    <SectionPage eyebrow="Management" title="People." lede="Who's online, what they're carrying, how they're scoring, and, for HR, their full staff file." path="/app/ops/people"
       actions={hrLevel ? <button onClick={exportRegister} className="press flex items-center gap-2 rounded-full border border-rule px-3 py-1.5 text-sm"><Download className="h-4 w-4" /> Staff register</button> : undefined}>
       <FilterBar>
         <SearchInput value={q} onChange={setQ} placeholder="Search the team…" />

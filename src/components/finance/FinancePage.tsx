@@ -22,7 +22,7 @@ export default function FinancePage({
 }) {
   const body = (
     <>
-      <Seo title={`${title} — Finance — Site 99`} description={lede} path={path} noindex />
+      <Seo title={`${title}, Finance · Site 99`} description={lede} path={path} noindex />
       <PageHeader
         eyebrow="Finance"
         title={title}

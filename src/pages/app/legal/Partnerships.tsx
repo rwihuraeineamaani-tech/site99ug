@@ -174,7 +174,7 @@ export default function Partnerships() {
               <input type="date" className={field} value={form.ends_on} onChange={(e) => setForm({ ...form, ends_on: e.target.value })} />
             </label>
             <label className="text-xs text-ink-soft md:col-span-3">
-              Terms — what each side owes
+              Terms, what each side owes
               <textarea rows={3} className={field} value={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.value })} />
             </label>
           </div>

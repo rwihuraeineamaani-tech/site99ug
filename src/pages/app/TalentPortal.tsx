@@ -67,8 +67,8 @@ export default function TalentPortal() {
 
   return (
     <AppShell eyebrow="Talent portal">
-      <Seo title="Talent portal — Site 99" description="Your bookings, contracts and earnings." path="/talent-portal" noindex />
-      <PageHeader eyebrow={name || "Talent portal"} title={TITLES[tab] ?? TITLES.overview} lede="Only you can see this — your bookings, agreements, pay and results." />
+      <Seo title="Talent portal · Site 99" description="Your bookings, contracts and earnings." path="/talent-portal" noindex />
+      <PageHeader eyebrow={name || "Talent portal"} title={TITLES[tab] ?? TITLES.overview} lede="Only you can see this, your bookings, agreements, pay and results." />
       {!talentId ? (
         <div className="surface rounded-2xl p-10 text-center text-sm text-ink-soft">Your login isn't linked to a talent profile yet. Ask your Site 99 contact.</div>
       ) : (

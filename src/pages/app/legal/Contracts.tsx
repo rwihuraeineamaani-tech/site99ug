@@ -261,7 +261,7 @@ export default function Contracts() {
     <SectionPage
       eyebrow="Legal"
       title="Contracts."
-      lede="Every agreement in one register — residents, clients, suppliers, partners, freelancers and staff."
+      lede="Every agreement in one register, residents, clients, suppliers, partners, freelancers and staff."
       path="/app/legal/contracts"
       actions={
         canWrite ? (

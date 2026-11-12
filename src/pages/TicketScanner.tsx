@@ -66,7 +66,7 @@ export default function TicketScanner() {
 
   return (
     <AppShell eyebrow="Events">
-      <Seo title="Ticket Scanner — Site 99" description="Scan event tickets" path="/app/scan" noindex />
+      <Seo title="Ticket Scanner · Site 99" description="Scan event tickets" path="/app/scan" noindex />
       <section>
         <div className="eyebrow text-signal">Events</div>
         <h1 className="display text-4xl md:text-5xl mt-2">Gate scanner</h1>
@@ -80,7 +80,7 @@ export default function TicketScanner() {
             {result?.ok && (
               <>
                 <div className="mt-4 display text-3xl text-site-red">Admit</div>
-                <div className="mt-2 mono text-xs">{result.ticket?.tier?.name} — {result.ticket?.tier?.event?.title}</div>
+                <div className="mt-2 mono text-xs">{result.ticket?.tier?.name}, {result.ticket?.tier?.event?.title}</div>
                 {result.ticket?.holder_name && <div className="text-sm mt-1">{result.ticket.holder_name}</div>}
               </>
             )}

@@ -60,15 +60,15 @@ export default function CopyTicketDialog({ orderId, onClose }: Props) {
     }));
     const socials = Array.isArray(event?.organizer_socials) ? event.organizer_socials : [];
     const fromEmail = event?.sender_from_email || "office@site99ug.com";
-    const subject = `Your ticket${tickets.length > 1 ? "s" : ""} — ${event?.title || ""}`;
+    const subject = `Your ticket${tickets.length > 1 ? "s" : ""}, ${event?.title || ""}`;
     const body = [
-      `Your ticket is confirmed — ${event?.title || ""}`,
+      `Your ticket is confirmed, ${event?.title || ""}`,
       `${whenText}${event?.venue ? " · " + event.venue : ""}`,
       ``,
       `Hi ${order.buyer_name}, thanks for your purchase.`,
       `Your ${links.length > 1 ? links.length + " tickets are" : "ticket is"} available below. Show the QR at the gate.`,
       ``,
-      ...links.map((l: any, i: number) => `Ticket ${i + 1} — ${l.name} · ${l.holder}\n${l.url}`),
+      ...links.map((l: any, i: number) => `Ticket ${i + 1}, ${l.name} · ${l.holder}\n${l.url}`),
       ``,
       `Links stay active for 60 days. Save them to your phone before the event.`,
       socials.length ? `\nFollow ${event?.organizer_name || "the organizer"}: ${socials.map((s: any) => `${s.label} ${s.url}`).join(" · ")}` : ``,
@@ -108,7 +108,7 @@ export default function CopyTicketDialog({ orderId, onClose }: Props) {
                   return (
                     <div key={t.id} className="border border-border rounded p-3">
                       <div className="text-sm font-medium">
-                        Ticket {i + 1} — {t.ticket_tiers?.name || "Ticket"} · {t.holder_name || data.order.buyer_name}
+                        Ticket {i + 1}, {t.ticket_tiers?.name || "Ticket"} · {t.holder_name || data.order.buyer_name}
                       </div>
                       <div className="mt-2 space-y-2">
                         <RowCopy label="QR payload URL (encode this into the QR)" value={url} />

@@ -51,7 +51,7 @@ export default function FinanceOverview() {
   return (
     <FinancePage
       title="Finance."
-      lede={`Where the money stands right now — ${monthLabel(`${month}-01`)}.`}
+      lede={`Where the money stands right now, ${monthLabel(`${month}-01`)}.`}
       path="/app/finance"
       actions={
         <Link
@@ -104,7 +104,7 @@ export default function FinanceOverview() {
         <SectionHeading index="04" title="Client contracts" hint="renewals and money still owed" />
         <div className="grid gap-3 md:grid-cols-2">
           {[
-            { title: "Ending soon — renew within 14 days", list: ending, empty: "No contracts ending in the next 14 days." },
+            { title: "Ending soon, renew within 14 days", list: ending, empty: "No contracts ending in the next 14 days." },
             { title: "Ended with a balance owed", list: owedList, empty: "Every ended contract is fully paid." },
           ].map((box) => (
             <div key={box.title} className="surface rounded-sm p-5">

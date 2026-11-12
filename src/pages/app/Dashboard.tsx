@@ -275,7 +275,7 @@ export default function Dashboard() {
 
   return (
     <AppShell>
-      <Seo title="Command deck — Site 99" description="Site 99 operating system." path="/app" noindex />
+      <Seo title="Command deck · Site 99" description="Site 99 operating system." path="/app" noindex />
       <OnboardingSignoffs />
 
       <DeckHeader
@@ -349,7 +349,7 @@ export default function Dashboard() {
                   <p className="px-2 py-6 text-center text-xs text-ink-faint">Adding up your numbers…</p>
                 ) : kpi.empty && scope === "mine" ? (
                   <p className="px-2 py-6 text-center text-xs text-ink-faint">
-                    Nothing posted or recorded in the last 30 days — your figures appear here as soon as work is done.
+                    Nothing posted or recorded in the last 30 days, your figures appear here as soon as work is done.
                   </p>
                 ) : (
                   <>
@@ -478,7 +478,7 @@ export default function Dashboard() {
               <DeckPanel
                 key="numbers"
                 index={index}
-                title={`Weekly numbers — ${weekLabel(pendingWeeks[0].week_start)}`}
+                title={`Weekly numbers, ${weekLabel(pendingWeeks[0].week_start)}`}
                 hint={`${pendingWeeks.length} account${pendingWeeks.length === 1 ? "" : "s"} to fill`}
               >
                 <DeckList>

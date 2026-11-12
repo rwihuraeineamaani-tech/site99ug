@@ -95,7 +95,7 @@ export default function MonthlyRunPanel({ onChanged }: { onChanged?: () => void 
     const { error } = await supabase.rpc("approve_payment_run", { _run_id: runId });
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Approved — finance can now pay.");
+    toast.success("Approved, finance can now pay.");
     load();
     onChanged?.();
   };

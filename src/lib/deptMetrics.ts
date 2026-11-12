@@ -136,7 +136,7 @@ async function finance(): Promise<DeptBoard> {
     ],
     charts: [
       { title: "Cash position, last 12 weeks", kind: "area", wide: true, money: true, xKey: "week", series: [{ key: "balance", label: "Balance" }], data: weeks, to: "/app/finance/cashbook",
-        explain: { what: "How much money the company holds at the end of each week.", how: "The cashbook's running balance: all money in minus all money out, excluding transfers between our own accounts.", good: "A line that stays flat or climbs. A steady fall means spending is ahead of income — look at the next chart." } },
+        explain: { what: "How much money the company holds at the end of each week.", how: "The cashbook's running balance: all money in minus all money out, excluding transfers between our own accounts.", good: "A line that stays flat or climbs. A steady fall means spending is ahead of income, look at the next chart." } },
       { title: "Money in vs money out", kind: "bar", money: true, xKey: "week", series: [{ key: "in", label: "In" }, { key: "out", label: "Out" }], data: weeks,
         explain: { what: "Cash received and cash paid out each week.", how: "Totals of cashbook credits and debits per week (Monday start).", good: "Most weeks the 'In' bar should be taller than 'Out'." } },
       { title: "Unpaid client invoices by age", kind: "hbar", money: true, xKey: "age", series: [{ key: "owed", label: "Owed" }], data: age, to: "/app/finance/invoices",
@@ -170,9 +170,9 @@ async function exec(): Promise<DeptBoard> {
     ],
     charts: [
       { title: "Revenue vs spend, 12 weeks", kind: "area", wide: true, money: true, xKey: "week", series: [{ key: "revenue", label: "Revenue" }, { key: "spend", label: "Spend" }], data: weeks,
-        explain: { what: "Money coming in against money going out, week by week.", how: "Cashbook credits and debits, excluding transfers.", good: "Revenue sitting above spend in most weeks — the gap is your weekly margin." } },
+        explain: { what: "Money coming in against money going out, week by week.", how: "Cashbook credits and debits, excluding transfers.", good: "Revenue sitting above spend in most weeks, the gap is your weekly margin." } },
       { title: "Clients over the last 6 months", kind: "line", xKey: "month", series: [{ key: "clients", label: "Clients" }], data: clients, to: "/app/residents",
-        explain: { what: "How many clients we were serving each month.", how: "Clients onboarded by that month and not yet archived.", good: "A rising or steady line. A drop means clients left — check Client Relations." } },
+        explain: { what: "How many clients we were serving each month.", how: "Clients onboarded by that month and not yet archived.", good: "A rising or steady line. A drop means clients left, check Client Relations." } },
       { title: "Client goals by status", kind: "bar", xKey: "status", series: [{ key: "goals", label: "Goals" }], data: goalStat, to: "/app/strategy",
         explain: { what: "Where every client goal stands right now.", how: "Status set on each goal by the Strategy team.", good: "Most goals 'on track' or 'achieved'; 'at risk' goals need a plan this week." } },
     ],
@@ -229,7 +229,7 @@ async function content(): Promise<DeptBoard> {
     ],
     charts: [
       { title: "Where every idea is right now", kind: "bar", wide: true, xKey: "stage", series: [{ key: "items", label: "Pieces" }], data: flow, to: "/app/content",
-        explain: { what: "The whole content pipeline, from idea to posted.", how: "Every live piece counted by its current stage.", good: "An even spread. A tall bar in Editing or Review is a bottleneck — move people there." } },
+        explain: { what: "The whole content pipeline, from idea to posted.", how: "Every live piece counted by its current stage.", good: "An even spread. A tall bar in Editing or Review is a bottleneck, move people there." } },
       { title: "Posts and edit turnaround, 8 weeks", kind: "line", xKey: "week", series: [{ key: "posted", label: "Posted" }, { key: "turnaround", label: "Days shoot→edit" }], data: wk,
         explain: { what: "How many pieces went live, and how many days editing took after the shoot.", how: "Posted date per week; average days between shoot date and editor finishing.", good: "Posts rising, turnaround under 3 days." } },
     ],
@@ -258,10 +258,10 @@ async function strategy(): Promise<DeptBoard> {
       { label: "Maps awaiting sign-off", value: maps.filter((m) => m.review_state === "submitted").length, to: "/app/strategy/approvals" },
     ],
     charts: [
-      { title: "Goals per client — total vs on track", kind: "hbar", wide: true, xKey: "client", series: [{ key: "goals", label: "Goals" }, { key: "onTrack", label: "On track" }], data: clients,
+      { title: "Goals per client, total vs on track", kind: "hbar", wide: true, xKey: "client", series: [{ key: "goals", label: "Goals" }, { key: "onTrack", label: "On track" }], data: clients,
         explain: { what: "For each client, how many goals exist and how many are healthy.", how: "Goals with status 'on track' or 'achieved' count as healthy.", good: "The two bars nearly the same length for every client." } },
       { title: "Strategy maps by review state", kind: "bar", xKey: "state", series: [{ key: "maps", label: "Maps" }], data: states, to: "/app/strategy/map",
-        explain: { what: "How many strategy maps are drafted, waiting, approved or sent back.", how: "Each map's current review state.", good: "Few maps stuck in 'submitted' — Founders should clear them within 2 days." } },
+        explain: { what: "How many strategy maps are drafted, waiting, approved or sent back.", how: "Each map's current review state.", good: "Few maps stuck in 'submitted', Founders should clear them within 2 days." } },
     ],
   };
 }
@@ -381,11 +381,11 @@ async function people(): Promise<DeptBoard> {
       { label: "Tasks overdue", value: lt.filter((t) => !["accepted", "cancelled"].includes(t.status) && t.due_at && t.due_at < new Date().toISOString()).length, to: "/app/work" },
     ],
     charts: [
-      { title: "KPI targets this month — set vs hit", kind: "hbar", wide: true, xKey: "person", series: [{ key: "targets", label: "Targets" }, { key: "hit", label: "Hit so far" }], data: [...per.values()], to: "/app/kpi-desk",
+      { title: "KPI targets this month, set vs hit", kind: "hbar", wide: true, xKey: "person", series: [{ key: "targets", label: "Targets" }, { key: "hit", label: "Hit so far" }], data: [...per.values()], to: "/app/kpi-desk",
         explain: { what: "Each person's monthly targets and how many they have already hit.", how: "Targets from the KPI desk; 'hit' when the recorded result reaches the target.", good: "Bars closing up by month end. Hit = 30% bonus, miss = −30%." } },
       { title: "Assigned work by status", kind: "bar", xKey: "status", series: [{ key: "tasks", label: "Tasks" }], data: taskStat, to: "/app/work",
         explain: { what: "Leadership-assigned tasks across the team.", how: "Current status of every assigned task.", good: "'Submitted' tasks reviewed quickly so they move to 'accepted'." } },
-      { title: "Staff files — how complete", kind: "bar", xKey: "band", series: [{ key: "people", label: "People" }], data: fileBands, to: "/app/ops/people",
+      { title: "Staff files, how complete", kind: "bar", xKey: "band", series: [{ key: "people", label: "People" }], data: fileBands, to: "/app/ops/people",
         explain: { what: "How much of each person's staff file is filled in.", how: "Required personal, ID (NIN for Ugandans, passport and work permit for foreigners), next of kin and education fields, plus required documents.", good: "Everyone in 'Complete'. Chase anyone under 50%." } },
       { title: "Ending in the next 90 days", kind: "bar", xKey: "what", series: [{ key: "count", label: "People" }], data: expiring, to: "/app/ops/people",
         explain: { what: "Work permits, passports, contracts and probation periods ending soon.", how: "Dates from staff files; HR and the MD also get alerts at 60, 30 and 7 days.", good: "Zero work permits here without a renewal already started." } },
@@ -442,7 +442,7 @@ async function personal(userId: string | null): Promise<DeptBoard> {
     ],
     charts: [
       { title: "My finished work, 8 weeks", kind: "area", wide: true, xKey: "week", series: [{ key: "finished", label: "Finished" }], data: weeks, to: "/app/content",
-        explain: { what: "Pieces you worked on that were finished each week.", how: "Content where you're crew, counted when edited or posted.", good: "A steady or rising line — it feeds your KPI." } },
+        explain: { what: "Pieces you worked on that were finished each week.", how: "Content where you're crew, counted when edited or posted.", good: "A steady or rising line, it feeds your KPI." } },
       { title: "My targets this month", kind: "hbar", xKey: "target", series: [{ key: "goal", label: "Target" }, { key: "done", label: "Done" }], data: targets, to: "/app/kpi",
         explain: { what: "Each target you've been set this month and your progress.", how: "Targets from your manager; progress recorded on the KPI desk.", good: "'Done' reaching 'Target' by month end earns the 30% bonus." } },
     ],

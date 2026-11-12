@@ -18,7 +18,7 @@ const capabilities = [
   { t: "Document understanding", c: "Reads forms, invoices and reports, then files the data where it belongs." },
   { t: "Assisted decisions", c: "Surfaces what needs attention first instead of another full inbox." },
   { t: "Always-on assistants", c: "Answers staff and customer questions from your own knowledge base." },
-  { t: "Connected to your stack", c: "Plugs into the systems you already run — no rip-and-replace." },
+  { t: "Connected to your stack", c: "Plugs into the systems you already run, no rip-and-replace." },
   { t: "Human at the core", c: "Automation handles the load; your people keep the creativity." },
 ];
 
@@ -26,8 +26,8 @@ export default function AIKazi() {
   return (
     <>
       <Seo
-        title="Kazi Intelligent Systems — Site 99 AI & Automations"
-        description="Kazi means work. Kazi Intelligent Systems is Site 99's first AI product — intelligent workflow systems that make everyday work faster and easier."
+        title="Kazi Intelligent Systems · Site 99 AI & Automations"
+        description="Kazi means work. Kazi Intelligent Systems is Site 99's first AI product, intelligent workflow systems that make everyday work faster and easier."
         path="/ai-automations/kazi"
       />
 
@@ -51,7 +51,7 @@ export default function AIKazi() {
             everything. We make your company more intelligent, while keeping the human creativity at its core.
           </p>
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/45">
-            Developed under the AI &amp; Automation sector of Site 99 UG LTD — intelligent workflow systems powered by
+            Developed under the AI &amp; Automation sector of Site 99 UG LTD, intelligent workflow systems powered by
             machine learning and AI.
           </p>
         </div>

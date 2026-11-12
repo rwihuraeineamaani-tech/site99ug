@@ -206,7 +206,7 @@ export default function ContentPipeline() {
     ]);
     const nm = (x: { resident_id: string | null; project_id: string | null }) =>
       (r ?? []).find((y) => y.id === x.resident_id)?.name ?? (p ?? []).find((y) => y.id === x.project_id)?.title ?? "—";
-    setShotDays((d ?? []).map((x) => ({ id: x.id, label: `${x.shoot_date ?? "no date"} — ${nm(x)}` })));
+    setShotDays((d ?? []).map((x) => ({ id: x.id, label: `${x.shoot_date ?? "no date"}, ${nm(x)}` })));
   };
   const addShot = async () => {
     setBusy(true);
@@ -215,7 +215,7 @@ export default function ContentPipeline() {
     } as never);
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Shot idea added — it's now with editing");
+    toast.success("Shot idea added, it's now with editing");
     setShotOpen(false);
     load();
   };
@@ -288,7 +288,7 @@ export default function ContentPipeline() {
   const ownerOptions = useMemo(
     () => [
       ...residents.map((r) => ({ value: `r:${r.id}`, label: r.name })),
-      ...projects.map((p) => ({ value: `p:${p.id}`, label: `${p.title} — ${p.client} (project)` })),
+      ...projects.map((p) => ({ value: `p:${p.id}`, label: `${p.title}, ${p.client} (project)` })),
     ],
     [residents, projects]
   );
@@ -504,7 +504,7 @@ export default function ContentPipeline() {
 
   const ownerSelect = (value: string, onChange: (v: string) => void, className = field, disabled = false) => (
     <select className={className} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)}>
-      <option value="">No one yet — idea archive</option>
+      <option value="">No one yet, idea archive</option>
       <optgroup label="Residents">
         {residents.map((r) => (
           <option key={r.id} value={`r:${r.id}`}>
@@ -515,7 +515,7 @@ export default function ContentPipeline() {
       <optgroup label="Projects">
         {projects.map((p) => (
           <option key={p.id} value={`p:${p.id}`}>
-            {p.title} — {p.client}
+            {p.title}, {p.client}
           </option>
         ))}
       </optgroup>
@@ -768,7 +768,7 @@ export default function ContentPipeline() {
         <div className={box}>
           <div className="eyebrow text-ink-faint">On a shoot day</div>
           <p className="mt-1 text-xs text-ink-soft">
-            This idea is waiting on its client's shoot day. Management sets the date and the gear there — confirming the
+            This idea is waiting on its client's shoot day. Management sets the date and the gear there, confirming the
             day schedules it.
           </p>
           <Link to="/app/shoots" className="mt-3 inline-block text-xs font-semibold text-signal focus-ring">
@@ -796,7 +796,7 @@ export default function ContentPipeline() {
         <div className={box}>
           <div className="eyebrow text-ink-faint">On the shoot</div>
           <Button className="mt-3" disabled={busy} onClick={() => advance("Editing")}>
-            Shoot done — send to post production
+            Shoot done, send to post production
           </Button>
         </div>
       ) : (
@@ -884,7 +884,7 @@ export default function ContentPipeline() {
           </label>
           <PostExtrasEditor item={editing as never} />
           <label className="mt-3 block text-sm">
-            <span className="eyebrow text-ink-faint">Edit remarks — what needs changing</span>
+            <span className="eyebrow text-ink-faint">Edit remarks, what needs changing</span>
             <textarea
               rows={3}
               className={field}
@@ -904,7 +904,7 @@ export default function ContentPipeline() {
                 })
               }
             >
-              Approve — hand to the handler
+              Approve, hand to the handler
             </Button>
             <Button
               variant="outline"
@@ -1033,7 +1033,7 @@ export default function ContentPipeline() {
       if (!(isFounder || isHandler)) return waiting(`Live. Numbers due ${due ?? "—"}.`);
       return (
         <div className={box}>
-          <div className="eyebrow text-ink-faint">Performance — due {due ?? "—"}</div>
+          <div className="eyebrow text-ink-faint">Performance, due {due ?? "—"}</div>
           {!ready && <p className="mt-1 text-xs text-ink-soft">You can fill these in early if you already have them.</p>}
           <PostedDayFix
             id={editing.id}
@@ -1110,7 +1110,7 @@ export default function ContentPipeline() {
   const memberOption = (m: Member) => (
     <option key={m.user_id} value={m.user_id}>
       {m.name}
-      {m.title ? ` — ${m.title}` : ""}
+      {m.title ? `, ${m.title}` : ""}
     </option>
   );
 
@@ -1214,7 +1214,7 @@ export default function ContentPipeline() {
   return (
     <AppShell eyebrow="Content & strategy">
       <Seo
-        title="Content & strategy — Site 99"
+        title="Content & strategy · Site 99"
         description="Content pipeline from idea to posted."
         path="/app/content"
         noindex
@@ -1461,7 +1461,7 @@ export default function ContentPipeline() {
           </div>
 
           <p className="text-xs text-ink-faint">
-            Saved as a new Idea, dated today, with its own code and your name on it — none of which can be changed later.
+            Saved as a new Idea, dated today, with its own code and your name on it, none of which can be changed later.
           </p>
 
           <DialogFooter className="mt-2 flex items-center gap-2">
@@ -1611,7 +1611,7 @@ export default function ContentPipeline() {
             </label>
           </div>
 
-          <p className="text-xs text-ink-faint">The stage is set by the steps above — it can never be typed in by hand.</p>
+          <p className="text-xs text-ink-faint">The stage is set by the steps above, it can never be typed in by hand.</p>
           {!isFounder ? (
             <p className="text-xs text-ink-faint">
               Only a founder can change these details. You can still take your own steps on this idea above.

@@ -328,7 +328,7 @@ export default function Cashbook() {
     if (!reason) return;
     const { error } = await supabase.rpc("reverse_cashbook_entry", { _id: row.id, _reason: reason });
     if (error) return toast.error(error.message);
-    toast.success("Reversed — both lines stay on the record.");
+    toast.success("Reversed, both lines stay on the record.");
     load();
   };
 
@@ -410,7 +410,7 @@ export default function Cashbook() {
   return (
     <FinancePage
       title="Cashbook."
-      lede="Every shilling in and out — dated, categorised, tied to the payment board and read against Ugandan tax."
+      lede="Every shilling in and out, dated, categorised, tied to the payment board and read against Ugandan tax."
       path="/app/finance/cashbook"
       actions={
         canLog ? (
@@ -668,7 +668,7 @@ export default function Cashbook() {
         <div className="surface rounded-sm p-5 text-sm text-ink-soft">
           <p>
             Every payment recorded on the board lands here automatically, carrying its payment reference, method and
-            what it settled — a cash request, a monthly run line or a loan. Anything else on this page was logged by
+            what it settled, a cash request, a monthly run line or a loan. Anything else on this page was logged by
             hand.
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-4">
@@ -686,7 +686,7 @@ export default function Cashbook() {
       </section>
 
       <section className="mb-10">
-        <SectionHeading index="04" title="The tax view" hint="Uganda — capital, deductible, VAT and withholding" />
+        <SectionHeading index="04" title="The tax view" hint="Uganda, capital, deductible, VAT and withholding" />
         {!taxRows.length ? (
           <p className="surface rounded-sm p-5 text-sm text-ink-soft">Log an entry and its tax treatment shows here.</p>
         ) : (
@@ -919,7 +919,7 @@ export default function Cashbook() {
               </label>
             </div>
             <p className="mt-3 text-[11px] text-ink-faint">
-              Paying an approved request, a monthly run line or a loan? Record it on the payment board instead — it
+              Paying an approved request, a monthly run line or a loan? Record it on the payment board instead, it
               writes itself into the cashbook with its reference.
             </p>
             <div className="mt-5 flex justify-end gap-2">

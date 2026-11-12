@@ -27,7 +27,7 @@ export default function TikTokViralEconomicsUganda() {
   return (
     <Layout>
       <Seo
-        title="TikTok Marketing Strategy for Uganda — Site 99"
+        title="TikTok Marketing Strategy for Uganda · Site 99"
         description="A TikTok marketing strategy built on viral economics: how Ugandan brands turn 10M UGX of organic reach into media savings that outperform TV."
         path="/blog/tiktok-viral-economics-uganda"
         type="article"
@@ -47,7 +47,7 @@ export default function TikTokViralEconomicsUganda() {
         <p className="text-fluid-md text-muted-foreground mb-12">
           Most TikTok marketing strategy guides are written for New York or London.
           The maths break the moment you carry them to Kampala. Here is how we
-          actually price viral reach for Ugandan brands — and why one good
+          actually price viral reach for Ugandan brands, and why one good
           campaign can offset a quarter of TV spend.
         </p>
 
@@ -55,7 +55,7 @@ export default function TikTokViralEconomicsUganda() {
           <h2 className="display text-fluid-lg mt-12">The 10M UGX baseline</h2>
           <p>
             A single 30-second prime-time spot on a top Ugandan TV channel costs
-            roughly <strong>10,000,000 UGX</strong> — and that's just the buy.
+            roughly <strong>10,000,000 UGX</strong>, and that's just the buy.
             Add production, agency margin, and frequency, and a credible TV
             push starts at 60–80M UGX a month. For most local challenger
             brands, that is the entire annual marketing budget.
@@ -91,7 +91,7 @@ export default function TikTokViralEconomicsUganda() {
           <p>
             A campaign that produces 2M completed views works out to roughly
             98M UGX of TV-equivalent reach. After a 12M UGX production budget,
-            that is an <strong>86M UGX media saving</strong> — almost nine
+            that is an <strong>86M UGX media saving</strong>, almost nine
             months of TV airtime, traded for one editing cycle.
           </p>
 
@@ -101,15 +101,15 @@ export default function TikTokViralEconomicsUganda() {
             algorithm-fluent audiences. Uganda's For You page rewards Luganda,
             Runyankole, code-switching, on-the-ground locations, and creators
             who answer their own comments in voice notes. A US-style ad cut
-            sinks in the first second. A Kampala-style residency post — a
-            creator embedded with the brand for 30 days — gets 4× completion.
+            sinks in the first second. A Kampala-style residency post, a
+            creator embedded with the brand for 30 days, gets 4× completion.
           </p>
 
           <h2 className="display text-fluid-lg mt-12">What we build instead of campaigns</h2>
           <p>
             Site 99 doesn't sell TikTok campaigns. We install{" "}
             <em>brand residencies</em>: 60 to 90 days where a small content
-            cell — strategist, editor, creator, brand lead — ships 3–5
+            cell, strategist, editor, creator, brand lead, ships 3–5
             TikTok-native posts a week. The compounding is the point. One post
             buys you data; ten posts buy you a media system that prints
             attention every month at TV-killing CPMs.
@@ -120,7 +120,7 @@ export default function TikTokViralEconomicsUganda() {
             If your brand is still pricing reach in 30-second TV slots, you are
             paying 10M UGX for what a resident creator can earn for you in a
             week. The TikTok marketing strategy that works in Uganda isn't a
-            louder ad — it's a residency that pays for itself in saved media.
+            louder ad, it's a residency that pays for itself in saved media.
           </p>
         </section>
 

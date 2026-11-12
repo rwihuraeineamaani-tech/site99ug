@@ -454,7 +454,7 @@ function ProfileTab({
         <div className="border-t border-border max-h-[420px] overflow-y-auto space-y-3 py-5 mb-4">
           {grouped.length === 0 && (
             <div className="mono text-xs text-muted-foreground">
-              No messages yet — say hi.
+              No messages yet, say hi.
             </div>
           )}
           {grouped.map((m) => {

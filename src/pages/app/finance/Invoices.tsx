@@ -272,7 +272,7 @@ export default function Invoices() {
 
     const { error } = await supabase.from("invoices").update(patch).eq("id", inv.id);
     if (error) return toast.error(error.message);
-    toast.success(status === "approved" ? "Approved — it is now on the payment board." : "Updated.");
+    toast.success(status === "approved" ? "Approved, it is now on the payment board." : "Updated.");
     load();
   };
 
@@ -435,7 +435,7 @@ export default function Invoices() {
             .filter((c) => !residentFilter || c.resident_id === residentFilter)
             .map((c) => (
               <option key={c.key} value={c.key}>
-                {c.party_name} — {c.title}
+                {c.party_name}, {c.title}
               </option>
             ))}
         </select>
@@ -457,7 +457,7 @@ export default function Invoices() {
                     .filter((c) => !["cancelled", "complete", "renewed", "archived"].includes(c.status))
                     .map((c) => (
                       <option key={c.key} value={c.key}>
-                        {c.party_name} — {c.title}
+                        {c.party_name}, {c.title}
                       </option>
                     ))}
                 </select>
@@ -693,7 +693,7 @@ export default function Invoices() {
                     </button>
                   )}
                   {inv.direction === "in" && inv.status === "approved" && (
-                    <span className="text-xs text-ink-faint self-center">Waiting on the payment board — released with a PIN.</span>
+                    <span className="text-xs text-ink-faint self-center">Waiting on the payment board, released with a PIN.</span>
                   )}
                   {inv.status !== "void" && inv.status !== "paid" && (
                     <button className={pill} onClick={() => setStatus(inv, "void")}>

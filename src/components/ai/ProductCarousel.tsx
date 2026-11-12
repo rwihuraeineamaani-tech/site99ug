@@ -30,7 +30,7 @@ export const ProductCarousel = () => {
             everything. We make your company more intelligent, while keeping the human creativity at its core.
           </p>
           <p className="mt-4 max-w-xl text-sm text-white/45 leading-relaxed">
-            Developed under the AI &amp; Automation sector of Site 99 UG LTD — intelligent workflow systems powered by
+            Developed under the AI &amp; Automation sector of Site 99 UG LTD, intelligent workflow systems powered by
             machine learning and AI.
           </p>
 

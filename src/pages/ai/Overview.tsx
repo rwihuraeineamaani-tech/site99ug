@@ -23,8 +23,8 @@ export default function AIOverview() {
   return (
     <>
       <Seo
-        title="AI & Automations — Site 99"
-        description="Site 99's AI & Automation sector. Intelligent systems that make businesses run smarter — starting with Kazi Intelligent Systems. Run a free automation audit."
+        title="AI & Automations · Site 99"
+        description="Site 99's AI & Automation sector. Intelligent systems that make businesses run smarter, starting with Kazi Intelligent Systems. Run a free automation audit."
         path="/ai-automations"
       />
       <Helmet>
@@ -64,7 +64,7 @@ export default function AIOverview() {
           <div className="mt-8 grid gap-10 border-t border-white/12 pt-8 md:grid-cols-[1.2fr_1fr] md:gap-16">
             <p className="text-fluid-md leading-relaxed text-white/75 md:max-w-xl">
               We build the software your business is currently doing by hand. Custom systems, intelligent workflows and
-              automations — designed, engineered and maintained by Site 99. Kazi means work. We make it lighter.
+              automations, designed, engineered and maintained by Site 99. Kazi means work. We make it lighter.
             </p>
             <div className="grid grid-cols-3 gap-4 self-end">
               {[
@@ -154,7 +154,7 @@ export default function AIOverview() {
               to: "/ai-automations/systems",
               index: "01",
               title: "Systems",
-              copy: "The full catalogue of what we build — school, inventory, ticketing, CRM, portals, dashboards.",
+              copy: "The full catalogue of what we build, school, inventory, ticketing, CRM, portals, dashboards.",
             },
             {
               to: "/ai-automations/kazi",
@@ -201,7 +201,7 @@ export default function AIOverview() {
             <span className="tech text-[10px] uppercase tracking-[0.24em] text-white/40">Product 01</span>
             <img src={kaziMark.url} alt="Kazi Intelligent Systems" loading="lazy" className="mt-5 h-9 w-auto md:h-11" />
             <p className="mt-5 max-w-xl leading-relaxed text-white/70">
-              Kazi means work. It stands for the systems that make everyday work faster and easier — for everyone, and
+              Kazi means work. It stands for the systems that make everyday work faster and easier, for everyone, and
               everything.
             </p>
           </div>

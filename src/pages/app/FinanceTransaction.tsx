@@ -72,7 +72,7 @@ export default function FinanceTransaction() {
 
   return (
     <AppShell>
-      <Seo title="Payment — Site 99" description="A single payment and everything behind it." path="/app/finance" noindex />
+      <Seo title="Payment · Site 99" description="A single payment and everything behind it." path="/app/finance" noindex />
       <PageHeader
         eyebrow="Finance"
         title={txn?.txn_ref ?? "Payment"}

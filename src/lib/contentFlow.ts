@@ -25,7 +25,7 @@ export const STAGE_NOTE: Record<Stage, string> = {
   Editing: "With the editor",
   Review: "Waiting on founder sign-off",
   Handover: "With the handler to post",
-  Posted: "Live — numbers due in 10 days",
+  Posted: "Live, numbers due in 10 days",
   Archived: "Done and recorded",
   Rejected: "Not going ahead",
 };
