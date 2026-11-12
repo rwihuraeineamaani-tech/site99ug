@@ -133,9 +133,9 @@ export default function ResidentsHub() {
   const activeCount = rows.filter((r) => !r.archived_at && r.status === "Active").length;
 
   const tabs = [
-    { key: "clients", label: "clients" },
+    { key: "clients", label: "Clients" },
     { key: "accounts", label: "Accounts & handlers" },
-    ...(has("founder", "admin") ? [{ key: "lifecycle", label: "lifecycle" }] : []),
+    ...(has("founder", "admin") ? [{ key: "lifecycle", label: "Lifecycle" }] : []),
   ] as const;
 
   return (

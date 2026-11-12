@@ -607,3 +607,35 @@ body.deck { background-color: hsl(var(--paper)); color: hsl(var(--ink)); }
 /* Cards built with utilities get the same lift as .surface */
 .deck .rounded-2xl.border.bg-paper-raised { box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04), 0 1px 2px hsl(226 30% 2% / 0.5), 0 8px 24px -16px hsl(226 30% 2% / 0.7); }
 .deck.deck-light .rounded-2xl.border.bg-paper-raised { box-shadow: 0 1px 2px hsl(220 20% 20% / 0.06); }
+
+/* ================================================================
+   v2.3 official UI pass: native drop-downs, side menu, chips.
+   ================================================================ */
+/* Every native drop-down in the system reads as a field, never a grey slab */
+.deck select:not([multiple]) {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: hsl(var(--paper-sunken));
+  border-color: hsl(var(--input));
+  color: hsl(var(--ink));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b909a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 14px;
+  padding-right: 2.1rem;
+}
+.deck select.filter-select { background-image: none; }
+.deck select:not([multiple]):hover:not(:disabled) { border-color: hsl(var(--rule-strong)); }
+.deck select:focus-visible { outline: none; border-color: hsl(var(--signal)); box-shadow: 0 0 0 3px hsl(var(--signal) / 0.15); }
+.deck select option { background-color: hsl(var(--paper-overlay)); color: hsl(var(--ink)); }
+
+/* Side menu: the current page sits on a raised layer with a red marker */
+.deck .nav-active { box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.05), 0 1px 2px hsl(226 30% 2% / 0.4); }
+.deck.deck-light .nav-active { box-shadow: 0 1px 2px hsl(220 20% 20% / 0.08); border: 1px solid hsl(var(--rule)); }
+
+/* Segmented thumb and tabs in light mode get a crisp card edge */
+.deck.deck-light .seg-thumb { background: hsl(var(--paper-raised)); box-shadow: 0 1px 2px hsl(220 20% 20% / 0.1); }
+.deck.deck-light [role="tab"][data-state="active"] { background: hsl(var(--paper-raised)); box-shadow: 0 1px 2px hsl(220 20% 20% / 0.1); }
+
+/* Utility buttons in the header share the control height */
+.deck .ctl { min-height: 2.25rem; }
