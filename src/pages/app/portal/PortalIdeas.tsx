@@ -10,9 +10,9 @@ import { StatusChip } from "@/components/system";
 const db = supabase as any;
 type Idea = { id: string; title: string; notes: string | null; link: string | null; stage: string; client_idea_month: string | null; declined_note: string | null; created_at: string };
 
-export function ideaProgress(stage: string): { label: string; tone: "neutral" | "teal" | "violet" | "rose" } {
+export function ideaProgress(stage: string): { label: string; tone: "neutral" | "teal" | "violet" | "stop" } {
   if (stage === "Idea") return { label: "Received", tone: "neutral" };
-  if (stage === "Archived") return { label: "Not taken forward", tone: "rose" };
+  if (stage === "Archived") return { label: "Not taken forward", tone: "stop" };
   if (stage === "Posted") return { label: "Posted", tone: "teal" };
   if (stage === "Approved" || stage === "Crewed") return { label: "Accepted", tone: "violet" };
   return { label: "In production", tone: "violet" };
