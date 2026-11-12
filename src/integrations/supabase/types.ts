@@ -6761,6 +6761,7 @@ export type Database = {
     Functions: {
       accept_resident_invite: { Args: never; Returns: boolean }
       accept_resident_portal_invite: { Args: never; Returns: string }
+      activate_resident: { Args: { _resident_id: string }; Returns: string }
       active_staff_ids: {
         Args: never
         Returns: {
