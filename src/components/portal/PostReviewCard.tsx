@@ -8,13 +8,13 @@ import { finalCaption, profileUrl, REVIEW_LABEL, tagsOf, windowLabel, type Revie
 export type ReviewItem = ReviewFields & { id: string; title: string; platforms: string[]; posted_at: string | null };
 
 /** Client side: review the cut, caption, collab, tags and posting window, then approve or ask for changes. */
-export default function PostReviewCard({ item, onDone }: { item: ReviewItem; onDone: () => void }) {
+export default function PostReviewCard({ item, onDone, readOnly = false, canApprove = false }: { item: ReviewItem; onDone: () => void; readOnly?: boolean; canApprove?: boolean }) {
   const [caption, setCaption] = useState(finalCaption(item));
   const [collabOk, setCollabOk] = useState(item.collab_status !== "rejected");
   const [rejected, setRejected] = useState<string[]>(tagsOf(item).filter((t) => t.status === "rejected").map((t) => t.handle));
   const [note, setNote] = useState(item.client_review_note ?? "");
   const [busy, setBusy] = useState(false);
-  const locked = !!item.posted_at;
+  const locked = !!item.posted_at || readOnly;
 
   const send = async (decision: "approved" | "changes" | "pending") => {
     setBusy(true);
@@ -24,7 +24,7 @@ export default function PostReviewCard({ item, onDone }: { item: ReviewItem; onD
     } as never);
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success(decision === "approved" ? "Approved. Your handler has been told." : decision === "changes" ? "Sent to your handler." : "Saved.");
+    toast.success(decision === "approved" ? (canApprove ? "Approved. It has gone to your handler to post." : "Approved. Your handler has been told.") : decision === "changes" ? "Sent to your handler." : "Saved.");
     onDone();
   };
 
@@ -35,12 +35,12 @@ export default function PostReviewCard({ item, onDone }: { item: ReviewItem; onD
           <div className="font-semibold">{item.title}</div>
           <div className="text-xs text-ink-faint">{windowLabel(item)} · {item.platforms?.join(", ") || "Platform to confirm"}</div>
         </div>
-        <span className="rounded-full border border-hairline px-2 py-0.5 text-[11px]">{locked ? "Posted" : REVIEW_LABEL[item.client_review_state ?? "pending"]}</span>
+        <span className="rounded-full border border-hairline px-2 py-0.5 text-[11px]">{item.posted_at ? "Posted" : REVIEW_LABEL[item.client_review_state ?? "pending"]}</span>
       </div>
 
       <div className="mt-3">
         {item.edit_file_url
-          ? <a href={item.edit_file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-signal">Watch the final cut <ExternalLink className="h-3.5 w-3.5" /></a>
+          ? <a href={item.edit_file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-signal">Watch on Google Drive <ExternalLink className="h-3.5 w-3.5" /></a>
           : <span className="text-xs text-ink-faint">The final cut is still being edited.</span>}
       </div>
 
@@ -80,7 +80,7 @@ export default function PostReviewCard({ item, onDone }: { item: ReviewItem; onD
             <input className="mt-1 w-full rounded-lg border border-hairline bg-paper px-3 py-2" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Needed only if you want changes" />
           </label>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button size="sm" disabled={busy} onClick={() => send("approved")}>Approve post</Button>
+            <Button size="sm" disabled={busy} onClick={() => send("approved")}>{canApprove ? "Approve video" : "Approve post"}</Button>
             <Button size="sm" variant="outline" disabled={busy || !note.trim()} onClick={() => send("changes")}>Request changes</Button>
             <Button size="sm" variant="ghost" disabled={busy} onClick={() => send("pending")}>Save edits</Button>
           </div>
