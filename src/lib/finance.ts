@@ -266,6 +266,10 @@ export const CATEGORY_TAX: Record<string, CategoryRule> = {
     "Deductible.",
     "Financial services are largely VAT-exempt; ledger fees may carry VAT.",
     "Not applicable. Mobile money withdrawals also carry the 0.5% levy."
+  ),  mobile_money_charges: OPEX(
+    "Deductible.",
+    "Financial services are largely VAT-exempt; ledger fees may carry VAT.",
+    "Not applicable. Mobile money withdrawals also carry the 0.5% levy."
   ),
   taxes_paid: {
     spend: "neither",
