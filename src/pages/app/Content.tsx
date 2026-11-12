@@ -1075,7 +1075,7 @@ export default function ContentPipeline() {
                           role="tab"
                           aria-selected={on}
                           onClick={() => setMetricTab(p)}
-                          className={`rounded-full border px-3 py-1 text-xs font-semibold press ${on ? "border-signal bg-signal text-signal-foreground" : "border-rule bg-paper-raised text-ink"}`}
+                          className={`press focus-ring rounded-full border px-3 py-1 text-xs font-semibold ${on ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised text-ink"}`}
                         >
                           {p} <span className={on ? "opacity-80" : "text-ink-faint"}>{n}/{METRIC_FIELDS.length}</span>
                         </button>
