@@ -1062,7 +1062,7 @@ export default function ContentPipeline() {
             const cur = metrics[tab] ?? {};
             return (
               <div className="mt-3">
-                <span className="eyebrow text-ink-faint">Numbers for each platform</span>
+                <span className="eyebrow text-ink-faint">{plats.length > 1 ? `Numbers on ${tab}` : "Numbers"}</span>
                 {plats.length > 1 && (
                   <div className="mt-1.5 flex flex-wrap gap-1.5" role="tablist" aria-label="Platform">
                     {plats.map((p) => {
@@ -1095,9 +1095,7 @@ export default function ContentPipeline() {
                 <div className="mt-2 grid gap-3 sm:grid-cols-3">
                   {METRIC_FIELDS.map((m) => (
                     <label key={m.key} className="text-sm">
-                      <span className="eyebrow text-ink-faint">
-                        {plats.length > 1 ? `${tab} ${m.label.toLowerCase()}` : m.label}
-                      </span>
+                      <span className="eyebrow text-ink-faint">{m.label}</span>
                       <input
                         className={field}
                         inputMode={m.key === "avg_watch_time" ? "text" : "decimal"}
