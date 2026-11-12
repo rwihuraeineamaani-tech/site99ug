@@ -3,6 +3,18 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const RELEASES: Release[] = [
   {
+    version: "2.4.0",
+    date: "2026-11-12",
+    title: "Posted days move on the calendar, official look part two",
+    notes: [
+      "A posted video now sits on the day it went live in the team calendar and in each client's calendar.",
+      "In a client's record, Client view, open any posted video to change the day it went live. It moves on the calendar straight away, and the day its numbers are due moves with it.",
+      "Sales, System administration and client records use the same tab bar as the rest of the system.",
+      "Labels are easier to read, status labels read like normal words, and plain buttons keep their edge in light mode.",
+      "The New shoot day picker fits on phones.",
+    ],
+  },
+  {
     version: "2.3.0",
     date: "2026-11-12",
     title: "Official look, part one",
