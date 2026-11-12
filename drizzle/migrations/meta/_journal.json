@@ -120,6 +120,13 @@
       "when": 1794463699970,
       "tag": "0016_fix_restore_post_rearm",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794465639505,
+      "tag": "0017_finance_overhaul_foundation",
+      "breakpoints": true
     }
   ]
 }

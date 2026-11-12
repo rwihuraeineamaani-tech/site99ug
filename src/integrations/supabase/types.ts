@@ -1457,21 +1457,27 @@ export type Database = {
           amount_ugx: number
           attachment_path: string | null
           category: string
+          charge_for_id: string | null
+          charge_ugx: number
           counterparty_kind: string
           counterparty_name: string
           created_at: string
           created_by: string | null
           direction: string
+          doc_number: string | null
           entry_date: string
           event_id: string | null
           id: string
           invoice_id: string | null
           note: string | null
           project_id: string | null
+          reconciled_at: string | null
+          reconciled_by: string | null
           reference: string | null
           resident_contract_id: string | null
           resident_id: string | null
           reverses_id: string | null
+          tid: string | null
           transaction_id: string | null
           transfer_group_id: string | null
           updated_at: string
@@ -1481,21 +1487,27 @@ export type Database = {
           amount_ugx: number
           attachment_path?: string | null
           category?: string
+          charge_for_id?: string | null
+          charge_ugx?: number
           counterparty_kind?: string
           counterparty_name?: string
           created_at?: string
           created_by?: string | null
           direction: string
+          doc_number?: string | null
           entry_date?: string
           event_id?: string | null
           id?: string
           invoice_id?: string | null
           note?: string | null
           project_id?: string | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
           reference?: string | null
           resident_contract_id?: string | null
           resident_id?: string | null
           reverses_id?: string | null
+          tid?: string | null
           transaction_id?: string | null
           transfer_group_id?: string | null
           updated_at?: string
@@ -1505,21 +1517,27 @@ export type Database = {
           amount_ugx?: number
           attachment_path?: string | null
           category?: string
+          charge_for_id?: string | null
+          charge_ugx?: number
           counterparty_kind?: string
           counterparty_name?: string
           created_at?: string
           created_by?: string | null
           direction?: string
+          doc_number?: string | null
           entry_date?: string
           event_id?: string | null
           id?: string
           invoice_id?: string | null
           note?: string | null
           project_id?: string | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
           reference?: string | null
           resident_contract_id?: string | null
           resident_id?: string | null
           reverses_id?: string | null
+          tid?: string | null
           transaction_id?: string | null
           transfer_group_id?: string | null
           updated_at?: string
@@ -2659,6 +2677,27 @@ export type Database = {
         }
         Relationships: []
       }
+      document_sequences: {
+        Row: {
+          code: string
+          letter: string
+          n: number
+          yy: number
+        }
+        Insert: {
+          code: string
+          letter?: string
+          n?: number
+          yy: number
+        }
+        Update: {
+          code?: string
+          letter?: string
+          n?: number
+          yy?: number
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -3112,6 +3151,7 @@ export type Database = {
           file_path: string | null
           id: string
           issue_date: string
+          legacy_number: string | null
           next_run_on: string | null
           note: string | null
           number: string | null
@@ -3147,6 +3187,7 @@ export type Database = {
           file_path?: string | null
           id?: string
           issue_date?: string
+          legacy_number?: string | null
           next_run_on?: string | null
           note?: string | null
           number?: string | null
@@ -3182,6 +3223,7 @@ export type Database = {
           file_path?: string | null
           id?: string
           issue_date?: string
+          legacy_number?: string | null
           next_run_on?: string | null
           note?: string | null
           number?: string | null
@@ -3658,6 +3700,63 @@ export type Database = {
           },
         ]
       }
+      legacy_ledger: {
+        Row: {
+          corrected_category: string | null
+          corrected_direction: string | null
+          created_at: string
+          description: string | null
+          entry_date: string | null
+          flag_note: string | null
+          flags: string[]
+          id: string
+          money_in: number
+          money_out: number
+          original_id: string | null
+          row_no: number
+          sheet_balance: number | null
+          sheet_type: string | null
+          source: string
+          system_id: string | null
+        }
+        Insert: {
+          corrected_category?: string | null
+          corrected_direction?: string | null
+          created_at?: string
+          description?: string | null
+          entry_date?: string | null
+          flag_note?: string | null
+          flags?: string[]
+          id?: string
+          money_in?: number
+          money_out?: number
+          original_id?: string | null
+          row_no: number
+          sheet_balance?: number | null
+          sheet_type?: string | null
+          source?: string
+          system_id?: string | null
+        }
+        Update: {
+          corrected_category?: string | null
+          corrected_direction?: string | null
+          created_at?: string
+          description?: string | null
+          entry_date?: string | null
+          flag_note?: string | null
+          flags?: string[]
+          id?: string
+          money_in?: number
+          money_out?: number
+          original_id?: string | null
+          row_no?: number
+          sheet_balance?: number | null
+          sheet_type?: string | null
+          source?: string
+          system_id?: string | null
+        }
+        Relationships: []
+      }
       legal_documents: {
         Row: {
           category: string
@@ -4105,6 +4204,107 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      production_fund_budgets: {
+        Row: {
+          approved_limit_ugx: number | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          estimate_note: string | null
+          estimate_ugx: number
+          id: string
+          month: string
+          status: string
+          submitted_at: string
+          submitted_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_limit_ugx?: number | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          estimate_note?: string | null
+          estimate_ugx?: number
+          id?: string
+          month: string
+          status?: string
+          submitted_at?: string
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_limit_ugx?: number | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          estimate_note?: string | null
+          estimate_ugx?: number
+          id?: string
+          month?: string
+          status?: string
+          submitted_at?: string
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      production_fund_requests: {
+        Row: {
+          amount_ugx: number
+          budget_id: string
+          decline_reason: string | null
+          doc_number: string | null
+          id: string
+          purpose: string
+          requested_at: string
+          requested_by: string | null
+          status: string
+          transfer_group_id: string | null
+          transferred_at: string | null
+          transferred_by: string | null
+        }
+        Insert: {
+          amount_ugx: number
+          budget_id: string
+          decline_reason?: string | null
+          doc_number?: string | null
+          id?: string
+          purpose: string
+          requested_at?: string
+          requested_by?: string | null
+          status?: string
+          transfer_group_id?: string | null
+          transferred_at?: string | null
+          transferred_by?: string | null
+        }
+        Update: {
+          amount_ugx?: number
+          budget_id?: string
+          decline_reason?: string | null
+          doc_number?: string | null
+          id?: string
+          purpose?: string
+          requested_at?: string
+          requested_by?: string | null
+          status?: string
+          transfer_group_id?: string | null
+          transferred_at?: string | null
+          transferred_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_fund_requests_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "production_fund_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projects: {
         Row: {
@@ -6859,29 +7059,44 @@ export type Database = {
       }
       wallets: {
         Row: {
+          account_number: string | null
           active: boolean
+          color: string
           created_at: string
           id: string
+          is_production_fund: boolean
           kind: string
           name: string
+          opening_balance_ugx: number
+          opening_date: string
           sort: number
           updated_at: string
         }
         Insert: {
+          account_number?: string | null
           active?: boolean
+          color?: string
           created_at?: string
           id?: string
+          is_production_fund?: boolean
           kind?: string
           name: string
+          opening_balance_ugx?: number
+          opening_date?: string
           sort?: number
           updated_at?: string
         }
         Update: {
+          account_number?: string | null
           active?: boolean
+          color?: string
           created_at?: string
           id?: string
+          is_production_fund?: boolean
           kind?: string
           name?: string
+          opening_balance_ugx?: number
+          opening_date?: string
           sort?: number
           updated_at?: string
         }
@@ -7069,6 +7284,7 @@ export type Database = {
         Args: { _resident_id: string; _user_id: string }
         Returns: boolean
       }
+      can_request_production_fund: { Args: { _u: string }; Returns: boolean }
       can_run_onboarding: { Args: { _user_id: string }; Returns: boolean }
       can_see_finance: { Args: { _user_id: string }; Returns: boolean }
       can_touch_account: { Args: { _account_id: string }; Returns: boolean }
@@ -7264,7 +7480,15 @@ export type Database = {
         Args: { _decision: string; _feedback?: string; _task_id: string }
         Returns: undefined
       }
+      decide_production_estimate: {
+        Args: { _approve: boolean; _id: string; _limit: number; _note: string }
+        Returns: undefined
+      }
       decline_cash_request: {
+        Args: { _id: string; _reason: string }
+        Returns: undefined
+      }
+      decline_production_request: {
         Args: { _id: string; _reason: string }
         Returns: undefined
       }
@@ -7486,6 +7710,10 @@ export type Database = {
         }[]
       }
       my_talent_id: { Args: never; Returns: string }
+      next_doc_number: {
+        Args: { _code: string; _on?: string }
+        Returns: string
+      }
       next_invoice_number: { Args: never; Returns: string }
       notify_client: {
         Args: {
@@ -7567,6 +7795,22 @@ export type Database = {
         Args: { _resident_id: string }
         Returns: string
       }
+      record_cash_entry: {
+        Args: {
+          _amount: number
+          _category: string
+          _charge?: number
+          _counterparty_name: string
+          _direction: string
+          _entry_date: string
+          _note?: string
+          _reference?: string
+          _resident_id?: string
+          _tid?: string
+          _wallet_id: string
+        }
+        Returns: string
+      }
       record_loan_repayment: {
         Args: {
           _amount: number
@@ -7595,9 +7839,17 @@ export type Database = {
         }
         Returns: string
       }
+      release_production_funds: {
+        Args: { _charge: number; _from: string; _id: string; _tid: string }
+        Returns: undefined
+      }
       remove_from_shoot_day: {
         Args: { _content_id: string }
         Returns: undefined
+      }
+      request_production_funds: {
+        Args: { _amount: number; _budget: string; _purpose: string }
+        Returns: string
       }
       resident_options: {
         Args: never
@@ -7667,6 +7919,19 @@ export type Database = {
         Returns: string
       }
       sales_submit_offer: { Args: { _offer_id: string }; Returns: string }
+      save_finance_account: {
+        Args: {
+          _account_number: string
+          _active: boolean
+          _color: string
+          _id: string
+          _kind: string
+          _name: string
+          _opening: number
+          _opening_date: string
+        }
+        Returns: string
+      }
       set_client_handler: {
         Args: { _resident_id: string; _user_id: string }
         Returns: undefined
@@ -7678,6 +7943,10 @@ export type Database = {
       }
       set_contract_prior_payment: {
         Args: { _amount: number; _id: string; _note?: string }
+        Returns: undefined
+      }
+      set_entry_reconciled: {
+        Args: { _id: string; _on: boolean }
         Returns: undefined
       }
       set_payment_pin: {
@@ -7740,6 +8009,10 @@ export type Database = {
         Args: { _id: string }
         Returns: undefined
       }
+      submit_production_estimate: {
+        Args: { _estimate: number; _month: string; _note: string }
+        Returns: string
+      }
       tier_available_counts: {
         Args: { _event_id: string }
         Returns: {
@@ -7751,6 +8024,18 @@ export type Database = {
       touch_presence: {
         Args: { _path?: string; _user_agent?: string }
         Returns: undefined
+      }
+      transfer_between_accounts: {
+        Args: {
+          _amount: number
+          _charge?: number
+          _entry_date: string
+          _from: string
+          _note?: string
+          _tid?: string
+          _to: string
+        }
+        Returns: string
       }
       transfer_between_wallets: {
         Args: {
