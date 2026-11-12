@@ -1,5 +1,7 @@
 import type * as React from 'npm:react@18.3.1'
 import { template as shootDayBrief } from './shoot-day-brief.tsx'
+import { template as invoiceIssued } from './invoice-issued.tsx'
+import { template as paymentReceipt } from './payment-receipt.tsx'
 
 export interface TemplateEntry {
   // deno-lint-ignore no-explicit-any
@@ -14,4 +16,6 @@ export interface TemplateEntry {
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'shoot-day-brief': shootDayBrief,
+  'invoice-issued': invoiceIssued,
+  'payment-receipt': paymentReceipt,
 }

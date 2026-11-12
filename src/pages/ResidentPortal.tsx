@@ -15,6 +15,7 @@ import AccessLoading from "@/components/system/AccessLoading";
 import PortalContract from "@/components/portal/PortalContract";
 
 type Tab = "overview" | "contract" | "projects" | "briefs" | "announcements" | "profile";
+const TABS_ALLOWED: Tab[] = ["overview", "contract", "projects", "briefs", "announcements", "profile"];
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -32,7 +33,10 @@ export default function ResidentPortal() {
   const qc = useQueryClient();
   const [authChecked, setAuthChecked] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    return (TABS_ALLOWED as string[]).includes(t ?? "") ? (t as Tab) : "overview";
+  });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {

@@ -1,5 +1,6 @@
 import { CONTENT_APPROVALS_ENABLED } from "@/lib/approvals";
 import { useEffect, useMemo, useState } from "react";
+import { PostedDayFix } from "@/components/content/PostedDayFix";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -959,7 +960,8 @@ export default function ContentPipeline() {
           <Link to={`/app/post/${editing.id}`} className="mt-2 inline-block text-xs text-signal">Open the ready to post sheet</Link>
           <label className="mt-3 block text-sm sm:w-56">
             <span className="eyebrow text-ink-faint">Day it went out</span>
-            <input type="date" className={field} value={postedDate} onChange={(e) => setPostedDate(e.target.value)} />
+            <input type="date" className={field} value={postedDate} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setPostedDate(e.target.value)} />
+            <span className="mt-1 block text-[11px] text-ink-faint">Pick the real day it went live, not today, if it was posted earlier.</span>
           </label>
           <div className="mt-3">
             <span className="eyebrow text-ink-faint">Link and traffic window for each platform</span>
@@ -1033,6 +1035,14 @@ export default function ContentPipeline() {
         <div className={box}>
           <div className="eyebrow text-ink-faint">Performance — due {due ?? "—"}</div>
           {!ready && <p className="mt-1 text-xs text-ink-soft">You can fill these in early if you already have them.</p>}
+          <PostedDayFix
+            id={editing.id}
+            postedAt={editing.posted_at}
+            onSaved={(at, dueDay) => {
+              setEditing({ ...editing, posted_at: at, metrics_due_at: dueDay });
+              load();
+            }}
+          />
           <div className="mt-2 grid gap-3 sm:grid-cols-3">
             {METRIC_FIELDS.map((m) => (
               <label key={m.key} className="text-sm">

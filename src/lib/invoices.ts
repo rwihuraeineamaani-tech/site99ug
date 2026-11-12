@@ -29,6 +29,8 @@ export type Invoice = {
   approved_at: string | null;
   sent_at: string | null;
   created_at: string;
+  last_emailed_at?: string | null;
+  last_emailed_to?: string | null;
 };
 
 export type InvoiceLine = {

@@ -3,6 +3,19 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const RELEASES: Release[] = [
   {
+    version: "2.1.0",
+    date: "2026-11-12",
+    title: "Official invoices and receipts",
+    notes: [
+      "Invoices and receipts have a new official layout: letterhead, TIN, a clear VAT line, paid to date, balance due, how to pay, terms and a signature line.",
+      "Every payment linked to an invoice is its own receipt, numbered by its cashbook line, with the amount in words and a PAID stamp.",
+      "Finance can email an invoice or a receipt to the client straight from Invoices. Emails go out once the Site 99 email address finishes its setup check.",
+      "Clients can download receipts for every payment in their portal, under Contract and Billing.",
+      "Finance fills in the TIN, bank account, mobile money and who signs once, under Invoices, Invoice and receipt details.",
+      "Marking a video as posted now uses the day you pick, not the day you click. Posted videos have a Fix posted day box for older ones.",
+    ],
+  },
+  {
     version: "2.0.0",
     date: "2026-11-12",
     title: "The finance overhaul",
