@@ -2,6 +2,7 @@ import { APP_VERSION } from "@/lib/version";
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
+  Building2,
   Clock,
   LayoutDashboard,
   CalendarDays,
