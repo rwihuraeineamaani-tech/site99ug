@@ -167,7 +167,7 @@ export default function Approvals() {
                 {decided.map((d) => (
                   <li key={d.id} className="px-5 py-3 flex flex-wrap items-center gap-3">
                     <StatusChip value={KIND_LABEL[d.kind]} tone="neutral" />
-                    <span className="text-sm truncate flex-1">{d.title}</span>
+                    <span className="order-first basis-full truncate text-sm font-medium sm:order-none sm:basis-0 sm:flex-1">{d.title}</span>
                     <span className="text-[11px] text-ink-faint">{d.when ? d.when.slice(0, 10) : ""}</span>
                     <StatusChip value={d.outcome} tone={d.tone} />
                     {d.to ? (

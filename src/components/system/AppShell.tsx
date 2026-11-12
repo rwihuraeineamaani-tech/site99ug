@@ -564,13 +564,12 @@ function ShellFrame({
             <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2 xl:gap-5">
               <span className="hidden lg:inline-flex"><HelpButton /></span>
               {userId && <span className="hidden lg:inline-flex"><NotificationBell /></span>}
-              <Link
-                to="/app/calendar"
-                className="ctl hidden h-9 px-3 text-[13px] font-semibold text-ink-soft xl:inline-flex focus-ring"
-              >
-                <CalendarDays className="h-3.5 w-3.5" />
-                Calendar
-              </Link>
+              <span className="hidden xl:inline-flex">
+                <Link to="/app/calendar" className="ctl h-9 px-3 text-[13px] font-semibold text-ink-soft focus-ring">
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  Calendar
+                </Link>
+              </span>
               <span className="hidden xl:inline-flex"><HeaderClock /></span>
               <span className="hidden lg:block h-8 w-px bg-rule" aria-hidden />
               <Link
@@ -586,13 +585,12 @@ function ShellFrame({
                   .map((p) => p[0]?.toUpperCase() ?? "")
                   .join("") || "S9"}
               </Link>
-              <button
-                onClick={signOut}
-                className="ctl hidden h-9 px-3 text-[13px] font-semibold text-ink-soft xl:inline-flex focus-ring"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sign out</span>
-              </button>
+              <span className="hidden xl:inline-flex">
+                <button onClick={signOut} className="ctl h-9 px-3 text-[13px] font-semibold text-ink-soft focus-ring">
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              </span>
             </div>
           </header>
 
