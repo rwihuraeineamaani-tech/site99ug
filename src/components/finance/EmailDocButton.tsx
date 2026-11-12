@@ -7,10 +7,12 @@ const pill = "press rounded-full border border-rule bg-paper-raised px-3 py-1.5 
 export function EmailDocButton({
   label,
   defaultTo,
+  resolveDefault,
   send,
 }: {
   label: string;
   defaultTo?: string | null;
+  resolveDefault?: () => Promise<string | null>;
   send: (to: string) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -25,6 +27,7 @@ export function EmailDocButton({
         onClick={() => {
           setTo(defaultTo ?? "");
           setOpen(true);
+          resolveDefault?.().then((e) => e && setTo((cur) => cur || e));
         }}
       >
         {label}

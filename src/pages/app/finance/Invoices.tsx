@@ -657,7 +657,7 @@ export default function Invoices() {
                         download PDF
                       </button>
                       {inv.status !== "void" && (
-                        <EmailDocButton label="Email invoice" defaultTo={null} send={(to) => sendInvoice(inv, to)} />
+                        <EmailDocButton label="Email invoice" resolveDefault={async () => (await partyInfo(inv)).email} send={(to) => sendInvoice(inv, to)} />
                       )}
                       {inv.status === "draft" && (
                         <button className={pill} onClick={() => setStatus(inv, "sent")}>
