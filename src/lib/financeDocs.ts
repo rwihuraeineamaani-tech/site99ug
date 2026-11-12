@@ -401,7 +401,8 @@ export function receiptDoc(
   receipts: ReceiptRow[],
 ): FinanceDoc {
   const ratio = inv.total_ugx ? r.amount_ugx / inv.total_ugx : 1;
-  const upTo = receipts.filter((x) => x.entry_date < r.entry_date || x.entry_id === r.entry_id || (x.entry_date === r.entry_date && receipts.indexOf(x) <= receipts.indexOf(r)));
+  const idx = Math.max(0, receipts.findIndex((x) => x.entry_id === r.entry_id));
+  const upTo = receipts.slice(0, idx + 1);
   const paidSoFar = upTo.reduce((s, x) => s + x.amount_ugx, 0);
   const tax = Math.round(inv.vat_ugx * ratio);
   return {
