@@ -3,7 +3,7 @@ import { downloadFinanceDoc, loadDocProfile } from "@/lib/financeDocs";
 import { emailInvoice } from "@/lib/docEmail";
 import { InvoiceReceipts } from "@/components/finance/InvoiceReceipts";
 import { EmailDocButton } from "@/components/finance/EmailDocButton";
-import { DocumentProfileEditor } from "@/components/finance/DocumentProfileEditor";
+import { Link } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinanceLock } from "@/components/finance/FinanceLock";
@@ -390,7 +390,10 @@ export default function Invoices() {
         </div>
       }
     >
-      <DocumentProfileEditor canEdit={canSeeFinance} />
+      <p className="mb-6 text-xs text-ink-soft">
+        The letterhead, TIN, bank and mobile money details and who signs are set in{" "}
+        <Link to="/app/finance/office" className="font-semibold text-signal underline-offset-2 hover:underline">Finance office</Link>.
+      </p>
       <div className="flex flex-wrap items-center gap-2 mb-8">
         <button className={`${pill} ${tab === "out" ? on : ""}`} onClick={() => setTab("out")}>
           We issued
