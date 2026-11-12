@@ -1798,6 +1798,53 @@ export type Database = {
           },
         ]
       }
+      client_files: {
+        Row: {
+          category: string
+          created_at: string
+          file_path: string
+          id: string
+          label: string
+          mime_type: string | null
+          resident_id: string
+          size_bytes: number | null
+          uploaded_by: string
+          uploaded_by_client: boolean
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          file_path: string
+          id?: string
+          label: string
+          mime_type?: string | null
+          resident_id: string
+          size_bytes?: number | null
+          uploaded_by?: string
+          uploaded_by_client?: boolean
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          file_path?: string
+          id?: string
+          label?: string
+          mime_type?: string | null
+          resident_id?: string
+          size_bytes?: number | null
+          uploaded_by?: string
+          uploaded_by_client?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_files_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_followups: {
         Row: {
           assigned_to: string | null
@@ -2076,6 +2123,56 @@ export type Database = {
           },
         ]
       }
+      client_reports: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_name: string | null
+          file_path: string | null
+          id: string
+          month: string
+          published: boolean
+          published_at: string | null
+          resident_id: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          month: string
+          published?: boolean
+          published_at?: string | null
+          resident_id: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          month?: string
+          published?: boolean
+          published_at?: string | null
+          resident_id?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_reports_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_targets: {
         Row: {
           approved_at: string | null
@@ -2257,6 +2354,7 @@ export type Database = {
           caption_edited_by_client_at: string | null
           caption_suggestions: string | null
           client_caption: string | null
+          client_idea_month: string | null
           client_review_note: string | null
           client_review_state: string
           client_reviewed_at: string | null
@@ -2267,6 +2365,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           crew_notes: string | null
+          declined_note: string | null
           edit_file_url: string | null
           edit_remarks: string | null
           editor: string | null
@@ -2297,6 +2396,7 @@ export type Database = {
           shoot_at: string | null
           shooter: string | null
           sort: number
+          source: string
           spontaneous: boolean
           stage: string
           tags: Json
@@ -2311,6 +2411,7 @@ export type Database = {
           caption_edited_by_client_at?: string | null
           caption_suggestions?: string | null
           client_caption?: string | null
+          client_idea_month?: string | null
           client_review_note?: string | null
           client_review_state?: string
           client_reviewed_at?: string | null
@@ -2321,6 +2422,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           crew_notes?: string | null
+          declined_note?: string | null
           edit_file_url?: string | null
           edit_remarks?: string | null
           editor?: string | null
@@ -2351,6 +2453,7 @@ export type Database = {
           shoot_at?: string | null
           shooter?: string | null
           sort?: number
+          source?: string
           spontaneous?: boolean
           stage?: string
           tags?: Json
@@ -2365,6 +2468,7 @@ export type Database = {
           caption_edited_by_client_at?: string | null
           caption_suggestions?: string | null
           client_caption?: string | null
+          client_idea_month?: string | null
           client_review_note?: string | null
           client_review_state?: string
           client_reviewed_at?: string | null
@@ -2375,6 +2479,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           crew_notes?: string | null
+          declined_note?: string | null
           edit_file_url?: string | null
           edit_remarks?: string | null
           editor?: string | null
@@ -2405,6 +2510,7 @@ export type Database = {
           shoot_at?: string | null
           shooter?: string | null
           sort?: number
+          source?: string
           spontaneous?: boolean
           stage?: string
           tags?: Json
@@ -5466,6 +5572,57 @@ export type Database = {
           },
         ]
       }
+      shoot_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          crew: number | null
+          id: string
+          overall: number
+          rated_by: string
+          resident_id: string
+          shoot_day_id: string
+          timekeeping: number | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          crew?: number | null
+          id?: string
+          overall: number
+          rated_by?: string
+          resident_id: string
+          shoot_day_id: string
+          timekeeping?: number | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          crew?: number | null
+          id?: string
+          overall?: number
+          rated_by?: string
+          resident_id?: string
+          shoot_day_id?: string
+          timekeeping?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shoot_ratings_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shoot_ratings_shoot_day_id_fkey"
+            columns: ["shoot_day_id"]
+            isOneToOne: true
+            referencedRelation: "shoot_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shoot_spend: {
         Row: {
           amount_ugx: number
@@ -6925,6 +7082,10 @@ export type Database = {
         Args: { _pin: string; _user_id: string }
         Returns: boolean
       }
+      client_month_metrics: {
+        Args: { _month: string; _resident: string }
+        Returns: Json
+      }
       client_pay_overview: {
         Args: never
         Returns: {
@@ -6949,6 +7110,15 @@ export type Database = {
           _rejected_tags: string[]
         }
         Returns: undefined
+      }
+      client_suggest_idea: {
+        Args: {
+          _description: string
+          _month: string
+          _ref: string
+          _title: string
+        }
+        Returns: string
       }
       clock_in: {
         Args: { _lat?: number; _lng?: number; _note?: string }
@@ -7185,6 +7355,7 @@ export type Database = {
       is_kpi_manager: { Args: { _user_id: string }; Returns: boolean }
       is_leadership: { Args: { _user_id: string }; Returns: boolean }
       is_md: { Args: { _user_id: string }; Returns: boolean }
+      is_my_resident: { Args: { _resident: string }; Returns: boolean }
       is_public_client_logo: { Args: { _path: string }; Returns: boolean }
       is_resident_contact: {
         Args: { _resident_id: string; _user_id: string }
@@ -7267,6 +7438,19 @@ export type Database = {
         }
         Returns: number
       }
+      my_client_ideas: {
+        Args: never
+        Returns: {
+          client_idea_month: string
+          created_at: string
+          declined_note: string
+          id: string
+          link: string
+          notes: string
+          stage: string
+          title: string
+        }[]
+      }
       my_pending_account_weeks: {
         Args: never
         Returns: {
@@ -7290,6 +7474,28 @@ export type Database = {
       }
       my_talent_id: { Args: never; Returns: string }
       next_invoice_number: { Args: never; Returns: string }
+      notify_client: {
+        Args: {
+          _body: string
+          _key: string
+          _path: string
+          _resident: string
+          _title: string
+          _type: string
+        }
+        Returns: undefined
+      }
+      notify_resident_handler: {
+        Args: {
+          _body: string
+          _key: string
+          _path: string
+          _resident: string
+          _title: string
+          _type: string
+        }
+        Returns: undefined
+      }
       open_direct_chat: { Args: { _target_user: string }; Returns: string }
       ops_overview: { Args: never; Returns: Json }
       prepare_due_push_reminders: { Args: { _now?: string }; Returns: number }
