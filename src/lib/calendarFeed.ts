@@ -61,6 +61,13 @@ export type CalendarData = {
 
 const kampalaDate = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Kampala" }).format(new Date(iso));
 
+/** The calendar day for a video: the Kampala day it went live once posted, otherwise its planned day. */
+export function postCalendarDay(c: { posted_at: string | null; planned_at: string | null; stage: string }): string | null {
+  if (c.posted_at) return kampalaDate(c.posted_at);
+  if (c.stage === "Archived") return null;
+  return c.planned_at?.slice(0, 10) ?? null;
+}
+
 /** Everything dated between two days: shoots, posts, numbers due, events and busy blocks. */
 export async function loadCalendar(from: string, to: string): Promise<CalendarData> {
   const [shoots, content, events, blocksRes, calendarItemsRes, busySlotsRes, residentsRes, peopleRes, taskRes, taskLinksRes] = await Promise.all([
@@ -121,7 +128,7 @@ export async function loadCalendar(from: string, to: string): Promise<CalendarDa
   ((content.data as ContentRow[]) ?? []).forEach((c) => {
     const client = names.get(c.resident_id ?? "") ?? "Studio";
     // A posted video sits on the day it went live, so fixing the posted day moves it here too.
-    const day = c.posted_at ? kampalaDate(c.posted_at) : c.stage === "Archived" ? null : c.planned_at?.slice(0, 10);
+    const day = postCalendarDay(c);
     if (day && day >= from && day <= to) {
       entries.push({
         id: `post-${c.id}`,
