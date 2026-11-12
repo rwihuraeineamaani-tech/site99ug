@@ -42,7 +42,7 @@ export default function MonthResults({ residentId, month, onLoaded }: { resident
           <div className="text-sm font-medium">Work delivered</div>
           <p className="text-xs text-ink-faint">Grey is last month, red is this month.</p>
           <div className="mt-2 h-48">
-            <ResponsiveContainer><BarChart data={compare}><CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="name" fontSize={11} /><YAxis allowDecimals={false} fontSize={11} width={28} /><Tooltip /><Bar dataKey="before" fill="hsl(var(--muted-foreground))" radius={4} /><Bar dataKey="now" fill="hsl(var(--primary))" radius={4} /></BarChart></ResponsiveContainer>
+            <ResponsiveContainer><BarChart data={compare}><CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="name" fontSize={11} /><YAxis allowDecimals={false} fontSize={11} width={28} /><Tooltip /><Bar isAnimationActive={false} dataKey="before" fill="hsl(var(--muted-foreground))" radius={4} /><Bar isAnimationActive={false} dataKey="now" fill="hsl(var(--primary))" radius={4} /></BarChart></ResponsiveContainer>
           </div>
         </div>
         <div className="rounded-xl border border-hairline p-3">
