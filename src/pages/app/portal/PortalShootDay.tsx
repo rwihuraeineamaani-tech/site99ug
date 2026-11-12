@@ -5,6 +5,7 @@ import { usePortalClient } from "@/hooks/usePortalClient";
 import PortalPage, { PortalCard, PortalEmpty } from "@/components/portal/PortalPage";
 import { Button } from "@/components/ui/button";
 import { StatusChip } from "@/components/system";
+import ShootRating from "@/components/clientspace/ShootRating";
 import { NEED_STATUS, briefDate, clientCost, downloadShootBrief, loadShootBrief, ugx, type ShootBrief } from "@/lib/shootBriefPdf";
 
 export default function PortalShootDay() {
@@ -51,6 +52,9 @@ export default function PortalShootDay() {
                 </li>))}</ul>
             )}
             {clientCost(b) > 0 && <div className="mt-3 text-sm">Your costs for this shoot: <span className="num font-semibold">{ugx(clientCost(b))}</span></div>}
+          </PortalCard>
+          <PortalCard title="Rate this shoot">
+            <ShootRating dayId={id} residentId={client?.id ?? null} status={b.status} />
           </PortalCard>
         </div>
       )}

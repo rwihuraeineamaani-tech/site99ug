@@ -6,6 +6,7 @@ import Seo from "@/components/Seo";
 import AppShell from "@/components/system/AppShell";
 import { PageHeader, SectionHeading, StatusChip } from "@/components/system";
 import ClientNeedsPanel from "@/components/shoots/ClientNeedsPanel";
+import ShootRating from "@/components/clientspace/ShootRating";
 import { Button } from "@/components/ui/button";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { refCode } from "@/lib/contentFlow";
@@ -426,6 +427,7 @@ export default function ShootDayRun() {
       )}
 
       <ClientNeedsPanel dayId={dayId} />
+      <section className="surface mt-6 rounded-2xl p-5"><h3 className="mb-3 text-sm font-medium">Client rating</h3><ShootRating dayId={dayId} residentId={null} status="" readOnly /></section>
 
       {/* what was shot */}
       <section className="mt-10">
