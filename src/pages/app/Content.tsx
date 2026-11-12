@@ -95,6 +95,8 @@ export type ContentItem = {
   metrics: Record<string, string> | null;
   metrics_due_at: string | null;
   metrics_filled_at: string | null;
+  cancelled_at?: string | null;
+  cancelled_reason?: string | null;
 };
 
 type CrewRow = { id: string; content_id: string; role: string; user_id: string | null; note: string | null; sort: number };
@@ -1296,7 +1298,8 @@ export default function ContentPipeline() {
                         {refCode(i.ref_no)}
                         {(i as { spontaneous?: boolean }).spontaneous && <span className="ml-1.5 rounded bg-signal/10 px-1 text-signal">Added on the shoot day</span>}
                       </div>
-                      <div className="text-sm font-semibold leading-snug">{i.title}</div>
+                      <div className={`text-sm font-semibold leading-snug ${i.cancelled_at && !i.posted_at ? "line-through decoration-state-stop decoration-2 text-ink-faint" : ""}`}>{i.title}</div>
+                      {i.cancelled_at && !i.posted_at && <div className="mt-1 text-[11px] font-semibold text-state-stop">Post cancelled{i.cancelled_reason ? `: ${i.cancelled_reason}` : ""}</div>}
                       <div className="mt-1.5 text-[11px] text-ink-soft">
                         {ownerLabel(i)}
                         {" · "}
@@ -1586,7 +1589,19 @@ export default function ContentPipeline() {
             </p>
           ) : null}
 
-          <DialogFooter className="mt-2 flex items-center gap-2">
+          {editing?.cancelled_at && !editing.posted_at && (
+            <div className="rounded-xl border border-state-stop/50 bg-state-stop/10 px-3 py-2 text-sm">
+              <div className="font-semibold">This post is cancelled</div>
+              {editing.cancelled_reason && <p className="text-ink-soft">{editing.cancelled_reason}</p>}
+            </div>
+          )}
+
+          <DialogFooter className="mt-2 flex flex-wrap items-center gap-2">
+            {isStaff && editing && !editing.posted_at && (
+              editing.cancelled_at
+                ? <Button variant="outline" onClick={restorePost} disabled={busy}>Restore post</Button>
+                : <Button variant="outline" className="text-state-stop" onClick={cancelPost} disabled={busy}><Ban /> Cancel post</Button>
+            )}
             {isFounder && (
               <Button variant="ghost" className="mr-auto text-signal hover:bg-[hsl(0_100%_96%)]" onClick={remove} disabled={busy}>
                 <Trash2 />

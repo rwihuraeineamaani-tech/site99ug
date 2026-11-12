@@ -80,8 +80,8 @@ export default function PortalWork() {
                     <StatusChip value={i.cancelled_at ? "Cancelled" : i.stage} tone={i.cancelled_at ? "stop" : undefined} />
                   </div>
                   <div className="mt-1 text-xs text-ink-faint">
-                    {i.content_type} · posting {postLabel(i)}{postCountdown(i) ? ` · ${postCountdown(i)}` : ""}
-                    {i.platforms?.length ? ` · ${i.platforms.join(", ")}` : ""}
+                    {i.cancelled_at ? `Cancelled${i.cancelled_reason ? `: ${i.cancelled_reason}` : ""}` : <>{i.content_type} · posting {postLabel(i)}{postCountdown(i) ? ` · ${postCountdown(i)}` : ""}
+                    {i.platforms?.length ? ` · ${i.platforms.join(", ")}` : ""}</>}
                   </div>
                 </li>
               ))}
