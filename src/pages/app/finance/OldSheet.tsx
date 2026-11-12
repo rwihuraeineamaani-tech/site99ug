@@ -48,7 +48,7 @@ export default function FinanceOldSheet() {
               <td className="px-3 py-2 num text-right">{r.money_in ? r.money_in.toLocaleString("en-UG") : ""}</td>
               <td className="px-3 py-2 num text-right">{r.money_out ? r.money_out.toLocaleString("en-UG") : ""}</td>
               <td className="px-3 py-2 num text-right text-ink-soft">{r.sheet_balance?.toLocaleString("en-UG")}</td>
-              <td className="px-3 py-2"><div className="flex flex-wrap gap-1">{r.flags.map((f) => <StatusChip key={f} tone="amber">{FLAG[f] ?? f}</StatusChip>)}</div>
+              <td className="px-3 py-2"><div className="flex flex-wrap gap-1">{r.flags.map((f) => <StatusChip key={f} tone="warn" value={FLAG[f] ?? f} />)}</div>
                 {r.flag_note && <div className="mt-1 text-[11px] text-ink-soft">{r.flag_note}</div>}</td>
             </tr>))}</tbody>
         </table>
