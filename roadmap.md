@@ -7,12 +7,12 @@
 - [x] Cashbook: TID (required for mobile money) and charges
 - [ ] Opening balances per account on 1 Nov 2026 (waiting on user)
 - [ ] Payroll/volunteer pay sheet import (waiting on upload)
-- [ ] Loans register entries for Rwihura and Muhendo loans
-- [ ] Re-check Oct/Nov live entries against bank
+- [x] Loans register entries for Rwihura and Muhendo loans
+- [x] Re-check Oct/Nov live entries against bank
 - [ ] Redesigned invoice/receipt PDFs + email sending (email domain still not verified)
-- [ ] Reconciliation + month lock; P&L, cash flow, balance sheet; Friday report pack
-- [ ] UI v2.0 refresh using My Kweeza / Hardware Management System
-- [ ] Versioning and What's new page
+- [x] Reconciliation + month lock; P&L, cash flow, balance sheet; Friday report pack
+- [x] UI v2.0 refresh using My Kweeza / Hardware Management System
+- [x] Versioning and What's new page
 
 # Earlier
 
