@@ -1,4 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
+import { contentKind } from "@/lib/contentFlow";
+
+/** Counts posts by video or photo, leaving out cancelled ones. */
+export function countByKind(items: { content_type: string | null; cancelled_at?: string | null }[]) {
+  const out = { video: 0, photo: 0 };
+  items.forEach((i) => { if (!i.cancelled_at) out[contentKind(i.content_type)] += 1; });
+  return out;
+}
 
 /* ------------------------------------------------------------------ *
  * Client strategy: goals, monthly targets and the workflow map.
@@ -7,6 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 /** Things we can set a number against. Keys match the dashboard KPI figures. */
 export const METRICS = [
   { key: "posted", label: "Posted content", unit: "pieces" },
+  { key: "posted_videos", label: "Videos posted", unit: "videos" },
+  { key: "posted_photos", label: "Photo posts posted", unit: "photo posts" },
   { key: "shoots", label: "Shoots landed", unit: "shoot days" },
   { key: "numbers", label: "Client numbers filled", unit: "entries" },
   { key: "followers", label: "Followers", unit: "followers" },
@@ -181,7 +191,7 @@ export async function loadClientActuals(residentId: string, monthStart: string) 
   const [content, shoots, accounts] = await Promise.all([
     supabase
       .from("content_items")
-      .select("id, posted_at, metrics_filled_at")
+      .select("id, posted_at, metrics_filled_at, content_type, cancelled_at")
       .eq("resident_id", residentId)
       .gte("posted_at", `${monthStart}T00:00:00Z`)
       .lt("posted_at", `${to}T00:00:00Z`),
@@ -217,10 +227,12 @@ export async function loadClientActuals(residentId: string, monthStart: string) 
     latest.forEach((m) => (followers += m.followers ?? 0));
   }
 
-  const posted = ((content.data ?? []) as { posted_at: string | null }[]).length;
+  const live = ((content.data ?? []) as { content_type: string | null; cancelled_at: string | null }[]).filter((c) => !c.cancelled_at);
+  const kinds = countByKind(live);
+  const posted = live.length;
   const shot = ((shoots.data ?? []) as { status: string }[]).filter((s) => s.status === "done").length;
 
-  const actuals: Record<string, number> = { posted, shoots: shot, numbers: filled, followers, reach };
+  const actuals: Record<string, number> = { posted, posted_videos: kinds.video, posted_photos: kinds.photo, shoots: shot, numbers: filled, followers, reach };
   return actuals;
 }
 

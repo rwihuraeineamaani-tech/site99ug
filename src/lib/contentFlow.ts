@@ -56,16 +56,43 @@ export const POST_WINDOWS: { key: string; label: string; range: string; from: nu
 
 export const postWindowLabel = (key: string) => POST_WINDOWS.find((w) => w.key === key)?.label ?? key;
 
-export const METRIC_FIELDS: { key: string; label: string }[] = [
+export type MetricField = { key: string; label: string };
+
+/** Numbers recorded for a video post. */
+export const VIDEO_METRICS: MetricField[] = [
   { key: "views", label: "Views" },
   { key: "reach", label: "Reach" },
   { key: "avg_watch_time", label: "Avg. watch time" },
   { key: "likes", label: "Likes" },
   { key: "comments", label: "Comments" },
   { key: "shares", label: "Shares" },
+  { key: "reposts", label: "Reposts" },
   { key: "saves", label: "Saves" },
   { key: "follows", label: "Follows gained" },
   { key: "link_clicks", label: "Link clicks" },
 ];
+
+/** Numbers recorded for a photo post (photo set, poster, carousel). */
+export const PHOTO_METRICS: MetricField[] = [
+  { key: "impressions", label: "Impressions" },
+  { key: "reach", label: "Reach" },
+  { key: "likes", label: "Likes" },
+  { key: "comments", label: "Comments" },
+  { key: "shares", label: "Shares" },
+  { key: "reposts", label: "Reposts" },
+  { key: "saves", label: "Saves" },
+  { key: "profile_visits", label: "Profile visits" },
+  { key: "follows", label: "Follows gained" },
+  { key: "link_clicks", label: "Link clicks" },
+];
+
+/** Every number we know, used to read older saved numbers. */
+export const METRIC_FIELDS: MetricField[] = [...VIDEO_METRICS, ...PHOTO_METRICS.filter((p) => !VIDEO_METRICS.some((v) => v.key === p.key))];
+
+export type ContentKind = "video" | "photo";
+/** The one place that decides whether a content type is a video or a photo post. */
+export const contentKind = (type: string | null | undefined): ContentKind => (/video|reel|vlog/i.test(type ?? "") ? "video" : /photo|poster|carousel|still|graphic|image|slide/i.test(type ?? "") ? "photo" : "video");
+export const KIND_LABEL: Record<ContentKind, string> = { video: "Videos", photo: "Photo posts" };
+export const metricFieldsFor = (type: string | null | undefined) => (contentKind(type) === "photo" ? PHOTO_METRICS : VIDEO_METRICS);
 
 export const refCode = (n: number) => `IDEA-${String(n).padStart(4, "0")}`;

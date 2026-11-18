@@ -34,6 +34,7 @@ import {
   POST_WINDOWS,
   postWindowLabel,
   METRIC_FIELDS,
+  metricFieldsFor,
   refCode,
   type Stage,
 } from "@/lib/contentFlow";
@@ -1061,13 +1062,14 @@ export default function ContentPipeline() {
             const tab = plats.includes(metricTab) ? metricTab : plats[0];
             const legacy = unsplitLegacy(editing.metrics, plats);
             const cur = metrics[tab] ?? {};
+            const fields = metricFieldsFor(editing.content_type);
             return (
               <div className="mt-3">
                 <span className="eyebrow text-ink-faint">{plats.length > 1 ? `Numbers on ${tab}` : "Numbers"}</span>
                 {plats.length > 1 && (
                   <div className="mt-1.5 flex flex-wrap gap-1.5" role="tablist" aria-label="Platform">
                     {plats.map((p) => {
-                      const n = filledCount(metrics[p]);
+                      const n = filledCount(metrics[p], fields);
                       const on = p === tab;
                       return (
                         <button
@@ -1078,7 +1080,7 @@ export default function ContentPipeline() {
                           onClick={() => setMetricTab(p)}
                           className={`press focus-ring rounded-full border px-3 py-1 text-xs font-semibold ${on ? "border-signal bg-signal text-paper" : "border-rule bg-paper-raised text-ink"}`}
                         >
-                          {p} <span className={on ? "opacity-80" : "text-ink-faint"}>{n}/{METRIC_FIELDS.length}</span>
+                          {p} <span className={on ? "opacity-80" : "text-ink-faint"}>{n}/{fields.length}</span>
                         </button>
                       );
                     })}
@@ -1094,7 +1096,7 @@ export default function ContentPipeline() {
                   </p>
                 )}
                 <div className="mt-2 grid gap-3 sm:grid-cols-3">
-                  {METRIC_FIELDS.map((m) => (
+                  {fields.map((m) => (
                     <label key={m.key} className="text-sm">
                       <span className="eyebrow text-ink-faint">{m.label}</span>
                       <input
@@ -1131,7 +1133,7 @@ export default function ContentPipeline() {
             title={editing.title}
             platforms={editing.platforms}
             postedWhen={editing.posted_at}
-            metrics={flatForAi(metrics)}
+            metrics={flatForAi(metrics, metricFieldsFor(editing.content_type))}
             note={metricNote}
           />
         </div>

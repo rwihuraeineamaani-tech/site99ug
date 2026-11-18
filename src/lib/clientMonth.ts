@@ -5,9 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 const db = supabase as any;
 
 export type MonthMetrics = {
-  posted: number; posted_on_time: number; shoots: number; ideas: number;
+  posted: number; posted_videos?: number; posted_photos?: number; posted_on_time: number; shoots: number; ideas: number;
   followers: number | null; reach: number; impressions: number; profile_visits: number; link_clicks: number;
   weeks: { week: string; reach: number; followers: number | null }[];
+  targets?: MonthTarget[];
+};
+export type MonthTarget = { metric: string; target: number; actual: number | null; notes: string | null };
+export const TARGET_LABEL: Record<string, string> = {
+  posted: "All posts", posted_videos: "Videos", posted_photos: "Photo posts", shoots: "Shoot days", followers: "Followers", reach: "Reach", numbers: "Numbers filled", custom: "Other",
 };
 
 export const monthStart = (d: Date) => new Date(Date.UTC(d.getFullYear(), d.getMonth(), 1)).toISOString().slice(0, 10);
@@ -27,7 +32,8 @@ export function change(now: number | null | undefined, before: number | null | u
 }
 
 export const METRIC_ROWS: { key: keyof MonthMetrics; label: string }[] = [
-  { key: "posted", label: "Videos posted" },
+  { key: "posted_videos", label: "Videos posted" },
+  { key: "posted_photos", label: "Photo posts posted" },
   { key: "posted_on_time", label: "Posted on time" },
   { key: "shoots", label: "Shoot days done" },
   { key: "followers", label: "Followers" },
@@ -63,6 +69,13 @@ export function downloadMonthPdf(clientName: string, month: string, m: MonthMetr
     const v = m[r.key] as number | null; const b = before ? (before[r.key] as number | null) : null; const c = change(v, b);
     doc.text(r.label, 40, y); doc.text(n(v), 300, y); doc.text(n(b), 400, y); doc.text(c == null ? "–" : `${c > 0 ? "+" : ""}${c}%`, 500, y);
     y += 20;
+  }
+  if (m.targets?.length) {
+    y += 10; doc.setFont("helvetica", "bold"); doc.text("This month's targets", 40, y); y += 16; doc.setFont("helvetica", "normal");
+    for (const t of m.targets) {
+      const pct = t.target ? Math.round(((t.actual ?? 0) / t.target) * 100) : 0;
+      doc.text(TARGET_LABEL[t.metric] ?? t.metric, 40, y); doc.text(`${n(t.actual)} of ${n(t.target)}`, 300, y); doc.text(`${pct}%`, 500, y); y += 20;
+    }
   }
   y += 10; doc.setFont("helvetica", "bold"); doc.text("Weekly reach", 40, y); y += 14;
   const wk = m.weeks ?? []; const wmax = Math.max(1, ...wk.map((w) => w.reach ?? 0));

@@ -32,4 +32,5 @@
 - Receipts are not stored separately: each un-reversed money-in cashbook line linked to an invoice is a receipt (`invoice_receipts` RPC, numbered by its `doc_number`), so staff and client portal show the same receipts.
 - A content item's `posted_at` comes from the handler's chosen day (`posted_from`, capped at now) via trigger, later corrections go only through `set_posted_date`, and every calendar places a posted video on its Kampala `posted_at` day (`postCalendarDay`), so fixing the posted day moves it everywhere.
 - Video numbers are saved per platform in `content_items.metrics.by_platform` (helpers in `src/lib/contentMetrics.ts`), with summed totals kept at the top level of `metrics`, so older readers still see one figure while handlers enter each platform separately.
-- Push devices are registered only through `register_push_device()` (one row per browser token, moved to the signed-in user), so a shared or reused device never fails RLS or keeps alerting the previous person.
+- Push devices register only via `register_push_device()` (one row per token, moved to the signed-in user).
+- Video vs photo post comes only from `contentKind()` (contentFlow.ts, mirrored in `client_month_metrics`); number fields and video/photo targets follow it.

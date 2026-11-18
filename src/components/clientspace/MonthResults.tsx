@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { METRIC_ROWS, change, loadMonthMetrics, prevMonth, type MonthMetrics } from "@/lib/clientMonth";
+import { METRIC_ROWS, TARGET_LABEL, change, loadMonthMetrics, prevMonth, type MonthMetrics } from "@/lib/clientMonth";
 
 /** System numbers for one client month, compared with the month before. */
 export default function MonthResults({ residentId, month, onLoaded }: { residentId: string; month: string; onLoaded?: (m: MonthMetrics, before: MonthMetrics | null) => void }) {
@@ -18,13 +18,31 @@ export default function MonthResults({ residentId, month, onLoaded }: { resident
   if (err) return <p className="text-sm text-ink-faint">{err}</p>;
   if (!m) return <p className="text-sm text-ink-faint">Counting this month…</p>;
   const compare = [
-    { name: "Posted", now: m.posted, before: b?.posted ?? 0 },
+    { name: "Videos", now: m.posted_videos ?? 0, before: b?.posted_videos ?? 0 },
+    { name: "Photo posts", now: m.posted_photos ?? 0, before: b?.posted_photos ?? 0 },
     { name: "On time", now: m.posted_on_time, before: b?.posted_on_time ?? 0 },
     { name: "Shoots", now: m.shoots, before: b?.shoots ?? 0 },
   ];
   const weeks = (m.weeks ?? []).map((w) => ({ ...w, label: new Date(w.week).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) }));
   return (
     <div className="space-y-5">
+      <div className="rounded-xl border border-hairline p-3">
+        <div className="text-sm font-medium">This month's targets</div>
+        {m.targets?.length ? (
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {m.targets.map((t) => {
+              const pct = t.target ? Math.min(100, Math.round(((t.actual ?? 0) / t.target) * 100)) : 0;
+              return (
+                <div key={t.metric}>
+                  <div className="flex items-baseline justify-between text-sm"><span>{TARGET_LABEL[t.metric] ?? t.metric}</span><span className="tabular-nums text-ink-soft">{(t.actual ?? 0).toLocaleString("en-GB")} of {Number(t.target).toLocaleString("en-GB")}</span></div>
+                  <div className="mt-1 h-2 w-full rounded-full bg-hairline"><div className={`h-2 rounded-full ${pct >= 100 ? "bg-acc-lime" : "bg-signal"}`} style={{ width: `${pct}%` }} /></div>
+                  {t.notes && <div className="mt-1 text-xs text-ink-faint">{t.notes}</div>}
+                </div>
+              );
+            })}
+          </div>
+        ) : <p className="mt-1 text-xs text-ink-faint">Targets for this month appear here once your team agrees them.</p>}
+      </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {METRIC_ROWS.map((r) => {
           const v = m[r.key] as number | null; const c = change(v, b ? (b[r.key] as number | null) : null);

@@ -1,11 +1,11 @@
-import { METRIC_FIELDS } from "./contentFlow";
+import { METRIC_FIELDS, type MetricField } from "./contentFlow";
 
 /** One platform's numbers, keyed by METRIC_FIELDS key. */
 export type PlatformNumbers = Record<string, string>;
 export type ByPlatform = Record<string, PlatformNumbers>;
 
 /** Numbers that add up across platforms (watch time is an average, so it is never summed). */
-const SUMMED = ["views", "reach", "likes", "comments", "shares", "saves", "follows", "link_clicks"];
+const SUMMED = ["views", "impressions", "reach", "likes", "comments", "shares", "reposts", "saves", "profile_visits", "follows", "link_clicks"];
 
 const ALIASES: Record<string, string> = {
   ig: "Instagram", insta: "Instagram", instagram: "Instagram",
@@ -112,10 +112,10 @@ export const buildMetrics = (by: ByPlatform, note: string) => {
 };
 
 /** Flat "TikTok views: 1094" style list for the AI recommendations. */
-export const flatForAi = (by: ByPlatform): Record<string, string> => {
+export const flatForAi = (by: ByPlatform, fields: MetricField[] = METRIC_FIELDS): Record<string, string> => {
   const out: Record<string, string> = {};
   Object.entries(by).forEach(([p, v]) =>
-    METRIC_FIELDS.forEach(({ key, label }) => {
+    fields.forEach(({ key, label }) => {
       const x = String(v?.[key] ?? "").trim();
       if (x) out[`${p} ${label}`] = x;
     }),
@@ -123,5 +123,5 @@ export const flatForAi = (by: ByPlatform): Record<string, string> => {
   return out;
 };
 
-export const filledCount = (n: PlatformNumbers | undefined) =>
-  METRIC_FIELDS.filter(({ key }) => String(n?.[key] ?? "").trim()).length;
+export const filledCount = (n: PlatformNumbers | undefined, fields: MetricField[] = METRIC_FIELDS) =>
+  fields.filter(({ key }) => String(n?.[key] ?? "").trim()).length;

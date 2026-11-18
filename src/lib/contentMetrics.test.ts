@@ -32,3 +32,27 @@ describe("video numbers per platform", () => {
     expect(saved).not.toHaveProperty("avg_watch_time");
   });
 });
+
+import { contentKind, metricFieldsFor } from "./contentFlow";
+import { countByKind } from "./strategy";
+describe("photo and video split", () => {
+  it("groups content types into videos and photo posts", () => {
+    expect(contentKind("Vertical short-form video")).toBe("video");
+    expect(contentKind("Long-form video")).toBe("video");
+    expect(contentKind("Photo set")).toBe("photo");
+    expect(contentKind("Poster")).toBe("photo");
+    expect(contentKind("Carousel")).toBe("photo");
+  });
+  it("photo posts have no watch time and both kinds record reposts", () => {
+    expect(metricFieldsFor("Poster").some((f) => f.key === "avg_watch_time")).toBe(false);
+    expect(metricFieldsFor("Poster").some((f) => f.key === "reposts")).toBe(true);
+    expect(metricFieldsFor("Long-form video").some((f) => f.key === "reposts")).toBe(true);
+  });
+  it("target counts leave out cancelled posts", () => {
+    expect(countByKind([
+      { content_type: "Poster", cancelled_at: null },
+      { content_type: "Long-form video", cancelled_at: null },
+      { content_type: "Long-form video", cancelled_at: "2026-11-02" },
+    ])).toEqual({ video: 1, photo: 1 });
+  });
+});

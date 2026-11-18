@@ -169,6 +169,13 @@
       "when": 1795015884606,
       "tag": "0023_register_push_device_rpc",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795017484924,
+      "tag": "0024_client_month_metrics_kinds_targets",
+      "breakpoints": true
     }
   ]
 }
