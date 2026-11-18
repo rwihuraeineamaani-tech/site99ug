@@ -3,8 +3,8 @@
 ## What changes for people
 
 **1. Numbers depend on the type of post**
-- Videos (Vertical short-form, Long-form) keep: Views, Reach, Avg. watch time, Likes, Comments, Shares, Saves, Follows gained, Link clicks.
-- Photo posts (Photo set, Poster, Carousel) get photo numbers: Impressions, Reach, Likes, Comments, Shares, Saves, Profile visits, Follows gained, Link clicks. There's no watch time or views box.
+- Videos (Vertical short-form, Long-form) keep: Views, Reach, Avg. watch time, Likes, Comments, Shares, Reposts, Saves, Follows gained, Link clicks.
+- Photo posts (Photo set, Poster, Carousel) get photo numbers: Impressions, Reach, Likes, Comments, Shares, Reposts, Saves, Profile visits, Follows gained, Link clicks. There's no watch time or views box.
 - The pipeline's number boxes, the per-video cards in the client's Reports and the AI tips all follow the post's type.
 
 **2. Monthly targets split into Videos and Photo posts**
@@ -25,7 +25,7 @@
 - Old numbers saved on photo posts are kept, and any box that doesn't apply to photos stays readable as a note.
 
 ## Technical details
-- `src/lib/contentFlow.ts`: add `contentKind(type) => "video" | "photo"`, and split `METRIC_FIELDS` into `VIDEO_METRICS` and `PHOTO_METRICS`, with `metricFieldsFor(type)`. `contentMetrics.ts` totals use the kind's fields (summed keys add `impressions` and `profile_visits`).
+- `src/lib/contentFlow.ts`: add `contentKind(type) => "video" | "photo"`, and split `METRIC_FIELDS` into `VIDEO_METRICS` and `PHOTO_METRICS`, with `metricFieldsFor(type)`. `contentMetrics.ts` totals use the kind's fields (summed keys add `impressions`, `profile_visits` and `reposts`).
 - `src/lib/strategy.ts` METRICS: add `posted_videos` and `posted_photos`. Actuals query `content_type`, `cancelled_at` and count by kind. `client_targets.metric` is text, so no schema change.
 - DB: extend `client_month_metrics` to return `posted_videos`, `posted_photos` and `targets` (approved `client_targets` for the month: metric, target, actual). It stays security definer with the existing staff or own-resident check.
 - Portal: new `ClientTargets` component used in PortalOverview and ClientReports. `VideoNumbers` is renamed to show Videos and Photo posts groups with kind-specific fields. Update `downloadMonthPdf`.
