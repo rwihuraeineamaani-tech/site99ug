@@ -105,9 +105,9 @@ export default function PortalDocuments() {
 
         <PortalCard title="Other documents">
           <ul className="space-y-2 text-sm">
-            <li><Link to="/portal/money" className="text-signal underline">Invoices and receipts</Link> <span className="text-ink-faint">, download each as a PDF.</span></li>
-            <li><Link to="/portal/reports" className="text-signal underline">Monthly reports</Link> <span className="text-ink-faint">, the report file and a numbers PDF.</span></li>
-            <li><Link to="/portal/files" className="text-signal underline">Brand files</Link> <span className="text-ink-faint">, logos and photos you shared.</span></li>
+            <li><Link to="/portal/money" className="text-signal underline">Invoices and receipts</Link> <span className="text-ink-faint">: download each as a PDF.</span></li>
+            <li><Link to="/portal/reports" className="text-signal underline">Monthly reports</Link> <span className="text-ink-faint">: the report file and a numbers PDF.</span></li>
+            <li><Link to="/portal/files" className="text-signal underline">Brand files</Link> <span className="text-ink-faint">: logos and photos you shared.</span></li>
           </ul>
         </PortalCard>
       </div>
