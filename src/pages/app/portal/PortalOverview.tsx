@@ -5,7 +5,7 @@ import { usePortalClient } from "@/hooks/usePortalClient";
 import PortalPage, { PortalCard, PortalEmpty } from "@/components/portal/PortalPage";
 import { Money, StatusChip } from "@/components/system";
 import MonthResults from "@/components/clientspace/MonthResults";
-import { monthStart } from "@/lib/clientMonth";
+import { TARGET_LABEL, loadMonthMetrics, monthStart } from "@/lib/clientMonth";
 
 type Step = { id: string; title: string; status: string; due_on: string | null; department: string | null };
 type Shoot = { id: string; shoot_date: string | null; call_time: string | null; location: string | null; status: string };
@@ -24,6 +24,13 @@ export default function PortalOverview() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [pot, setPot] = useState<number>(0);
+  const [targets, setTargets] = useState<{ metric: string; target: number; actual: number | null }[] | null>(null);
+  useEffect(() => {
+    if (!clientId) return;
+    loadMonthMetrics(clientId, monthStart(new Date()))
+      .then((m) => setTargets((m.targets ?? []) as { metric: string; target: number; actual: number | null }[]))
+      .catch(() => setTargets([]));
+  }, [clientId]);
 
   useEffect(() => {
     if (!clientId) return;
@@ -53,8 +60,6 @@ export default function PortalOverview() {
 
   const done = steps.filter((s) => ["done", "complete", "not_needed"].includes(s.status)).length;
   const onboarding = steps.length > 0 && done < steps.length;
-  const monthKey = new Date().toISOString().slice(0, 7);
-  const thisMonth = items.filter((i) => i.planned_at?.slice(0, 7) === monthKey).length;
   const outstanding = invoices.reduce((t, i) => t + Math.max(0, (i.total_ugx ?? 0) - (i.amount_paid_ugx ?? 0)), 0);
   const nextShoot = shoots[0];
 
@@ -74,10 +79,28 @@ export default function PortalOverview() {
             <div className="mt-2 text-sm text-ink-soft">{`${steps.length - done} step(s) still to finish.`}</div>
           </PortalCard>
         ) : (
-          <PortalCard title="Content this month">
-            <Link to="/portal/work" className="block">
-              <div className="text-lg">{thisMonth}</div>
-              <div className="text-sm text-ink-soft">{thisMonth === 1 ? "post planned or live" : "posts planned or live"}</div>
+          <PortalCard title="This month's targets" hint={targets?.length ? `${targets.length}` : undefined}>
+            <Link to="/portal/reports" className="block space-y-2">
+              {!targets ? (
+                <div className="text-sm text-ink-soft">Loading…</div>
+              ) : targets.length === 0 ? (
+                <div className="text-sm text-ink-soft">Your targets appear here once your team agrees them.</div>
+              ) : (
+                targets.slice(0, 3).map((t) => {
+                  const pct = t.target ? Math.min(100, Math.round(((t.actual ?? 0) / Number(t.target)) * 100)) : 0;
+                  return (
+                    <div key={t.metric}>
+                      <div className="flex items-baseline justify-between gap-2 text-sm">
+                        <span>{TARGET_LABEL[t.metric] ?? t.metric}</span>
+                        <span className="tabular-nums text-ink-soft">{(t.actual ?? 0).toLocaleString("en-GB")} of {Number(t.target).toLocaleString("en-GB")}</span>
+                      </div>
+                      <div className="mt-1 h-1.5 w-full rounded-full bg-hairline">
+                        <div className={`h-1.5 rounded-full ${pct >= 100 ? "bg-acc-lime" : "bg-signal"}`} style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </Link>
           </PortalCard>
         )}
