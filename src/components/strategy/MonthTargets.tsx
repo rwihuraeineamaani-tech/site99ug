@@ -19,6 +19,7 @@ import {
 } from "@/lib/strategy";
 import { prevMonth } from "@/lib/clientMonth";
 import { Check, Copy, Eye, EyeOff, Plus, Send, Trash2, Undo2 } from "lucide-react";
+import ClientPreview from "@/components/strategy/ClientPreview";
 
 const field = "field text-sm";
 const fmt = (n: number | null | undefined) => (n == null ? "–" : Number(n).toLocaleString("en-GB"));
@@ -29,19 +30,22 @@ type Props = {
   month: string;
   canManage: boolean;
   canApprove: boolean;
+  clientName?: string;
 };
 
 /**
  * One place to set a client's monthly targets. Progress comes from the same
  * counter the client portal reads, and only approved targets reach the client.
  */
-export default function MonthTargets({ residentId, month, canManage, canApprove }: Props) {
+export default function MonthTargets({ residentId, month, canManage, canApprove, clientName }: Props) {
   const [rows, setRows] = useState<Target[]>([]);
   const [actuals, setActuals] = useState<Record<string, number>>({});
   const [lastMonth, setLastMonth] = useState<Target[]>([]);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ metric: "posted_videos", value: "", notes: "" });
   const [editing, setEditing] = useState<{ id: string; value: string; notes: string } | null>(null);
+  /** Preview window: `send` holds the ids that go to the founders on confirm. */
+  const [preview, setPreview] = useState<{ send: string[] } | null>(null);
 
   const load = async () => {
     const [t, p, a] = await Promise.all([
@@ -117,10 +121,11 @@ export default function MonthTargets({ residentId, month, canManage, canApprove 
       if (error) throw error;
     }, `Copied ${monthLabel(prevMonth(month))} as drafts`);
 
-  const sendAll = () =>
+  const sendNow = (ids: string[]) =>
     run(async () => {
-      for (const t of drafts) await setReview("client_targets", t.id, "submitted");
-    }, drafts.length === 1 ? "Sent to the founders" : `${drafts.length} targets sent to the founders`);
+      for (const id of ids) await setReview("client_targets", id, "submitted");
+      setPreview(null);
+    }, ids.length === 1 ? "Sent to the founders" : `${ids.length} targets sent to the founders`);
 
   const sendBack = (t: Target) => {
     const note = window.prompt("What should change?");
@@ -154,8 +159,13 @@ export default function MonthTargets({ residentId, month, canManage, canApprove 
               <Copy className="h-3.5 w-3.5" /> Copy {monthLabel(prevMonth(month))}
             </Button>
           )}
+          {rows.length > 0 && (
+            <Button size="sm" variant="soft" className="gap-1.5" onClick={() => setPreview({ send: [] })}>
+              <Eye className="h-3.5 w-3.5" /> Preview for client
+            </Button>
+          )}
           {canManage && drafts.length > 0 && (
-            <Button size="sm" className="gap-1.5" onClick={sendAll} disabled={busy}>
+            <Button size="sm" className="gap-1.5" onClick={() => setPreview({ send: drafts.map((d) => d.id) })} disabled={busy}>
               <Send className="h-3.5 w-3.5" /> Send {drafts.length === 1 ? "it" : `all ${drafts.length}`} for sign-off
             </Button>
           )}
@@ -236,7 +246,7 @@ export default function MonthTargets({ residentId, month, canManage, canApprove 
                         size="sm"
                         variant="soft"
                         className="gap-1.5"
-                        onClick={() => run(() => setReview("client_targets", t.id, "submitted"), "Sent to the founders")}
+                        onClick={() => setPreview({ send: [t.id] })}
                         disabled={busy}
                       >
                         <Send className="h-3.5 w-3.5" /> Send for sign-off
@@ -311,6 +321,23 @@ export default function MonthTargets({ residentId, month, canManage, canApprove 
           </Button>
         </div>
       )}
+
+      <ClientPreview
+        open={!!preview}
+        onOpenChange={(v) => !v && setPreview(null)}
+        residentId={residentId}
+        clientName={clientName}
+        month={month}
+        targets={
+          preview?.send.length
+            ? rows.filter((r) => visibleToClient(r.review_state) || preview.send.includes(r.id))
+            : rows
+        }
+        sending={preview?.send ?? []}
+        onConfirm={preview?.send.length ? () => sendNow(preview.send) : undefined}
+        confirmLabel={preview && preview.send.length > 1 ? `Looks right, send all ${preview.send.length}` : undefined}
+        busy={busy}
+      />
     </div>
   );
 }
@@ -320,7 +347,7 @@ export function TargetSteps() {
   const steps = [
     ["Pick the client and month", "Targets belong to one client for one month."],
     ["Set the numbers", "Videos and photo posts are counted separately. Each one says what counts."],
-    ["Send for sign-off", "A Founder, the MD or a System Admin approves or sends it back."],
+    ["Preview, then send", "Check exactly what the client will see, then send it. A Founder, the MD or a System Admin approves or sends it back."],
     ["Client sees it", "Approved targets show on the client's dashboard, Reports and monthly PDF with live progress."],
   ];
   return (

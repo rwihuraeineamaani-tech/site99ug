@@ -12,8 +12,10 @@ import {
   REVIEW_LABEL,
   REVIEW_TONE,
   CLIENT_VISIBILITY,
+  goalAim,
   metricHint,
   metricLabel,
+  needsStart,
   metricUnit,
   visibleToClient,
   monthLabel,
@@ -25,6 +27,7 @@ import {
 } from "@/lib/strategy";
 import { Eye, EyeOff, Plus, Send, Trash2 } from "lucide-react";
 import MonthTargets, { TargetSteps } from "@/components/strategy/MonthTargets";
+import ClientPreview from "@/components/strategy/ClientPreview";
 
 const field = "field text-sm";
 const num = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleString());
@@ -42,6 +45,7 @@ export default function StrategyGoals() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [targets, setTargets] = useState<Target[]>([]);
   const [busy, setBusy] = useState(false);
+  const [previewGoal, setPreviewGoal] = useState<Goal | null>(null);
   const [gForm, setGForm] = useState({ title: "", metric: "followers", start_value: "", target_value: "", due_on: "" });
 
   const load = async () => {
@@ -85,7 +89,7 @@ export default function StrategyGoals() {
       resident_id: client,
       title: gForm.title.trim(),
       metric: gForm.metric,
-      start_value: gForm.start_value ? Number(gForm.start_value) : null,
+      start_value: needsStart(gForm.metric) && gForm.start_value ? Number(gForm.start_value) : null,
       target_value: gForm.target_value ? Number(gForm.target_value) : null,
       unit: metricUnit(gForm.metric) || null,
       due_on: gForm.due_on || null,
@@ -167,13 +171,13 @@ export default function StrategyGoals() {
                 <span className="text-[11px] text-ink-faint">{metricLabel(g.metric)}</span>
                 {g.due_on && <span className="num text-[11px] text-ink-faint">due {g.due_on}</span>}
                 <span className="num text-sm ml-auto">
-                  {num(g.start_value)} → {num(g.target_value)}
+                  {goalAim(g)}
                 </span>
                 {isStrategyTeam && (
                   <span className="flex items-center gap-2">
                     {rs !== "submitted" && rs !== "approved" && (
-                      <Button size="sm" variant="soft" className="gap-1.5" onClick={() => submit("client_goals", g.id)}>
-                        <Send className="h-3.5 w-3.5" /> Send
+                      <Button size="sm" variant="soft" className="gap-1.5" onClick={() => setPreviewGoal(g)}>
+                        <Send className="h-3.5 w-3.5" /> Preview and send
                       </Button>
                     )}
                     <button
@@ -197,7 +201,7 @@ export default function StrategyGoals() {
       {isStrategyTeam && (
         <div className="surface rounded-2xl p-5 mt-4 grid gap-3 sm:grid-cols-6 no-print">
           <input
-            className={`${field} sm:col-span-2`}
+            className={`${field} ${needsStart(gForm.metric) ? "sm:col-span-2" : "sm:col-span-3"}`}
             placeholder="What are we going for?"
             value={gForm.title}
             onChange={(e) => setGForm({ ...gForm, title: e.target.value })}
@@ -209,17 +213,19 @@ export default function StrategyGoals() {
               </option>
             ))}
           </select>
+          {needsStart(gForm.metric) && (
+            <input
+              className={field}
+              inputMode="numeric"
+              placeholder="Starting at"
+              value={gForm.start_value}
+              onChange={(e) => setGForm({ ...gForm, start_value: e.target.value })}
+            />
+          )}
           <input
             className={field}
             inputMode="numeric"
-            placeholder="Starting at"
-            value={gForm.start_value}
-            onChange={(e) => setGForm({ ...gForm, start_value: e.target.value })}
-          />
-          <input
-            className={field}
-            inputMode="numeric"
-            placeholder="Target"
+            placeholder={needsStart(gForm.metric) ? "Target" : "How many"}
             value={gForm.target_value}
             onChange={(e) => setGForm({ ...gForm, target_value: e.target.value })}
           />
@@ -231,10 +237,26 @@ export default function StrategyGoals() {
         </div>
       )}
 
+      {previewGoal && (
+        <ClientPreview
+          open
+          onOpenChange={(v) => !v && setPreviewGoal(null)}
+          residentId={previewGoal.resident_id}
+          clientName={nameOf(previewGoal.resident_id)}
+          goals={goals.filter((g) => g.resident_id === previewGoal.resident_id && (visibleToClient(g.review_state) || g.id === previewGoal.id))}
+          sending={[previewGoal.id]}
+          busy={busy}
+          onConfirm={async () => {
+            await submit("client_goals", previewGoal.id);
+            setPreviewGoal(null);
+          }}
+        />
+      )}
+
       <div className="mt-14">
         <SectionHeading index="02" title="Monthly targets" hint={monthLabel(month)} />
         {client ? (
-          <MonthTargets residentId={client} month={month} canManage={isStrategyTeam} canApprove={canApproveStrategy} />
+          <MonthTargets residentId={client} clientName={nameOf(client)} month={month} canManage={isStrategyTeam} canApprove={canApproveStrategy} />
         ) : shownTargets.length === 0 ? (
           <p className="text-sm text-ink-soft">No targets for {monthLabel(month)}. Pick a client above to set them.</p>
         ) : (

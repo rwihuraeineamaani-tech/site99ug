@@ -35,6 +35,7 @@ import {
   loadClientActuals,
   loadStrategy,
   metricHint,
+  needsStart,
   visibleToClient,
   metricLabel,
   metricUnit,
@@ -57,6 +58,7 @@ import {
 } from "@/lib/strategy";
 import { ArrowLeft, Eye, EyeOff, Plus, Printer, Save, Send, Trash2 } from "lucide-react";
 import MonthTargets from "@/components/strategy/MonthTargets";
+import ClientPreview from "@/components/strategy/ClientPreview";
 
 const field = "field text-sm";
 const num = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleString());
@@ -96,6 +98,7 @@ export default function ResidentStrategyPage() {
   const [actuals, setActuals] = useState<Record<string, number>>({});
   const [map, setMap] = useState<StrategyMap | null>(null);
   const [busy, setBusy] = useState(false);
+  const [previewGoal, setPreviewGoal] = useState<Goal | null>(null);
 
   const [gForm, setGForm] = useState(emptyGoal);
 
@@ -167,7 +170,7 @@ export default function ResidentStrategyPage() {
       resident_id: id,
       title: gForm.title.trim(),
       metric: gForm.metric,
-      start_value: gForm.start_value ? Number(gForm.start_value) : null,
+      start_value: needsStart(gForm.metric) && gForm.start_value ? Number(gForm.start_value) : null,
       target_value: gForm.target_value ? Number(gForm.target_value) : null,
       unit: metricUnit(gForm.metric) || null,
       due_on: gForm.due_on || null,
@@ -411,8 +414,8 @@ export default function ResidentStrategyPage() {
                       {canManage && (
                         <span className="ml-auto flex items-center gap-2 no-print">
                           {["draft", "changes_requested"].includes(reviewState(g.review_state)) && (
-                            <Button size="sm" variant="soft" className="gap-1.5" onClick={() => sendGoal(g)}>
-                              <Send className="h-3.5 w-3.5" /> Send for sign-off
+                            <Button size="sm" variant="soft" className="gap-1.5" onClick={() => setPreviewGoal(g)}>
+                              <Send className="h-3.5 w-3.5" /> Preview and send
                             </Button>
                           )}
                           <select
@@ -441,7 +444,7 @@ export default function ResidentStrategyPage() {
           {canManage && (
             <div className="surface rounded-2xl p-5 mt-4 grid gap-3 sm:grid-cols-6 no-print">
               <input
-                className={`${field} sm:col-span-2`}
+                className={`${field} ${needsStart(gForm.metric) ? "sm:col-span-2" : "sm:col-span-3"}`}
                 placeholder="What are we going for?"
                 value={gForm.title}
                 onChange={(e) => setGForm({ ...gForm, title: e.target.value })}
@@ -453,17 +456,19 @@ export default function ResidentStrategyPage() {
                   </option>
                 ))}
               </select>
+              {needsStart(gForm.metric) && (
+                <input
+                  className={field}
+                  inputMode="numeric"
+                  placeholder="Starting at"
+                  value={gForm.start_value}
+                  onChange={(e) => setGForm({ ...gForm, start_value: e.target.value })}
+                />
+              )}
               <input
                 className={field}
                 inputMode="numeric"
-                placeholder="Starting at"
-                value={gForm.start_value}
-                onChange={(e) => setGForm({ ...gForm, start_value: e.target.value })}
-              />
-              <input
-                className={field}
-                inputMode="numeric"
-                placeholder="Target"
+                placeholder={needsStart(gForm.metric) ? "Target" : "How many"}
                 value={gForm.target_value}
                 onChange={(e) => setGForm({ ...gForm, target_value: e.target.value })}
               />
@@ -494,8 +499,24 @@ export default function ResidentStrategyPage() {
               <span className="text-[11px] text-ink-faint">Progress uses the same numbers the client sees.</span>
             </div>
 
-            <MonthTargets residentId={id} month={month} canManage={canManage} canApprove={canApproveStrategy} />
+            <MonthTargets residentId={id} clientName={residentName} month={month} canManage={canManage} canApprove={canApproveStrategy} />
           </div>
+
+          {previewGoal && (
+            <ClientPreview
+              open
+              onOpenChange={(v) => !v && setPreviewGoal(null)}
+              residentId={id}
+              clientName={residentName}
+              goals={goals.filter((g) => visibleToClient(g.review_state) || g.id === previewGoal.id)}
+              sending={[previewGoal.id]}
+              busy={busy}
+              onConfirm={async () => {
+                await sendGoal(previewGoal);
+                setPreviewGoal(null);
+              }}
+            />
+          )}
 
           {/* ---------------- map ---------------- */}
           <div className="mt-14">

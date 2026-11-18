@@ -19,3 +19,19 @@ describe("monthly target options", () => {
     expect(keys).toContain("posted_photos");
   });
 });
+
+import { goalAim, needsStart } from "./strategy";
+
+describe("starting point", () => {
+  it("is not asked for post counts, which always start from zero", () => {
+    expect(needsStart("posted_videos")).toBe(false);
+    expect(needsStart("posted_photos")).toBe(false);
+    expect(needsStart("posted")).toBe(false);
+  });
+  it("is asked for followers", () => {
+    expect(needsStart("followers")).toBe(true);
+  });
+  it("reads a video count goal as a plain aim", () => {
+    expect(goalAim({ metric: "posted_videos", start_value: null, target_value: 12 })).toBe("Aim 12");
+  });
+});

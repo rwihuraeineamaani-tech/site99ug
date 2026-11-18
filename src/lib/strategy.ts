@@ -18,10 +18,10 @@ export const METRICS = [
   { key: "posted_photos", label: "Photo posts posted", unit: "photo posts", hint: "Photos, posters, carousels and graphics marked posted this month. Cancelled posts are left out." },
   { key: "posted", label: "All posts", unit: "pieces", hint: "Every video and photo post marked posted this month, together." },
   { key: "shoots", label: "Shoot days done", unit: "shoot days", hint: "Shoot days for this client marked done this month." },
-  { key: "followers", label: "Followers", unit: "followers", hint: "Latest follower count the Handler recorded for each account this month, added up." },
+  { key: "followers", label: "Followers", unit: "followers", needsStart: true, hint: "Latest follower count the Handler recorded for each account this month, added up." },
   { key: "reach", label: "Reach", unit: "people", hint: "Weekly reach the Handler recorded this month, added up." },
   { key: "numbers", label: "Client numbers filled", unit: "entries", hint: "Weekly account number entries the Handler filled in this month." },
-  { key: "custom", label: "Something else", unit: "", hint: "Tracked by hand. The system cannot count it for you." },
+  { key: "custom", label: "Something else", unit: "", needsStart: true, hint: "Tracked by hand. The system cannot count it for you." },
 ] as const;
 
 export type MetricKey = (typeof METRICS)[number]["key"];
@@ -29,6 +29,18 @@ export type MetricKey = (typeof METRICS)[number]["key"];
 export const metricLabel = (k: string) => METRICS.find((m) => m.key === k)?.label ?? k;
 export const metricUnit = (k: string) => METRICS.find((m) => m.key === k)?.unit ?? "";
 export const metricHint = (k: string) => METRICS.find((m) => m.key === k)?.hint ?? "";
+
+/**
+ * Only growth numbers (followers, or something tracked by hand) need a starting
+ * point. Post, shoot and entry counts always start from zero.
+ */
+export const needsStart = (k: string) => Boolean((METRICS.find((m) => m.key === k) as { needsStart?: boolean } | undefined)?.needsStart);
+
+/** How a goal's aim reads: "11,500 → 20,000" for growth, "Aim 12" for counts. */
+export const goalAim = (g: { metric: string; start_value: number | null; target_value: number | null }) => {
+  const f = (n: number | null) => (n == null ? "–" : Number(n).toLocaleString("en-GB"));
+  return needsStart(g.metric) && g.start_value != null ? `${f(g.start_value)} → ${f(g.target_value)}` : `Aim ${f(g.target_value)}`;
+};
 
 /** Clients only ever see goals and targets a founder has approved. */
 export const visibleToClient = (state: unknown) => reviewState(state) === "approved";
