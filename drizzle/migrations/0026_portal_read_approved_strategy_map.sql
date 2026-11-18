@@ -1,0 +1,2 @@
+CREATE POLICY "Portal users view own approved map" ON public.strategy_maps FOR SELECT TO authenticated
+  USING (resident_id IS NOT NULL AND resident_id = public.my_resident_id(auth.uid()) AND review_state = 'approved');

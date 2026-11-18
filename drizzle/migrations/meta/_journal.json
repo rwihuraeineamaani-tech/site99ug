@@ -183,6 +183,13 @@
       "when": 1795018807429,
       "tag": "0025_strategy_targets_in_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795021017193,
+      "tag": "0026_portal_read_approved_strategy_map",
+      "breakpoints": true
     }
   ]
 }
