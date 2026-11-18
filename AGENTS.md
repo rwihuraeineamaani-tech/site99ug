@@ -33,5 +33,5 @@
 - A content item's `posted_at` comes from the handler's chosen day (`posted_from`, capped at now) via trigger, later corrections go only through `set_posted_date`, and every calendar places a posted video on its Kampala `posted_at` day (`postCalendarDay`), so fixing the posted day moves it everywhere.
 - Video numbers are saved per platform in `content_items.metrics.by_platform` (helpers in `src/lib/contentMetrics.ts`), with summed totals kept at the top level of `metrics`, so older readers still see one figure while handlers enter each platform separately.
 - Push devices register only via `register_push_device()` (one row per token, moved to the signed-in user).
-- Video vs photo post comes only from `contentKind()` (contentFlow.ts, mirrored in `client_month_metrics`); number fields and video/photo targets follow it.
-- Monthly client targets are set only through `MonthTargets` (Strategy page and client Strategy page), and staff progress reads `client_month_metrics` via `loadClientActuals`, so staff and client see one number; editing approved goal/target terms resets them to draft (trigger).
+- Video vs photo comes only from `contentKind()` (mirrored in `client_month_metrics`).
+- Client targets are set only via `MonthTargets`; staff progress reads `client_month_metrics` (`loadClientActuals`) so staff and client share one number.
