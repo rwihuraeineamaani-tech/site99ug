@@ -14,20 +14,26 @@ export function countByKind(items: { content_type: string | null; cancelled_at?:
 
 /** Things we can set a number against. Keys match the dashboard KPI figures. */
 export const METRICS = [
-  { key: "posted", label: "Posted content", unit: "pieces" },
-  { key: "posted_videos", label: "Videos posted", unit: "videos" },
-  { key: "posted_photos", label: "Photo posts posted", unit: "photo posts" },
-  { key: "shoots", label: "Shoots landed", unit: "shoot days" },
-  { key: "numbers", label: "Client numbers filled", unit: "entries" },
-  { key: "followers", label: "Followers", unit: "followers" },
-  { key: "reach", label: "Reach", unit: "people" },
-  { key: "custom", label: "Something else", unit: "" },
+  { key: "posted_videos", label: "Videos posted", unit: "videos", hint: "Videos and reels marked posted this month. Cancelled posts are left out." },
+  { key: "posted_photos", label: "Photo posts posted", unit: "photo posts", hint: "Photos, posters, carousels and graphics marked posted this month. Cancelled posts are left out." },
+  { key: "posted", label: "All posts", unit: "pieces", hint: "Every video and photo post marked posted this month, together." },
+  { key: "shoots", label: "Shoot days done", unit: "shoot days", hint: "Shoot days for this client marked done this month." },
+  { key: "followers", label: "Followers", unit: "followers", hint: "Latest follower count the Handler recorded for each account this month, added up." },
+  { key: "reach", label: "Reach", unit: "people", hint: "Weekly reach the Handler recorded this month, added up." },
+  { key: "numbers", label: "Client numbers filled", unit: "entries", hint: "Weekly account number entries the Handler filled in this month." },
+  { key: "custom", label: "Something else", unit: "", hint: "Tracked by hand. The system cannot count it for you." },
 ] as const;
 
 export type MetricKey = (typeof METRICS)[number]["key"];
 
 export const metricLabel = (k: string) => METRICS.find((m) => m.key === k)?.label ?? k;
 export const metricUnit = (k: string) => METRICS.find((m) => m.key === k)?.unit ?? "";
+export const metricHint = (k: string) => METRICS.find((m) => m.key === k)?.hint ?? "";
+
+/** Clients only ever see goals and targets a founder has approved. */
+export const visibleToClient = (state: unknown) => reviewState(state) === "approved";
+export const CLIENT_VISIBILITY = (state: unknown) =>
+  visibleToClient(state) ? "Client can see this" : "Hidden from client until approved";
 
 export const GOAL_STATUSES = ["active", "hit", "missed", "paused"] as const;
 export type GoalStatus = (typeof GOAL_STATUSES)[number];
@@ -182,57 +188,18 @@ export async function loadStrategy(residentId: string) {
   };
 }
 
-/** Actual figures for a client this month, used to score goals and targets. */
+/**
+ * Actual figures for a client month. Reads the same database counter the client
+ * portal uses (client_month_metrics), so staff and client always see one number.
+ */
 export async function loadClientActuals(residentId: string, monthStart: string) {
-  const monthEnd = new Date(`${monthStart}T00:00:00Z`);
-  monthEnd.setUTCMonth(monthEnd.getUTCMonth() + 1);
-  const to = monthEnd.toISOString().slice(0, 10);
-
-  const [content, shoots, accounts] = await Promise.all([
-    supabase
-      .from("content_items")
-      .select("id, posted_at, metrics_filled_at, content_type, cancelled_at")
-      .eq("resident_id", residentId)
-      .gte("posted_at", `${monthStart}T00:00:00Z`)
-      .lt("posted_at", `${to}T00:00:00Z`),
-    supabase
-      .from("shoot_days")
-      .select("id, status, shoot_date")
-      .eq("resident_id", residentId)
-      .gte("shoot_date", monthStart)
-      .lt("shoot_date", to),
-    supabase.from("client_accounts").select("id").eq("resident_id", residentId),
-  ]);
-
-  const accountIds = ((accounts.data ?? []) as { id: string }[]).map((a) => a.id);
-  let followers = 0;
-  let reach = 0;
-  let filled = 0;
-  if (accountIds.length) {
-    const { data: metrics } = await supabase
-      .from("account_metrics")
-      .select("account_id, week_start, followers, reach, filled_by")
-      .in("account_id", accountIds)
-      .gte("week_start", monthStart)
-      .lt("week_start", to);
-    const latest = new Map<string, { week_start: string; followers: number | null }>();
-    ((metrics ?? []) as { account_id: string; week_start: string; followers: number | null; reach: number | null; filled_by: string | null }[]).forEach(
-      (m) => {
-        reach += m.reach ?? 0;
-        if (m.filled_by) filled += 1;
-        const cur = latest.get(m.account_id);
-        if (!cur || m.week_start > cur.week_start) latest.set(m.account_id, m);
-      }
-    );
-    latest.forEach((m) => (followers += m.followers ?? 0));
-  }
-
-  const live = ((content.data ?? []) as { content_type: string | null; cancelled_at: string | null }[]).filter((c) => !c.cancelled_at);
-  const kinds = countByKind(live);
-  const posted = live.length;
-  const shot = ((shoots.data ?? []) as { status: string }[]).filter((s) => s.status === "done").length;
-
-  const actuals: Record<string, number> = { posted, posted_videos: kinds.video, posted_photos: kinds.photo, shoots: shot, numbers: filled, followers, reach };
+  const { data, error } = await supabase.rpc("client_month_metrics", { _resident: residentId, _month: monthStart });
+  if (error) throw error;
+  const m = (data ?? {}) as Record<string, unknown>;
+  const actuals: Record<string, number> = {};
+  ["posted", "posted_videos", "posted_photos", "shoots", "numbers", "followers", "reach"].forEach((k) => {
+    actuals[k] = Number(m[k] ?? 0) || 0;
+  });
   return actuals;
 }
 

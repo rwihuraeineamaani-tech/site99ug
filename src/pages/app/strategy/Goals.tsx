@@ -11,8 +11,11 @@ import {
   METRICS,
   REVIEW_LABEL,
   REVIEW_TONE,
+  CLIENT_VISIBILITY,
+  metricHint,
   metricLabel,
   metricUnit,
+  visibleToClient,
   monthLabel,
   monthOf,
   reviewState,
@@ -20,7 +23,8 @@ import {
   type Goal,
   type Target,
 } from "@/lib/strategy";
-import { Plus, Send, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Plus, Send, Trash2 } from "lucide-react";
+import MonthTargets, { TargetSteps } from "@/components/strategy/MonthTargets";
 
 const field = "field text-sm";
 const num = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleString());
@@ -28,7 +32,7 @@ const num = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleStr
 export default function StrategyGoals() {
   const today = todayISO();
   // Everyone on the team can add and manage goals & targets.
-  const { isStaff: isStrategyTeam } = useMyRoles();
+  const { isStaff: isStrategyTeam, canApproveStrategy } = useMyRoles();
   const [params, setParams] = useSearchParams();
   const client = params.get("client") ?? "";
   const [month, setMonth] = useState(() => monthOf(today));
@@ -38,8 +42,7 @@ export default function StrategyGoals() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [targets, setTargets] = useState<Target[]>([]);
   const [busy, setBusy] = useState(false);
-  const [gForm, setGForm] = useState({ title: "", metric: "posted", start_value: "", target_value: "", due_on: "" });
-  const [tForm, setTForm] = useState({ metric: "posted", target_value: "" });
+  const [gForm, setGForm] = useState({ title: "", metric: "followers", start_value: "", target_value: "", due_on: "" });
 
   const load = async () => {
     const [r, g, t] = await Promise.all([
@@ -89,24 +92,8 @@ export default function StrategyGoals() {
     });
     setBusy(false);
     if (error) return toast.error(error.message);
-    setGForm({ title: "", metric: "posted", start_value: "", target_value: "", due_on: "" });
+    setGForm({ title: "", metric: "followers", start_value: "", target_value: "", due_on: "" });
     toast.success("Goal added as a draft");
-    load();
-  };
-
-  const addTarget = async () => {
-    if (!client) return toast.error("Pick a client first.");
-    const value = Number(tForm.target_value);
-    if (!value) return toast.error("Put in a number to aim for.");
-    setBusy(true);
-    const existing = targets.find((t) => t.resident_id === client && t.metric === tForm.metric);
-    const { error } = existing
-      ? await supabase.from("client_targets").update({ target_value: value }).eq("id", existing.id)
-      : await supabase.from("client_targets").insert({ resident_id: client, month, metric: tForm.metric, target_value: value });
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    setTForm({ metric: "posted", target_value: "" });
-    toast.success("Target saved as a draft");
     load();
   };
 
@@ -130,7 +117,7 @@ export default function StrategyGoals() {
   return (
     <StrategyPage
       title="Goals & targets."
-      lede="What we are going for per client, and the numbers we commit to each month. Founders sign them off before they count."
+      lede="Goals are the big things we are going for with a client. Monthly targets are the numbers we commit to each month. Clients only see them once a founder approves."
       path="/app/strategy/goals"
     >
       <FilterBar>
@@ -156,6 +143,8 @@ export default function StrategyGoals() {
         </select>
       </FilterBar>
 
+      <TargetSteps />
+
       <SectionHeading index="01" title="Goals" hint={`${shownGoals.length} shown`} />
       {shownGoals.length === 0 ? (
         <p className="text-sm text-ink-soft">Nothing here yet.</p>
@@ -170,6 +159,10 @@ export default function StrategyGoals() {
                 </Link>
                 <span className="text-sm font-semibold">{g.title}</span>
                 <StatusChip value={REVIEW_LABEL[rs]} tone={REVIEW_TONE[rs]} />
+                <span className="inline-flex items-center gap-1 text-[11px] text-ink-faint">
+                  {visibleToClient(rs) ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                  {CLIENT_VISIBILITY(rs)}
+                </span>
                 <StatusChip value={g.status} tone={g.status === "hit" ? "lime" : g.status === "active" ? "teal" : "neutral"} />
                 <span className="text-[11px] text-ink-faint">{metricLabel(g.metric)}</span>
                 {g.due_on && <span className="num text-[11px] text-ink-faint">due {g.due_on}</span>}
@@ -230,7 +223,8 @@ export default function StrategyGoals() {
             value={gForm.target_value}
             onChange={(e) => setGForm({ ...gForm, target_value: e.target.value })}
           />
-          <input className={field} type="date" value={gForm.due_on} onChange={(e) => setGForm({ ...gForm, due_on: e.target.value })} />
+          <input className={field} type="date" aria-label="Due by" value={gForm.due_on} onChange={(e) => setGForm({ ...gForm, due_on: e.target.value })} />
+          <p className="sm:col-span-4 text-[11px] text-ink-faint self-center">What counts: {metricHint(gForm.metric)}</p>
           <Button onClick={addGoal} disabled={busy} className="gap-2 sm:col-span-2">
             <Plus className="h-4 w-4" /> Add goal for {client ? nameOf(client) : "a client"}
           </Button>
@@ -239,60 +233,36 @@ export default function StrategyGoals() {
 
       <div className="mt-14">
         <SectionHeading index="02" title="Monthly targets" hint={monthLabel(month)} />
-        {shownTargets.length === 0 ? (
-          <p className="text-sm text-ink-soft">No targets for {monthLabel(month)}.</p>
+        {client ? (
+          <MonthTargets residentId={client} month={month} canManage={isStrategyTeam} canApprove={canApproveStrategy} />
+        ) : shownTargets.length === 0 ? (
+          <p className="text-sm text-ink-soft">No targets for {monthLabel(month)}. Pick a client above to set them.</p>
         ) : (
-          <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
-            {shownTargets.map((t) => {
-              const rs = reviewState(t.review_state);
-              return (
-                <li key={t.id} className="px-5 py-4 flex items-center gap-3 flex-wrap">
-                  <span className="text-[11px] text-ink-faint w-32 truncate">{nameOf(t.resident_id)}</span>
-                  <span className="text-sm font-semibold">{metricLabel(t.metric)}</span>
-                  <StatusChip value={REVIEW_LABEL[rs]} tone={REVIEW_TONE[rs]} />
-                  <span className="num text-sm ml-auto">{num(t.target_value)}</span>
-                  {isStrategyTeam && (
-                    <span className="flex items-center gap-2">
-                      {rs !== "submitted" && rs !== "approved" && (
-                        <Button size="sm" variant="soft" className="gap-1.5" onClick={() => submit("client_targets", t.id)}>
-                          <Send className="h-3.5 w-3.5" /> Send
-                        </Button>
-                      )}
-                      <button
-                        onClick={() => remove("client_targets", t.id)}
-                        className="press focus-ring text-ink-faint hover:text-signal"
-                        aria-label="Remove target"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+          <>
+            <p className="mb-3 text-[11px] text-ink-faint">Pick a client above to set, change or send targets.</p>
+            <ul className="surface rounded-2xl overflow-hidden divide-y divide-rule">
+              {shownTargets.map((t) => {
+                const rs = reviewState(t.review_state);
+                return (
+                  <li key={t.id} className="px-5 py-4 flex items-center gap-3 flex-wrap">
+                    <button
+                      onClick={() => t.resident_id && setParams({ client: t.resident_id })}
+                      className="press focus-ring text-left text-[11px] text-ink-faint w-32 truncate"
+                    >
+                      {nameOf(t.resident_id)}
+                    </button>
+                    <span className="text-sm font-semibold">{metricLabel(t.metric)}</span>
+                    <StatusChip value={REVIEW_LABEL[rs]} tone={REVIEW_TONE[rs]} />
+                    <span className="inline-flex items-center gap-1 text-[11px] text-ink-faint">
+                      {visibleToClient(rs) ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                      {CLIENT_VISIBILITY(rs)}
                     </span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-
-        {isStrategyTeam && (
-          <div className="surface rounded-2xl p-5 mt-4 grid gap-3 sm:grid-cols-4 no-print">
-            <select className={field} value={tForm.metric} onChange={(e) => setTForm({ ...tForm, metric: e.target.value })}>
-              {METRICS.filter((m) => m.key !== "custom").map((m) => (
-                <option key={m.key} value={m.key}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-            <input
-              className={field}
-              inputMode="numeric"
-              placeholder={`Target for ${monthLabel(month)}`}
-              value={tForm.target_value}
-              onChange={(e) => setTForm({ ...tForm, target_value: e.target.value })}
-            />
-            <Button onClick={addTarget} disabled={busy} className="gap-2">
-              <Plus className="h-4 w-4" /> Set target
-            </Button>
-          </div>
+                    <span className="num text-sm ml-auto">{num(t.target_value)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
       </div>
     </StrategyPage>
