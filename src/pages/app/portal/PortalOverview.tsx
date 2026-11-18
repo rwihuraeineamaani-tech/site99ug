@@ -51,7 +51,10 @@ export default function PortalOverview() {
     };
   }, [clientId]);
 
-  const done = steps.filter((s) => s.status === "done" || s.status === "complete").length;
+  const done = steps.filter((s) => ["done", "complete", "not_needed"].includes(s.status)).length;
+  const onboarding = steps.length > 0 && done < steps.length;
+  const monthKey = new Date().toISOString().slice(0, 7);
+  const thisMonth = items.filter((i) => i.planned_at?.slice(0, 7) === monthKey).length;
   const outstanding = invoices.reduce((t, i) => t + Math.max(0, (i.total_ugx ?? 0) - (i.amount_paid_ugx ?? 0)), 0);
   const nextShoot = shoots[0];
 
@@ -63,18 +66,21 @@ export default function PortalOverview() {
       loading={loading}
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <PortalCard title="Getting started" hint={steps.length ? `${done}/${steps.length}` : undefined}>
-          {steps.length === 0 ? (
-            <div className="text-sm text-ink-soft">Nothing outstanding.</div>
-          ) : (
-            <>
-              <div className="h-1.5 w-full rounded-full bg-hairline">
-                <div className="h-1.5 rounded-full bg-signal" style={{ width: `${(done / steps.length) * 100}%` }} />
-              </div>
-              <div className="mt-2 text-sm text-ink-soft">{done === steps.length ? "All set up." : `${steps.length - done} step(s) still to finish.`}</div>
-            </>
-          )}
-        </PortalCard>
+        {onboarding ? (
+          <PortalCard title="Getting started" hint={`${done}/${steps.length}`}>
+            <div className="h-1.5 w-full rounded-full bg-hairline">
+              <div className="h-1.5 rounded-full bg-signal" style={{ width: `${(done / steps.length) * 100}%` }} />
+            </div>
+            <div className="mt-2 text-sm text-ink-soft">{`${steps.length - done} step(s) still to finish.`}</div>
+          </PortalCard>
+        ) : (
+          <PortalCard title="Content this month">
+            <Link to="/portal/work" className="block">
+              <div className="text-lg">{thisMonth}</div>
+              <div className="text-sm text-ink-soft">{thisMonth === 1 ? "post planned or live" : "posts planned or live"}</div>
+            </Link>
+          </PortalCard>
+        )}
 
         <PortalCard title="Next shoot day">
           {nextShoot ? (
