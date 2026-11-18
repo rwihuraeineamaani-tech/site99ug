@@ -57,8 +57,11 @@ export const DEFAULT_PROFILE: DocProfile = {
 };
 
 export async function loadDocProfile(): Promise<DocProfile> {
+  // Finance and Founders read the full row; everyone else gets only the printed letterhead details.
   const { data } = await supabase.from("document_profile").select("*").eq("id", 1).maybeSingle();
-  return { ...DEFAULT_PROFILE, ...((data ?? {}) as Partial<DocProfile>) };
+  if (data) return { ...DEFAULT_PROFILE, ...(data as Partial<DocProfile>) };
+  const { data: head } = await supabase.rpc("document_letterhead");
+  return { ...DEFAULT_PROFILE, ...((head ?? {}) as Partial<DocProfile>) };
 }
 
 /** Lines printed under "Pay by" on invoices and in invoice emails. */

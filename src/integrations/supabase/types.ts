@@ -7734,6 +7734,7 @@ export type Database = {
         Returns: boolean
       }
       delete_resident: { Args: { _id: string }; Returns: undefined }
+      document_letterhead: { Args: never; Returns: Json }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }

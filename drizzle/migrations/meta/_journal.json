@@ -155,6 +155,13 @@
       "when": 1794467810718,
       "tag": "0021_finance_office_payroll_archive",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1795011425010,
+      "tag": "0022_restrict_document_profile_reads",
+      "breakpoints": true
     }
   ]
 }
