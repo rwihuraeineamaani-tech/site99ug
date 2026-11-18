@@ -58,7 +58,7 @@ export default function PortalPage({
         }
       />
 
-      {client && <PushPromptBanner userId={userId} />}
+      {client && <PushPromptBanner userId={userId} audience="client" />}
       {client && (
         <nav className="no-scrollbar -mx-3 -mt-2 mb-6 flex overflow-x-auto px-3 pb-2 sm:mx-0 sm:-mt-4 sm:mb-8 sm:flex-wrap sm:px-0">
           {TABS.map((t) => (

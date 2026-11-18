@@ -66,7 +66,7 @@ async function serviceWorkerFor(config: PushConfig) {
   return navigator.serviceWorker.register(`/firebase-messaging-sw.js?${query}`);
 }
 
-export async function registerPush(userId: string): Promise<PushStatus> {
+export async function registerPush(_userId: string): Promise<PushStatus> {
   const unavailable = await pushEnvironmentStatus();
   if (unavailable) return unavailable;
   const config = (await pushConfig())!;
@@ -79,16 +79,14 @@ export async function registerPush(userId: string): Promise<PushStatus> {
   const token = await getToken(messaging, { vapidKey: config.vapidKey, serviceWorkerRegistration: registration });
   if (!token) return "disabled";
   const label = [navigator.platform, navigator.userAgent.includes("Mobile") ? "Mobile" : "Browser"].filter(Boolean).join(" · ");
-  const { error } = await supabase.from("push_devices").upsert({
-    user_id: userId,
-    token,
-    device_label: label || "This device",
-    platform: navigator.platform || null,
-    user_agent: navigator.userAgent,
-    active: true,
-    last_seen_at: new Date().toISOString(),
-  }, { onConflict: "token" });
-  if (error) throw error;
+  // Server-side so a device last used by someone else moves to whoever is signed in now.
+  const { error } = await supabase.rpc("register_push_device", {
+    _token: token,
+    _label: label || "This device",
+    _platform: navigator.platform || "",
+    _user_agent: navigator.userAgent,
+  });
+  if (error) throw new Error("Notifications could not be turned on for this device. Please try again.");
   return "enabled";
 }
 

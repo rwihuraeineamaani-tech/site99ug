@@ -8095,6 +8095,15 @@ export type Database = {
         }
         Returns: string
       }
+      register_push_device: {
+        Args: {
+          _label: string
+          _platform: string
+          _token: string
+          _user_agent: string
+        }
+        Returns: undefined
+      }
       release_production_funds: {
         Args: { _charge: number; _from: string; _id: string; _tid: string }
         Returns: undefined

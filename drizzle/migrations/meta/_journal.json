@@ -162,6 +162,13 @@
       "when": 1795011425010,
       "tag": "0022_restrict_document_profile_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795015884606,
+      "tag": "0023_register_push_device_rpc",
+      "breakpoints": true
     }
   ]
 }
