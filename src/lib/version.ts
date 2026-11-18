@@ -3,6 +3,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const RELEASES: Release[] = [
   {
+    version: "2.4.2",
+    date: "2026-11-18",
+    title: "Client notification prompt",
+    notes: [
+      "Clients now see their own reason to turn on notifications, about videos to review, shoot days, reports and invoices, instead of the staff message.",
+      "The notifications banner has a close button. Closing it hides it on that device for a week.",
+      "Turning on notifications works on a phone or computer that someone else used before. Alerts go to whoever is signed in now.",
+    ],
+  },
+  {
     version: "2.4.1",
     date: "2026-11-12",
     title: "Video numbers per platform",
