@@ -119,9 +119,11 @@ async function logo() {
   img.src = logoSrc;
   await img.decode();
   const c = document.createElement("canvas");
-  c.width = img.naturalWidth || 1;
-  c.height = img.naturalHeight || 1;
-  c.getContext("2d")?.drawImage(img, 0, 0);
+  // Shrink the logo before embedding, so PDFs stay small enough to send and open on a phone.
+  const scale = Math.min(1, 320 / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
+  c.width = Math.max(1, Math.round((img.naturalWidth || 1) * scale));
+  c.height = Math.max(1, Math.round((img.naturalHeight || 1) * scale));
+  c.getContext("2d")?.drawImage(img, 0, 0, c.width, c.height);
   logoCache = { data: c.toDataURL("image/png"), w: c.width, h: c.height };
   return logoCache;
 }
