@@ -4,6 +4,7 @@ import { usePortalClient } from "@/hooks/usePortalClient";
 import PortalPage, { PortalCard, PortalEmpty } from "@/components/portal/PortalPage";
 import { Money, StatusChip } from "@/components/system";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 type Contract = {
   id: string;
@@ -20,7 +21,7 @@ type Contract = {
 type Step = { id: string; title: string; status: string; due_on: string | null; note: string | null };
 
 const fmt = (d?: string | null) =>
-  d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—";
+  d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "not set";
 
 export default function PortalDocuments() {
   const { client, clientId, loading } = usePortalClient();
@@ -52,8 +53,8 @@ export default function PortalDocuments() {
     };
   }, [clientId]);
 
-  const openFile = async (path: string) => {
-    const { data, error } = await supabase.storage.from("resident-contracts").createSignedUrl(path, 120);
+  const openFile = async (path: string, download?: string) => {
+    const { data, error } = await supabase.storage.from("resident-contracts").createSignedUrl(path, 120, download ? { download } : undefined);
     if (error || !data) return toast.error("We could not open that file. Ask your Site 99 contact.");
     window.open(data.signedUrl, "_blank");
   };
@@ -88,10 +89,13 @@ export default function PortalDocuments() {
                       </>
                     ) : null}
                   </div>
-                  {c.file_path && (
-                    <button onClick={() => openFile(c.file_path!)} className="mt-2 text-xs text-signal underline">
-                      Open the document
-                    </button>
+                  {c.file_path ? (
+                    <div className="mt-2 flex gap-4">
+                      <button onClick={() => openFile(c.file_path!)} className="text-xs text-signal underline">View</button>
+                      <button onClick={() => openFile(c.file_path!, `${c.title.replace(/[^\w.-]+/g, "_")}.${c.file_path!.split(".").pop()}`)} className="text-xs text-signal underline">Download</button>
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-xs text-ink-faint">The signed copy has not been uploaded yet.</div>
                   )}
                 </li>
               ))}
@@ -99,6 +103,13 @@ export default function PortalDocuments() {
           )}
         </PortalCard>
 
+        <PortalCard title="Other documents">
+          <ul className="space-y-2 text-sm">
+            <li><Link to="/portal/money" className="text-signal underline">Invoices and receipts</Link> <span className="text-ink-faint">, download each as a PDF.</span></li>
+            <li><Link to="/portal/reports" className="text-signal underline">Monthly reports</Link> <span className="text-ink-faint">, the report file and a numbers PDF.</span></li>
+            <li><Link to="/portal/files" className="text-signal underline">Brand files</Link> <span className="text-ink-faint">, logos and photos you shared.</span></li>
+          </ul>
+        </PortalCard>
       </div>
     </PortalPage>
   );

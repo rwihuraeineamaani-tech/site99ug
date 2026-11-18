@@ -4,6 +4,7 @@ import { Download, FileText, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import MonthResults from "@/components/clientspace/MonthResults";
+import VideoNumbers from "@/components/clientspace/VideoNumbers";
 import { downloadMonthPdf, monthLabel, monthStart, openStorageFile, type MonthMetrics } from "@/lib/clientMonth";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,10 +25,9 @@ export default function ClientReports({ residentId, clientName, staff = false }:
   };
   useEffect(() => { load(); }, [residentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const months = staff
-    ? Array.from(new Set([monthStart(new Date()), ...reports.map((r) => r.month)])).sort().reverse()
-    : reports.map((r) => r.month);
-  useEffect(() => { if (!staff && months.length && !months.includes(month)) setMonth(months[0]); }, [reports]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Live numbers are always available, so clients see the current month and the last five even before a report is published.
+  const recent = Array.from({ length: 6 }, (_, i) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i); return monthStart(d); });
+  const months = Array.from(new Set([...recent, ...reports.map((r) => r.month)])).sort().reverse();
   const current = reports.find((r) => r.month === month) ?? null;
   useEffect(() => { setSummary(current?.summary ?? ""); setNums(null); }, [month, current?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -49,7 +49,6 @@ export default function ClientReports({ residentId, clientName, staff = false }:
     } catch (e) { toast.error(e instanceof Error ? e.message : "Could not save"); } finally { setBusy(false); }
   };
 
-  if (!staff && !reports.length) return <p className="text-sm text-ink-faint">Your first monthly report will appear here once your Handler publishes it.</p>;
 
   return (
     <div className="space-y-5">
@@ -71,6 +70,7 @@ export default function ClientReports({ residentId, clientName, staff = false }:
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="text-lg font-semibold">{monthLabel(month)}</div>
+            {!staff && !current && <p className="mt-1 text-sm text-ink-faint">Live numbers from our records. The written report appears here once your Handler publishes it.</p>}
             {!staff && current?.summary && <p className="mt-1 max-w-2xl whitespace-pre-line text-sm text-ink-soft">{current.summary}</p>}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -102,6 +102,7 @@ export default function ClientReports({ residentId, clientName, staff = false }:
         )}
 
         <div className="mt-5"><MonthResults residentId={residentId} month={month} onLoaded={(m, b) => setNums({ m, b })} /></div>
+        <div className="mt-5"><VideoNumbers residentId={residentId} month={month} /></div>
       </div>
     </div>
   );

@@ -1039,14 +1039,15 @@ export default function ContentPipeline() {
         waiting("With the handler to post.")
       );
 
-    if (s === "Posted") {
+    if (s === "Posted" || s === "Archived") {
+      const archived = s === "Archived";
       const due = editing.metrics_due_at;
       const ready = !!due && due <= new Date().toISOString().slice(0, 10);
       if (!(isFounder || isHandler)) return waiting(`Live. Numbers due ${due ?? "—"}.`);
       return (
         <div className={box}>
-          <div className="eyebrow text-ink-faint">Performance, due {due ?? "—"}</div>
-          {!ready && <p className="mt-1 text-xs text-ink-soft">You can fill these in early if you already have them.</p>}
+          <div className="eyebrow text-ink-faint">{archived ? "Performance, you can update these any time" : `Performance, due ${due ?? "not set"}`}</div>
+          {!archived && !ready && <p className="mt-1 text-xs text-ink-soft">You can fill these in early if you already have them.</p>}
           <PostedDayFix
             id={editing.id}
             postedAt={editing.posted_at}
@@ -1115,14 +1116,16 @@ export default function ContentPipeline() {
           <Button
             className="mt-3"
             disabled={busy || !metricNote.trim()}
-            onClick={() =>
-              advance("Archived", {
-                metrics: buildMetrics(metrics, metricNote),
-                metrics_filled_at: new Date().toISOString(),
-              })
-            }
+            onClick={async () => {
+              const values = { metrics: buildMetrics(metrics, metricNote), metrics_filled_at: new Date().toISOString() };
+              if (!archived) return advance("Archived", values);
+              setBusy(true);
+              const ok = await patch(editing.id, values);
+              setBusy(false);
+              if (ok) { toast.success("Numbers updated."); load(); }
+            }}
           >
-            Save numbers & archive
+            {archived ? "Update numbers" : "Save numbers & archive"}
           </Button>
           <AiRecommendations
             title={editing.title}

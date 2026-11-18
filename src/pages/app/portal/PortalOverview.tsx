@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePortalClient } from "@/hooks/usePortalClient";
 import PortalPage, { PortalCard, PortalEmpty } from "@/components/portal/PortalPage";
 import { Money, StatusChip } from "@/components/system";
+import MonthResults from "@/components/clientspace/MonthResults";
+import { monthStart } from "@/lib/clientMonth";
 
 type Step = { id: string; title: string; status: string; due_on: string | null; department: string | null };
 type Shoot = { id: string; shoot_date: string | null; call_time: string | null; location: string | null; status: string };
@@ -104,6 +106,15 @@ export default function PortalOverview() {
           <div className="text-sm text-ink-soft">Money you have put in, less what has been spent.</div>
         </PortalCard>
       </div>
+
+      {clientId && (
+        <div className="mt-6">
+          <PortalCard title="This month's results" hint="Live">
+            <MonthResults residentId={clientId} month={monthStart(new Date())} />
+            <Link to="/portal/reports" className="mt-3 inline-block text-sm text-signal">See every video's numbers and past months</Link>
+          </PortalCard>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <PortalCard title="Latest work">
