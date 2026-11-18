@@ -4,6 +4,7 @@ import "@xyflow/react/dist/style.css";
 import { supabase } from "@/integrations/supabase/client";
 import { usePortalClient } from "@/hooks/usePortalClient";
 import PortalPage, { PortalCard, PortalEmpty } from "@/components/portal/PortalPage";
+import { onThemeChange, readTheme, resolveTheme } from "@/lib/theme";
 import { NODE_TONE, goalProgress, loadClientActuals, metricLabel, monthOf, type Goal, type MapEdge, type MapNode } from "@/lib/strategy";
 
 type Map = { title: string; notes: string | null; nodes: MapNode[]; edges: MapEdge[]; approved_at: string | null };
@@ -14,6 +15,8 @@ export default function PortalStrategy() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [ready, setReady] = useState(false);
   const [actuals, setActuals] = useState<Record<string, number>>({});
+  const [mode, setMode] = useState(() => resolveTheme(readTheme()));
+  useEffect(() => onThemeChange((m) => setMode(resolveTheme(m))), []);
 
   useEffect(() => {
     if (!clientId) return;
@@ -50,7 +53,7 @@ export default function PortalStrategy() {
         ) : (
           <>
             <div className="h-[420px] overflow-hidden rounded-xl border border-hairline md:h-[520px]">
-              <ReactFlow nodes={nodes} edges={edges} fitView nodesDraggable={false} nodesConnectable={false} elementsSelectable={false} edgesFocusable={false} nodesFocusable={false} deleteKeyCode={null} proOptions={{ hideAttribution: true }}>
+              <ReactFlow key={`${nodes.length}-${mode}`} nodes={nodes} edges={edges} colorMode={mode} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.2} onInit={(rf) => requestAnimationFrame(() => rf.fitView({ padding: 0.15 }))} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false} edgesFocusable={false} nodesFocusable={false} deleteKeyCode={null} proOptions={{ hideAttribution: true }}>
                 <Background />
                 <Controls showInteractive={false} />
               </ReactFlow>
