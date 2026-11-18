@@ -119,7 +119,7 @@ export default function PortalDocuments() {
                       <button onClick={() => setOpen(r.doc)} className="press flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-hairline px-3 py-3 text-left hover:bg-paper-raised">
                         <r.icon className="h-5 w-5 shrink-0 text-signal" />
                         <span className="min-w-0 flex-1">
-                          <span className="flex flex-wrap items-center gap-2"><span className="truncate text-sm">{r.title}</span>{r.status && <StatusChip value={r.status} />}</span>
+                          <span className="flex flex-wrap items-center gap-2"><span className="text-sm">{r.title}</span>{r.status && <StatusChip value={r.status} />}</span>
                           <span className="mt-0.5 block text-xs text-ink-faint">{r.meta}</span>
                         </span>
                       </button>
